@@ -2,7 +2,9 @@
 
 提交范围：自写最小 Agent、五个模块各一道架构题、运行与设计说明、AI Prompt 和问题解决记录。提交后再逐步扩展为个人 Agent，不将未来设计计入当前功能。
 
-入口：[README](../README.md) · [架构答案](ARCHITECTURE_REVISIONS.md) · [AI 可见对话](ai-conversations/README.md) · [Prompt](AI_PROMPT_LOG.md) · [问题解决](PROBLEM_SOLVING.md)。
+入口：[README](../README.md) · [我的设计思路](AGENT_VISION.md) · [架构答案](ARCHITECTURE_REVISIONS.md) · [AI 可见对话](ai-conversations/README.md) · [Prompt](AI_PROMPT_LOG.md) · [问题解决](PROBLEM_SOLVING.md)。
+
+文档后续修订：前四题恢复完整初稿论证并补本人推敲，第五题直接比较协议；README以作者的公式和四层设计为主线。代码能力与下列验收结论不因此扩大。原标签 `submission-2026-10-21` 保留初次提交快照；当前文档维护过程见 [文档修订检查](acceptance/document-voice-20261021.json)。
 
 ## Vibe coding 要求对照
 
