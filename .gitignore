@@ -1,0 +1,27 @@
+.venv/
+__pycache__/
+.pytest_cache/
+build/
+dist/
+*.egg-info/
+.env
+.env.*
+agent-harness-credentials.json
+*.log
+/data/
+
+# 本机恢复记录与工具配置不属于公开提交材料。
+/.codex/
+/CLAUDE.md
+/task_plan.md
+/findings.md
+/progress.md
+/start.bat
+*.private.*
+*.bak
+*.sqlite3
+*.sqlite3-*
+*.db
+.idea/
+.vscode/
+.DS_Store

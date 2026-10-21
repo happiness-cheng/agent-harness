@@ -1,0 +1,23 @@
+{
+  "query_cap": 1,
+  "fetch_cap": 1,
+  "llm_requests": 0,
+  "search": {
+    "status": "unavailable",
+    "results": []
+  },
+  "read": {
+    "artifact_id": "328fe553-7605-4231-a576-5cee44ced858",
+    "source": "https://www.sqlite.org/faq.html",
+    "start": 3277,
+    "end": 5277,
+    "total_characters": 24428,
+    "truncated": true,
+    "sha256": "5a44f896a34a17d5b1282ebfa26982818cfe90d0ff9a60077eb2b6a11824eb3b",
+    "complete_fetch": true,
+    "returned_characters": 2000,
+    "ok": true
+  },
+  "query_requests": 1,
+  "fetch_requests": 1
+}

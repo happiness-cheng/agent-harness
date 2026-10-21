@@ -1,0 +1,47 @@
+{
+  "exit": 1,
+  "report": {
+    "network_calls": 0,
+    "temporary_directory": "C:\\Users\\<USER>\\AppData\\Local\\Temp\\agent-harness-review-9vekwh4c",
+    "session_budget": [
+      {
+        "input": "独立问题一",
+        "status": "completed",
+        "model_calls": 1,
+        "budget_id": "02fd9bf4-ea7b-4ec5-a520-ecafffa070a0",
+        "budget_used": 1,
+        "memory_records": 0
+      },
+      {
+        "input": "独立问题二",
+        "status": "completed",
+        "model_calls": 2,
+        "budget_id": "02fd9bf4-ea7b-4ec5-a520-ecafffa070a0",
+        "budget_used": 2,
+        "memory_records": 0
+      },
+      {
+        "input": "独立问题三",
+        "status": "partial",
+        "model_calls": 3,
+        "budget_id": "02fd9bf4-ea7b-4ec5-a520-ecafffa070a0",
+        "budget_used": 3,
+        "memory_records": 0
+      }
+    ],
+    "resume": {
+      "status": "partial",
+      "error": "budget_exhausted",
+      "model_calls": 3
+    },
+    "approved_action_repeated": {
+      "approved_count": 1,
+      "actual_count": 2,
+      "run_status": "completed"
+    },
+    "contract_checks": {
+      "new_task_can_continue_in_same_session": false,
+      "one_confirmed_action_writes_once": false
+    }
+  }
+}

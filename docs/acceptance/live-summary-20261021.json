@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-21 Asia/Shanghai",
+  "reports": [
+    "live-20261020.json",
+    "live-followup-20261020.json",
+    "live-continuity-20261020.json",
+    "live-research-search-20261021.json",
+    "live-research-gzip-20261021.json",
+    "live-research-continuation-20261021.json"
+  ],
+  "batch_requests": 32,
+  "batch_cap": 32,
+  "historical_deepseek_requests": 54,
+  "input_tokens": 72739,
+  "output_tokens": 13485,
+  "total_tokens": 86224,
+  "model_http_seconds": 81.045,
+  "billed_cost": "未获取实际账单，不估算缓存折扣",
+  "fresh_search_read_final_live_retest": "未最终通过；已有真实搜索结果续接取证通过",
+  "desktop_display_click": "未通过，系统关闭通知且用户未看到"
+}

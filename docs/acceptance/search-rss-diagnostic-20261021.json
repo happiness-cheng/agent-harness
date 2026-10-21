@@ -1,0 +1,25 @@
+{
+  "query_cap": 1,
+  "llm_requests": 0,
+  "endpoint": "https://www.bing.com/search",
+  "status": 200,
+  "content_type": "text/xml; charset=utf-8",
+  "size": 6732,
+  "results": [
+    {
+      "title": "在線漫畫、線上漫畫、免費漫畫 - 動漫戲說 (ACGN.cc)",
+      "url": "https://comic.acgn.cc/",
+      "summary": "提供免費在線漫畫、線上漫畫 (Comic) ~ 線上觀看!"
+    },
+    {
+      "title": "ACGNIP",
+      "url": "https://www.acgn.hk/",
+      "summary": "龍宇宙科技集團旗下宅文化ACGN網站，除了連載原創漫畫及小說作品之外，每日定時送上漫畫、動畫、小說等二次情報以及行業有趣新聞，亦會分享香港漫畫家生活點滴及香港本土文化的集體回憶。"
+    },
+    {
+      "title": "漫畫連載 - ACGNIP",
+      "url": "https://m.acgn.hk/list/",
+      "summary": "龍宇宙科技集團旗下宅文化ACGN網站，除了連載原創漫畫及小說作品之外，每日定時送上漫畫、動畫、小說等二次情報以及行業有趣新聞，亦會分享香港漫畫家生活點滴及香港本土文化的集體回憶。"
+    }
+  ]
+}

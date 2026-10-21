@@ -1,0 +1,10 @@
+{
+  "scope": "active root/docs Markdown plus project corrections; historical approved chats preserve original bytes and are excluded from link/fence correction",
+  "files": 39,
+  "local_links": 223,
+  "issues": [],
+  "historical_chat_byte_checks": {
+    "docs/ai-conversations/01-design.md": "e2a5fb3a10114f9e7870d6895d52b3acd67e39515076b33f32ba022af0aa5b09",
+    "docs/ai-conversations/02-architecture.md": "60a62f902c747f31835bbe86d735481ba7d87d380844ea7faf7b3d0eed76f10a"
+  }
+}

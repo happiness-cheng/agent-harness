@@ -1,0 +1,16 @@
+{
+  "environment": "C:\\Users\\<USER>\\AppData\\Local\\Temp\\agent-harness-clean-release-1_0i6im3",
+  "wheel": "C:\\Users\\<USER>\\Documents\\agent-harness\\dist\\final-20261021-reviewed\\agent_harness-0.1.0-py3-none-any.whl",
+  "install_exit": 0,
+  "smoke_exit": 0,
+  "smoke": {
+    "isolated_import": "C:\\Users\\<USER>\\AppData\\Local\\Temp\\agent-harness-clean-release-1_0i6im3\\Lib\\site-packages\\min_agent\\__init__.py",
+    "calculator": "0.3",
+    "html_extraction": true,
+    "application_tool_loop": true,
+    "cli_http": true,
+    "static_resources": true,
+    "live_calls": 0,
+    "source_tree_on_path": false
+  }
+}

@@ -1,0 +1,437 @@
+{
+  "started_at": "2026-10-20T14:43:35.656554+00:00",
+  "provider": "deepseek.responses",
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "max_requests": 32,
+  "max_output_tokens": 4096,
+  "cases": {
+    "calculator": {
+      "ok": true,
+      "status": "completed",
+      "answer": "工具返回的结果是：\n\n**0.1 + 0.2 = 0.3**\n\n计算器按十进制有效数字规则运算，结果直接给出 `0.3`。",
+      "requests": 2,
+      "seconds": 1.548
+    },
+    "checkpoint": {
+      "ok": true,
+      "status": "partial",
+      "checkpoint": {
+        "checkpoint_id": "8f3c8ec0-4849-4d83-97d8-a43d4b4c6c53",
+        "segment_id": "a84533e9-a724-484c-810d-766539a73361",
+        "budget_id": null,
+        "session_id": null,
+        "reason": "model_reserve",
+        "closing_status": "returned",
+        "closing_error": null,
+        "model_note": {
+          "achievements": [
+            "已明确本次合成任务需核对截止日期为2026-10-22的事项。",
+            "已确认目前仍有未核实内容，不能视为核对完成。",
+            "已确认本执行片段未进行任何保存，未改变业务事实或权限。",
+            "已到达软阈值，并使用预留的一次调用整理检查点信息。"
+          ],
+          "pending": [
+            "尚未完成对2026-10-22截止事项的逐项核对。",
+            "尚有未核实内容需要继续核实。",
+            "尚未对任何核对结果进行保存。",
+            "具体待核对事项清单、核实来源及核实结果在当前整理中不确定，需后续片段重新确认。"
+          ],
+          "blockers": [
+            "本执行片段已到软阈值，不能继续执行工具调用或请求工具。",
+            "用户尚未确认继续，因此不能另行分配新片段推进核对。",
+            "当前仅形成未核实的检查点整理，不能据此宣称任务完成或替代实际核对。",
+            "因未保存且无本次工具执行明细，无法确认已核实项的具体范围。"
+          ],
+          "next_steps": [
+            "向用户说明当前仅为检查点整理，未完成、未保存，等待用户确认是否继续。",
+            "用户确认继续后，另行分配新片段继续核对2026-10-22截止事项。",
+            "后续片段应优先识别并只读核实尚未核实的内容，避免重复已成功的写入；当前无已成功写入可重复。",
+            "核实完成后按权限和用户确认执行保存，并明确记录已核实与仍不确定的项。"
+          ]
+        },
+        "tool_results": [],
+        "history_length": 2,
+        "task_usage": {
+          "model_calls": 1,
+          "tool_calls": 0,
+          "by_purpose": {
+            "main": {
+              "model_calls": 1,
+              "tool_calls": 0
+            }
+          }
+        },
+        "segment_usage": {
+          "model_calls": 1,
+          "tool_calls": 0,
+          "by_purpose": {
+            "main": {
+              "model_calls": 1,
+              "tool_calls": 0
+            }
+          }
+        }
+      },
+      "requests": 1,
+      "seconds": 4.032
+    },
+    "compaction": {
+      "ok": true,
+      "summary": {
+        "facts": [
+          "甲的截止日期改为2026-10-22，不是2026-10-21。",
+          "乙的12.30元尚未支付。",
+          "尚未执行写操作。"
+        ],
+        "constraints": [
+          "不要删除原文。",
+          "保留用户纠正、否定与未支付状态。"
+        ],
+        "corrections": [
+          "甲截止日期应为2026-10-22，而不是2026-10-21。"
+        ],
+        "open_questions": [
+          "尚未执行写操作，相关写操作仍待处理。"
+        ],
+        "source_references": [
+          "用户消息：合成事实：甲的截止日期改为2026-10-22，不是2026-10-21；不要删除原文；乙的12.30元尚未支付。",
+          "助手消息：保留用户纠正、否定与未支付状态；尚未执行写操作。"
+        ]
+      },
+      "semantic_review": "pending",
+      "requests": 1,
+      "seconds": 2.398
+    },
+    "research": {
+      "ok": false,
+      "status": "partial",
+      "error": "budget_exhausted",
+      "evidence": null,
+      "read_requests": 1,
+      "semantic_review": "pending",
+      "requests": 5,
+      "seconds": 71.334
+    },
+    "application": {
+      "ok": true,
+      "status": "completed",
+      "todo_count": 1,
+      "answer": "已按确认范围执行完成，真实结果核对如下：\n\n**执行动作**\n- `todo.add`：新增待办“验收合成待办”，`due_date` 为空 → 返回 `changed` 成功，实际写入 ID `5c9abf30-35e8-5218-a937-d7619070b0d2`\n\n**结果核对**\n- 待办列表：仅 1 条记录，标题“验收合成待办”，状态 pending，截止日期为空，未逾期 ✅\n- 重复检查：执行前列表为空，执行后仍只有 1 条，无重复 ✅\n- 提醒：`reminder.list` 返回空，未调用 `reminder.add`，无任何提醒记录 ✅\n\n3 条完成标准均满足。如需后续设置截止日期或提醒（需明确具体时刻与时区），告诉我即可。",
+      "requests": 5,
+      "seconds": 6.387
+    }
+  },
+  "calls": [
+    {
+      "tools": [
+        "calculator"
+      ],
+      "request_bound": 2154,
+      "finish_reason": "tool_calls",
+      "call_names": [
+        "calculator"
+      ],
+      "seconds": 0.88
+    },
+    {
+      "tools": [
+        "calculator"
+      ],
+      "request_bound": 3056,
+      "finish_reason": "stop",
+      "call_names": [],
+      "seconds": 0.663
+    },
+    {
+      "tools": [],
+      "request_bound": 2021,
+      "finish_reason": "stop",
+      "call_names": [],
+      "seconds": 4.031
+    },
+    {
+      "tools": [],
+      "request_bound": 2279,
+      "finish_reason": "stop",
+      "call_names": [],
+      "seconds": 2.396
+    },
+    {
+      "tools": [
+        "search",
+        "read_webpage"
+      ],
+      "request_bound": 3614,
+      "finish_reason": "tool_calls",
+      "call_names": [
+        "search",
+        "search"
+      ],
+      "seconds": 1.147
+    },
+    {
+      "tools": [
+        "search",
+        "read_webpage"
+      ],
+      "request_bound": 8215,
+      "finish_reason": "tool_calls",
+      "call_names": [
+        "read_webpage",
+        "search"
+      ],
+      "seconds": 1.268
+    },
+    {
+      "tools": [
+        "search",
+        "read_webpage"
+      ],
+      "request_bound": 18487,
+      "finish_reason": "tool_calls",
+      "call_names": [
+        "read_webpage"
+      ],
+      "seconds": 1.228
+    },
+    {
+      "tools": [
+        "search",
+        "read_webpage"
+      ],
+      "request_bound": 24126,
+      "finish_reason": "tool_calls",
+      "call_names": [
+        "read_webpage",
+        "read_webpage"
+      ],
+      "seconds": 13.757
+    },
+    {
+      "tools": [
+        "search",
+        "read_webpage"
+      ],
+      "request_bound": 37904,
+      "finish_reason": "tool_calls",
+      "call_names": [
+        "read_webpage",
+        "read_webpage"
+      ],
+      "seconds": 2.514
+    },
+    {
+      "tools": [
+        "todo_list",
+        "todo_add",
+        "todo_update",
+        "todo_complete",
+        "todo_delete",
+        "calculator",
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal",
+        "read_artifact",
+        "recall_memory",
+        "read_skill",
+        "research"
+      ],
+      "request_bound": 12090,
+      "finish_reason": "tool_calls",
+      "call_names": [
+        "propose_goal"
+      ],
+      "seconds": 1.77
+    },
+    {
+      "tools": [
+        "todo_list",
+        "todo_add",
+        "todo_update",
+        "todo_complete",
+        "todo_delete",
+        "calculator",
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal",
+        "read_artifact",
+        "recall_memory",
+        "read_skill",
+        "research"
+      ],
+      "request_bound": 16125,
+      "finish_reason": "tool_calls",
+      "call_names": [
+        "todo_list"
+      ],
+      "seconds": 1.113
+    },
+    {
+      "tools": [
+        "todo_list",
+        "todo_add",
+        "todo_update",
+        "todo_complete",
+        "todo_delete",
+        "calculator",
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal",
+        "read_artifact",
+        "recall_memory",
+        "read_skill",
+        "research"
+      ],
+      "request_bound": 17213,
+      "finish_reason": "tool_calls",
+      "call_names": [
+        "todo_add"
+      ],
+      "seconds": 0.781
+    },
+    {
+      "tools": [
+        "todo_list",
+        "todo_add",
+        "todo_update",
+        "todo_complete",
+        "todo_delete",
+        "calculator",
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal",
+        "read_artifact",
+        "recall_memory",
+        "read_skill",
+        "research"
+      ],
+      "request_bound": 18362,
+      "finish_reason": "tool_calls",
+      "call_names": [
+        "todo_list",
+        "reminder_list"
+      ],
+      "seconds": 0.889
+    },
+    {
+      "tools": [
+        "todo_list",
+        "todo_add",
+        "todo_update",
+        "todo_complete",
+        "todo_delete",
+        "calculator",
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal",
+        "read_artifact",
+        "recall_memory",
+        "read_skill",
+        "research"
+      ],
+      "request_bound": 19909,
+      "finish_reason": "stop",
+      "call_names": [],
+      "seconds": 1.485
+    }
+  ],
+  "requests": 14,
+  "usage": [
+    {
+      "request": 1,
+      "input_tokens": 499,
+      "output_tokens": 66,
+      "total_tokens": 565
+    },
+    {
+      "request": 2,
+      "input_tokens": 590,
+      "output_tokens": 39,
+      "total_tokens": 629
+    },
+    {
+      "request": 3,
+      "input_tokens": 189,
+      "output_tokens": 639,
+      "total_tokens": 828
+    },
+    {
+      "request": 4,
+      "input_tokens": 282,
+      "output_tokens": 406,
+      "total_tokens": 688
+    },
+    {
+      "request": 5,
+      "input_tokens": 844,
+      "output_tokens": 95,
+      "total_tokens": 939
+    },
+    {
+      "request": 6,
+      "input_tokens": 1663,
+      "output_tokens": 148,
+      "total_tokens": 1811
+    },
+    {
+      "request": 7,
+      "input_tokens": 3727,
+      "output_tokens": 174,
+      "total_tokens": 3901
+    },
+    {
+      "request": 8,
+      "input_tokens": 4883,
+      "output_tokens": 3158,
+      "total_tokens": 8041
+    },
+    {
+      "request": 9,
+      "input_tokens": 8418,
+      "output_tokens": 353,
+      "total_tokens": 8771
+    },
+    {
+      "request": 10,
+      "input_tokens": 3001,
+      "output_tokens": 299,
+      "total_tokens": 3300
+    },
+    {
+      "request": 11,
+      "input_tokens": 3732,
+      "output_tokens": 87,
+      "total_tokens": 3819
+    },
+    {
+      "request": 12,
+      "input_tokens": 3842,
+      "output_tokens": 67,
+      "total_tokens": 3909
+    },
+    {
+      "request": 13,
+      "input_tokens": 4018,
+      "output_tokens": 48,
+      "total_tokens": 4066
+    },
+    {
+      "request": 14,
+      "input_tokens": 4201,
+      "output_tokens": 186,
+      "total_tokens": 4387
+    }
+  ],
+  "finished_at": "2026-10-20T14:45:01.478511+00:00"
+}

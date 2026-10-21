@@ -1,0 +1,73 @@
+{
+  "test": {
+    "command": ".venv/Scripts/python.exe -X utf8 -m pytest -q --tb=short",
+    "exit_code": 0,
+    "passed": 901,
+    "deselected": 3,
+    "warnings": 1,
+    "duration_seconds": 29.36
+  },
+  "dependencies": {
+    "command": ".venv/Scripts/python.exe -X utf8 -m pip check",
+    "exit_code": 0,
+    "output": "No broken requirements found."
+  },
+  "syntax": {
+    "command": ".venv/Scripts/python.exe -X utf8 -m compileall -q src tests scripts",
+    "exit_code": 0
+  },
+  "type": "SKIP: not configured",
+  "lint": "SKIP: not configured",
+  "source_diff": {
+    "method": "SHA256 against saved baseline, not git diff",
+    "changed": [
+      "src\\min_agent\\application.py",
+      "src\\min_agent\\memory.py",
+      "src\\min_agent\\operations.py",
+      "src\\min_agent\\research.py",
+      "src\\min_agent\\runtime.py",
+      "src\\min_agent\\sessions.py",
+      "src\\min_agent\\task_state.py",
+      "src\\min_agent\\trace.py",
+      "src\\min_agent\\web\\app.py",
+      "tests\\integration\\test_authorized_todo.py",
+      "tests\\scenarios\\test_intent_contract.py"
+    ],
+    "added": [
+      "tests\\integration\\test_confirmed_action_instances.py",
+      "tests\\integration\\test_logical_task_budgets.py",
+      "tests\\integration\\test_research_traces.py",
+      "tests\\integration\\test_turn_archives.py"
+    ],
+    "missing": [],
+    "pyproject_unchanged": true,
+    "existing_databases_unchanged": true
+  },
+  "security": {
+    "scope": "src text: common key patterns, eval/exec, single-line subprocess shell=True, verify=False; not full security proof",
+    "hits": {
+      "possible_key": [],
+      "dangerous_execution": [],
+      "tls_bypass": []
+    }
+  },
+  "wheel": {
+    "resources": 51,
+    "python_modules": 43,
+    "byte_identical": true,
+    "sha256": "260f5fc2f45f6f09cae918e019cf1c268dc76fa3ce651cb5eef50cc7a0b0df5a",
+    "no_credentials_databases_logs_or_tests": true
+  },
+  "server": {
+    "live_mode": true,
+    "session_count": 1,
+    "running_tasks": 0,
+    "updated_trace_api_schema": true,
+    "static_resources_match_source": true,
+    "model_requests": 0,
+    "server_exec_session": 72013
+  },
+  "online_model_search_calls": 0,
+  "git_actions": 0,
+  "delegated_agents": 0
+}

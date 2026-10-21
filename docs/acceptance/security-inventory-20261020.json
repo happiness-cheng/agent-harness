@@ -1,0 +1,17 @@
+{
+  "scope": "src Python限定静态扫描及项目敏感文件名核对；不是完整漏洞审计",
+  "issues": [],
+  "credential_files_in_source": [],
+  "original_handoff_sha256": {
+    "findings.md": "5f0e2e791daa22189c0beec406f8f97723c2577692992a26732d73e4753e3272",
+    "HANDOFF.md": "fe5a3cb7e4ef7adc2ea5fcc056bd1be00029712ed9b4fe0b345287d3abe1ef6b",
+    "progress.md": "0b82f903ec8a692d6ec9ad2a371ce0219bc6884467b4dcf823e79a2a057354fa",
+    "STEPS.md": "032c96f99214707c63a477f4370d1e6ea75c6d05e44a9d82a7050f259bb0c7c0",
+    "task_plan.md": "ab936a34fdc11675f937219cc6aee2480a78e77e402f0a3f3168647eae94193c"
+  },
+  "formal_database_sha256": "5a8730076c956fe74604a64941e7cedfcdd4568a6b57b6c05675f209e02583a5",
+  "removed_user_files": "未执行删除；本轮没有可读取的完整初始哈希基线，不冒称全量差异哈希已一致",
+  "git_operations": false,
+  "delegation": false,
+  "schema_migrations": false
+}

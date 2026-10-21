@@ -1,0 +1,27 @@
+{
+  "llm_requests": 0,
+  "query_cap": 3,
+  "queries": [
+    {
+      "backend": "google",
+      "status": "failed",
+      "error_type": "DDGSException",
+      "empty": true,
+      "seconds": 0.538
+    },
+    {
+      "backend": "yahoo",
+      "status": "failed",
+      "error_type": "DDGSException",
+      "empty": true,
+      "seconds": 10.01
+    },
+    {
+      "backend": "brave",
+      "status": "failed",
+      "error_type": "DDGSException",
+      "empty": true,
+      "seconds": 1.036
+    }
+  ]
+}

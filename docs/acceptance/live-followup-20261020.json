@@ -1,0 +1,347 @@
+{
+  "previous_requests": 14,
+  "batch_cap": 32,
+  "remaining_cap": 18,
+  "cases": {
+    "research_after_reserve_fix": {
+      "ok": true,
+      "status": "completed",
+      "evidence": {
+        "conclusion": "不能。对同一 SQLite 数据库，任一时刻只能有一个写者；官方 FAQ 写明，同一时刻只有一个进程能修改该数据库。",
+        "citations": [
+          {
+            "url": "https://www.sqlite.org/faq.html",
+            "artifact_id": "e088942c-844a-407d-a8c6-e343f968cdeb",
+            "start": 3533,
+            "end": 3609,
+            "quote": "only one process can be making changes to the database at any moment in time",
+            "offset_normalized": false
+          }
+        ],
+        "limitations": [
+          "公开搜索接口返回 unavailable，未能取得搜索结果列表；引文来自直接读取的 SQLite 官方 FAQ 页面。该段按“进程”表述，没有逐字区分“事务”，也未讨论 WAL 的并发细节。"
+        ],
+        "conflicts": [],
+        "uncertainties": [
+          "没有已读证据与该结论冲突；但这条引文本身没有具体说明 WAL 模式下的读者／写者数量，不能据此细化 WAL 的并发行为。"
+        ],
+        "next_queries": [
+          "如需单独核实 WAL：site:sqlite.org/wal.html \"one writer\""
+        ]
+      },
+      "error": null,
+      "read_requests": 1,
+      "semantic_review": "pending",
+      "requests": 3,
+      "seconds": 44.586
+    },
+    "compaction_no_invented_work": {
+      "ok": true,
+      "summary": {
+        "facts": [
+          "甲的截止日期是2026-10-22。",
+          "乙的12.30元尚未支付。",
+          "本任务仅核对，不要求写入。",
+          "没有待办事项。"
+        ],
+        "constraints": [
+          "不要删除原文。",
+          "仅核对，不要求写入。",
+          "没有待办事项。"
+        ],
+        "corrections": [
+          "甲的截止日期是2026-10-22，不是2026-10-21。"
+        ],
+        "open_questions": [],
+        "source_references": [
+          "用户消息"
+        ]
+      },
+      "semantic_review": "pending",
+      "requests": 1,
+      "seconds": 2.103
+    },
+    "application_reminder": {
+      "ok": true,
+      "status": "completed",
+      "reminders": [
+        {
+          "id": "1398a07c-9d6f-553b-b22d-3873e56ca1b6",
+          "title": "合成提醒验收",
+          "scheduled_at": "2026-10-21T09:00:00+08:00",
+          "time_zone": "Asia/Shanghai",
+          "todo_id": null,
+          "status": "active"
+        }
+      ],
+      "answer": "单次提醒已按已确认的提案范围创建，并通过实际查询核对。\n\n**创建结果（工具实际返回的记录）**\n- 提醒 ID：`1398a07c-9d6f-553b-b22d-3873e56ca1b6`\n- 标题：合成提醒验收\n- 触发时刻：2026-10-21T09:00:00+08:00\n- 时区：Asia/Shanghai\n- 关联待办：无（todo_id 为 null）\n- 状态：active（未触发）\n\n**核对情况**\n- 从提醒列表查询后只返回这一条记录：其 ID、标题、时刻、时区、todo_id、状态与上述创建结果一致。\n- 我没有改动任何现有待办或提醒，未涉及待办操作。\n- 本次只做了一条新增，没有其他副作用。\n\n如果你之后想改时间或取消这条提醒，告诉我具体时刻或“取消”，我再执行。",
+      "requests": 4,
+      "seconds": 6.778
+    }
+  },
+  "calls": [
+    {
+      "tools": [
+        "search",
+        "read_webpage"
+      ],
+      "request_bound": 3683,
+      "tool_results": [],
+      "finish_reason": "tool_calls",
+      "calls": [
+        {
+          "name": "search",
+          "arguments": {
+            "query": "site:sqlite.org one writer at a time multiple write transactions same database"
+          }
+        }
+      ],
+      "seconds": 1.366
+    },
+    {
+      "tools": [
+        "search",
+        "read_webpage"
+      ],
+      "request_bound": 5020,
+      "tool_results": [
+        "{\"ok\": true, \"result\": \"{\\\"status\\\": \\\"unavailable\\\", \\\"results\\\": []}\"}"
+      ],
+      "finish_reason": "tool_calls",
+      "calls": [
+        {
+          "name": "read_webpage",
+          "arguments": {
+            "url": "https://www.sqlite.org/faq.html",
+            "question": "Can multiple applications or connections write to the same SQLite database at the same time, or only one writer at a time?",
+            "max_chars": 8000
+          }
+        }
+      ],
+      "seconds": 4.19
+    },
+    {
+      "tools": [
+        "search",
+        "read_webpage"
+      ],
+      "request_bound": 11263,
+      "tool_results": [
+        "{\"ok\": true, \"result\": \"{\\\"status\\\": \\\"unavailable\\\", \\\"results\\\": []}\"}",
+        "{\"ok\": true, \"result\": \"{\\\"artifact_id\\\": \\\"e088942c-844a-407d-a8c6-e343f968cdeb\\\", \\\"source\\\": \\\"https://www.sqlite.org/faq.html\\\", \\\"start\\\": 3401, \\\"end\\\": 5401, \\\"text\\\": \\\"Multiple processes can have the same database open at the same time. Multiple processes can be doing a SELECT at the same time. But only one process can be making changes to the database at any moment in time, however.\\\\nSQLite uses reader/writer locks to control access to the database. (Under Win95/98/ME which lacks support for reader/writer locks, a probabilistic simulation is used instead.) But use caution: this lock"
+      ],
+      "finish_reason": "stop",
+      "calls": [],
+      "seconds": 13.648
+    },
+    {
+      "tools": [],
+      "request_bound": 2266,
+      "tool_results": [],
+      "finish_reason": "stop",
+      "calls": [],
+      "seconds": 2.1
+    },
+    {
+      "tools": [
+        "todo_list",
+        "todo_add",
+        "todo_update",
+        "todo_complete",
+        "todo_delete",
+        "calculator",
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal",
+        "read_artifact",
+        "recall_memory",
+        "read_skill",
+        "research"
+      ],
+      "request_bound": 12273,
+      "tool_results": [],
+      "finish_reason": "tool_calls",
+      "calls": [
+        {
+          "name": "propose_goal",
+          "arguments": {
+            "objective": "创建单次提醒“合成提醒验收”，触发时刻为 2026-10-21T09:00:00+08:00，时区 Asia/Shanghai，不关联任何待办。",
+            "constraints": [
+              "仅在用户在应用中定向确认该提案范围后才执行创建",
+              "时刻必须为完整的 2026-10-21T09:00:00+08:00，不默认或推测其他时间",
+              "时区固定为 Asia/Shanghai",
+              "todo_id 保持为空，不关联待办",
+              "不改动任何现有待办或提醒"
+            ],
+            "completion_criteria": [
+              "用户已在应用中确认该提案范围",
+              "按确认范围创建一条单次提醒，标题为“合成提醒验收”，时刻 2026-10-21T09:00:00+08:00，时区 Asia/Shanghai，无关联 todo",
+              "以工具实际返回的提醒记录作为创建成功的依据"
+            ],
+            "actions": [
+              {
+                "operation": "reminder.add",
+                "parameters": {
+                  "title": "合成提醒验收",
+                  "scheduled_at": "2026-10-21T09:00:00+08:00",
+                  "time_zone": "Asia/Shanghai",
+                  "todo_id": null
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "seconds": 2.343
+    },
+    {
+      "tools": [
+        "todo_list",
+        "todo_add",
+        "todo_update",
+        "todo_complete",
+        "todo_delete",
+        "calculator",
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal",
+        "read_artifact",
+        "recall_memory",
+        "read_skill",
+        "research"
+      ],
+      "request_bound": 17970,
+      "tool_results": [
+        "{\"ok\": true, \"result\": \"{\\\"proposal_id\\\":\\\"feb25892-849b-406c-9b31-64c8944f9024\\\",\\\"goal\\\":{\\\"objective\\\":\\\"创建单次提醒“合成提醒验收”，触发时刻为 2026-10-21T09:00:00+08:00，时区 Asia/Shanghai，不关联任何待办。\\\",\\\"constraints\\\":[\\\"仅在用户在应用中定向确认该提案范围后才执行创建\\\",\\\"时刻必须为完整的 2026-10-21T09:00:00+08:00，不默认或推测其他时间\\\",\\\"时区固定为 Asia/Shanghai\\\",\\\"todo_id 保持为空，不关联待办\\\",\\\"不改动任何现有待办或提醒\\\"],\\\"completion_criteria\\\":[\\\"用户已在应用中确认该提案范围\\\",\\\"按确认范围创建一条单次提醒，标题为“合成提醒验收”，时刻 2026-10-21T09:00:00+08:00，时区 Asia/Shanghai，无关联 todo\\\",\\\"以工具实际返回的提醒记录作为创建成功的依据\\\"],\\\"actions\\\":[{\\\"operation\\\":\\\"reminder.add\\\",\\\"parameters\\\":{\\\"title\\\":\\\"合成提醒验收\\\",\\\"scheduled_at\\\":\\\""
+      ],
+      "finish_reason": "tool_calls",
+      "calls": [
+        {
+          "name": "reminder_add",
+          "arguments": {
+            "title": "合成提醒验收",
+            "scheduled_at": "2026-10-21T09:00:00+08:00",
+            "time_zone": "Asia/Shanghai",
+            "todo_id": null
+          }
+        }
+      ],
+      "seconds": 1.607
+    },
+    {
+      "tools": [
+        "todo_list",
+        "todo_add",
+        "todo_update",
+        "todo_complete",
+        "todo_delete",
+        "calculator",
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal",
+        "read_artifact",
+        "recall_memory",
+        "read_skill",
+        "research"
+      ],
+      "request_bound": 19795,
+      "tool_results": [
+        "{\"ok\": true, \"result\": \"{\\\"proposal_id\\\":\\\"feb25892-849b-406c-9b31-64c8944f9024\\\",\\\"goal\\\":{\\\"objective\\\":\\\"创建单次提醒“合成提醒验收”，触发时刻为 2026-10-21T09:00:00+08:00，时区 Asia/Shanghai，不关联任何待办。\\\",\\\"constraints\\\":[\\\"仅在用户在应用中定向确认该提案范围后才执行创建\\\",\\\"时刻必须为完整的 2026-10-21T09:00:00+08:00，不默认或推测其他时间\\\",\\\"时区固定为 Asia/Shanghai\\\",\\\"todo_id 保持为空，不关联待办\\\",\\\"不改动任何现有待办或提醒\\\"],\\\"completion_criteria\\\":[\\\"用户已在应用中确认该提案范围\\\",\\\"按确认范围创建一条单次提醒，标题为“合成提醒验收”，时刻 2026-10-21T09:00:00+08:00，时区 Asia/Shanghai，无关联 todo\\\",\\\"以工具实际返回的提醒记录作为创建成功的依据\\\"],\\\"actions\\\":[{\\\"operation\\\":\\\"reminder.add\\\",\\\"parameters\\\":{\\\"title\\\":\\\"合成提醒验收\\\",\\\"scheduled_at\\\":\\\"",
+        "{\"ok\": true, \"result\": \"{\\\"id\\\": \\\"1398a07c-9d6f-553b-b22d-3873e56ca1b6\\\", \\\"title\\\": \\\"合成提醒验收\\\", \\\"scheduled_at\\\": \\\"2026-10-21T09:00:00+08:00\\\", \\\"time_zone\\\": \\\"Asia/Shanghai\\\", \\\"todo_id\\\": null, \\\"status\\\": \\\"active\\\"}\"}"
+      ],
+      "finish_reason": "tool_calls",
+      "calls": [
+        {
+          "name": "reminder_list",
+          "arguments": {}
+        }
+      ],
+      "seconds": 0.958
+    },
+    {
+      "tools": [
+        "todo_list",
+        "todo_add",
+        "todo_update",
+        "todo_complete",
+        "todo_delete",
+        "calculator",
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal",
+        "read_artifact",
+        "recall_memory",
+        "read_skill",
+        "research"
+      ],
+      "request_bound": 20862,
+      "tool_results": [
+        "{\"ok\": true, \"result\": \"{\\\"id\\\": \\\"1398a07c-9d6f-553b-b22d-3873e56ca1b6\\\", \\\"title\\\": \\\"合成提醒验收\\\", \\\"scheduled_at\\\": \\\"2026-10-21T09:00:00+08:00\\\", \\\"time_zone\\\": \\\"Asia/Shanghai\\\", \\\"todo_id\\\": null, \\\"status\\\": \\\"active\\\"}\"}",
+        "{\"ok\": true, \"result\": \"[{\\\"id\\\": \\\"1398a07c-9d6f-553b-b22d-3873e56ca1b6\\\", \\\"title\\\": \\\"合成提醒验收\\\", \\\"scheduled_at\\\": \\\"2026-10-21T09:00:00+08:00\\\", \\\"time_zone\\\": \\\"Asia/Shanghai\\\", \\\"todo_id\\\": null, \\\"status\\\": \\\"active\\\"}]\"}"
+      ],
+      "finish_reason": "stop",
+      "calls": [],
+      "seconds": 1.423
+    }
+  ],
+  "requests": 8,
+  "combined_requests": 22,
+  "usage": [
+    {
+      "request": 1,
+      "input_tokens": 860,
+      "output_tokens": 119,
+      "total_tokens": 979
+    },
+    {
+      "request": 2,
+      "input_tokens": 1013,
+      "output_tokens": 643,
+      "total_tokens": 1656
+    },
+    {
+      "request": 3,
+      "input_tokens": 2204,
+      "output_tokens": 3003,
+      "total_tokens": 5207
+    },
+    {
+      "request": 4,
+      "input_tokens": 271,
+      "output_tokens": 321,
+      "total_tokens": 592
+    },
+    {
+      "request": 5,
+      "input_tokens": 3051,
+      "output_tokens": 491,
+      "total_tokens": 3542
+    },
+    {
+      "request": 6,
+      "input_tokens": 4206,
+      "output_tokens": 219,
+      "total_tokens": 4425
+    },
+    {
+      "request": 7,
+      "input_tokens": 4532,
+      "output_tokens": 28,
+      "total_tokens": 4560
+    },
+    {
+      "request": 8,
+      "input_tokens": 4668,
+      "output_tokens": 209,
+      "total_tokens": 4877
+    }
+  ]
+}

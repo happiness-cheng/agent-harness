@@ -1,0 +1,41 @@
+{
+  "scope": "完整文本模式检查+标题/来源/开头与架构第五题抽样；不是逐字隐私审阅",
+  "copied_to_project": true,
+  "published": false,
+  "approval": "2026-10-21 用户：批准复制这两份脱敏版本；仅本地收录，不提交或发布",
+  "files": [
+    {
+      "file": "01-需求与架构共创.md",
+      "sha256": "e2a5fb3a10114f9e7870d6895d52b3acd67e39515076b33f32ba022af0aa5b09",
+      "visible_messages": 75,
+      "pattern_matches": {
+        "possible_key": 0,
+        "email": 0,
+        "home_path": 0,
+        "phone": 0,
+        "ipv4": 0
+      },
+      "recruitment_text_present": true,
+      "share_url_present": false,
+      "project_file": "docs/ai-conversations/01-design.md",
+      "byte_identical_to_approved_preview": true
+    },
+    {
+      "file": "02-架构题推演.md",
+      "sha256": "60a62f902c747f31835bbe86d735481ba7d87d380844ea7faf7b3d0eed76f10a",
+      "visible_messages": 116,
+      "pattern_matches": {
+        "possible_key": 0,
+        "email": 0,
+        "home_path": 0,
+        "phone": 0,
+        "ipv4": 0
+      },
+      "recruitment_text_present": true,
+      "share_url_present": true,
+      "project_file": "docs/ai-conversations/02-architecture.md",
+      "byte_identical_to_approved_preview": true
+    }
+  ],
+  "approval_before_copy": "未取得对可见聊天入项目的定向批准"
+}

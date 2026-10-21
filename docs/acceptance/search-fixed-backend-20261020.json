@@ -1,0 +1,12 @@
+{
+  "backend": "duckduckgo",
+  "auto_fallback": false,
+  "query_cap": 1,
+  "llm_requests": 0,
+  "result": {
+    "status": "unavailable",
+    "error": "search_failed",
+    "results": []
+  },
+  "queries": 1
+}

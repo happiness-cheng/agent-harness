@@ -1,0 +1,95 @@
+{
+  "previous_requests": 30,
+  "batch_cap": 32,
+  "mode": "续接已实际获取的公开搜索结果；非全新搜索闭环",
+  "calls": [
+    {
+      "tools": [
+        "search",
+        "read_webpage"
+      ],
+      "finish_reason": "tool_calls",
+      "calls": [
+        {
+          "name": "read_webpage",
+          "arguments": {
+            "url": "https://www.python.org/",
+            "question": "What is the Python Software Foundation's mission? Quote exact wording.",
+            "max_chars": 6000
+          }
+        }
+      ],
+      "seconds": 1.171
+    },
+    {
+      "tools": [],
+      "finish_reason": "stop",
+      "calls": [],
+      "seconds": 5.213
+    }
+  ],
+  "existing_search_report": "search-guarded-20261021.json",
+  "read_urls": [
+    "https://www.python.org/"
+  ],
+  "semantic_review": "pending",
+  "requests": 2,
+  "combined_requests": 32,
+  "usage": [
+    {
+      "request": 1,
+      "input_tokens": 1253,
+      "output_tokens": 175,
+      "total_tokens": 1428
+    },
+    {
+      "request": 2,
+      "input_tokens": 1021,
+      "output_tokens": 1008,
+      "total_tokens": 2029
+    }
+  ],
+  "result": {
+    "status": "completed",
+    "evidence": {
+      "conclusion": "Python 官网首页明确写明，Python 软件基金会（PSF）的使命包括推广、保护和推进 Python 编程语言；本次已读原文可直接支持这一核心表述。",
+      "citations": [
+        {
+          "url": "https://www.python.org/",
+          "artifact_id": "a65d224b-8fd8-4528-8d55-806f8f213fe9",
+          "start": 1630,
+          "end": 1698,
+          "quote": "The mission of the Python Software Foundation is to promote, protect",
+          "offset_normalized": false
+        }
+      ],
+      "limitations": [
+        "仅依据 Python 官网首页的一段使命声明，未读取完整的“Learn more”页面或 PSF 章程。",
+        "所引片段未涵盖使命中关于支持多元化国际 Python 程序员社区的后半句。"
+      ],
+      "conflicts": [],
+      "uncertainties": [
+        "官网首页未注明该使命表述的版本或最近更新时间。"
+      ],
+      "next_queries": [
+        "Python Software Foundation mission official",
+        "site:python.org PSF mission diverse international community"
+      ]
+    },
+    "error": null
+  },
+  "selected_from_actual_search": true,
+  "query_requests": 0,
+  "fetch_requests": 1,
+  "budget": {
+    "model_calls": 2,
+    "tool_calls": 1,
+    "by_purpose": {
+      "research": {
+        "model_calls": 2,
+        "tool_calls": 1
+      }
+    }
+  },
+  "ok": true
+}

@@ -1,0 +1,193 @@
+{
+  "scope": "只公开已批准文件；历史本机路径脱敏，原始版本项目外保留；不是原始会话导出",
+  "hidden_reasoning_exported": false,
+  "chat_bodies_modified": false,
+  "path_redactions": [
+    {
+      "file": "docs/ACCEPTANCE.md",
+      "original_sha256": "277402628f3e6185f4eaa41bbd5f0452c4ce23f35561f3d08e6fc2080b00e312",
+      "public_sha256": "32d3b9cc451723a345acd76dd19e9cc78fe00635f810e102b3ded5978867d327",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/acceptance/clean-install-20261020.json",
+      "original_sha256": "0c69310d75678a32eb9e66d0bc1f44e77c31d6620aeb09d43a2e85fe7792ca65",
+      "public_sha256": "0e9dd2f7776ed0f531a5bacd28abc69d5c7e1a3396dedfb5780e9349255d839e",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/acceptance/clean-install-20261021.json",
+      "original_sha256": "f517275b5bb2ca82011381005c8a39b9a234fc46d861523c9435fc5d7429aba8",
+      "public_sha256": "5a33605bf53c979e0784f1a5728c230bb589336729e12e0e97ef53a99d1f518a",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/acceptance/clean-install-reviewed-20261021.json",
+      "original_sha256": "70f413d14b6201b9c3ac4baaae0ffb6a31a6361e8625c57a9532f0f66123a89c",
+      "public_sha256": "6e5be296befcd2c1d4d433aa0375ea409d77935fe92c2ee982a9a7e9001c587a",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S01.md",
+      "original_sha256": "51426feacdd9e234e3af36372236d0aec6d6cf050829a1f1554235a30ef029e2",
+      "public_sha256": "e39498c9212ce8faab9b58bc44c5d527c09f50f485ca79dffcb5319c47184b55",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S02.md",
+      "original_sha256": "8f30549584692e39ee22eadd5e0c26a8aca4ee52a085a381cba23ac36f2b9bc7",
+      "public_sha256": "a33d47ba9c9df5782acecfa5b7f2540c1efed1d6ee33f0aec4e5b33325d7e303",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S03.md",
+      "original_sha256": "7c7d8c948141f7871f9d1e2cf76e906f1ec4d1546c30419f83d817d6d95fecc6",
+      "public_sha256": "88fa0715cdacdd5d8a3c584446362ea9107247322bff2f18c4f7bb6237688191",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S04.md",
+      "original_sha256": "67b825c3db68a992d3167e75879b04892c8035211201e0047c16727dfc92a014",
+      "public_sha256": "34c0b3ae0060a6cff56665029d939ef83d1638cdbd465d47adf992ef36e5c9bd",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S05.md",
+      "original_sha256": "d5600ab9ea684efc3e9716a191e2afe144d13cbb776e9912b0c18cff21e471f4",
+      "public_sha256": "daa2c322692aec9c46604a1d2c49982643a8b70110c88e7c0fbc9e7c39f9bffc",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S06.md",
+      "original_sha256": "06dbe0d019c0bf4604155f5a4739585f875c6cf6d8e06010ebb717029e3af996",
+      "public_sha256": "7bfab37a827b75e696c5df2dcfe7b1c7404580a7c913f85558725d86ca4ceada",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S07.md",
+      "original_sha256": "6548cd184f397dbc6be45f477838e681ce3eab2b9049dca31f846602e0a7595c",
+      "public_sha256": "becd56cf3d2cafa18066495900f08db33edf23afe191d8d858b0e60ba6505448",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S08.md",
+      "original_sha256": "b46880fedb67e7b73a472ffd8f60b523f6038e2f9b7cbb30d1e15c166d0ffb56",
+      "public_sha256": "70a43b746acebf4224ccad71eca2475fee98227c0954df19230e5c1ebc7fc820",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S09.md",
+      "original_sha256": "78fd9fcffffcc23643b229305f839e934e68d0db090d1a5b285490e3562ee064",
+      "public_sha256": "2d91569a939a0cde70970fdd456ff3a1a2b5d54f4c6784ff58bedf1b37658232",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S10.md",
+      "original_sha256": "fe1af39fdb0e424b840df61977d75ba3c49e7b6ad91d2e56692e794f5c613b78",
+      "public_sha256": "87174086efa9e5183619e349beeb2f634ae665ae306154053d73e48e7f768e88",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S11.md",
+      "original_sha256": "bd12a1e288a3f561feae5d605deb137c3903a6ccdb150b56cc2c1c93a6092c8b",
+      "public_sha256": "5b0ef8c8ded60738f153c9bf8ffe11ac0b49f1a04071224c94a7623b7d2f046b",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S12.md",
+      "original_sha256": "f53faf851b763f9ec3aec23c1d0cb54ec5decada850cc1800d1718f577d96142",
+      "public_sha256": "d7bac0702eced93ce74b902914c361e5dffcb813771d5ef96acfdc69eecf1dfa",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S13.md",
+      "original_sha256": "081d203538d1782d5453068ac7a8859018e206f114f303af4508d7583fd35926",
+      "public_sha256": "c10697e3c0953461fad2b529179aaaeda2ba2a57b2cd4540783deff30e257629",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S14.md",
+      "original_sha256": "ce391f6d0568f33d35ec209eb3c91aa4bbc5f85e8c663373858a4b0d9e5024ab",
+      "public_sha256": "4ee5eec2262ac5e20201db8b474d5d3ac8503a944e19d632fb9edaba85617838",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S15-a.md",
+      "original_sha256": "54b1e099320973b85039589f7d18f545b859df23443a318f65f8024012343f75",
+      "public_sha256": "e573ebd153d5eb1a8d1b53a71b46fb60670f5229897e7bd2d8e9dd6ce496a352",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S15-b.md",
+      "original_sha256": "f8c0d28d8c17846d03d4f2924696c5113300a12266bba565775b1e6f22ade430",
+      "public_sha256": "0bc68e05395b2cb208b49f0042048b767d612fc51c4faf7a9ed1850b7a29a547",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S15-plan.md",
+      "original_sha256": "b993ff29307ffab56115996dbab78a49bfd02f4a42ef4d31b9f6a8edc611979c",
+      "public_sha256": "a5aa03d2c61767b695100d8cb49b8e5ef580ddb3689664e8626b2c8778bb2b5b",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S16-a.md",
+      "original_sha256": "91dbc255f7cc3b8854ffb7c36d1c9a96b4a5741263091e872bc5b60b649967d8",
+      "public_sha256": "383d3c24e0d4a595dbf596a3b7738c3bf09bed098b8163ee9dd6627369e1860a",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S16-b.md",
+      "original_sha256": "c201299669fc18613521d978105ef95ed06aafd464b1a526b8d521495374d900",
+      "public_sha256": "ed3058a49554ca91298b40fd891961e4829e42be54cc742c909dbbc7cab39871",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S17-a.md",
+      "original_sha256": "b0c13a2cf91e68d54e012aab677c5e459d406019e10f52b8bcaf36074c7ca63a",
+      "public_sha256": "ef0c32ea779b12475433b883d2281b01943296978ef89e261447205ff26a2c4e",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S17-b.md",
+      "original_sha256": "4294b35cbb36844474cd8c0dd3133204643df9be62444ab48a11852259a187a2",
+      "public_sha256": "3c09c8f1b22a9bdf3d89324c8f354ddfe6ea05d9a92a7923770e1f56916715fd",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/steps/S20-a.md",
+      "original_sha256": "5a2d35c3fc7144a132f7a62875f44ec0af7ffdeba1459c082b974d46e3437c04",
+      "public_sha256": "b9c74e1135cf3089347b624cba50914915c0a711ed32d06ae1757abf7724d216",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/acceptance/review-fixes-20261021/after-final.json",
+      "original_sha256": "54be55978cddab840d72d8dc70d4afafc0eaeb610e24d6b349c67f38788c0433",
+      "public_sha256": "bf7bb34b035f5118edde6eb8a75cca317a7a2fb0cdc487717063d6d4e2fc2a2b",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/acceptance/review-fixes-20261021/after-p1.json",
+      "original_sha256": "d29b561d96e782f55c72a20d3f6be554439f91ab9ea3bc5b162f2fb1f5817699",
+      "public_sha256": "6733cddbe942b7d9435395cd214596aca749c8cac5e0b3ae6277c07085da1996",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/acceptance/review-fixes-20261021/before.json",
+      "original_sha256": "e097b4e9418b2c660e4fa2120f8185586564b30e14ef02f0b0ed978254296735",
+      "public_sha256": "80e34f0acf3154e350da1f469de550ee16391a255b695272f7e76d60917d7abd",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/acceptance/review-fixes-20261021/clean-install.json",
+      "original_sha256": "ae9c4277d1fd2d501272ee57d286f09a6857c10527a09c5bb25c993fd4d090bf",
+      "public_sha256": "5f32a6c405b4286d0e91e5caf709b330385c9c00215e3cff0b91e116b890636a",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    },
+    {
+      "file": "docs/acceptance/review-fixes-20261021/installed-probe.json",
+      "original_sha256": "80a7afef4ddd5732dc027bb1088348cce65e779d0fc0fcd57b66a6104a15a394",
+      "public_sha256": "7b705e4fe5862981f22b2bb9a8f9e30de5e785d6eb7342d46a8834994e5f2f49",
+      "change": "本机用户目录脱敏；当前说明的少量链接另有整理，结果和失败状态保持"
+    }
+  ]
+}

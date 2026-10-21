@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-21",
+  "verdict": "READY_WITH_DISCLOSED_LIMITATIONS",
+  "scope": "暂存文件、原复现、离线回归及独立安装；不等于全面安全审计或全部实网验收",
+  "files_staged": 198,
+  "text_files_scanned_excluding_this_report": 195,
+  "local_links_checked": 206,
+  "errors": [],
+  "test": {
+    "passed": 901,
+    "deselected": 3,
+    "warnings": 1,
+    "seconds": 29.57,
+    "exit_code": 0
+  },
+  "original_probes_source_and_installed": {
+    "new_task_can_continue_in_same_session": true,
+    "one_confirmed_action_writes_once": true,
+    "completed_turn_archives": [
+      1,
+      2,
+      3
+    ],
+    "actual_writes_for_one_approval": 1
+  },
+  "independent_install": {
+    "install_exit": 0,
+    "smoke_exit": 0,
+    "checks": {
+      "calculator": "0.3",
+      "html_extraction": true,
+      "application_tool_loop": true,
+      "cli_http": true,
+      "static_resources": true,
+      "live_calls": 0,
+      "source_tree_on_path": false
+    }
+  },
+  "build": {
+    "wheel_sha256": "beb736309f7c0fac0f0e0a41878375938251ae0cd6d5d792b8e369f73182b196",
+    "resources_equal_staged_source": 51,
+    "exit_code": 0
+  },
+  "syntax_exit_code": 0,
+  "dependencies": "No broken requirements found",
+  "type": "SKIP: not configured",
+  "lint": "SKIP: not configured",
+  "startup_wrapper_help_exit_code": 0,
+  "diff": {
+    "exit_code": 0,
+    "crlf_accepted": true,
+    "approved_chat_whitespace_preserved": true
+  },
+  "approved_chat_sha256": {
+    "docs/ai-conversations/01-design.md": "e2a5fb3a10114f9e7870d6895d52b3acd67e39515076b33f32ba022af0aa5b09",
+    "docs/ai-conversations/02-architecture.md": "60a62f902c747f31835bbe86d735481ba7d87d380844ea7faf7b3d0eed76f10a"
+  },
+  "screenshots": "两张均已目视核对，为合成测试内容",
+  "new_live_model_or_search_calls": 0,
+  "limitations": [
+    "F03稳定前缀未实现",
+    "F06累计token/费用/时间门未实现",
+    "Windows显示及点击未验收",
+    "修正后全新连续实网研究复验缺口",
+    "OpenAI真实双模型比较暂缓"
+  ]
+}

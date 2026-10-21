@@ -1,0 +1,36 @@
+{
+  "endpoint": "https://www.bing.com/search",
+  "auto_fallback": false,
+  "query_cap": 1,
+  "llm_requests": 0,
+  "result": {
+    "status": "ok",
+    "results": [
+      {
+        "title": "中国 非 物质文化遗产网·中国 非 物质文化遗产数字博物馆",
+        "url": "https://www.ihchina.cn/&&&&",
+        "source": "www.ihchina.cn",
+        "summary": "传统工艺振兴计划 为落实党的十八届五中全会关于“构建中华优秀传统文化传承体系，加强文化遗产保护，振兴传统工艺”和《中华人民 …",
+        "published_at": null,
+        "retrieved_at": "2026-10-20T17:02:45.245382+00:00"
+      },
+      {
+        "title": "中国 非 物质文化遗产网·中国 非 物质文化遗产数字博物馆",
+        "url": "https://www.ihchina.cn/",
+        "source": "www.ihchina.cn",
+        "summary": "中国非物质文化遗产网·中国非物质文化遗产数字博物馆旨在利用数字化技术和网络平台展示、传播中国和世界非物质文化遗产的专业 …",
+        "published_at": null,
+        "retrieved_at": "2026-10-20T17:02:45.245403+00:00"
+      },
+      {
+        "title": "非 物質文化遺產辦事處 - Home",
+        "url": "https://www.icho.hk/tc/web/icho/home.html",
+        "source": "www.icho.hk",
+        "summary": "6 天前  · 「移動非遺」公眾活動 非遺進校園 2025至2027學年 「非遺進校園」計劃 資助活動 2026年10月至11月 獲資助公眾活動預告  …",
+        "published_at": null,
+        "retrieved_at": "2026-10-20T17:02:45.245414+00:00"
+      }
+    ]
+  },
+  "queries": 1
+}

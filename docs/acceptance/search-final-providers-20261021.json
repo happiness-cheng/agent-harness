@@ -1,0 +1,16 @@
+{
+  "query_cap": 2,
+  "llm_requests": 0,
+  "probes": [
+    {
+      "backend": "mojeek",
+      "error_type": "DDGSException",
+      "seconds": 10.778
+    },
+    {
+      "backend": "startpage",
+      "error_type": "DDGSException",
+      "seconds": 1.792
+    }
+  ]
+}

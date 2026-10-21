@@ -1,0 +1,45 @@
+{
+  "requests_cap": 3,
+  "requests": [
+    {
+      "backend": "bing-us",
+      "status": 200,
+      "title": "SQLite transaction - Search",
+      "size": 118051,
+      "sqlite_occurrences": 19,
+      "captcha": false,
+      "bing_titles": [
+        "《胡闹厨房2》风灵月影",
+        "修改器",
+        "-3DM单机 - 3DM下载",
+        "Overcooked! 2 ᐅ 8 模组、训练器与作弊工具 | PLITCH",
+        "Overcooked! 2 Cheats and Trainer for Steam"
+      ],
+      "ddg_titles": [],
+      "brave_titles": []
+    },
+    {
+      "backend": "brave",
+      "status": 429,
+      "title": "Brave Search",
+      "size": 73783,
+      "sqlite_occurrences": 0,
+      "captcha": true,
+      "bing_titles": [],
+      "ddg_titles": [],
+      "brave_titles": []
+    },
+    {
+      "backend": "duckduckgo",
+      "status": 202,
+      "title": "\n        DuckDuckGo\n    ",
+      "size": 14264,
+      "sqlite_occurrences": 2,
+      "captcha": true,
+      "bing_titles": [],
+      "ddg_titles": [],
+      "brave_titles": []
+    }
+  ],
+  "llm_requests": 0
+}

@@ -1,0 +1,43 @@
+{
+  "network_calls": 0,
+  "temporary_directory": "C:\\Users\\<USER>\\AppData\\Local\\Temp\\agent-harness-review-linozfgz",
+  "session_budget": [
+    {
+      "input": "独立问题一",
+      "status": "completed",
+      "model_calls": 1,
+      "budget_id": "33673e80-0d6c-4c2f-8619-d85bd24ea500",
+      "budget_used": 1,
+      "memory_records": 1
+    },
+    {
+      "input": "独立问题二",
+      "status": "completed",
+      "model_calls": 2,
+      "budget_id": "ceae8b61-b75a-4e88-8cad-6a9720175a74",
+      "budget_used": 1,
+      "memory_records": 2
+    },
+    {
+      "input": "独立问题三",
+      "status": "completed",
+      "model_calls": 3,
+      "budget_id": "a0977d3e-82c9-4dec-b581-fda6458d44ce",
+      "budget_used": 1,
+      "memory_records": 3
+    }
+  ],
+  "resume": {
+    "status": "not_needed",
+    "model_calls": 3
+  },
+  "approved_action_repeated": {
+    "approved_count": 1,
+    "actual_count": 1,
+    "run_status": "waiting_user"
+  },
+  "contract_checks": {
+    "new_task_can_continue_in_same_session": true,
+    "one_confirmed_action_writes_once": true
+  }
+}

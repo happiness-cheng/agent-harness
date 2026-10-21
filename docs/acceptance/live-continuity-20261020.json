@@ -1,0 +1,125 @@
+{
+  "previous_requests": 22,
+  "batch_cap": 32,
+  "calls": [
+    {
+      "tools": [],
+      "request_bound": 17103,
+      "finish_reason": "stop",
+      "call_names": [],
+      "seconds": 3.019
+    },
+    {
+      "tools": [
+        "calculator"
+      ],
+      "request_bound": 3387,
+      "finish_reason": "stop",
+      "call_names": [],
+      "seconds": 1.188
+    },
+    {
+      "tools": [
+        "calculator"
+      ],
+      "request_bound": 4660,
+      "finish_reason": "tool_calls",
+      "call_names": [
+        "calculator"
+      ],
+      "seconds": 0.926
+    },
+    {
+      "tools": [
+        "calculator"
+      ],
+      "request_bound": 5537,
+      "finish_reason": "stop",
+      "call_names": [],
+      "seconds": 1.047
+    }
+  ],
+  "semantic_review": "pending",
+  "requests": 4,
+  "combined_requests": 26,
+  "usage": [
+    {
+      "request": 1,
+      "input_tokens": 2411,
+      "output_tokens": 571,
+      "total_tokens": 2982
+    },
+    {
+      "request": 2,
+      "input_tokens": 716,
+      "output_tokens": 98,
+      "total_tokens": 814
+    },
+    {
+      "request": 3,
+      "input_tokens": 845,
+      "output_tokens": 53,
+      "total_tokens": 898
+    },
+    {
+      "request": 4,
+      "input_tokens": 923,
+      "output_tokens": 28,
+      "total_tokens": 951
+    }
+  ],
+  "dialogue": {
+    "status": "completed",
+    "answer": "- 甲的截止日期：2026-10-22  \n- 乙：12.30元尚未支付  \n- 不能删除原文  \n- 不需要创建待办，本任务只核对"
+  },
+  "tool_followup": {
+    "status": "completed",
+    "answer": "12.30 + 0.20 = 12.5；本次只核对金额，不付款、不创建待办。",
+    "results": [
+      "{\"ok\": true, \"result\": \"12.5\"}"
+    ]
+  },
+  "context": {
+    "version": 2,
+    "projections": {},
+    "summary": {
+      "facts": [
+        "甲截止日期为2026-10-22。",
+        "乙的12.30元尚未支付。"
+      ],
+      "constraints": [
+        "本任务仅核对，不创建待办。",
+        "不要删除原文。"
+      ],
+      "corrections": [
+        "甲截止日期由2026-10-21更正为2026-10-22。"
+      ],
+      "open_questions": [],
+      "source_references": [
+        "用户消息：甲截止日期2026-10-22，不是2026-10-21；乙的12.30元尚未支付；不要删除原文；本任务仅核对，不创建待办。",
+        "助手回复：已了解，仅核对，无需创建待办。"
+      ]
+    },
+    "covered": 2,
+    "covered_hashes": [
+      "b2a9f2e5e675b8ac52ee4e5efaf1b6d6a848e07b5548895ccfc0e090edf15b13",
+      "fa2514a07f145c26965545d2e673ef7d37ee38e9990caa6a1787cfd4d1bb6f9a"
+    ]
+  },
+  "budget": {
+    "model_calls": 4,
+    "tool_calls": 1,
+    "by_purpose": {
+      "main": {
+        "model_calls": 3,
+        "tool_calls": 1
+      },
+      "compaction": {
+        "model_calls": 1,
+        "tool_calls": 0
+      }
+    }
+  },
+  "raw_history_preserved": true,
+  "ok": true
+}

@@ -1,0 +1,10 @@
+{
+  "url": "http://127.0.0.1:8765",
+  "demo": false,
+  "sessions": 1,
+  "idle": true,
+  "static_source_match": true,
+  "agent_live_requests_on_healthcheck": 0,
+  "database": "data/workspace.sqlite3",
+  "database_integrity": "工作库和原库只读检查ok，仍仅两表/版本1"
+}

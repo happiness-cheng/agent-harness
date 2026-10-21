@@ -1,0 +1,24 @@
+{
+  "requests_cap": 2,
+  "requests": [
+    {
+      "url": "https://www.bing.com/search",
+      "status": 200,
+      "size": 121102,
+      "title": "SQLite concurrent write transactions - 搜尋",
+      "captcha": false,
+      "bing_results": 10,
+      "google_results": 0
+    },
+    {
+      "url": "https://www.google.com/search",
+      "status": 200,
+      "size": 92480,
+      "title": "Google Search",
+      "captcha": false,
+      "bing_results": 0,
+      "google_results": 0
+    }
+  ],
+  "llm_requests": 0
+}

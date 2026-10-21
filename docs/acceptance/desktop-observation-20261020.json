@@ -1,0 +1,12 @@
+{
+  "user_report": "没有看到通知",
+  "display_observed": false,
+  "click_observed": false,
+  "original_api_status": "accepted",
+  "native_setting": 2,
+  "native_setting_name": "DISABLED_FOR_USER",
+  "registry_ToastEnabled": 0,
+  "system_setting_modified": false,
+  "new_behavior": "发送前检测系统通知开关，关闭时记录disabled；会话事件仍可见且未读",
+  "acceptance": "blocked_by_system_setting"
+}

@@ -1,0 +1,13 @@
+{
+  "artifact_id": "5b103dc9-952c-4a3f-882e-22075d86f663",
+  "source": "https://www.python.org/",
+  "start": 1599,
+  "end": 1860,
+  "total_characters": 1860,
+  "truncated": true,
+  "sha256": "b3212428fdeec989676878f13447008c13b684d29d2b45c69cd9c40439d38e4f",
+  "complete_fetch": true,
+  "ok": true,
+  "returned_characters": 261,
+  "llm_requests": 0
+}
