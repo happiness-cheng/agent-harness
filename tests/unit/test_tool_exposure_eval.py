@@ -49,12 +49,12 @@ def test_existing_report_is_preserved_before_credentials(experiment, monkeypatch
     assert report.read_text(encoding="utf-8") == "保留已有结果"
 
 
-def install_model(main, monkeypatch, *, fail=False):
+def install_model(main, monkeypatch, *, fail=False, limit=8):
     sent = []
 
     def settings(path, **options):
         assert path == "OFFLINE_ONLY"
-        assert options["max_requests"] == 8
+        assert options["max_requests"] == limit
         return SimpleNamespace(**options)
 
     class Model:
@@ -108,3 +108,34 @@ def test_first_failure_is_saved_without_retry(experiment, monkeypatch):
     saved = json.loads(report.read_text(encoding="utf-8"))
     assert saved["requests"] == len(saved["records"]) == len(sent) == 1
     assert saved["records"][0]["error"] == "network_error"
+
+
+def test_knowledge_changes_only_reference_material_in_four_requests(experiment, monkeypatch, tmp_path):
+    main, args, report = experiment
+    material = tmp_path / "source.md"
+    material.write_text("class Checkpoint: pass", encoding="utf-8")
+    sent = install_model(main, monkeypatch, limit=4)
+    monkeypatch.setattr(sys, "argv", [*args, "--allow-live", "--factor", "knowledge",
+                                     "--knowledge-file", str(material)])
+    assert main() == 0
+    saved = json.loads(report.read_text(encoding="utf-8"))
+    assert saved["requests"] == saved["request_limit"] == len(sent) == 4
+    assert saved["knowledge_material"]["text"] == material.read_text(encoding="utf-8")
+    for messages, tools in sent:
+        assert len(tools) == 5
+        assert [message["role"] for message in messages] == ["system", "user", "user", "user"]
+        assert messages[:2] == sent[0][0][:2]
+        assert messages[-1] == sent[0][0][-1]
+    references = [json.loads(messages[2]["content"])["reference_material"] for messages, _ in sent]
+    assert references.count(None) == references.count("class Checkpoint: pass") == 2
+
+
+def test_knowledge_requires_material_before_credentials(experiment, monkeypatch, capsys):
+    main, args, report = experiment
+    monkeypatch.setitem(main.__globals__, "DeepSeekSettings", SimpleNamespace(from_credentials_file=forbidden))
+    monkeypatch.setattr(sys, "argv", [*args, "--allow-live", "--factor", "knowledge"])
+    with pytest.raises(SystemExit) as error:
+        main()
+    assert error.value.code == 2
+    assert "知识实验必须提供--knowledge-file" in capsys.readouterr().err
+    assert not report.exists()
