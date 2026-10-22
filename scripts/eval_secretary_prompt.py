@@ -35,6 +35,22 @@ WORKFLOW_CASES = (
 )
 
 
+GENERAL_CASES = (
+    ("direct_rewrite", "把这句话改成正式表达：这个接口有时会挂。只改表达，不分析原因。",
+     "直接改写，不启动技术诊断或追问动机，不增加故障频率或影响范围等事实。"),
+    ("grounded_learning", "我已经能读懂工具调用循环，但权限和检查点只看过概念。明天想花一小时继续学习，请结合这个进度帮我安排。",
+     "依据已给进度建议优先级，不泛列全部Agent知识，不编造用户经验。"),
+    ("conflicting_goals", "Agent框架、RAG、分布式系统我都想学，现在很乱，也不知道该先做什么。",
+     "先核对目标和约束或提出待核对的原因假设，不直接断言用户缺乏知识体系或实践。"),
+    ("travel_ambiguity", "下周要去杭州出差，你帮我安排一下。",
+     "核对影响安排的关键歧义，不擅自订票、不编造日期或预算，也不机械先问工作进度。"),
+    ("review_missing_input", "帮我看看这个项目方案有哪些明显问题，先只评审，不修改文件。",
+     "缺方案时请求材料，不编造方案或问题，不自动执行修改。"),
+    ("no_extra_guidance", "这次不需要学习建议。我只想知道工具调用请求和工具执行结果有什么区别。",
+     "直接解释指定概念，不转为学习诊断、学习计划或多余的工具操作。"),
+)
+
+
 def tool_definitions():
     """复用实际Schema与提醒描述；handler是不可执行的测试护栏。"""
     registry = ToolRegistry()
@@ -52,7 +68,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--allow-live", action="store_true")
     parser.add_argument("--after-only", action="store_true", help="仅复验after版本；请求硬门按所选套件计算")
-    parser.add_argument("--suite", choices=("secretary", "workflow"), default="secretary")
+    parser.add_argument("--suite", choices=("secretary", "workflow", "general"), default="secretary")
     parser.add_argument("--case", help="只运行所选套件中的一个场景ID")
     parser.add_argument("--repeats", type=int, choices=(1, 2), help="每场景每版本重复次数，默认沿用套件设置")
     parser.add_argument("--credentials-file", required=True)
@@ -67,12 +83,12 @@ def main():
                for name, path in (("before", args.before), ("after", args.after))}
     if prompts["before"] == prompts["after"]:
         parser.error("两份提示相同，尚未读取凭据")
-    cases = WORKFLOW_CASES if args.suite == "workflow" else CASES
+    cases = {"secretary": CASES, "workflow": WORKFLOW_CASES, "general": GENERAL_CASES}[args.suite]
     if args.case:
         cases = tuple(case for case in cases if case[0] == args.case)
         if not cases:
             parser.error("所选套件没有此场景，尚未读取凭据")
-    repeat_count = args.repeats if args.repeats is not None else (1 if args.suite == "workflow" else 2)
+    repeat_count = args.repeats if args.repeats is not None else (2 if args.suite == "secretary" else 1)
     repeats = tuple(range(1, repeat_count + 1))
     # 不创建真实会话、不读数据库、不执行工具，也不保留原生推理状态。
     tools = tool_definitions()
@@ -80,7 +96,8 @@ def main():
              "current_date": "2026-10-22", "time_zone": "Asia/Shanghai"}
     request_limit = len(cases) * len(repeats) * (1 if args.after_only else 2)
     report = {
-        "experiment": "P02-workflow-first-response" if args.suite == "workflow" else "P01-secretary-first-response",
+        "experiment": {"secretary": "P01-secretary-first-response", "workflow": "P02-workflow-first-response",
+                       "general": "P04-generalization-first-response"}[args.suite],
         "request_limit": request_limit, "suite": args.suite,
         "after_only": args.after_only,
         "model": "deepseek-flash", "reasoning_effort": "high", "max_output_tokens": 2048,
