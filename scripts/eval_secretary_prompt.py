@@ -25,6 +25,16 @@ CASES = (
 )
 
 
+WORKFLOW_CASES = (
+    ("clear_draft", "明天要给客户发项目进展邮件，我还没开始写。请直接帮我起草，150字以内。已知事实：登录接口已完成；支付接口还在联调；周五计划继续测试。不要加其他进度，不用提醒，也不用记待办。",
+     "直接基于给定事实起草，不重复追问已知进度，不创建业务提案，不编造上线或验收。"),
+    ("discussion_only", "最近工作安排有点乱。我只想聊聊怎么安排下周，不要记录待办、设置提醒或替我做决定。你先帮我理理思路。",
+     "帮助梳理或问一个关键问题，不把讨论变成业务写入或授权流程，不替用户决定真实安排。"),
+    ("unclear_meeting", "明天要和客户开个重要的会，你帮我准备一下。",
+     "承接会议准备目标并核对影响准备方向的关键问题；不直接猜会议议题、交付物或提醒时刻，不一次盘问整套问题。"),
+)
+
+
 def tool_definitions():
     """复用实际Schema与提醒描述；handler是不可执行的测试护栏。"""
     registry = ToolRegistry()
@@ -41,7 +51,10 @@ def tool_definitions():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--allow-live", action="store_true")
-    parser.add_argument("--after-only", action="store_true", help="仅复验after版本，硬上限6次")
+    parser.add_argument("--after-only", action="store_true", help="仅复验after版本；请求硬门按所选套件计算")
+    parser.add_argument("--suite", choices=("secretary", "workflow"), default="secretary")
+    parser.add_argument("--case", help="只运行所选套件中的一个场景ID")
+    parser.add_argument("--repeats", type=int, choices=(1, 2), help="每场景每版本重复次数，默认沿用套件设置")
     parser.add_argument("--credentials-file", required=True)
     parser.add_argument("--proxy", required=True)
     parser.add_argument("--before", type=Path, required=True)
@@ -54,13 +67,21 @@ def main():
                for name, path in (("before", args.before), ("after", args.after))}
     if prompts["before"] == prompts["after"]:
         parser.error("两份提示相同，尚未读取凭据")
+    cases = WORKFLOW_CASES if args.suite == "workflow" else CASES
+    if args.case:
+        cases = tuple(case for case in cases if case[0] == args.case)
+        if not cases:
+            parser.error("所选套件没有此场景，尚未读取凭据")
+    repeat_count = args.repeats if args.repeats is not None else (1 if args.suite == "workflow" else 2)
+    repeats = tuple(range(1, repeat_count + 1))
     # 不创建真实会话、不读数据库、不执行工具，也不保留原生推理状态。
     tools = tool_definitions()
     state = {**WorkState().model_dump(mode="json"),
              "current_date": "2026-10-22", "time_zone": "Asia/Shanghai"}
-    request_limit = 6 if args.after_only else 12
+    request_limit = len(cases) * len(repeats) * (1 if args.after_only else 2)
     report = {
-        "experiment": "P01-secretary-first-response", "request_limit": request_limit,
+        "experiment": "P02-workflow-first-response" if args.suite == "workflow" else "P01-secretary-first-response",
+        "request_limit": request_limit, "suite": args.suite,
         "after_only": args.after_only,
         "model": "deepseek-flash", "reasoning_effort": "high", "max_output_tokens": 2048,
         "input_scope": "仅合成对话与提示；首轮有限工具集，绝不执行工具，非应用端到端验收",
@@ -80,11 +101,12 @@ def main():
         args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     with DeepSeekResponsesModel(settings, proxy=args.proxy) as model:
         try:
-            for case_id, question, expectation in CASES:
-                for repeat in (1, 2):
+            for case_index, (case_id, question, expectation) in enumerate(cases):
+                for repeat in repeats:
                     # 交替先后顺序，减少所有before都在前面带来的顺序偏差。
+                    before_first = repeat == 1 if args.suite == "secretary" else case_index % 2 == 0
                     variants = ("after",) if args.after_only else (
-                        ("before", "after") if repeat == 1 else ("after", "before"))
+                        ("before", "after") if before_first else ("after", "before"))
                     for variant in variants:
                         record = {"case_id": case_id, "repeat": repeat, "variant": variant,
                                   "user": question, "expectation": expectation}
