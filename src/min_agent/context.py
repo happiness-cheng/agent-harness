@@ -2,9 +2,11 @@
 
 from hashlib import sha256
 import json
+from copy import deepcopy
 
 from min_agent.models import Message
-from min_agent.skills import project_skill_results, restored_skill_snapshots
+from min_agent.skills import latest_skill_snapshots, project_skill_results, restored_skill_snapshots
+from min_agent.skill_retention import managed_skill_context, normalize_selection, skill_history_projection
 
 
 class ContextLimit(RuntimeError):
@@ -19,12 +21,13 @@ def request_bound(messages, tools=None):
 
 class ContextManager:
     def __init__(self, sessions, context, artifacts, *, window=32768, output_reserve=4096,
-                 safety_margin=1024, compactor=None):
+                 safety_margin=1024, compactor=None, skill_selector=None):
         if any(type(value) is not int or value < 0 for value in (window, output_reserve, safety_margin)):
             raise ValueError("窗口预算必须为非负整数")
         self.sessions, self.context, self.artifacts = sessions, sessions.check_access(context), artifacts
         self.window, self.output_reserve, self.safety_margin = window, output_reserve, safety_margin
         self.compactor = compactor
+        self.skill_selector = skill_selector
 
     def prepare(self, messages, tools=None):
         with self.sessions.control(self.context):
@@ -57,10 +60,17 @@ class ContextManager:
         if state["covered"]:
             if hashes[:state["covered"]] != state["covered_hashes"]:
                 raise ContextLimit("上下文版本不匹配，停止而不重新摘要旧投影")
+        if state["covered"] or state.get("skill_retention"):
             visible = self._visible(stable, core, state)
         else:
             visible = projected
         if self._fits(visible, tools): return visible
+        # 先选择整份Skill，再整理普通历史；仅窗口有压力时触发。
+        state = self._prepare_skill_retention(core, state)
+        visible = self._visible(stable, core, state)
+        if self._fits(visible, tools):
+            self.sessions.set_extension(self.context, "context", state)
+            return visible
         if self.compactor is None: raise ContextLimit("上下文不足，需要压缩或分段")
         window_key = self.compactor.window_attempt(state, core, tools,
             (self.window, self.output_reserve, self.safety_margin))
@@ -84,11 +94,33 @@ class ContextManager:
         self.sessions.set_extension(self.context, "context", state)
         return visible
 
+    def _prepare_skill_retention(self, core, state):
+        candidates = [snapshot for _, snapshot in latest_skill_snapshots(core)]
+        if not candidates or self.skill_selector is None:
+            return state
+        user_positions = [index for index, message in enumerate(core) if message.role == "user"]
+        start = user_positions[-2] if len(user_positions) >= 2 else 0
+        task_context = {"previous_memory": state["summary"], "recent_messages": [
+            message.model_dump(mode="json", exclude={"provider_state"})
+            for message in skill_history_projection(core[start:])]}
+        try:
+            selection = self.skill_selector.select(candidates, task_context)
+        except ContextLimit:
+            raise
+        except Exception:
+            selection = None
+        candidate = deepcopy(state)
+        candidate["skill_retention"] = normalize_selection(selection, candidates)
+        return candidate
+
     def _visible(self, stable, core, state):
         visible = stable + [Message(role="user", content=json.dumps(
             {"untrusted_session_memory": state["summary"]}, ensure_ascii=False))]
-        visible += restored_skill_snapshots(core, state["covered"])
-        visible += core[state["covered"]:]
+        if state.get("skill_retention"):
+            visible += managed_skill_context(core, state["covered"], state["skill_retention"])
+        else:
+            visible += restored_skill_snapshots(core, state["covered"])
+            visible += core[state["covered"]:]
         return visible
 
     def _fits(self, messages, tools):

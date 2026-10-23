@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from min_agent.context import ContextLimit, request_bound
 from min_agent.memory import MemoryJournal
 from min_agent.models import Message, ModelResponse
+from min_agent.skill_retention import skill_history_projection
 
 
 class CompactionBlocked(ContextLimit):
@@ -80,7 +81,8 @@ class Compactor:
         return candidate
 
     def compact_history(self, state, messages, hashes, end):
-        source = {"previous_memory": state["summary"], "messages": [m.model_dump(mode="json") for m in messages]}
+        source = {"previous_memory": state["summary"],
+                  "messages": [m.model_dump(mode="json") for m in skill_history_projection(messages)]}
         summary = self._summarize(state, source, "history")
         MemoryJournal(self.sessions, self.context).archive(messages, json.dumps(summary, ensure_ascii=False), start=state["covered"])
         candidate = deepcopy(state)

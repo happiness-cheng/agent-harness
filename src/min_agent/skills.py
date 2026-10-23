@@ -76,10 +76,10 @@ class SkillCatalog:
         return path.read_text(encoding="utf-8")
 
 
-def restored_skill_snapshots(messages: list[Message], covered: int) -> list[Message]:
-    """从原历史恢复已被压缩的最近成功读取；不重读文件，不提升消息权限。"""
+def skill_read_snapshots(messages: list[Message]) -> list[tuple[int, dict]]:
+    """按读取顺序提取成功全文及来源；不信任用户声称已加载。"""
     calls = {}
-    latest = {}
+    reads = []
     for index, message in enumerate(messages):
         if message.role == "assistant":
             calls.update((call.id, call) for call in message.tool_calls)
@@ -96,11 +96,27 @@ def restored_skill_snapshots(messages: list[Message], covered: int) -> list[Mess
                 or not result["result"] or result.get("skill_status") == "already_loaded"):
             continue
         body = result["result"]
-        latest[name] = (index, {"name": name, "body": body,
+        reads.append((index, {"name": name, "body": body,
             "body_sha256": sha256(body.encode()).hexdigest(),
-            "source_tool_call_id": message.tool_call_id})
+            "source_tool_call_id": message.tool_call_id}))
+    return reads
+
+
+def latest_skill_snapshots(messages: list[Message]) -> list[tuple[int, dict]]:
+    latest = {}
+    for index, snapshot in skill_read_snapshots(messages):
+        latest[snapshot["name"]] = (index, snapshot)
+    return list(latest.values())
+
+
+def restored_skill_snapshots(messages: list[Message], covered: int) -> list[Message]:
+    """兼容未启用筛选的历史状态；从原历史恢复已被压缩的最近成功读取。"""
     # 最近一次全文仍在尾部时，直接使用真实工具结果，避免再放一份快照。
-    snapshots = [snapshot for index, snapshot in latest.values() if index < covered]
+    snapshots = [snapshot for index, snapshot in latest_skill_snapshots(messages) if index < covered]
+    return skill_snapshot_messages(snapshots)
+
+
+def skill_snapshot_messages(snapshots: list[dict]) -> list[Message]:
     if not snapshots:
         return []
     return [Message(role="user", content=json.dumps({
