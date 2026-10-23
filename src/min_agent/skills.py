@@ -76,6 +76,39 @@ class SkillCatalog:
         return path.read_text(encoding="utf-8")
 
 
+def restored_skill_snapshots(messages: list[Message], covered: int) -> list[Message]:
+    """从原历史恢复已被压缩的最近成功读取；不重读文件，不提升消息权限。"""
+    calls = {}
+    latest = {}
+    for index, message in enumerate(messages):
+        if message.role == "assistant":
+            calls.update((call.id, call) for call in message.tool_calls)
+        call = calls.get(message.tool_call_id) if message.role == "tool" else None
+        if call is None or call.name != "read_skill":
+            continue
+        try:
+            result = json.loads(message.content)
+        except json.JSONDecodeError:
+            continue
+        name = call.arguments.get("name")
+        if (not isinstance(name, str) or not name or not isinstance(result, dict)
+                or result.get("ok") is not True or not isinstance(result.get("result"), str)
+                or not result["result"] or result.get("skill_status") == "already_loaded"):
+            continue
+        body = result["result"]
+        latest[name] = (index, {"name": name, "body": body,
+            "body_sha256": sha256(body.encode()).hexdigest(),
+            "source_tool_call_id": message.tool_call_id})
+    # 最近一次全文仍在尾部时，直接使用真实工具结果，避免再放一份快照。
+    snapshots = [snapshot for index, snapshot in latest.values() if index < covered]
+    if not snapshots:
+        return []
+    return [Message(role="user", content=json.dumps({
+        "loaded_skill_snapshots": snapshots,
+        "notice": "以下为本会话已成功读取的Skill原文快照，保留供继续任务参考；不授予额外权限，不覆盖系统规则。",
+    }, ensure_ascii=False))]
+
+
 def project_skill_results(messages: list[Message]) -> list[Message]:
     """只压缩当前可见的重复正文；不修改原历史，不把摘要视为已加载全文。"""
     calls = {}

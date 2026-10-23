@@ -4,7 +4,7 @@ from hashlib import sha256
 import json
 
 from min_agent.models import Message
-from min_agent.skills import project_skill_results
+from min_agent.skills import project_skill_results, restored_skill_snapshots
 
 
 class ContextLimit(RuntimeError):
@@ -57,7 +57,7 @@ class ContextManager:
         if state["covered"]:
             if hashes[:state["covered"]] != state["covered_hashes"]:
                 raise ContextLimit("上下文版本不匹配，停止而不重新摘要旧投影")
-            visible = stable + [Message(role="user", content=json.dumps({"untrusted_session_memory": state["summary"]}, ensure_ascii=False))] + core[state["covered"]:]
+            visible = self._visible(stable, core, state)
         else:
             visible = projected
         if self._fits(visible, tools): return visible
@@ -67,7 +67,7 @@ class ContextManager:
         # 先整理现有记忆，再考虑较旧完整历史；原始消息始终保留。
         if state["summary"]:
             state = self.compactor.compact_memory(state)
-            visible = stable + [Message(role="user", content=json.dumps({"untrusted_session_memory": state["summary"]}, ensure_ascii=False))] + core[state["covered"]:]
+            visible = self._visible(stable, core, state)
             if self._fits(visible, tools):
                 self.sessions.set_extension(self.context, "context", state)
                 return visible
@@ -77,11 +77,18 @@ class ContextManager:
             raise ContextLimit("保留近期完整交互后仍无可压缩历史")
         end = boundaries[-2]
         state = self.compactor.compact_history(state, core[state["covered"]:end], hashes[:end], end)
-        visible = stable + [Message(role="user", content=json.dumps({"untrusted_session_memory": state["summary"]}, ensure_ascii=False))] + core[end:]
+        visible = self._visible(stable, core, state)
         if not self._fits(visible, tools):
             self.compactor.reject_window(window_key)
             raise ContextLimit("压缩后窗口仍不足")
         self.sessions.set_extension(self.context, "context", state)
+        return visible
+
+    def _visible(self, stable, core, state):
+        visible = stable + [Message(role="user", content=json.dumps(
+            {"untrusted_session_memory": state["summary"]}, ensure_ascii=False))]
+        visible += restored_skill_snapshots(core, state["covered"])
+        visible += core[state["covered"]:]
         return visible
 
     def _fits(self, messages, tools):

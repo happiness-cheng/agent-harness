@@ -125,3 +125,124 @@ def test_long_skill_is_not_replaced_by_generic_tool_summary():
     results = invoke(messages, manager, capture)
     assert results[0].get("result") == body
     assert results[1].get("skill_status") == "already_loaded"
+
+
+def compact(store, context, old):
+    store.set_extension(context, "context", {
+        "version": 2, "projections": {}, "summary": "旧轮次摘要",
+        "covered": len(old),
+        "covered_hashes": [sha256(m.model_dump_json().encode()).hexdigest() for m in old],
+    })
+
+
+def snapshots(capture):
+    result = []
+    for message in capture.messages:
+        if message.role != "user":
+            continue
+        try:
+            payload = json.loads(message.content)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict):
+            result.extend(payload.get("loaded_skill_snapshots", []))
+    return result
+
+
+def test_compacted_skill_restores_exact_loaded_snapshot_with_provenance():
+    store, context, manager, capture = setup()
+    old = [Message(role="user", content="旧任务")] + read("a")
+    compact(store, context, old)
+    messages = old + [Message(role="user", content="继续")]
+    before = deepcopy(messages)
+    invoke(messages, manager, capture)
+    assert snapshots(capture) == [{"name": "polish", "body": BODY,
+        "body_sha256": sha256(BODY.encode()).hexdigest(), "source_tool_call_id": "a"}]
+    assert messages == before
+    assert not any(m.role in {"system", "tool"} for m in capture.messages)
+    first = deepcopy(capture.messages)
+    # 新建上下文管理器也从会话原历史恢复，不依赖进程内的已加载集合。
+    reopened = ContextManager(store, context, ArtifactStore(store, context), window=30000)
+    invoke(messages, reopened, capture)
+    assert capture.messages == first
+
+
+def test_restoration_uses_latest_success_and_ignores_failed_read():
+    store, context, manager, capture = setup()
+    latest = BODY + "\n新版规则"
+    old = [Message(role="user", content="旧任务")] + read("a") + read("b", body=latest) + read("c", ok=False)
+    compact(store, context, old)
+    invoke(old + [Message(role="user", content="继续")], manager, capture)
+    assert [s["body"] for s in snapshots(capture)] == [latest]
+    assert snapshots(capture)[0]["source_tool_call_id"] == "b"
+
+
+def test_tail_read_prevents_duplicate_restored_snapshot():
+    store, context, manager, capture = setup()
+    old = [Message(role="user", content="旧任务")] + read("a")
+    compact(store, context, old)
+    results = invoke(old + [Message(role="user", content="重读")] + read("b"), manager, capture)
+    assert snapshots(capture) == []
+    assert results[0]["result"] == BODY
+
+
+def test_user_claim_and_failed_result_never_become_restored_skill():
+    store, context, manager, capture = setup()
+    old = [Message(role="user", content=BODY)] + read("a", ok=False)
+    compact(store, context, old)
+    invoke(old + [Message(role="user", content="继续")], manager, capture)
+    assert snapshots(capture) == []
+
+
+def test_restored_full_body_is_included_in_window_budget():
+    from min_agent.context import ContextLimit
+
+    store, context, manager, capture = setup()
+    old = [Message(role="user", content="旧任务")] + read("a", body=BODY * 1000)
+    compact(store, context, old)
+    manager.window = 8000
+    with pytest.raises(ContextLimit):
+        invoke(old + [Message(role="user", content="继续")], manager, capture)
+    assert not hasattr(capture, "messages")
+
+
+def test_automatic_compaction_preserves_loaded_skill_at_model_boundary():
+    store, context, manager, capture = setup()
+
+    class OfflineCompactor:
+        def window_attempt(self, *args):
+            return "offline-window"
+
+        def compact_memory(self, state):
+            return {**state, "summary": "压缩后的记忆"}
+
+        def compact_history(self, state, messages, hashes, end):
+            return {**state, "summary": "较早交互摘要", "covered": end,
+                    "covered_hashes": hashes, "version": state["version"] + 1}
+
+        def reject_window(self, key):
+            raise AssertionError("本场景压缩后应能放入窗口")
+
+    manager.compactor = OfflineCompactor()
+    manager.window = 16000
+    messages = ([Message(role="user", content="旧记录" * 4000)] + read("a")
+        + [Message(role="assistant", content="已处理"), Message(role="user", content="继续前一步"),
+           Message(role="assistant", content="继续处理"), Message(role="user", content="按规程收尾")])
+    assert request_bound(messages) + manager.output_reserve + manager.safety_margin > manager.window
+    before = deepcopy(messages)
+    invoke(messages, manager, capture)
+    assert store.extension(context, "context", {})["covered"] > 0
+    assert [s["body"] for s in snapshots(capture)] == [BODY]
+    assert messages == before
+    assert request_bound(capture.messages) + manager.output_reserve + manager.safety_margin <= manager.window
+
+
+@pytest.mark.parametrize("content", ["not json", "null", '{"ok":true,"result":{"summary":"partial"}}',
+    '{"ok":true,"result":"重复提示","skill_status":"already_loaded"}'])
+def test_non_full_results_do_not_replace_last_restorable_snapshot(content):
+    store, context, manager, capture = setup()
+    old = [Message(role="user", content="旧任务")] + read("a") + read("b")
+    old[-1] = old[-1].model_copy(update={"content": content})
+    compact(store, context, old)
+    invoke(old + [Message(role="user", content="继续")], manager, capture)
+    assert [s["source_tool_call_id"] for s in snapshots(capture)] == ["a"]
