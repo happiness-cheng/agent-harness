@@ -4,6 +4,7 @@ from hashlib import sha256
 import json
 
 from min_agent.models import Message
+from min_agent.skills import project_skill_results
 
 
 class ContextLimit(RuntimeError):
@@ -80,7 +81,7 @@ class ContextManager:
         return visible
 
     def _fits(self, messages, tools):
-        return request_bound(messages, tools) + self.output_reserve + self.safety_margin <= self.window
+        return request_bound(project_skill_results(messages), tools) + self.output_reserve + self.safety_margin <= self.window
 
 
 class ManagedModel:
@@ -91,7 +92,7 @@ class ManagedModel:
     def generate(self, messages, *, tools=None):
         if self.control is not None and self.control.snapshot()["stop"]:
             raise ContextLimit("用户已停止，不启动上下文或模型请求")
-        projected = self.manager.prepare(messages, tools)
+        projected = project_skill_results(self.manager.prepare(messages, tools))
         if self.control is not None and self.control.snapshot()["stop"]:
             raise ContextLimit("上下文准备期间用户已停止，不启动后续模型请求")
         return self.model.generate(projected, tools=tools)

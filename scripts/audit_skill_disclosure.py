@@ -71,6 +71,8 @@ def main():
                     harness.submit(first, question)
                     harness.wait(first)
                     assert harness.snapshot(first)["task"]["status"] == "completed"
+                raw_history = json.dumps(harness.snapshot(first)["messages"], ensure_ascii=False)
+                raw_counts = {name: raw_history.count(marker) for name, marker in markers.items()}
                 other = harness.create_session()["session_id"]
                 harness.submit(other, "1加1是多少？")
                 harness.wait(other)
@@ -93,20 +95,26 @@ def main():
         schema = next(tool for tool in snapshot["tools"] if tool["name"] == "read_skill")
         assert all(name in schema["description"] for name in fixtures)
         assert not any(marker in schema["description"] for marker in markers.values())
-    assert [item["writing-polish"] for item in counts] == [0, 1, 1, 1, 1, 2, 0]
+    assert [item["writing-polish"] for item in counts] == [0, 1, 1, 1, 1, 1, 0]
     assert [item["debug-feedback"] for item in counts] == [0, 0, 0, 1, 1, 1, 0]
     assert all(item["public-evidence"] == 0 for item in counts)
     assert all(counts[0][name] == 0 for name in fixtures)
     assert set(disk_reads[:3]) == {name + ".md" for name in fixtures}
+    assert raw_counts["writing-polish"] == 2
+    duplicate_result = json.loads(next(message["content"] for message in snapshots[5]["messages"]
+                                      if message["role"] == "tool" and message["tool_call_id"] == "polish-2"))
+    assert duplicate_result["skill_status"] == "already_loaded"
     report = {
-        "experiment": "S01-skill-disclosure-audit", "live_requests": 0,
+        "experiment": "S02-skill-deduplication-audit", "live_requests": 0,
         "scope": "真实HarnessApplication/Runtime/ManagedModel；脚本模型预设调用；临时目录替换SkillCatalog来源",
         "fixtures": fixtures, "body_markers": markers, "body_marker_counts": counts,
         "skill_disk_reads": disk_reads, "model_inputs": snapshots,
+        "raw_history_body_counts": raw_counts, "duplicate_model_result": duplicate_result,
         "checks": {"directory_only_before_invocation": True, "only_selected_body_added": True,
                    "body_persists_in_same_session": True, "other_session_has_no_body": True,
-                   "unrelated_skill_body_absent": True, "invalid_names_rejected": True},
-        "gaps": ["summaries读取所有正文取首行", "重复read_skill会重复追加正文", "未支持SKILL.md目录和附属资料按需读取",
+                   "unrelated_skill_body_absent": True, "invalid_names_rejected": True,
+                   "duplicate_body_replaced_in_model_input": True, "raw_history_preserved": True},
+        "gaps": ["summaries读取所有正文取首行", "未支持SKILL.md目录和附属资料按需读取",
                  "未验证真实模型自主选Skill", "只测短正文，未验证长正文压缩与重注入"],
     }
     args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
