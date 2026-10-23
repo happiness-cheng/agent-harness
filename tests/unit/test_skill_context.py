@@ -116,3 +116,12 @@ def test_non_full_success_results_are_left_unchanged(content):
     messages[-1] = messages[-1].model_copy(update={"content": content})
     ManagedModel(capture, manager).generate(messages)
     assert capture.messages[-1].content == content
+
+
+def test_long_skill_is_not_replaced_by_generic_tool_summary():
+    _, _, manager, capture = setup()
+    body = "# 规程\n" + "\n".join(f"步骤{i}：核对输入来源和处理结果。" for i in range(130))
+    messages = [Message(role="user", content="遵循规程")] + read("a", body=body) + read("b", body=body)
+    results = invoke(messages, manager, capture)
+    assert results[0].get("result") == body
+    assert results[1].get("skill_status") == "already_loaded"

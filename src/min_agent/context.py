@@ -30,8 +30,12 @@ class ContextManager:
         with self.sessions.control(self.context):
             state = self.sessions.extension(self.context, "context", {"version": 1, "projections": {}, "summary": None, "covered": 0, "covered_hashes": []})
             projected = []
+            requests = {}
             for message in messages:
-                if message.role == "tool" and len(message.content.encode()) > 2000:
+                requests.update((call.id, call.name) for call in message.tool_calls)
+                # Skill是执行规程，不交给普通工具摘要；仍接受整体窗口预算检查。
+                if (message.role == "tool" and len(message.content.encode()) > 2000
+                        and requests.get(message.tool_call_id) != "read_skill"):
                     key = sha256(message.model_dump_json().encode()).hexdigest()
                     if key not in state["projections"]:
                         identity = self.artifacts.save(message.content, kind="tool_result")
