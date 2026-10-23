@@ -4,12 +4,15 @@ from copy import deepcopy
 from hashlib import sha256
 from importlib.resources import files
 import json
-import re
 from pydantic import BaseModel, ConfigDict, Field
 
-from min_agent.context import ContextLimit, request_bound
+from min_agent.context import ContextLimit
 from min_agent.memory import MemoryJournal
-from min_agent.models import Message, ModelResponse
+from min_agent.models import Message
+from min_agent.artifacts import ArtifactStore
+from min_agent.compression_selector import GroundedSelector
+from min_agent.compression_text import plan_excerpts, save_selection_review, text_units
+from min_agent.memory_records import source_text
 
 
 class CompactionBlocked(ContextLimit):
@@ -22,7 +25,8 @@ class Summary(BaseModel):
     constraints: list[str] = Field(max_length=30)
     corrections: list[str] = Field(max_length=30)
     open_questions: list[str] = Field(max_length=30)
-    source_references: list[str] = Field(max_length=30)
+    source_references: list[dict] = Field(max_length=120)
+    selection_review: dict | None = None
 
 
 class Compactor:
@@ -53,25 +57,85 @@ class Compactor:
         if failures.get(key, 0) >= 2:
             raise CompactionBlocked("当前会话/上下文版本压缩已熔断")
         try:
-            prompt = files("min_agent").joinpath("prompts/compact_" + phase + ".md").read_text(encoding="utf-8")
-            messages = [Message(role="system", content=prompt), Message(role="user", content=serialized)]
-            if request_bound(messages) + 4096 + 1024 > self.input_window:
-                raise ValueError("压缩请求自身超过窗口")
-            self.budget.consume("model_calls", purpose="compaction")
-            response = self.model.generate(messages)
-            if not isinstance(response, ModelResponse) or response.finish_reason != "stop":
-                raise ValueError("压缩响应未完整结束")
-            summary = Summary.model_validate_json(response.content)
+            objective = getattr(self, "objective", "保留当前任务的事实、约束、用户纠正和未解决问题")
+            units = self._source_units(source, objective)
+            selector = GroundedSelector(self.model, self.budget,
+                input_window=self.input_window, control=self.control,
+                prompt=files("min_agent.prompts").joinpath(f"compact_{phase}.md").read_text(encoding="utf-8"))
+            selected = selector.select(units, objective)
+            categories = {index: category for index, category in selected}
+            # 只按已读完整原句合成；模型不能提供任意改写文字或自由来源字符串。
+            plan = plan_excerpts(units, objective, max_bytes=3500, selected=categories, reviewer=selector)
+            value = {name: [] for name in ("facts", "constraints", "corrections", "open_questions")}
+            value["source_references"] = []
+            value["selection_review"] = save_selection_review(plan, units, objective, ArtifactStore(self.sessions, self.context))
+            for unit in plan.excerpts:
+                category = categories.get(unit["unit_id"], "constraints" if unit["rule_matched"] else "facts")
+                position = len(value[category])
+                value[category].append(unit["quote"])
+                value["source_references"].append({"section": category, "item": position,
+                    **unit["source"], "start": unit["start"], "end": unit["end"],
+                    **{name: unit[name] for name in ("model_selected", "rule_matched", "relevance_review")}})
+            summary = Summary.model_validate(value)
             rendered = summary.model_dump_json()
             if len(rendered.encode()) > 6000:
                 raise ValueError("摘要仍超出目标预算")
-            for value in re.findall(r"\b\d{4}-\d{2}-\d{2}\b", serialized):
-                if value not in rendered: raise ValueError("日期关键字段丢失")
             return summary.model_dump(mode="json")
         except Exception:
             failures[key] = failures.get(key, 0) + 1
             self.sessions.set_extension(self.context, "compaction_failures", failures)
             raise CompactionBlocked("压缩失败，原始历史和可见版本保留") from None
+
+    def _source_units(self, source, objective):
+        texts = []
+        def collect(value):
+            if isinstance(value, dict):
+                for key, item in value.items():
+                    if key == "quote" and isinstance(item, str):
+                        texts.append((item, "unverified_summary", None))
+                    elif key in {"facts", "constraints", "corrections", "open_questions"} and isinstance(item, list):
+                        references = value.get("source_references", [])
+                        for index, part in enumerate(item):
+                            if isinstance(part, str):
+                                reference = next((ref for ref in references if isinstance(ref, dict)
+                                    and ref.get("section") == key and ref.get("item") == index), None)
+                                texts.append((part, "unverified_summary", reference))
+                    elif isinstance(item, (dict, list)) and key != "source_references":
+                        collect(item)
+            elif isinstance(value, list):
+                for item in value: collect(item)
+        if isinstance(source, dict) and "messages" in source:
+            for item in source["messages"]:
+                message = Message.model_validate(item)
+                texts.append((source_text(message), message.role, None))
+            collect(source.get("previous_memory"))
+        else:
+            collect(source)
+        artifacts = ArtifactStore(self.sessions, self.context)
+        known = self.sessions.extension(self.context, "compression_sources", {})
+        units = []
+        for text, source_kind, reference in texts:
+            if reference is not None:
+                # 再压缩仍回指原始材料，不把“上一份摘要”变成唯一出处。
+                original = artifacts.get(reference.get("artifact_id"))
+                start, end = reference.get("start"), reference.get("end")
+                if (type(start) is not int or type(end) is not int or not 0 <= start <= end <= len(original["content"])
+                    or reference.get("sha256") != sha256(original["content"].encode()).hexdigest()
+                    or original["content"][start:end] != text):
+                    raise ValueError("已有摘要的原文引用不能校验")
+                excerpts, _ = text_units(text, objective)
+                units.extend({**item, "start": start + item["start"], "end": start + item["end"],
+                    "source": {"artifact_id": original["id"], "sha256": original["sha256"],
+                        "source_kind": source_kind}} for item in excerpts)
+                continue
+            digest = sha256(text.encode()).hexdigest()
+            if digest not in known:
+                known[digest] = artifacts.save(text, kind="compression_source")
+            excerpts, _ = text_units(text, objective)
+            units.extend({**item, "source": {"artifact_id": known[digest], "sha256": digest,
+                "source_kind": source_kind}} for item in excerpts)
+        self.sessions.set_extension(self.context, "compression_sources", known)
+        return units
 
     def compact_memory(self, state):
         candidate = deepcopy(state)

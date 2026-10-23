@@ -52,7 +52,7 @@ def test_memory_retrieval_is_current_session_and_archives_complete_segments():
 
 def test_skill_paths_and_missing_names_cannot_escape_catalog(tmp_path):
     root = tmp_path / "skills"; root.mkdir()
-    (root / "example.md").write_text("# 示例\n仅总结公开材料，不增加任何权限。", encoding="utf-8")
+    (root / "example.md").write_text("---\nname: example\ndescription: 仅总结公开材料\n---\n# 示例\n仅总结公开材料，不增加任何权限。", encoding="utf-8")
     catalog = SkillCatalog(root)
     assert catalog.summaries()[0]["name"] == "example"
     assert "不增加" in catalog.read("example")
@@ -65,3 +65,17 @@ def test_memory_recall_does_not_return_unrelated_archives():
     journal = MemoryJournal(store, context)
     journal.archive([Message(role="user", content="单独的日期")], "截止日期2026-10-22", start=0)
     assert journal.select("交通规则") == []
+
+
+def test_memory_read_policy_does_not_rewrite_an_already_frozen_legacy_preview():
+    from hashlib import sha256
+    store, context, artifacts = setup()
+    manager = ContextManager(store, context, artifacts, window=20000, output_reserve=1000)
+    message = Message(role="tool", tool_call_id="old", content="original " * 400)
+    key = sha256(message.model_dump_json().encode()).hexdigest()
+    frozen = '{"preview":"历史已经冻结的预览"}'
+    store.set_extension(context, "context", {"version": 1, "projections": {key: frozen},
+        "summary": None, "covered": 0, "covered_hashes": []})
+    messages = [Message(role="assistant", content="", tool_calls=[
+        ToolCall(id="old", name="read_memory_source", arguments={})]), message]
+    assert manager.prepare(messages)[-1].content == frozen

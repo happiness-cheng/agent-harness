@@ -3,6 +3,8 @@
 import json
 from uuid import uuid4, uuid5
 from min_agent.checkpoints import history_hash
+from min_agent.memory_records import SourceReference, interaction_events, runtime_state, source_text
+from min_agent.models import Message
 from min_agent.sessions import SessionStore
 
 
@@ -43,6 +45,9 @@ def record_completed_interaction(snapshot):
         "start": start, "end": len(snapshot.messages), "history_hash": history_hash(messages),
         "summary": summary, "tool_results": tool_results,
         "messages": [message.model_dump(mode="json") for message in messages],
+        "schema_version": 2,
+        "events": interaction_events(snapshot, identity, messages, start),
+        "runtime_state": runtime_state(snapshot),
     }
 
 
@@ -69,10 +74,43 @@ class MemoryJournal:
         if record is None: raise PermissionError("归档引用不属于当前会话")
         return record
 
+    def read_source(self, reference, *, offset=0, limit=4000):
+        """读取已归档原文；校验的是来源完整性，不是模型结论的语义。"""
+        if type(offset) is not int or offset < 0 or type(limit) is not int or not 1 <= limit <= 8000:
+            raise ValueError("原文分页范围无效")
+        payload = reference.model_dump(warnings="error") if isinstance(reference, SourceReference) else reference
+        source = SourceReference.model_validate(payload)
+        if source.session_id != self.context.session_id:
+            raise PermissionError("原文引用不属于当前会话")
+        record = self.read(str(source.archive_id))
+        messages = [Message.model_validate(value) for value in record["messages"]]
+        if history_hash(messages) != record["history_hash"]:
+            raise ValueError("归档原文完整性校验失败")
+        position = source.message_index - record["start"]
+        if not 0 <= position < len(messages):
+            raise ValueError("引用消息不在归档范围内")
+        message = messages[position]
+        if history_hash([message]) != source.message_hash:
+            raise ValueError("引用消息版本不匹配")
+        text = source_text(message)
+        if source.end > len(text) or source.start + offset > source.end:
+            raise ValueError("引用字符范围超出原文")
+        start = source.start + offset
+        end = min(start + limit, source.end)
+        return {"source": source.model_dump(mode="json"), "role": message.role,
+                "start": start, "end": end, "text": text[start:end],
+                "truncated": end < source.end}
+
     def select(self, question, limit=3):
         if type(limit) is not int or not 1 <= limit <= 10: raise ValueError("归档数量无效")
         if not isinstance(question, str) or not question.strip(): raise ValueError("回查问题不能为空")
         records = list(self.sessions.extension(self.context, "memory_journal", {}).values())
         tokens = {question.casefold(), *question.casefold().split()}
         scored = [(sum(token in item["summary"].casefold() for token in tokens), item) for item in records]
-        return [item for score, item in sorted(scored, key=lambda pair: pair[0], reverse=True) if score > 0][:limit]
+        selected = [item for score, item in sorted(scored, key=lambda pair: pair[0], reverse=True) if score > 0][:limit]
+        for record in selected:
+            if record.get("kind") == "interaction" and "events" not in record:
+                # 旧归档只在读取副本上补引用；不重写历史，也不猜测当时控制状态。
+                messages = [Message.model_validate(value) for value in record["messages"]]
+                record["events"] = interaction_events(self.context, record["id"], messages, record["start"])
+        return selected

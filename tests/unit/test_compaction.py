@@ -20,7 +20,7 @@ def state():
 
 
 def test_valid_compaction_preserves_dates_negation_and_spends_shared_budget():
-    summary = {"facts": ["2026-10-22 不删除原文"], "constraints": ["只读"], "corrections": [], "open_questions": ["是否有反例"], "source_references": []}
+    summary = {"selections": [{"unit_id": 0, "category": "facts"}, {"unit_id": 1, "category": "constraints"}]}
     compactor, store, context, ledger = fixture(ScriptedModel([ModelResponse(finish_reason="stop", content=json.dumps(summary, ensure_ascii=False))]))
     messages = [Message(role="user", content="2026-10-22 不删除原文"), Message(role="assistant", content="只读；仍需查反例")]
     original = state(); new = compactor.compact_history(original, messages, ["first", "second"], 2)
@@ -43,14 +43,15 @@ def test_two_failed_compactions_open_persistent_circuit_without_more_calls():
 def test_valid_summary_that_cannot_fit_window_also_opens_circuit():
     from min_agent.artifacts import ArtifactStore
     from min_agent.context import ContextManager, ContextLimit
-    summary = {"facts": ["旧事实"], "constraints": [], "corrections": [], "open_questions": [], "source_references": []}
+    summary = {"selections": [{"unit_id": index, "category": "facts"} for index in range(6)]}
     model = ScriptedModel([ModelResponse(finish_reason="stop", content=json.dumps(summary))] * 3)
     compactor, store, context, ledger = fixture(model)
     manager = ContextManager(store, context, ArtifactStore(store, context),
         window=7000, compactor=compactor)
-    messages = [Message(role="user", content="旧问题"), Message(role="assistant", content="旧回答"),
+    messages = [Message(role="user", content="".join(f"第{index}条旧事实需要保留。" for index in range(6))),
+        Message(role="assistant", content="背景资料。\n" * 1000),
         Message(role="user", content="中间问题"), Message(role="assistant", content="中间回答"),
-        Message(role="user", content="当前问题" * 600)]
+        Message(role="user", content="当前问题" * 10)]
     for _ in range(3):
         with pytest.raises(ContextLimit): manager.prepare(messages)
     assert len(model.calls) == 2

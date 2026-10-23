@@ -82,21 +82,7 @@ class ResearchService:
                 projected = []
                 for message in messages:
                     candidate = message.model_copy(deep=True)
-                    if message.role == "tool":
-                        try:
-                            outer = json.loads(message.content)
-                            value = json.loads(outer["result"])
-                            if isinstance(value, dict) and "text" in value and len(value["text"]) > 2000:
-                                value["text"] = value["text"][:2000]
-                                value["end"] = value.get("start", 0) + len(value["text"])
-                                value["truncated"] = True
-                            if isinstance(value, dict) and "results" in value:
-                                for row in value["results"]:
-                                    if "summary" in row: row["summary"] = row["summary"][:300]
-                            outer["result"] = json.dumps(value, ensure_ascii=False)
-                            candidate.content = json.dumps(outer, ensure_ascii=False)
-                        except (ValueError, KeyError, TypeError):
-                            pass
+                    # 网页读取本身有显式分页和位置；不能再静默截掉所读片段尾部。
                     projected.append(candidate)
                 visible = [Message(role="system", content=prompt)] + projected
                 closing = budget.remaining.model_calls <= 1 or budget.remaining.tool_calls <= 1
