@@ -4,8 +4,27 @@ from pathlib import Path
 from hashlib import sha256
 import json
 import re
+import yaml
 
 from min_agent.models import Message
+
+
+class _MetadataLoader(yaml.SafeLoader):
+    """安全YAML数据解析；拒绝别名和重复键，避免隐式覆盖。"""
+
+    def compose_node(self, parent, index):
+        if self.check_event(yaml.AliasEvent):
+            raise ValueError("Skill元数据不支持YAML别名")
+        return super().compose_node(parent, index)
+
+    def construct_mapping(self, node, deep=False):
+        keys = set()
+        for key_node, _ in node.value:
+            key = self.construct_object(key_node, deep=deep)
+            if not isinstance(key, str) or key in keys:
+                raise ValueError("Skill元数据键必须唯一且为字符串")
+            keys.add(key)
+        return super().construct_mapping(node, deep=deep)
 
 
 class SkillCatalog:
@@ -16,13 +35,43 @@ class SkillCatalog:
                         and re.fullmatch(r"[A-Za-z0-9_-]+", path.stem)}
 
     def summaries(self):
-        return [{"name": name, "description": self.read(name).splitlines()[0][:200]}
-                for name in self.entries]
+        return [self._metadata(name) for name in self.entries]
 
-    def read(self, name):
+    def _metadata(self, name):
+        path = self._path(name)
+        # 只解析头部；readline也带上限，避免异常长行耗尽内存。
+        with path.open("rb") as stream:
+            if stream.readline(5).rstrip(b"\r\n") != b"---":
+                raise ValueError(f"Skill {name}缺少YAML头部")
+            header = bytearray()
+            while len(header) <= 16384:
+                line = stream.readline(16385 - len(header))
+                if not line:
+                    raise ValueError(f"Skill {name}头部未关闭")
+                if line.rstrip(b"\r\n") == b"---":
+                    break
+                header.extend(line)
+            else:
+                raise ValueError(f"Skill {name}头部过大")
+        try:
+            metadata = yaml.load(header.decode("utf-8"), Loader=_MetadataLoader)
+        except (yaml.YAMLError, UnicodeDecodeError) as error:
+            raise ValueError(f"Skill {name}元数据解析失败") from error
+        if not isinstance(metadata, dict) or metadata.get("name") != name:
+            raise ValueError(f"Skill {name}名称缺失或与文件名不一致")
+        description = metadata.get("description")
+        if not isinstance(description, str) or not description.strip() or len(description) > 1024:
+            raise ValueError(f"Skill {name}的description必须为1到1024字符的非空文本")
+        return {"name": name, "description": description}
+
+    def _path(self, name):
         if name not in self.entries: raise PermissionError("技能未登记")
         path = self.entries[name]
         if path.is_symlink() or path.resolve().parent != self.root: raise PermissionError("技能路径越界")
+        return path
+
+    def read(self, name):
+        path = self._path(name)
         if path.stat().st_size > 20000: raise ValueError("技能正文过大")
         return path.read_text(encoding="utf-8")
 

@@ -52,7 +52,7 @@ def test_memory_retrieval_is_current_session_and_archives_complete_segments():
 
 def test_skill_paths_and_missing_names_cannot_escape_catalog(tmp_path):
     root = tmp_path / "skills"; root.mkdir()
-    (root / "example.md").write_text("# 示例\n仅总结公开材料，不增加任何权限。", encoding="utf-8")
+    (root / "example.md").write_text("---\nname: example\ndescription: 仅总结公开材料\n---\n# 示例\n仅总结公开材料，不增加任何权限。", encoding="utf-8")
     catalog = SkillCatalog(root)
     assert catalog.summaries()[0]["name"] == "example"
     assert "不增加" in catalog.read("example")

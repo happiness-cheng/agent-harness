@@ -17,7 +17,7 @@ def experiment(tmp_path):
     root = Path(__file__).resolve().parents[2]
     main = runpy.run_path(str(root / "scripts/eval_skill_disclosure.py"))["main"]
     report = tmp_path / "result.json"
-    args = ["eval", "--audit-report", str(root / "docs/acceptance/s01-skill-disclosure-20261022.json"),
+    args = ["eval", "--audit-report", str(root / "docs/acceptance/s03-skill-metadata-20261023.json"),
             "--prompt", str(root / "src/min_agent/prompts/system.md"), "--report", str(report),
             "--credentials-file", "OFFLINE_ONLY", "--proxy", "http://127.0.0.1:7890"]
     return main, args, report
