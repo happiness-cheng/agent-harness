@@ -4,6 +4,7 @@ from copy import deepcopy
 from hashlib import sha256
 from importlib.resources import files
 import json
+from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from min_agent.context import ContextLimit
@@ -11,7 +12,8 @@ from min_agent.memory import MemoryJournal
 from min_agent.models import Message
 from min_agent.artifacts import ArtifactStore
 from min_agent.compression_selector import GroundedSelector
-from min_agent.compression_text import plan_excerpts, save_selection_review, text_units
+from min_agent.compression_text import ExcerptOverflow, plan_excerpts, save_selection_review, text_units
+from min_agent.compression_evidence import read_evidence, save_evidence
 from min_agent.memory_records import source_text
 
 
@@ -27,6 +29,8 @@ class Summary(BaseModel):
     open_questions: list[str] = Field(max_length=30)
     source_references: list[dict] = Field(max_length=120)
     selection_review: dict | None = None
+    representation: Literal["extractive", "semantic"] = "extractive"
+    unverified: bool = True
 
 
 class Compactor:
@@ -64,8 +68,10 @@ class Compactor:
                 prompt=files("min_agent.prompts").joinpath(f"compact_{phase}.md").read_text(encoding="utf-8"))
             selected = selector.select(units, objective)
             categories = {index: category for index, category in selected}
-            # 只按已读完整原句合成；模型不能提供任意改写文字或自由来源字符串。
-            plan = plan_excerpts(units, objective, max_bytes=3500, selected=categories, reviewer=selector)
+            try:
+                plan = plan_excerpts(units, objective, max_bytes=3500, selected=categories, reviewer=selector)
+            except ExcerptOverflow as error:
+                plan = error.plan
             value = {name: [] for name in ("facts", "constraints", "corrections", "open_questions")}
             value["source_references"] = []
             value["selection_review"] = save_selection_review(plan, units, objective, ArtifactStore(self.sessions, self.context))
@@ -76,11 +82,26 @@ class Compactor:
                 value["source_references"].append({"section": category, "item": position,
                     **unit["source"], "start": unit["start"], "end": unit["end"],
                     **{name: unit[name] for name in ("model_selected", "rule_matched", "relevance_review")}})
-            summary = Summary.model_validate(value)
-            rendered = summary.model_dump_json()
-            if len(rendered.encode()) > 6000:
-                raise ValueError("摘要仍超出目标预算")
-            return summary.model_dump(mode="json")
+            try:
+                extracted = Summary.model_validate(value)
+            except ValueError:
+                extracted = None
+            if extracted is not None and len(json.dumps(extracted.model_dump(mode="json"), ensure_ascii=False).encode()) <= 6000:
+                return extracted.model_dump(mode="json")
+            evidence = save_evidence(plan.excerpts, ArtifactStore(self.sessions, self.context))
+            def render(items):
+                candidate = {name: [] for name in ("facts", "constraints", "corrections", "open_questions")}
+                candidate.update(source_references=[], selection_review=value["selection_review"], representation="semantic")
+                for item in items:
+                    category = item["category"]
+                    position = len(candidate[category])
+                    candidate[category].append(item["text"])
+                    candidate["source_references"].append({"section": category, "item": position,
+                        "semantic": True, "evidence": evidence, "source_ids": item["source_ids"],
+                        "summary_sha256": sha256(item["text"].encode()).hexdigest()})
+                return json.dumps(Summary.model_validate(candidate).model_dump(mode="json"), ensure_ascii=False)
+            items = selector.compress(plan.excerpts, objective, max_bytes=6000, render=render)
+            return json.loads(render(items))
         except Exception:
             failures[key] = failures.get(key, 0) + 1
             self.sessions.set_extension(self.context, "compaction_failures", failures)
@@ -88,6 +109,7 @@ class Compactor:
 
     def _source_units(self, source, objective):
         texts = []
+        seen_evidence = set()
         def collect(value):
             if isinstance(value, dict):
                 for key, item in value.items():
@@ -97,6 +119,22 @@ class Compactor:
                         references = value.get("source_references", [])
                         for index, part in enumerate(item):
                             if isinstance(part, str):
+                                matching = [ref for ref in references if isinstance(ref, dict)
+                                    and ref.get("section") == key and ref.get("item") == index]
+                                if any(ref.get("semantic") is True for ref in matching):
+                                    for reference in matching:
+                                        if (reference.get("semantic") is not True
+                                                or reference.get("summary_sha256") != sha256(part.encode()).hexdigest()):
+                                            raise ValueError("已有语义摘要版本不匹配")
+                                        originals = read_evidence(reference["evidence"], reference["source_ids"],
+                                            ArtifactStore(self.sessions, self.context))
+                                        for original in originals:
+                                            location = (original["source"]["artifact_id"], original["start"], original["end"])
+                                            if location not in seen_evidence:
+                                                seen_evidence.add(location)
+                                                texts.append((original["quote"], "unverified_summary",
+                                                    {**original["source"], "start": original["start"], "end": original["end"]}))
+                                    continue
                                 reference = next((ref for ref in references if isinstance(ref, dict)
                                     and ref.get("section") == key and ref.get("item") == index), None)
                                 texts.append((part, "unverified_summary", reference))

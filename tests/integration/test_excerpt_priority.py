@@ -58,12 +58,13 @@ def test_conflicting_tool_summary_pauses_without_freezing_a_supplement_only_proj
     store = SessionStore()
     context = store.create(uuid4())
     artifacts = ArtifactStore(store, context)
-    ledger = BudgetLedger(BudgetLimits(model_calls=4, tool_calls=0))
+    # 本例不给语义改写额外额度，验证仍会安全暂停且不发布部分投影。
+    ledger = BudgetLedger(BudgetLimits(model_calls=3, tool_calls=0))
     model = ScriptedModel([
         ModelResponse(finish_reason="stop", content='{"selections":[{"unit_id":0}]}'),
         ModelResponse(finish_reason="stop", content='{"decisions":[{"unit_id":1,"decision":"uncertain"}]}'),
     ])
-    selector = GroundedSelector(model, ledger.start_segment(BudgetLimits(model_calls=4, tool_calls=0)))
+    selector = GroundedSelector(model, ledger.start_segment(BudgetLimits(model_calls=3, tool_calls=0)))
     manager = ContextManager(store, context, artifacts, selector=selector)
     text = "退款办理步骤" + "提交订单编号" * 100 + "。禁止转载" + "版权说明" * 150 + "。"
     messages = [Message(role="user", content="怎么退款"),

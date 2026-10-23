@@ -49,6 +49,12 @@ class GroundedSelector:
         self.reserve_model_calls = reserve_model_calls
         self.prompt = prompt
 
+    def compress(self, units, objective, *, max_bytes, render):
+        from min_agent.compression_summary import SemanticCompressor
+        return SemanticCompressor(self.model, self.budget, input_window=self.input_window,
+            control=self.control, reserve_model_calls=self.reserve_model_calls).compress(
+                units, objective, max_bytes=max_bytes, render=render)
+
     def select(self, units, objective):
         # 请求和结果预留单独计算；不通过截掉最后一块来满足窗口。
         from min_agent.context import request_bound

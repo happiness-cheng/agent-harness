@@ -50,6 +50,12 @@ class ExcerptPlan:
     selected_ids: tuple[int, ...] = ()
 
 
+class ExcerptOverflow(ValueError):
+    def __init__(self, plan):
+        super().__init__("模型选中或规则补充的完整原句超出摘要预算，需要语义压缩")
+        self.plan = plan
+
+
 def plan_excerpts(units, objective, *, max_bytes=2800, selected=None, reviewer=None):
     """分别保留模型选择与规则提醒；仅规则命中不能直接等同于任务相关。"""
     terms = task_terms(objective)
@@ -66,9 +72,18 @@ def plan_excerpts(units, objective, *, max_bytes=2800, selected=None, reviewer=N
         candidates -= dropped
         mandatory -= dropped
     decisions = {} if review is None else {item["unit_id"]: item["decision"] for item in review}
+    def build(indices):
+        return ExcerptPlan([{**units[index], "unit_id": index, "model_selected": index in model_selected,
+            "rule_matched": index in rule_matched,
+            "relevance_review": decisions.get(index, "not_reviewed" if index in rule_only else "not_applicable")}
+            for index in sorted(indices)], review, tuple(sorted(model_selected)))
+    if selected is not None:
+        # 模型路径保留全部相关候选；放不下由调用者做语义压缩，不按关键词丢句。
+        plan = build(candidates)
+        if sum(len(unit["quote"].encode()) for unit in plan.excerpts) > max_bytes:
+            raise ExcerptOverflow(plan)
+        return plan
     ranked = sorted(candidates, key=lambda index: (
-        # 先给模型选中的相关正文分配空间，规则补充不能挤掉正文后独占摘要。
-        index not in model_selected,
         index not in mandatory,
         -sum(term in units[index]["quote"].casefold() for term in terms), index))
     chosen, used = [], 0
@@ -79,15 +94,9 @@ def plan_excerpts(units, objective, *, max_bytes=2800, selected=None, reviewer=N
                 raise ValueError("摘要预算不足以保留完整否定、条件或日期；不能截句")
             continue
         chosen.append(index); used += size
-    if model_selected and not model_selected.intersection(chosen):
-        raise ValueError("模型选中的原句无法放入摘要预算，不能仅发布规则补充")
     if candidates and not chosen:
         raise ValueError("完整原句超过摘要预算，需要分段处理或补读")
-    excerpts = [{**units[index], "unit_id": index, "model_selected": index in model_selected,
-        "rule_matched": index in rule_matched,
-        "relevance_review": decisions.get(index, "not_reviewed" if index in rule_only else "not_applicable")}
-        for index in sorted(chosen)]
-    return ExcerptPlan(excerpts, review, tuple(sorted(model_selected)))
+    return build(chosen)
 
 
 def choose_excerpts(units, objective, *, max_bytes=2800, selected=None):
@@ -107,7 +116,7 @@ def save_selection_review(plan, units, objective, artifacts):
         "dropped_units": sum(item["decision"] == "drop" for item in plan.review)}
 
 
-def tool_summary(content, objective, artifacts, selector=None):
+def tool_summary(content, objective, artifacts, selector=None, *, max_bytes=2800):
     known = artifacts.sessions.extension(artifacts.context, "tool_summary_sources", {})
     def preserve(text):
         digest = sha256(text.encode()).hexdigest()
@@ -136,13 +145,28 @@ def tool_summary(content, objective, artifacts, selector=None):
     identity, digest = preserve(text)
     units, dropped = text_units(text, objective)
     selection = selector.select(units, objective) if selector is not None and units else None
-    plan = plan_excerpts(units, objective, selected=None if selection is None else [item[0] for item in selection],
-        reviewer=selector)
-    excerpts = plan.excerpts
-    return json.dumps({"artifact_id": identity, "method": "task_aware_extractive_summary",
+    try:
+        plan = plan_excerpts(units, objective, max_bytes=max_bytes,
+            selected=None if selection is None else [item[0] for item in selection], reviewer=selector)
+    except ExcerptOverflow as error:
+        plan = error.plan
+    base = {"artifact_id": identity,
         "sha256": digest, "raw_artifact_id": raw_identity, "raw_sha256": raw_digest,
-        "tool_envelope": envelope, "excerpts": excerpts, "dropped_noise": dropped,
-        "omitted_units": len(units) - len(excerpts), "coverage": "full_source_scanned",
+        "tool_envelope": envelope, "dropped_noise": dropped,
+        "omitted_units": len(units) - len(plan.excerpts), "coverage": "full_source_scanned",
         "selection": "model" if selector else "deterministic",
         "selection_review": save_selection_review(plan, units, objective, artifacts),
-        "read_more": "read_artifact按ID和范围核对原文；未选中内容不代表不存在"}, ensure_ascii=False)
+        "read_more": "read_artifact按ID和范围核对原文；未选中内容不代表不存在"}
+    extracted = json.dumps({**base, "method": "task_aware_extractive_summary", "excerpts": plan.excerpts}, ensure_ascii=False)
+    if len(extracted.encode()) <= max_bytes:
+        return extracted
+    if selector is None or not plan.excerpts:
+        raise ValueError("完整工具摘要超出预算且没有语义压缩能力")
+    from min_agent.compression_evidence import save_evidence
+    evidence = save_evidence(plan.excerpts, artifacts,
+        default_source={"artifact_id": identity, "sha256": digest, "source_kind": "tool_report"})
+    def render(items):
+        return json.dumps({**base, "method": "task_aware_semantic_summary", "unverified": True,
+            "excerpts": [], "evidence": evidence, "semantic_summary": items}, ensure_ascii=False)
+    items = selector.compress(plan.excerpts, objective, max_bytes=max_bytes, render=render)
+    return render(items)

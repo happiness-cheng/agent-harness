@@ -65,7 +65,7 @@ def test_budget_pressure_reviews_rule_only_footer_and_keeps_original_and_audit()
 def test_rule_only_condition_cannot_be_silently_dropped_when_review_cannot_release_it(decision):
     artifacts, model, ledger, selector = setup([
         response({"selections": [{"unit_id": 0}]}),
-        response({"decisions": [{"unit_id": 1, "decision": decision}]})])
+        response({"decisions": [{"unit_id": 1, "decision": decision}]})], calls=3)
     text = "收货后可以申请退款。\n但已经拆封的商品不支持退款" + "，该限制适用" * 220 + "。"
     with pytest.raises(ValueError, match="预算"):
         tool_summary(text, "怎么申请退款", artifacts, selector)
@@ -91,16 +91,22 @@ def test_review_cannot_spend_final_call_reserve():
     assert len(model.calls) == ledger.usage.model_calls == 1
 
 
-def test_review_keeps_short_refund_exception_and_omits_lower_priority_background():
+def test_reviewed_condition_and_all_model_selected_material_are_semantically_compressed():
     artifacts, model, _, selector = setup([
         response({"selections": [{"unit_id": 0}, {"unit_id": 1}]}),
-        response({"decisions": [{"unit_id": 2, "decision": "keep"}]})])
+        response({"decisions": [{"unit_id": 2, "decision": "keep"}]}),
+        response({"items": [{"text": "退款流程见帮助中心；产品背景另有说明；拆封后不能退款。",
+            "source_ids": [0, 1, 2], "category": "constraints"}]})])
     text = "退款流程见帮助中心。\n" + "产品背景" * 235 + "。\n但已经拆封的商品不支持退款。"
     summary = json.loads(tool_summary(text, "退款", artifacts, selector))
-    condition = next(unit for unit in summary["excerpts"] if "拆封" in unit["quote"])
+    from min_agent.compression_evidence import read_evidence
+    assert summary["method"] == "task_aware_semantic_summary"
+    assert summary["semantic_summary"][0]["source_ids"] == [0, 1, 2]
+    evidence = read_evidence(summary["evidence"], [0, 1, 2], artifacts)
+    condition = next(unit for unit in evidence if "拆封" in unit["quote"])
     assert condition["model_selected"] is False and condition["rule_matched"] is True
     assert condition["relevance_review"] == "keep"
-    assert len(model.calls) == 2
+    assert len(model.calls) == 3
 
 
 def test_model_selected_constraint_is_never_a_review_deletion_candidate():
