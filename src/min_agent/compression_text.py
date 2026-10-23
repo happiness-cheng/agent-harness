@@ -67,6 +67,8 @@ def plan_excerpts(units, objective, *, max_bytes=2800, selected=None, reviewer=N
         mandatory -= dropped
     decisions = {} if review is None else {item["unit_id"]: item["decision"] for item in review}
     ranked = sorted(candidates, key=lambda index: (
+        # 先给模型选中的相关正文分配空间，规则补充不能挤掉正文后独占摘要。
+        index not in model_selected,
         index not in mandatory,
         -sum(term in units[index]["quote"].casefold() for term in terms), index))
     chosen, used = [], 0
@@ -77,6 +79,8 @@ def plan_excerpts(units, objective, *, max_bytes=2800, selected=None, reviewer=N
                 raise ValueError("摘要预算不足以保留完整否定、条件或日期；不能截句")
             continue
         chosen.append(index); used += size
+    if model_selected and not model_selected.intersection(chosen):
+        raise ValueError("模型选中的原句无法放入摘要预算，不能仅发布规则补充")
     if candidates and not chosen:
         raise ValueError("完整原句超过摘要预算，需要分段处理或补读")
     excerpts = [{**units[index], "unit_id": index, "model_selected": index in model_selected,
