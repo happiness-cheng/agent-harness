@@ -287,8 +287,7 @@ class HarnessApplication:
                 compactor = Compactor(raw_model, self.sessions, context, segment, input_window=self.window, control=events)
                 manager = ContextManager(self.sessions, context, ArtifactStore(self.sessions, context),
                     window=self.window, compactor=compactor,
-                    selector=GroundedSelector(raw_model, segment, input_window=self.window, control=events),
-                    state_reader=SessionStateTable(self.sessions, context, TodoService(self.sessions)).read)
+                    selector=GroundedSelector(raw_model, segment, input_window=self.window, control=events))
                 trace = TraceRecorder()
                 runtime = Runtime(ManagedModel(raw_model, manager, control=events), self._registry(context, segment, raw_model, events, trace),
                     budget=segment, checkpoint_policy=CheckpointPolicy(), control=events,

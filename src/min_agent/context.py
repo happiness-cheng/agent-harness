@@ -5,6 +5,7 @@ import json
 from copy import deepcopy
 
 from min_agent.models import Message
+from min_agent.state_bar import RuntimeContextMessage
 
 
 class ContextLimit(RuntimeError):
@@ -30,6 +31,10 @@ class ContextManager:
     def prepare(self, messages, tools=None):
         from min_agent.compression_text import tool_summary
         from min_agent.structured_context import structured_history
+        # 仅可信类型的临时投影脱离历史；普通用户伪造同名JSON仍是原历史。
+        dynamic = messages[-1:] if messages and isinstance(messages[-1], RuntimeContextMessage) else []
+        if dynamic:
+            messages = messages[:-1]
         objective = self._objective(messages)
         with self.sessions.control(self.context):
             state = self.sessions.extension(self.context, "context", {"version": 1, "projections": {}, "summary": None, "covered": 0, "covered_hashes": []})
@@ -71,16 +76,14 @@ class ContextManager:
         prefix = 0
         if projected and projected[0].role == "system":
             prefix = 1
-            if len(projected) > 1 and projected[1].role == "user" and '"application_state"' in projected[1].content:
-                prefix = 2
         core, stable = projected[prefix:], projected[:prefix]
         hashes = [sha256(message.model_dump_json().encode()).hexdigest() for message in core]
         if state["covered"]:
             if hashes[:state["covered"]] != state["covered_hashes"]:
                 raise ContextLimit("上下文版本不匹配，停止而不重新摘要旧投影")
-            visible = self._visible(stable, core, state)
+            visible = self._visible(stable, core, state, dynamic)
         else:
-            visible = projected
+            visible = projected + dynamic
         if self._fits(visible, tools): return visible
         boundaries = [index for index, message in enumerate(core) if message.role == "user" and index > state["covered"]]
         end = boundaries[-2] if len(boundaries) >= 2 else None
@@ -92,7 +95,7 @@ class ContextManager:
                 candidate.update(summary=structured_history(self.sessions, self.context,
                     messages[prefix:], structured_end, objective), covered=structured_end, covered_hashes=hashes[:structured_end],
                     version=state["version"] + 1, stage="structured")
-                structured = self._visible(stable, core, candidate)
+                structured = self._visible(stable, core, candidate, dynamic)
                 if self._fits(structured, tools):
                     self.sessions.set_extension(self.context, "context", candidate)
                     return structured
@@ -105,7 +108,7 @@ class ContextManager:
         # 先整理现有记忆，再考虑较旧完整历史；原始消息始终保留。
         if state["summary"]:
             state = self.compactor.compact_memory(state)
-            visible = self._visible(stable, core, state)
+            visible = self._visible(stable, core, state, dynamic)
             if self._fits(visible, tools):
                 self.sessions.set_extension(self.context, "context", state)
                 return visible
@@ -114,7 +117,7 @@ class ContextManager:
             raise ContextLimit("保留近期完整交互后仍无可压缩历史")
         state = self.compactor.compact_history(state, messages[prefix:][state["covered"]:end], hashes[:end], end)
         state["stage"] = "llm"
-        visible = self._visible(stable, core, state)
+        visible = self._visible(stable, core, state, dynamic)
         if not self._fits(visible, tools):
             self.compactor.reject_window(window_key)
             raise ContextLimit("压缩后窗口仍不足")
@@ -127,13 +130,13 @@ class ContextManager:
         latest = next((message.content for message in reversed(messages) if message.role == "user"), "")
         return json.dumps({"goal": goal, "current_request": latest}, ensure_ascii=False)
 
-    def _visible(self, stable, core, state):
+    def _visible(self, stable, core, state, dynamic=()):
         visible = stable + [Message(role="user", content=json.dumps(
             {"untrusted_session_memory": state["summary"]}, ensure_ascii=False))] + core[state["covered"]:]
         if self.state_reader is not None:
             visible.append(Message(role="user", content=json.dumps(
                 {"current_runtime_state": self.state_reader()}, ensure_ascii=False)))
-        return visible
+        return visible + list(dynamic)
 
     def _fits(self, messages, tools):
         return request_bound(messages, tools) + self.output_reserve + self.safety_margin <= self.window
@@ -148,6 +151,16 @@ class ManagedModel:
         if self.control is not None and self.control.snapshot()["stop"]:
             raise ContextLimit("用户已停止，不启动上下文或模型请求")
         projected = self.manager.prepare(messages, tools)
+        if self.control is not None and self.control.snapshot()["stop"]:
+            raise ContextLimit("上下文准备期间用户已停止，不刷新状态或启动模型请求")
+        # 压缩可能改变版本和预算；派发前刷新一次，再检查完整请求预算。
+        refreshed = False
+        for message in projected:
+            if isinstance(message, RuntimeContextMessage):
+                message.refresh()
+                refreshed = True
+        if refreshed and not self.manager._fits(projected, tools):
+            raise ContextLimit("最新状态投影加入后窗口不足")
         if self.control is not None and self.control.snapshot()["stop"]:
             raise ContextLimit("上下文准备期间用户已停止，不启动后续模型请求")
         return self.model.generate(projected, tools=tools)

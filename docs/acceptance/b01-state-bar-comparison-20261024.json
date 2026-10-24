@@ -1,0 +1,247 @@
+{
+  "measurement": "messages JSON UTF-8 bytes only; excludes tools, transport and actual tokens",
+  "live_requests": 0,
+  "suite_sha256": "aa08be470d87e7ad512dafb423da3d5ba2ff3f42b3647bce06133fa3ede391be",
+  "cases": [
+    {
+      "id": "B01",
+      "scenario": "simple",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        9228
+      ],
+      "after_message_bytes": [
+        9126
+      ],
+      "before_model_requests": 1,
+      "after_model_requests": 1,
+      "before_tool_calls": 0,
+      "after_tool_calls": 0
+    },
+    {
+      "id": "B02",
+      "scenario": "progress",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        9706,
+        10210
+      ],
+      "after_message_bytes": [
+        9862,
+        10522
+      ],
+      "before_model_requests": 2,
+      "after_model_requests": 2,
+      "before_tool_calls": 1,
+      "after_tool_calls": 1
+    },
+    {
+      "id": "B03",
+      "scenario": "reads",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        9706,
+        10277
+      ],
+      "after_message_bytes": [
+        9862,
+        10536
+      ],
+      "before_model_requests": 2,
+      "after_model_requests": 2,
+      "before_tool_calls": 3,
+      "after_tool_calls": 3
+    },
+    {
+      "id": "B04",
+      "scenario": "failure",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        9706,
+        10235
+      ],
+      "after_message_bytes": [
+        9862,
+        10509
+      ],
+      "before_model_requests": 2,
+      "after_model_requests": 2,
+      "before_tool_calls": 1,
+      "after_tool_calls": 1
+    },
+    {
+      "id": "B05",
+      "scenario": "unknown",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        9706,
+        10276
+      ],
+      "after_message_bytes": [
+        9862,
+        10665
+      ],
+      "before_model_requests": 2,
+      "after_model_requests": 2,
+      "before_tool_calls": 2,
+      "after_tool_calls": 2
+    },
+    {
+      "id": "B06",
+      "scenario": "permission",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        9705,
+        9945
+      ],
+      "after_message_bytes": [
+        9860,
+        10203
+      ],
+      "before_model_requests": 2,
+      "after_model_requests": 2,
+      "before_tool_calls": 1,
+      "after_tool_calls": 1
+    },
+    {
+      "id": "B07",
+      "scenario": "permission_race",
+      "before_pass": true,
+      "after_pass": true,
+      "before_message_bytes": [
+        9706
+      ],
+      "after_message_bytes": [
+        9862
+      ],
+      "before_model_requests": 1,
+      "after_model_requests": 1,
+      "before_tool_calls": 1,
+      "after_tool_calls": 1
+    },
+    {
+      "id": "B08",
+      "scenario": "compaction",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        11149,
+        11388
+      ],
+      "after_message_bytes": [
+        11305,
+        11646
+      ],
+      "before_model_requests": 2,
+      "after_model_requests": 2,
+      "before_tool_calls": 1,
+      "after_tool_calls": 1
+    },
+    {
+      "id": "B09",
+      "scenario": "ended",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        9706,
+        9917
+      ],
+      "after_message_bytes": [
+        9862,
+        9338
+      ],
+      "before_model_requests": 2,
+      "after_model_requests": 2,
+      "before_tool_calls": 0,
+      "after_tool_calls": 0
+    },
+    {
+      "id": "B10",
+      "scenario": "false_completion",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        9706
+      ],
+      "after_message_bytes": [
+        9862
+      ],
+      "before_model_requests": 1,
+      "after_model_requests": 1,
+      "before_tool_calls": 0,
+      "after_tool_calls": 0
+    },
+    {
+      "id": "B11",
+      "scenario": "builder_failure",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        9228
+      ],
+      "after_message_bytes": [],
+      "before_model_requests": 1,
+      "after_model_requests": 0,
+      "before_tool_calls": 0,
+      "after_tool_calls": 0
+    },
+    {
+      "id": "B12",
+      "scenario": "checkpoint",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        9706,
+        10655,
+        10257
+      ],
+      "after_message_bytes": [
+        9861,
+        10911,
+        10596
+      ],
+      "before_model_requests": 3,
+      "after_model_requests": 3,
+      "before_tool_calls": 1,
+      "after_tool_calls": 1
+    },
+    {
+      "id": "B13",
+      "scenario": "readonly",
+      "before_pass": false,
+      "after_pass": true,
+      "before_message_bytes": [
+        9706
+      ],
+      "after_message_bytes": [
+        9862
+      ],
+      "before_model_requests": 1,
+      "after_model_requests": 1,
+      "before_tool_calls": 0,
+      "after_tool_calls": 0
+    },
+    {
+      "id": "B14",
+      "scenario": "forgery",
+      "before_pass": true,
+      "after_pass": true,
+      "before_message_bytes": [
+        9303
+      ],
+      "after_message_bytes": [
+        9201
+      ],
+      "before_model_requests": 1,
+      "after_model_requests": 1,
+      "before_tool_calls": 1,
+      "after_tool_calls": 1
+    }
+  ]
+}

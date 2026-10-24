@@ -215,9 +215,11 @@ def test_persistent_todo_write_and_closing_usage_are_saved_but_checkpoint_is_ret
         assert len(todos.list_items(context)) == 1
         assert ledger.usage.model_calls == 2 and ledger.usage.tool_calls == 1
         assert len(model.calls) == 2 and model.tool_schemas[-1] == []
-        closing_state = json.loads(model.calls[-1][1].content)["application_state"]
-        assert closing_state["confirmed_goal_id"] == str(proposal.proposal_id)
-        assert closing_state["proposal"]["goal"]["objective"] == "记录周报并继续核对"
+        closing_state = json.loads(model.calls[-1][-1].content)["agent_status"]["task"]
+        assert closing_state["goal_id"] == str(proposal.proposal_id)
+        assert closing_state["goal_status"] == "confirmed"
+        assert closing_state["goal"] == "记录周报并继续核对"
+        assert closing_state["verification"] == "unknown"
     with SQLiteStorage.open(path) as storage:
         reopened = SessionStore(storage=storage)
         assert [item.id for item in TodoService(reopened).list_items(context)] == [saved_id]

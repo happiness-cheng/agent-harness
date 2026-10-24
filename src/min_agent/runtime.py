@@ -15,6 +15,7 @@ from min_agent.sessions import ExecutionContext, SessionStore
 from min_agent.task_state import AuthorizationRequired
 from min_agent.tools.registry import InvalidToolResultError, ToolRegistry
 from min_agent.trace import TraceContext, TraceRecorder
+from min_agent.state_bar import RuntimeContextMessage
 
 
 class Model(Protocol):
@@ -188,16 +189,7 @@ class Runtime:
                         model_span.finish(status, code, "not_started")
                         return RunResult(status=status, error_code=code)
                 try:
-                    model_messages = [message.model_copy(deep=True) for message in messages]
-                    if self._system_prompt is not None:
-                        state = self._tools.work_state()
-                        model_messages = [
-                            Message(role="system", content=self._system_prompt),
-                            Message(role="user", content=json.dumps(
-                                {"application_state": {**state.model_dump(mode="json"), "current_date": Clock().today().isoformat()}},
-                                ensure_ascii=False, allow_nan=False,
-                            )),
-                        ] + model_messages
+                    model_messages = self._model_messages(messages)
                     if self._tools is None:
                         response = self._model.generate(model_messages)
                     else:
@@ -408,6 +400,27 @@ class Runtime:
                 case _:
                     return RunResult(status="failed", response=response, error_code="model_error")
 
+    def _model_messages(self, messages):
+        result = [message.model_copy(deep=True) for message in messages]
+        if self._system_prompt is None:
+            return result
+
+        def payload():
+            try:
+                state = self._tools.work_state()
+                status = self._tools.state_bar(messages, self._budget)
+                mode = status.get("execution", {}).get("mode", state.mode) if status is not None else state.mode
+                view = {"application_state": {"mode": mode, "current_date": Clock().today().isoformat()}}
+                if status is not None:
+                    view["agent_status"] = status
+                return json.dumps(view, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
+            except Exception as error:
+                raise ContextLimit("当前状态投影不可用，停止本次模型请求") from error
+
+        tail = RuntimeContextMessage(role="user", content=payload())
+        tail._refresh = payload
+        return [Message(role="system", content=self._system_prompt)] + result + [tail]
+
     def _close_checkpoint(self, messages, context, run_id, parent_call_id, reason) -> RunResult:
         """仅一次收尾尝试；额度/协议失败也保留真实结果引用，不执行收尾工具。"""
         note, response = None, None
@@ -424,17 +437,7 @@ class Runtime:
                 span.finish("failed", closing_error, "not_started")
             else:
                 try:
-                    model_messages = [message.model_copy(deep=True) for message in messages]
-                    if self._system_prompt is not None:
-                        state = self._tools.work_state()
-                        model_messages = [
-                            Message(role="system", content=self._system_prompt),
-                            Message(role="user", content=json.dumps(
-                                {"application_state": {**state.model_dump(mode="json"), "current_date": Clock().today().isoformat()}},
-                                ensure_ascii=False, allow_nan=False,
-                            )),
-                        ] + model_messages
-                    model_messages.append(Message(role="user", content=CLOSING_INSTRUCTION))
+                    model_messages = self._model_messages(messages + [Message(role="user", content=CLOSING_INSTRUCTION)])
                     response = self._model.generate(model_messages)
                 except Exception:
                     closing_status, closing_error = "failed", "model_call_failed"
