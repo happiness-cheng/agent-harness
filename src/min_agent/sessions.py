@@ -157,6 +157,14 @@ class SessionStore:
             checked = WorkState.model_validate(state.model_dump(warnings=False))
             candidate = session.model_copy(deep=True)
             candidate.work_state = checked
+            if checked.proposal is not None and (
+                    session.work_state.proposal is None
+                    or checked.proposal.proposal_id != session.work_state.proposal.proposal_id):
+                # 只记录可信目标所属的逻辑任务边界，避免新聊天沿用旧进度。
+                start = (session.task.history_start if session.task is not None
+                         and session.task.status != "completed" else len(session.messages))
+                candidate.extensions["goal_tracking"] = {
+                    "proposal_id": str(checked.proposal.proposal_id), "history_start": start}
             self._commit_session(candidate)
 
     def _persist_todos(self, context: ExecutionContext, items: dict[UUID, "TodoItem"]) -> None:

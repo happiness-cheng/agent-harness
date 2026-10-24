@@ -57,6 +57,12 @@ class ToolRegistry:
             return None
         return self._sessions.work_state(self._context)
 
+    def state_bar(self, messages, budget=None):
+        if not self.is_bound:
+            return None
+        from min_agent.state_bar import StatusBuilder
+        return StatusBuilder(self._sessions, self._context, budget).build(messages)
+
     def register(self, tool: ToolDefinition) -> None:
         if not isinstance(tool.name, str) or not tool.name.strip():
             raise ValueError("工具名称必须是非空白字符串")
