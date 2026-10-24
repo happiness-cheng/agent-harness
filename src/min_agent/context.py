@@ -98,9 +98,9 @@ class ContextManager:
         candidates = [snapshot for _, snapshot in latest_skill_snapshots(core)]
         if not candidates or self.skill_selector is None:
             return state
-        user_positions = [index for index, message in enumerate(core) if message.role == "user"]
-        start = user_positions[-2] if len(user_positions) >= 2 else 0
-        task_context = {"previous_memory": state["summary"], "recent_messages": [
+        # 旧摘要只覆盖 covered 以前的记录，其后的任务依据必须完整提供。
+        start = state["covered"]
+        task_context = {"previous_memory": state["summary"], "uncompressed_messages": [
             message.model_dump(mode="json", exclude={"provider_state"})
             for message in skill_history_projection(core[start:])]}
         try:
