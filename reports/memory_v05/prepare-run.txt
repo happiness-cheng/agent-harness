@@ -1,0 +1,55 @@
+{
+  "cases": 9,
+  "requests": 27,
+  "estimated_worst_case_usd": 0.261196,
+  "pack_sha256": "817067eb067672d5a3b929762029cb1c588f3289595b7ec9d63c76252422b954",
+  "reference_bytes": {
+    "layer1_01_bank_account": {
+      "A": 0,
+      "B": 3885,
+      "C": 389
+    },
+    "layer1_08_hotel_reservation": {
+      "A": 0,
+      "B": 3936,
+      "C": 916
+    },
+    "layer2_01_multiple_vehicles": {
+      "A": 0,
+      "B": 4069,
+      "C": 1363
+    },
+    "layer2_03_multiple_credit_cards": {
+      "A": 0,
+      "B": 4020,
+      "C": 2450
+    },
+    "layer3_01_travel_coordination": {
+      "A": 0,
+      "B": 4019,
+      "C": 1642
+    },
+    "layer3_03_home_purchase_coordination": {
+      "A": 0,
+      "B": 4055,
+      "C": 2274
+    },
+    "v05_current_instruction": {
+      "A": 0,
+      "B": 1075,
+      "C": 433
+    },
+    "v05_temporal_state": {
+      "A": 0,
+      "B": 1075,
+      "C": 433
+    },
+    "v05_missing_memory": {
+      "A": 0,
+      "B": 671,
+      "C": 0
+    }
+  },
+  "credentials_read": false,
+  "model_calls": 0
+}

@@ -1,0 +1,14 @@
+{
+  "approved_by_user": true,
+  "approval_id": "adrian-v05-pilot-27",
+  "user_confirmation_reference": "call_d0f238af03184ac6af41a358072ff829: 同意，按上述范围实测",
+  "pack_sha256": "817067eb067672d5a3b929762029cb1c588f3289595b7ec9d63c76252422b954",
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "max_requests": 27,
+  "max_cost_usd": 1,
+  "data_scope": "public_book_and_synthetic",
+  "external_judge": false,
+  "credentials_file": "C:/Users/陈独秀/agent-harness-credentials.json",
+  "proxy": "http://127.0.0.1:7890"
+}

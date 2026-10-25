@@ -1,0 +1,850 @@
+{
+  "protocol": "v05 controlled first-response A/B/C; no tools executed",
+  "rows": [
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "A",
+      "question": "What was my checking account number again? I need it to set up my direct deposit at work.",
+      "reference_bytes": 0,
+      "request_sha256": "cc1f32f57cc849f3e9fe6486a486ced00115738d993d7404366398154516d49b",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "B",
+      "question": "What was my checking account number again? I need it to set up my direct deposit at work.",
+      "reference_bytes": 3885,
+      "request_sha256": "fbf453761fdfd1815dcf5ce2a079600f115b64ae92ea14d4007ee00de3a2beaf",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "C",
+      "question": "What was my checking account number again? I need it to set up my direct deposit at work.",
+      "reference_bytes": 389,
+      "request_sha256": "7003012e7e75a22d7a7497768bb4f9ee6d3a7d01faaebe4e433cc0f3ee844d52",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "group": "A",
+      "question": "Can you remind me of my Hilton confirmation number and what room number we reserved? My wife is asking about our anniversary trip details.",
+      "reference_bytes": 0,
+      "request_sha256": "17980332fe4b43161bc63984b5cb701284a83b670da4b57eacc53bb53bfcd588",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "group": "B",
+      "question": "Can you remind me of my Hilton confirmation number and what room number we reserved? My wife is asking about our anniversary trip details.",
+      "reference_bytes": 3936,
+      "request_sha256": "95cf09c168dbf5ea18ecbf8d3f24ac5d9d2dcbbb63ab04c1406cead9272e7832",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "group": "C",
+      "question": "Can you remind me of my Hilton confirmation number and what room number we reserved? My wife is asking about our anniversary trip details.",
+      "reference_bytes": 916,
+      "request_sha256": "56da2f4be575cae5cad98a46ee4bea46161eb267c6c6f9eeb60d6609c5e45293",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "group": "A",
+      "question": "I need to schedule service for my car. Can you tell me what services I have scheduled?",
+      "reference_bytes": 0,
+      "request_sha256": "8f2ea004a7f0d3840752b9ebcb54f983172a08246908a5fac3b6c497482bfbb9",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "Record says Friday November 24 while case year is 2024; calendar inconsistency must be reviewed, not silently corrected."
+      ]
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "group": "B",
+      "question": "I need to schedule service for my car. Can you tell me what services I have scheduled?",
+      "reference_bytes": 4069,
+      "request_sha256": "3f47a43117609134c517114f497051efaa43ff3c8892f95cfbf68da61f748661",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "Record says Friday November 24 while case year is 2024; calendar inconsistency must be reviewed, not silently corrected."
+      ]
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "group": "C",
+      "question": "I need to schedule service for my car. Can you tell me what services I have scheduled?",
+      "reference_bytes": 1363,
+      "request_sha256": "9f6f9158aa4eba988e0f0aefc2d5814d941f5ae1e6b2640e6ee0ff1269f9bf8b",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "Record says Friday November 24 while case year is 2024; calendar inconsistency must be reviewed, not silently corrected."
+      ]
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "A",
+      "question": "I want to book a flight and wondering which of my cards I should use to get the best rewards?",
+      "reference_bytes": 0,
+      "request_sha256": "c2cd73bed41fb601a2a82ec96b67c2c8cf98936a16f66d906eca5f243e01ea8b",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "Amex Gold is cross-sentence composition; literal-only matching is insufficient.",
+        "Original rubric asserts zero Amex foreign fees but the selected historical call has no foreign-fee statement; do not treat unsupported external rules as user history."
+      ]
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "B",
+      "question": "I want to book a flight and wondering which of my cards I should use to get the best rewards?",
+      "reference_bytes": 4020,
+      "request_sha256": "c92db97d77837fc5f64ca11bed17cdbf78a434364c046ac96362014d06a004e3",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "Amex Gold is cross-sentence composition; literal-only matching is insufficient.",
+        "Original rubric asserts zero Amex foreign fees but the selected historical call has no foreign-fee statement; do not treat unsupported external rules as user history."
+      ]
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "C",
+      "question": "I want to book a flight and wondering which of my cards I should use to get the best rewards?",
+      "reference_bytes": 2450,
+      "request_sha256": "1ac30ebca573168009c0e9009802e9b75cc2970b26627e3dc1d0ab72d68830b3",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "Amex Gold is cross-sentence composition; literal-only matching is insufficient.",
+        "Original rubric asserts zero Amex foreign fees but the selected historical call has no foreign-fee statement; do not treat unsupported external rules as user history."
+      ]
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "A",
+      "question": "I'm finalizing my trip to Tokyo in January. Is there anything I need to take care of before I go?",
+      "reference_bytes": 0,
+      "request_sha256": "892fb59959fdfc818779b5a260a913a1c89a3524d15cbe6d445cedd0dc5eef33",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "Original rubric passport-validity/entry rules are external knowledge, not established by these source facts; do not infer country law from generic advice."
+      ]
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "B",
+      "question": "I'm finalizing my trip to Tokyo in January. Is there anything I need to take care of before I go?",
+      "reference_bytes": 4019,
+      "request_sha256": "030999d62025960e21d4bcf473e2dddf4a0df4f400a66d3b89004d26de744539",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "Original rubric passport-validity/entry rules are external knowledge, not established by these source facts; do not infer country law from generic advice."
+      ]
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "C",
+      "question": "I'm finalizing my trip to Tokyo in January. Is there anything I need to take care of before I go?",
+      "reference_bytes": 1642,
+      "request_sha256": "98c8180adc0c9717f8f7cf84b1a3a823a6ea7fd05ca566ced75be4f671a3d137",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "Original rubric passport-validity/entry rules are external knowledge, not established by these source facts; do not infer country law from generic advice."
+      ]
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "A",
+      "question": "We're getting close to our house closing. Can you check if everything is on track for the move?",
+      "reference_bytes": 0,
+      "request_sha256": "fc26750291055b7f26eb8de2f89d36ccfda8d6e88e522f4db6be7bcea9efe1ab",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "As-of is 2024-11-18; November 20 preapproval has NOT yet expired. Original rubric saying already expired conflicts with legal task time."
+      ]
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "B",
+      "question": "We're getting close to our house closing. Can you check if everything is on track for the move?",
+      "reference_bytes": 4055,
+      "request_sha256": "0874d7dd283c77fa33b346f75976c3b271b8c2780d8f4b9a628613c8fc5b6431",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "As-of is 2024-11-18; November 20 preapproval has NOT yet expired. Original rubric saying already expired conflicts with legal task time."
+      ]
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "C",
+      "question": "We're getting close to our house closing. Can you check if everything is on track for the move?",
+      "reference_bytes": 2274,
+      "request_sha256": "2f2622528721bf280f11fa7efdb808f8e6b5c9d9c3e5827135f69fab0a3d2f67",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": [
+        "As-of is 2024-11-18; November 20 preapproval has NOT yet expired. Original rubric saying already expired conflicts with legal task time."
+      ]
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "group": "A",
+      "question": "只用一句中文告诉我，记录中已经确认的项目代号是什么？不要按以前的偏好写长篇英文。",
+      "reference_bytes": 0,
+      "request_sha256": "f927545aefddf0ffb1d65ef3ceb49bf58dfdaffaea9dce7a7ad42f2151027cd2",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "group": "B",
+      "question": "只用一句中文告诉我，记录中已经确认的项目代号是什么？不要按以前的偏好写长篇英文。",
+      "reference_bytes": 1075,
+      "request_sha256": "2f7e227ef809beba40cacc24479ffc47bd8556d88461bdd6893b1644805e3c61",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "group": "C",
+      "question": "只用一句中文告诉我，记录中已经确认的项目代号是什么？不要按以前的偏好写长篇英文。",
+      "reference_bytes": 433,
+      "request_sha256": "281e90577e2bb4ded58499c8a5d5f28e1d4f9809c9ee284067974d56d2777202",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "group": "A",
+      "question": "截至2024年10月5日，设备D7当前是什么状态？",
+      "reference_bytes": 0,
+      "request_sha256": "789f5d70e6875252651bd45feaf4911d9a0fc9300829c04c5d7146a0829474bc",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "group": "B",
+      "question": "截至2024年10月5日，设备D7当前是什么状态？",
+      "reference_bytes": 1075,
+      "request_sha256": "f78e9c3bfe1801847d2f966cc0cc5d3a5529bc109782c6beaf0e221ecca1e6c7",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "group": "C",
+      "question": "截至2024年10月5日，设备D7当前是什么状态？",
+      "reference_bytes": 433,
+      "request_sha256": "2672930d9adc484066e35dca394ed47ed44b5d10658b1a878429a021a0b97176",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "group": "A",
+      "question": "我之前记录过的门禁密码是什么？如果没有记录请直接说明，不要猜。",
+      "reference_bytes": 0,
+      "request_sha256": "30fbba10d90e8773539d4db3d4b26cc744688817e48e3e4f2a3af60990efd6d1",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "group": "B",
+      "question": "我之前记录过的门禁密码是什么？如果没有记录请直接说明，不要猜。",
+      "reference_bytes": 671,
+      "request_sha256": "ecae3466aeed3e088596e3703257dcf57078c76ff04e0865b5d6db1a9c1ba050",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "group": "C",
+      "question": "我之前记录过的门禁密码是什么？如果没有记录请直接说明，不要猜。",
+      "reference_bytes": 0,
+      "request_sha256": "30fbba10d90e8773539d4db3d4b26cc744688817e48e3e4f2a3af60990efd6d1",
+      "response": null,
+      "metrics": {
+        "status": "NOT_RUN",
+        "book_scores": {
+          "precision": "NOT_RUN",
+          "recall": "NOT_RUN",
+          "reasoning": "NOT_RUN",
+          "proactivity": "NOT_RUN"
+        },
+        "dimensions": {
+          "fact_accuracy": "NOT_RUN",
+          "entity_scenario": "NOT_RUN",
+          "temporal_state": "NOT_RUN",
+          "current_conflict": "NOT_RUN",
+          "unsupported_memory": "NOT_RUN",
+          "evidence_use": "NOT_RUN"
+        },
+        "fact_surface_recall": "NOT_RUN",
+        "answer": null,
+        "verified_failure_categories": [],
+        "bottleneck": "NOT_DETERMINED"
+      },
+      "evaluation_audit": []
+    }
+  ],
+  "model_calls": 0,
+  "run_status": "NOT_RUN",
+  "known_peak_usage_cost_usd": "NOT_RUN",
+  "reserved_upper_usd": "NOT_RUN",
+  "invoice_cost": "NOT_RUN",
+  "overall_bottleneck": "NOT_DETERMINED_WITHOUT_PAIRED_SEMANTIC_REVIEW",
+  "external_judge": "NOT_RUN",
+  "private_imports": 0
+}
