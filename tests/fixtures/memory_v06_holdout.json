@@ -1,0 +1,67 @@
+{
+  "scope": "new synthetic holdout constructed after policy freeze; implementer-authored, not independent blind validation",
+  "cases": [
+    {
+      "test_id": "v06_holdout_accounts", "category": "synthetic",
+      "user_question": "Which is my payroll checking account number and its routing number? Do not give the savings account.",
+      "conversation_histories": [{"conversation_id":"payroll_bank","timestamp":"2024-03-02T09:00:00Z","messages":[
+        {"role":"user","content":"My payroll checking account number is 5184027601. The routing number is 061009517. These numbers were copied from my bank statement."},
+        {"role":"user","content":"The savings account number is 5184027602; do not use it for payroll."},
+        {"role":"assistant","content":"I guess the payroll account ends in 7602, but that has not been confirmed."}
+      ]}],
+      "oracle_positions": [["payroll_bank",0]],
+      "required_facts": ["5184027601","061009517"]
+    },
+    {
+      "test_id": "v06_holdout_reservation", "category": "synthetic",
+      "user_question": "What are the confirmation number and room number of my Cedar Inn booking, and is it confirmed?",
+      "conversation_histories": [{"conversation_id":"cedar_booking","timestamp":"2024-04-10T10:00:00Z","messages":[
+        {"role":"user","content":"Cedar Inn membership number is 835194. This is not a booking confirmation."},
+        {"role":"user","content":"My Cedar Inn booking confirmation number is CI-684219. Room number 612 is reserved, but the booking is pending payment and is not confirmed yet."},
+        {"role":"user","content":"The other hotel is Meadow Lodge, confirmation ML-391204, room 415; that reservation is confirmed."}
+      ]}],
+      "oracle_positions": [["cedar_booking",1]],
+      "required_facts": ["CI-684219","612","pending payment"]
+    },
+    {
+      "test_id": "v06_holdout_status", "category": "synthetic",
+      "user_question": "As of May 6, what is the status of request W8?",
+      "as_of": "2024-05-06T00:00:00Z",
+      "conversation_histories": [
+        {"conversation_id":"request_initial","timestamp":"2024-05-01T00:00:00Z","messages":[{"role":"user","content":"Request W8 is pending review."}]},
+        {"conversation_id":"request_cancelled","timestamp":"2024-05-05T00:00:00Z","messages":[{"role":"user","content":"Request W8 has been cancelled. It is no longer pending review."}]},
+        {"conversation_id":"request_future","timestamp":"2024-05-09T00:00:00Z","messages":[{"role":"user","content":"Request W8 was restored and is approved now."}]}
+      ],
+      "oracle_positions": [["request_initial",0],["request_cancelled",0]],
+      "required_facts": ["cancelled"]
+    },
+    {
+      "test_id": "v06_holdout_vehicles", "category": "synthetic",
+      "user_question": "What car service do I already have scheduled? I own two cars; explain their different booking status.",
+      "conversation_histories": [
+        {"conversation_id":"subaru_service","timestamp":"2024-06-03T09:00:00Z","messages":[{"role":"user","content":"My 2018 Subaru Outback has an oil change booked for June 14 at 09:30. Confirmation number is SB-482170."}]},
+        {"conversation_id":"volvo_service","timestamp":"2024-06-04T10:00:00Z","messages":[{"role":"user","content":"My 2021 Volvo XC40 has no service booked. The June 14 appointment belongs only to the Subaru Outback."}]}
+      ],
+      "oracle_positions": [["subaru_service",0],["volvo_service",0]],
+      "required_facts": ["Subaru Outback","SB-482170","Volvo XC40","no service booked"]
+    },
+    {
+      "test_id": "v06_holdout_gate", "category": "synthetic",
+      "user_question": "What is the Maple Air booking confirmation number and is its departure gate fixed?",
+      "conversation_histories": [{"conversation_id":"flight_note","timestamp":"2024-07-08T08:00:00Z","messages":[
+        {"role":"assistant","content":"The Maple Air booking confirmation number is MA-624831. Gate F12 is tentative and must be verified after 09:00; it is not a confirmed gate assignment."},
+        {"role":"user","content":"The baggage tag number is 624832. It is unrelated to the booking confirmation."}
+      ]}],
+      "oracle_positions": [["flight_note",0]],
+      "required_facts": ["MA-624831","tentative","09:00"]
+    },
+    {
+      "test_id": "v06_holdout_missing", "category": "synthetic",
+      "user_question": "What is the access code for my storage locker? If there is no record, say you cannot find it in the available material; do not guess.",
+      "conversation_histories": [{"conversation_id":"locker_note","timestamp":"2024-08-02T11:00:00Z","messages":[{"role":"user","content":"My locker rental order number is LK-306712. I did not write down an access code here."}]}],
+      "oracle_positions": [["locker_note",0]],
+      "required_facts": [],
+      "expected_boundary": "abstain; rental order is not an access code"
+    }
+  ]
+}

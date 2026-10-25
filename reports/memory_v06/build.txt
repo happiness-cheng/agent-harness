@@ -1,0 +1,12 @@
+Processing .\.
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: agent-harness
+  Building wheel for agent-harness (pyproject.toml): started
+  Building wheel for agent-harness (pyproject.toml): finished with status 'done'
+  Created wheel for agent-harness: filename=agent_harness-0.1.0-py3-none-any.whl size=198531 sha256=fbc901120906059d51ff4407cfee299b87486f54d3bd5529444f3ef12af8ca3b
+  Stored in directory: C:\Users\陈独秀\AppData\Local\Temp\pip-ephem-wheel-cache-2zpsv4pa\wheels\9b\7a\90\5a026aeb50fd4157ed1b3696a6996a8b1f56c09a399cf64ad5
+Successfully built agent-harness
+
+[notice] A new release of pip is available: 26.2.1 -> 26.2.2
+[notice] To update, run: C:\Users\陈独秀\Documents\agent-harness\.venv\Scripts\python.exe -m pip install --upgrade pip
