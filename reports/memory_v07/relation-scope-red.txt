@@ -1,0 +1,15 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_holding_is_not_borrowed_from_another_scenario_and_approval_is_not_held _
+
+    def test_holding_is_not_borrowed_from_another_scenario_and_approval_is_not_held():
+        a=extract_relations(source('I hold Gold Card.'),scenario='work')
+        b=extract_relations(source('I cancelled Gold Card.'),scenario='personal')
+>       assert held_products(a+b,owner='owner-a',as_of=AT,scenario='work')==['Gold Card']
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: held_products() got an unexpected keyword argument 'scenario'
+
+tests\unit\test_fact_relations_v07.py:60: TypeError
+=========================== short test summary info ===========================
+FAILED tests/unit/test_fact_relations_v07.py::test_holding_is_not_borrowed_from_another_scenario_and_approval_is_not_held
+1 failed, 6 deselected in 0.60s

@@ -1,0 +1,17 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+____ test_routing_number_is_not_the_account_number_and_keeps_leading_zero _____
+
+    def test_routing_number_is_not_the_account_number_and_keeps_leading_zero():
+        facts=extract_relations(source('My payroll account number is 771039. My payroll account routing number is 036000187. My payroll account purpose is payroll.'))
+>       assert {(r.attribute,r.value) for r in facts}=={('number','771039'),('routing_number','036000187'),('purpose','payroll')}
+E       AssertionError: assert {('number', '...', 'payroll')} == {('number', '... '036000187')}
+E         
+E         Extra items in the right set:
+E         ('routing_number', '036000187')
+E         Use -v to get more diff
+
+tests\unit\test_fact_relations_v07.py:69: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/test_fact_relations_v07.py::test_routing_number_is_not_the_account_number_and_keeps_leading_zero
+1 failed, 7 deselected in 0.60s

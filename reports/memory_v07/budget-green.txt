@@ -1,0 +1,282 @@
+FFFFFFFF                                                                 [100%]
+================================== FAILURES ===================================
+_______ test_breakdown_uses_real_protocol_without_duplicate_native_call _______
+
+    def test_breakdown_uses_real_protocol_without_duplicate_native_call():
+        call=ToolCall(id='q1',name='search_long_memory',arguments={'question':'account'})
+        state=ProviderState(provider='deepseek.responses',model='deepseek-flash',response_model='deepseek-flash',output=[
+            {'type':'reasoning','content':[{'type':'reasoning_text','text':'SYNTHETIC_PADDING'*20}]},
+            {'type':'function_call','call_id':call.id,'name':call.name,'arguments':'{"question":"account"}'}])
+        messages=[Message(role='system',content='trusted rules'),Message(role='user',content='question'),
+            Message(role='assistant',content='',tool_calls=[call],provider_state=state),
+            Message(role='tool',content='{"ok":true,"result":"id"}',tool_call_id='q1'),
+            Message(role='user',content='{"application_state":{"mode":"plan"},"untrusted_user_memory":{"evidence":[]}}')]
+>       report=request_breakdown(messages,[])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_active_budget_v07.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\min_agent\long_memory\active_budget_v07.py:27: in request_breakdown
+    body=DeepSeekResponsesModel._build_body(builder,messages,tools)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = namespace(_settings=namespace(model='deepseek-flash', reasoning_effort='high', max_output_tokens=4096))
+messages = [Message(role='system', content='trusted rules', tool_call_id=None, tool_calls=[], provider_state=None), Message(role=...ate":{"mode":"plan"},"untrusted_user_memory":{"evidence":[]}}', tool_call_id=None, tool_calls=[], provider_state=None)]
+tools = []
+
+    def _build_body(self, messages, tools):
+        # 不发送DeepSeek不支持或静默忽略的OpenAI专有字段。
+        return {
+            "model": self._settings.model,
+>           "input": build_input(messages, model=self._settings.model, provider=self._provider),
+                                                                                ^^^^^^^^^^^^^^
+            "tools": build_tools(tools),
+            "reasoning": {"effort": self._settings.reasoning_effort},
+            "stream": False,
+            "max_output_tokens": self._settings.max_output_tokens,
+        }
+E       AttributeError: 'types.SimpleNamespace' object has no attribute '_provider'
+
+src\min_agent\llm\deepseek.py:25: AttributeError
+_____ test_completed_requests_settle_actual_tokens_without_raising_limits _____
+
+    def test_completed_requests_settle_actual_tokens_without_raising_limits():
+        account=BudgetAccount()
+>       d=request_breakdown([Message(role='user',content='x'*15000)],[])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_active_budget_v07.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\min_agent\long_memory\active_budget_v07.py:27: in request_breakdown
+    body=DeepSeekResponsesModel._build_body(builder,messages,tools)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = namespace(_settings=namespace(model='deepseek-flash', reasoning_effort='high', max_output_tokens=4096))
+messages = [Message(role='user', content='xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', tool_call_id=None, tool_calls=[], provider_state=None)]
+tools = []
+
+    def _build_body(self, messages, tools):
+        # 不发送DeepSeek不支持或静默忽略的OpenAI专有字段。
+        return {
+            "model": self._settings.model,
+>           "input": build_input(messages, model=self._settings.model, provider=self._provider),
+                                                                                ^^^^^^^^^^^^^^
+            "tools": build_tools(tools),
+            "reasoning": {"effort": self._settings.reasoning_effort},
+            "stream": False,
+            "max_output_tokens": self._settings.max_output_tokens,
+        }
+E       AttributeError: 'types.SimpleNamespace' object has no attribute '_provider'
+
+src\min_agent\llm\deepseek.py:25: AttributeError
+_______ test_single_and_cumulative_limits_are_distinct_and_not_disabled _______
+
+    def test_single_and_cumulative_limits_are_distinct_and_not_disabled():
+        account=BudgetAccount()
+>       d=request_breakdown([Message(role='user',content='x'*33000)],[])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_active_budget_v07.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\min_agent\long_memory\active_budget_v07.py:27: in request_breakdown
+    body=DeepSeekResponsesModel._build_body(builder,messages,tools)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = namespace(_settings=namespace(model='deepseek-flash', reasoning_effort='high', max_output_tokens=4096))
+messages = [Message(role='user', content='xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', tool_call_id=None, tool_calls=[], provider_state=None)]
+tools = []
+
+    def _build_body(self, messages, tools):
+        # 不发送DeepSeek不支持或静默忽略的OpenAI专有字段。
+        return {
+            "model": self._settings.model,
+>           "input": build_input(messages, model=self._settings.model, provider=self._provider),
+                                                                                ^^^^^^^^^^^^^^
+            "tools": build_tools(tools),
+            "reasoning": {"effort": self._settings.reasoning_effort},
+            "stream": False,
+            "max_output_tokens": self._settings.max_output_tokens,
+        }
+E       AttributeError: 'types.SimpleNamespace' object has no attribute '_provider'
+
+src\min_agent\llm\deepseek.py:25: AttributeError
+_______ test_unknown_usage_cannot_release_reservation_or_continue[None] _______
+
+usage = None
+
+    @pytest.mark.parametrize('usage',[None,{},dict(input_tokens=-1,output_tokens=5),dict(input_tokens=True,output_tokens=5)])
+    def test_unknown_usage_cannot_release_reservation_or_continue(usage):
+>       account=BudgetAccount();d=request_breakdown([Message(role='user',content='hello')],[])
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_active_budget_v07.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\min_agent\long_memory\active_budget_v07.py:27: in request_breakdown
+    body=DeepSeekResponsesModel._build_body(builder,messages,tools)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = namespace(_settings=namespace(model='deepseek-flash', reasoning_effort='high', max_output_tokens=4096))
+messages = [Message(role='user', content='hello', tool_call_id=None, tool_calls=[], provider_state=None)]
+tools = []
+
+    def _build_body(self, messages, tools):
+        # 不发送DeepSeek不支持或静默忽略的OpenAI专有字段。
+        return {
+            "model": self._settings.model,
+>           "input": build_input(messages, model=self._settings.model, provider=self._provider),
+                                                                                ^^^^^^^^^^^^^^
+            "tools": build_tools(tools),
+            "reasoning": {"effort": self._settings.reasoning_effort},
+            "stream": False,
+            "max_output_tokens": self._settings.max_output_tokens,
+        }
+E       AttributeError: 'types.SimpleNamespace' object has no attribute '_provider'
+
+src\min_agent\llm\deepseek.py:25: AttributeError
+______ test_unknown_usage_cannot_release_reservation_or_continue[usage1] ______
+
+usage = {}
+
+    @pytest.mark.parametrize('usage',[None,{},dict(input_tokens=-1,output_tokens=5),dict(input_tokens=True,output_tokens=5)])
+    def test_unknown_usage_cannot_release_reservation_or_continue(usage):
+>       account=BudgetAccount();d=request_breakdown([Message(role='user',content='hello')],[])
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_active_budget_v07.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\min_agent\long_memory\active_budget_v07.py:27: in request_breakdown
+    body=DeepSeekResponsesModel._build_body(builder,messages,tools)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = namespace(_settings=namespace(model='deepseek-flash', reasoning_effort='high', max_output_tokens=4096))
+messages = [Message(role='user', content='hello', tool_call_id=None, tool_calls=[], provider_state=None)]
+tools = []
+
+    def _build_body(self, messages, tools):
+        # 不发送DeepSeek不支持或静默忽略的OpenAI专有字段。
+        return {
+            "model": self._settings.model,
+>           "input": build_input(messages, model=self._settings.model, provider=self._provider),
+                                                                                ^^^^^^^^^^^^^^
+            "tools": build_tools(tools),
+            "reasoning": {"effort": self._settings.reasoning_effort},
+            "stream": False,
+            "max_output_tokens": self._settings.max_output_tokens,
+        }
+E       AttributeError: 'types.SimpleNamespace' object has no attribute '_provider'
+
+src\min_agent\llm\deepseek.py:25: AttributeError
+______ test_unknown_usage_cannot_release_reservation_or_continue[usage2] ______
+
+usage = {'input_tokens': -1, 'output_tokens': 5}
+
+    @pytest.mark.parametrize('usage',[None,{},dict(input_tokens=-1,output_tokens=5),dict(input_tokens=True,output_tokens=5)])
+    def test_unknown_usage_cannot_release_reservation_or_continue(usage):
+>       account=BudgetAccount();d=request_breakdown([Message(role='user',content='hello')],[])
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_active_budget_v07.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\min_agent\long_memory\active_budget_v07.py:27: in request_breakdown
+    body=DeepSeekResponsesModel._build_body(builder,messages,tools)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = namespace(_settings=namespace(model='deepseek-flash', reasoning_effort='high', max_output_tokens=4096))
+messages = [Message(role='user', content='hello', tool_call_id=None, tool_calls=[], provider_state=None)]
+tools = []
+
+    def _build_body(self, messages, tools):
+        # 不发送DeepSeek不支持或静默忽略的OpenAI专有字段。
+        return {
+            "model": self._settings.model,
+>           "input": build_input(messages, model=self._settings.model, provider=self._provider),
+                                                                                ^^^^^^^^^^^^^^
+            "tools": build_tools(tools),
+            "reasoning": {"effort": self._settings.reasoning_effort},
+            "stream": False,
+            "max_output_tokens": self._settings.max_output_tokens,
+        }
+E       AttributeError: 'types.SimpleNamespace' object has no attribute '_provider'
+
+src\min_agent\llm\deepseek.py:25: AttributeError
+______ test_unknown_usage_cannot_release_reservation_or_continue[usage3] ______
+
+usage = {'input_tokens': True, 'output_tokens': 5}
+
+    @pytest.mark.parametrize('usage',[None,{},dict(input_tokens=-1,output_tokens=5),dict(input_tokens=True,output_tokens=5)])
+    def test_unknown_usage_cannot_release_reservation_or_continue(usage):
+>       account=BudgetAccount();d=request_breakdown([Message(role='user',content='hello')],[])
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_active_budget_v07.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\min_agent\long_memory\active_budget_v07.py:27: in request_breakdown
+    body=DeepSeekResponsesModel._build_body(builder,messages,tools)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = namespace(_settings=namespace(model='deepseek-flash', reasoning_effort='high', max_output_tokens=4096))
+messages = [Message(role='user', content='hello', tool_call_id=None, tool_calls=[], provider_state=None)]
+tools = []
+
+    def _build_body(self, messages, tools):
+        # 不发送DeepSeek不支持或静默忽略的OpenAI专有字段。
+        return {
+            "model": self._settings.model,
+>           "input": build_input(messages, model=self._settings.model, provider=self._provider),
+                                                                                ^^^^^^^^^^^^^^
+            "tools": build_tools(tools),
+            "reasoning": {"effort": self._settings.reasoning_effort},
+            "stream": False,
+            "max_output_tokens": self._settings.max_output_tokens,
+        }
+E       AttributeError: 'types.SimpleNamespace' object has no attribute '_provider'
+
+src\min_agent\llm\deepseek.py:25: AttributeError
+__________ test_reported_overflow_stops_without_faking_a_small_usage __________
+
+    def test_reported_overflow_stops_without_faking_a_small_usage():
+>       account=BudgetAccount();d=request_breakdown([Message(role='user',content='hello')],[])
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_active_budget_v07.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\min_agent\long_memory\active_budget_v07.py:27: in request_breakdown
+    body=DeepSeekResponsesModel._build_body(builder,messages,tools)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = namespace(_settings=namespace(model='deepseek-flash', reasoning_effort='high', max_output_tokens=4096))
+messages = [Message(role='user', content='hello', tool_call_id=None, tool_calls=[], provider_state=None)]
+tools = []
+
+    def _build_body(self, messages, tools):
+        # 不发送DeepSeek不支持或静默忽略的OpenAI专有字段。
+        return {
+            "model": self._settings.model,
+>           "input": build_input(messages, model=self._settings.model, provider=self._provider),
+                                                                                ^^^^^^^^^^^^^^
+            "tools": build_tools(tools),
+            "reasoning": {"effort": self._settings.reasoning_effort},
+            "stream": False,
+            "max_output_tokens": self._settings.max_output_tokens,
+        }
+E       AttributeError: 'types.SimpleNamespace' object has no attribute '_provider'
+
+src\min_agent\llm\deepseek.py:25: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/unit/test_active_budget_v07.py::test_breakdown_uses_real_protocol_without_duplicate_native_call
+FAILED tests/unit/test_active_budget_v07.py::test_completed_requests_settle_actual_tokens_without_raising_limits
+FAILED tests/unit/test_active_budget_v07.py::test_single_and_cumulative_limits_are_distinct_and_not_disabled
+FAILED tests/unit/test_active_budget_v07.py::test_unknown_usage_cannot_release_reservation_or_continue[None]
+FAILED tests/unit/test_active_budget_v07.py::test_unknown_usage_cannot_release_reservation_or_continue[usage1]
+FAILED tests/unit/test_active_budget_v07.py::test_unknown_usage_cannot_release_reservation_or_continue[usage2]
+FAILED tests/unit/test_active_budget_v07.py::test_unknown_usage_cannot_release_reservation_or_continue[usage3]
+FAILED tests/unit/test_active_budget_v07.py::test_reported_overflow_stops_without_faking_a_small_usage
+8 failed in 1.14s
