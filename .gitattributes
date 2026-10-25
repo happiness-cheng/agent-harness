@@ -306,3 +306,22 @@
 /reports/memory_v07/delivery-receipt.json -text
 /reports/memory_v07/budget-requests.csv -text
 /reports/memory_v07/commands.md -text
+
+/reports/memory_v07/authorization.json -text
+/reports/memory_v07/claims/198168e8ccb1d546f8c882f9c790542827cb18c0e6dc527ebe7d34c3d59b6a33.json -text
+/reports/memory_v07/evaluation_v07_offline.md -text
+/reports/memory_v07/live-analysis-replay/answers.md -text
+/reports/memory_v07/live-analysis-replay/metrics.json -text
+/reports/memory_v07/live-analysis-replay/packing-replay.json -text
+/reports/memory_v07/live-analysis-replay/requests.csv -text
+/reports/memory_v07/live-analysis/answers.md -text
+/reports/memory_v07/live-analysis/metrics.json -text
+/reports/memory_v07/live-analysis/packing-replay.json -text
+/reports/memory_v07/live-analysis/requests.csv -text
+/reports/memory_v07/live-analysis/source-review.md -text
+/reports/memory_v07/live.json -text
+/reports/memory_v07/live.jsonl -text
+/reports/memory_v07/offline-artifact-hashes.json -text
+/reports/memory_v07/offline-delivery-receipt.json -text
+/reports/memory_v07/post-live-tests.txt -text
+/scripts/analyze_memory_live_v07.py -text

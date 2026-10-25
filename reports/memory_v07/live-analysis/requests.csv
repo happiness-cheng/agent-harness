@@ -1,0 +1,10 @@
+﻿case_id,group,number,wire_body_bytes,history_tool_bytes,tools_bytes,memory_bytes,native_state_bytes,output_reserve,single_upper,cumulative_upper,single_limit,cumulative_limit,preflight_gate,response_received,input_tokens,output_tokens
+layer1_01_bank_account,B0,1,14923,2,2,3885,0,4096,23115,23115,32768,65536,allowed,True,3558,621
+layer1_01_bank_account,B2,2,12834,2,1962,154,0,4096,21026,21026,32768,65536,allowed,True,2910,134
+layer1_01_bank_account,B2,3,14704,1135,1962,154,895,4096,22896,25940,32768,65536,allowed,True,3533,494
+layer1_01_bank_account,B2,4,21363,2337,1962,4021,2266,4096,29555,36626,32768,65536,allowed,True,6027,684
+v07_payroll_relations,B0,5,12601,2,2,1722,0,4096,20793,20793,32768,65536,allowed,True,2728,696
+v07_payroll_relations,B2,6,12855,2,1962,144,0,4096,21047,21047,32768,65536,allowed,True,2909,205
+v07_payroll_relations,B2,7,14373,680,1962,144,998,4096,22565,25679,32768,65536,allowed,True,3348,118
+v07_payroll_relations,B2,8,16764,1054,1962,1719,1433,4096,24956,31536,32768,65536,allowed,True,4160,396
+v07_card_relations,B0,9,13504,2,2,2536,0,4096,21696,21696,32768,65536,allowed,False,UNKNOWN,UNKNOWN

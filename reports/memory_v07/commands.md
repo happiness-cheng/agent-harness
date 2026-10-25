@@ -31,7 +31,7 @@ git -c core.whitespace=cr-at-eol diff --cached --check -- '*.py' '*.md'
 
 基线测试输出保留 `baseline-tests.txt`；失败到通过的开发记录保留 `*-red.txt` 和后续通过日志。
 
-真实run **尚未执行**，不要直接运行以下模板；必须先收到本轮明确授权并生成匹配的授权记录：
+收到用户本轮授权后，以下真实run已执行一次（执行代码ec11ef2）；不能直接重跑，授权已启动且有独占claim。9次发起/8次可用响应，第9次异常后停止，无自动重试：
 
 ```powershell
 & $py -X utf8 scripts/eval_memory_active_v07.py run `
@@ -43,3 +43,15 @@ git -c core.whitespace=cr-at-eol diff --cached --check -- '*.py' '*.md'
 ```
 
 费用仅按已核查的官方峰值费率保守估算；不得把Mock的usage当作真实费用或把预留当作实际扣款。
+
+真实运行后执行以下**离线**审查，不增加模型调用：
+
+```powershell
+& $py -X utf8 scripts/analyze_memory_live_v07.py --output-dir reports/memory_v07/live-analysis
+& $py -X utf8 scripts/analyze_memory_live_v07.py --output-dir reports/memory_v07/live-analysis-replay
+# 两次生成的metrics.json、requests.csv、packing-replay.json、answers.md逐字一致。
+& $py -X utf8 -m pytest -q tests/unit/test_active_budget_v07.py tests/unit/test_active_loop_v07.py tests/unit/test_active_trial_v07.py tests/unit/test_fact_relations_v07.py tests/unit/test_active_evidence_v06.py
+# post-live-tests.txt: 33 passed in 1.67s
+```
+
+逐字比较发生在另行补写人工source-review.md之前；人工审查文件不由统计脚本生成。再次复现仍应更换未存在的输出目录。

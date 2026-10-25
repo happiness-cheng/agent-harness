@@ -1,0 +1,51 @@
+{
+  "mode": "OFFLINE_COUNTERFACTUAL_NOT_MODEL_RESULT",
+  "exact_actual_projection_reproduced": true,
+  "target_memory_id": "99960778-2ed0-54d9-ba39-abf8cf18019e",
+  "search_position": 3,
+  "requested_ids": [
+    "027ab767-f523-5c6a-9a89-4800809e3c86",
+    "0a277b69-5a86-52ff-ac4e-262b34be24b7",
+    "0b3b0aee-e476-5e12-b408-f9b040d3967c",
+    "0c93aec8-dd63-552e-a65b-bec93766765c",
+    "0df33ac4-46e2-5be8-94e3-4966222278ea",
+    "198f4ca2-ba4d-5db4-8d72-daf04bd38a24",
+    "1adc3d4f-ea4d-5a4c-90f6-bff3bcae495b",
+    "1cdee8d3-81d1-597f-8035-301e2da29c14",
+    "eaa5075f-e543-5d08-9c6d-eb3106112eb3",
+    "3a1b1fc7-65a3-5f28-a20c-8b1cbb312d0c",
+    "99960778-2ed0-54d9-ba39-abf8cf18019e",
+    "beee416c-c54a-5f4f-b0ac-16eccf494fe9",
+    "5fb88424-5314-5f1d-a8af-e2acb9481258",
+    "d8e14a84-f8f0-5fae-a89f-1c2d1a588c78",
+    "b4cb41fe-a343-51e4-8334-027c2be8620f",
+    "69bd13cb-201c-540e-9d29-e3dd7c294d7b"
+  ],
+  "actual_visible_ids": [
+    "027ab767-f523-5c6a-9a89-4800809e3c86",
+    "0a277b69-5a86-52ff-ac4e-262b34be24b7",
+    "0b3b0aee-e476-5e12-b408-f9b040d3967c",
+    "0c93aec8-dd63-552e-a65b-bec93766765c",
+    "0df33ac4-46e2-5be8-94e3-4966222278ea",
+    "198f4ca2-ba4d-5db4-8d72-daf04bd38a24",
+    "1adc3d4f-ea4d-5a4c-90f6-bff3bcae495b",
+    "1cdee8d3-81d1-597f-8035-301e2da29c14"
+  ],
+  "actual_reference_bytes": 4021,
+  "fixed_reference_budget": 4096,
+  "target_discovered": true,
+  "target_read_requested": true,
+  "target_actually_visible": false,
+  "alternative_second_read_only_ids": [
+    "eaa5075f-e543-5d08-9c6d-eb3106112eb3",
+    "3a1b1fc7-65a3-5f28-a20c-8b1cbb312d0c",
+    "99960778-2ed0-54d9-ba39-abf8cf18019e",
+    "beee416c-c54a-5f4f-b0ac-16eccf494fe9",
+    "5fb88424-5314-5f1d-a8af-e2acb9481258",
+    "d8e14a84-f8f0-5fae-a89f-1c2d1a588c78"
+  ],
+  "alternative_reference_bytes": 3722,
+  "alternative_target_visible": true,
+  "gold_used_only_for_offline_diagnosis": true,
+  "external_requests": 0
+}

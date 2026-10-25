@@ -1,0 +1,162 @@
+{
+  "status": "STOPPED",
+  "stop_reason": "provider_error_no_retry",
+  "attempted_requests": 9,
+  "usable_responses": 8,
+  "complete_pairs": [
+    "layer1_01_bank_account",
+    "v07_payroll_relations"
+  ],
+  "automatic_retries": 0,
+  "known_peak_cost_estimate": 0.0127695,
+  "all_requests_peak_fee_reserve": 0.0954723,
+  "invoice": "NOT_AVAILABLE",
+  "cells": [
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "B0",
+      "attempted_requests": 1,
+      "usable_responses": 1,
+      "tool_calls": 0,
+      "schema_valid": true,
+      "citation_valid": false,
+      "gold_facts": [
+        "4429853327",
+        "123006800"
+      ],
+      "answer_literal_hits": [],
+      "visible_literal_hits": [],
+      "input_tokens": 3558,
+      "output_tokens": 621,
+      "peak_cost_estimate": 0.0018126,
+      "provider_latency_ms": 4124.719700004789,
+      "stop_reason": null,
+      "semantic_review": "see source-review.md"
+    },
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "B2",
+      "attempted_requests": 3,
+      "usable_responses": 3,
+      "tool_calls": 4,
+      "schema_valid": true,
+      "citation_valid": true,
+      "gold_facts": [
+        "4429853327",
+        "123006800"
+      ],
+      "answer_literal_hits": [],
+      "visible_literal_hits": [],
+      "input_tokens": 12470,
+      "output_tokens": 1312,
+      "peak_cost_estimate": 0.0053154,
+      "provider_latency_ms": 7704.3429000041215,
+      "stop_reason": null,
+      "semantic_review": "see source-review.md"
+    },
+    {
+      "case_id": "v07_payroll_relations",
+      "group": "B0",
+      "attempted_requests": 1,
+      "usable_responses": 1,
+      "tool_calls": 0,
+      "schema_valid": true,
+      "citation_valid": true,
+      "gold_facts": [
+        "771039",
+        "036000187"
+      ],
+      "answer_literal_hits": [
+        "771039",
+        "036000187"
+      ],
+      "visible_literal_hits": [
+        "771039",
+        "036000187"
+      ],
+      "input_tokens": 2728,
+      "output_tokens": 696,
+      "peak_cost_estimate": 0.0016536,
+      "provider_latency_ms": 4032.966700004181,
+      "stop_reason": null,
+      "semantic_review": "see source-review.md"
+    },
+    {
+      "case_id": "v07_payroll_relations",
+      "group": "B2",
+      "attempted_requests": 3,
+      "usable_responses": 3,
+      "tool_calls": 3,
+      "schema_valid": true,
+      "citation_valid": true,
+      "gold_facts": [
+        "771039",
+        "036000187"
+      ],
+      "answer_literal_hits": [
+        "771039",
+        "036000187"
+      ],
+      "visible_literal_hits": [
+        "771039",
+        "036000187"
+      ],
+      "input_tokens": 10417,
+      "output_tokens": 719,
+      "peak_cost_estimate": 0.0039879,
+      "provider_latency_ms": 4803.244499998982,
+      "stop_reason": null,
+      "semantic_review": "see source-review.md"
+    },
+    {
+      "case_id": "v07_card_relations",
+      "group": "B0",
+      "attempted_requests": 1,
+      "usable_responses": 0,
+      "tool_calls": 0,
+      "schema_valid": false,
+      "citation_valid": false,
+      "gold_facts": [
+        "Gold Card",
+        "3x",
+        "cancelled"
+      ],
+      "answer_literal_hits": "NOT_RUN",
+      "visible_literal_hits": [],
+      "input_tokens": "UNKNOWN",
+      "output_tokens": "UNKNOWN",
+      "peak_cost_estimate": "UNKNOWN",
+      "provider_latency_ms": "UNKNOWN",
+      "stop_reason": "provider_error_no_retry",
+      "semantic_review": "see source-review.md"
+    }
+  ],
+  "paired_groups": {
+    "B0": {
+      "required_answer_hits": 2,
+      "required_visible_hits": 2,
+      "required_total": 4,
+      "schema_valid": 2,
+      "citation_valid": 1,
+      "input_tokens": 6286,
+      "output_tokens": 1317,
+      "peak_cost_estimate": 0.0034662,
+      "provider_latency_ms": 8157.68640000897,
+      "model_attempts": 2,
+      "tool_calls": 0
+    },
+    "B2": {
+      "required_answer_hits": 2,
+      "required_visible_hits": 2,
+      "required_total": 4,
+      "schema_valid": 2,
+      "citation_valid": 2,
+      "input_tokens": 22887,
+      "output_tokens": 2031,
+      "peak_cost_estimate": 0.0093033,
+      "provider_latency_ms": 12507.587400003104,
+      "model_attempts": 6,
+      "tool_calls": 7
+    }
+  }
+}
