@@ -1,0 +1,532 @@
+{
+  "groups": {
+    "A": {
+      "requests": 9,
+      "format_valid": 9,
+      "public_semantic_fact_hits": 0,
+      "public_scored_fact_denominator": 19,
+      "public_frozen_total_facts": 19,
+      "public_unscored_facts": 0,
+      "input_tokens": 18128,
+      "output_tokens": 3084,
+      "peak_usage_cost_usd": 0.0091392,
+      "total_latency_ms": 28820.581299980404,
+      "median_latency_ms": 2861.01609999605,
+      "total_reference_bytes": 0
+    },
+    "B": {
+      "requests": 9,
+      "format_valid": 8,
+      "public_semantic_fact_hits": 4,
+      "public_scored_fact_denominator": 16,
+      "public_frozen_total_facts": 19,
+      "public_unscored_facts": 3,
+      "input_tokens": 28243,
+      "output_tokens": 6301,
+      "peak_usage_cost_usd": 0.0160341,
+      "total_latency_ms": 44006.69210000342,
+      "median_latency_ms": 4783.685399997921,
+      "total_reference_bytes": 26805
+    },
+    "C": {
+      "requests": 9,
+      "format_valid": 9,
+      "public_semantic_fact_hits": 18,
+      "public_scored_fact_denominator": 19,
+      "public_frozen_total_facts": 19,
+      "public_unscored_facts": 0,
+      "input_tokens": 21855,
+      "output_tokens": 5837,
+      "peak_usage_cost_usd": 0.013560899999999999,
+      "total_latency_ms": 40296.24969999713,
+      "median_latency_ms": 4003.637499998149,
+      "total_reference_bytes": 9900
+    }
+  },
+  "cases": [
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "A",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 2
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 1,
+        "reasoning": 1,
+        "proactivity": 2
+      },
+      "failure_categories": [],
+      "rationale": "没有历史，正确承认缺失，但未完成原书号码回忆目标。"
+    },
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "B",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 2
+      },
+      "book_scores": {
+        "precision": 3,
+        "recall": 1,
+        "reasoning": 1,
+        "proactivity": 2
+      },
+      "failure_categories": [
+        "RANKING"
+      ],
+      "rationale": "未获账号和路由号，未误把4827当账号；把当前视图缺失扩大成全部历史没有号码，措辞过强。"
+    },
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "C",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 2,
+        "total": 2
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 4,
+        "reasoning": 4,
+        "proactivity": 4
+      },
+      "failure_categories": [],
+      "rationale": "正确给出账号及路由号，明确历史assistant陈述和实时银行核验的区别。"
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "group": "A",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 2
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 1,
+        "reasoning": 1,
+        "proactivity": 2
+      },
+      "failure_categories": [],
+      "rationale": "无历史正确弃答；一般性的入住分配房号建议不代表该用户预订事实。"
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "group": "B",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 2,
+        "total": 2
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 4,
+        "reasoning": 4,
+        "proactivity": 3
+      },
+      "failure_categories": [],
+      "rationale": "号码、房型、日期及套餐均有原句；一个引用ID拼写错误，引用维度另记失败。"
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "group": "C",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 2,
+        "total": 2
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 4,
+        "reasoning": 4,
+        "proactivity": 3
+      },
+      "failure_categories": [
+        "EVALUATION"
+      ],
+      "rationale": "正确给出预订号和1912；合理指出历史周末日期矛盾，不伪称实时核实。"
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "group": "A",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 3
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 1,
+        "reasoning": 1,
+        "proactivity": 2
+      },
+      "failure_categories": [],
+      "rationale": "没有历史，无法回答已预约内容。"
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "group": "B",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 3
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 1,
+        "reasoning": 1,
+        "proactivity": 2
+      },
+      "failure_categories": [
+        "RANKING",
+        "RETRIEVAL"
+      ],
+      "rationale": "缺少预约和第二辆车关键证据；虽有Honda原句，答案也没有利用它。不能据此声称完整Oracle下推理失败。"
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "group": "C",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 2,
+        "total": 3
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 2,
+        "reasoning": 2,
+        "proactivity": 3
+      },
+      "failure_categories": [
+        "REASONING",
+        "EVALUATION"
+      ],
+      "rationale": "准确回忆Honda时间和确认号并指出日期矛盾；Tesla仅放在uncertainties，没有在主回答呈现双车并询问哪辆。服务套餐/价格/门店未纳入Oracle，不将其遗漏全部归于模型。"
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "A",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 3
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 1,
+        "reasoning": 1,
+        "proactivity": 2
+      },
+      "failure_categories": [],
+      "rationale": "Amex Gold只是举例所需卡名，不是记起用户持卡，词面命中不能算真实召回。"
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "B",
+      "status": "INCOMPLETE_OR_FORMAT",
+      "semantic_facts": "NOT_RUN"
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "C",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 3,
+        "total": 3
+      },
+      "book_scores": {
+        "precision": 2,
+        "recall": 3,
+        "reasoning": 3,
+        "proactivity": 3
+      },
+      "failure_categories": [
+        "REASONING",
+        "EVALUATION"
+      ],
+      "rationale": "完成两卡实体与3x/1.5%及换卡状态综合；但凭空断言Gold免外币费、仅航空公司直订才获3x。前者连原始历史也没有，原书标准本身包含这项无来源事实。"
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "A",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 4
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 1,
+        "reasoning": 1,
+        "proactivity": 2
+      },
+      "failure_categories": [],
+      "rationale": "只给通用出行检查项，提passport不等于回忆用户护照事实。"
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "B",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 1,
+        "total": 4
+      },
+      "book_scores": {
+        "precision": 1,
+        "recall": 2,
+        "reasoning": 2,
+        "proactivity": 3
+      },
+      "failure_categories": [
+        "RETRIEVAL",
+        "RANKING",
+        "REASONING",
+        "EVALUATION"
+      ],
+      "rationale": "利用护照月份和行程提示风险，但把2月到期相对1月22日的间隔说成约一周；日值、预订号、Priority Pass未进视图。历史assistant提到的入境规则被当成已核实规则。"
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "C",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 4,
+        "total": 4
+      },
+      "book_scores": {
+        "precision": 2,
+        "recall": 2,
+        "reasoning": 3,
+        "proactivity": 3
+      },
+      "failure_categories": [
+        "EVALUATION"
+      ],
+      "rationale": "正确关联到期日、行程、预订号和Priority Pass；入境及航司政策未经本轮核验却被确定陈述。Oracle缺原书要求的保险/付款/加急时长证据，原书六个月规则也与原历史assistant说法冲突，不按未照抄Gold判错。"
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "A",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 5
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 1,
+        "reasoning": 1,
+        "proactivity": 2
+      },
+      "failure_categories": [],
+      "rationale": "无记录不能判断是否按期推进，正确请求背景。"
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "B",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 1,
+        "total": 5
+      },
+      "book_scores": {
+        "precision": 3,
+        "recall": 2,
+        "reasoning": 2,
+        "proactivity": 3
+      },
+      "failure_categories": [
+        "RANKING",
+        "PACKING",
+        "EVALUATION"
+      ],
+      "rationale": "通过Core的等价来源正确发现11月20日即将到期；缺保险/赠与及搬家确认，部分话术从看不到预订推到似乎没订，缺证据影响状态判断。"
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "C",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 5,
+        "total": 5
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 2,
+        "reasoning": 3,
+        "proactivity": 4
+      },
+      "failure_categories": [
+        "EVALUATION"
+      ],
+      "rationale": "五个冻结核心事实均表达正确，按11月18日判断两天后到期正确；原书要求已过期有时点错误。缺未提供的搬家时间/钢琴等细节，不能当作完整Oracle。"
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "group": "A",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 1
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 1,
+        "reasoning": 1,
+        "proactivity": 4
+      },
+      "failure_categories": [],
+      "rationale": "一句中文说明没有代号证据，未编造。"
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "group": "B",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 1,
+        "total": 1
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 4,
+        "reasoning": 4,
+        "proactivity": 4
+      },
+      "failure_categories": [],
+      "rationale": "一句中文给出ORCHID-17，没有遵循旧英文长回答偏好。"
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "group": "C",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 1,
+        "total": 1
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 4,
+        "reasoning": 4,
+        "proactivity": 4
+      },
+      "failure_categories": [],
+      "rationale": "一句中文给出ORCHID-17，没有遵循旧英文长回答偏好。"
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "group": "A",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 1
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 1,
+        "reasoning": 1,
+        "proactivity": 3
+      },
+      "failure_categories": [],
+      "rationale": "无状态证据正确弃答，未猜测。"
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "group": "B",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 1,
+        "total": 1
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 4,
+        "reasoning": 4,
+        "proactivity": 3
+      },
+      "failure_categories": [],
+      "rationale": "正确以10月3日取消覆盖10月1日待审核；没有读到10月10日未来恢复。说明过长但结论准确。"
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "group": "C",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 1,
+        "total": 1
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 4,
+        "reasoning": 4,
+        "proactivity": 3
+      },
+      "failure_categories": [],
+      "rationale": "正确解释时间更新，未使用未来恢复；额外实时核验声明不改变截至时点结论。"
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "group": "A",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 0
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 4,
+        "reasoning": 4,
+        "proactivity": 4
+      },
+      "failure_categories": [],
+      "rationale": "正确拒绝编造不存在的密码。"
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "group": "B",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 0
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 4,
+        "reasoning": 4,
+        "proactivity": 4
+      },
+      "failure_categories": [],
+      "rationale": "正确区分项目代号与门禁密码，没有把ORCHID-17当密码。"
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "group": "C",
+      "status": "REVIEWED",
+      "semantic_facts": {
+        "hit": 0,
+        "total": 0
+      },
+      "book_scores": {
+        "precision": 4,
+        "recall": 4,
+        "reasoning": 4,
+        "proactivity": 4
+      },
+      "failure_categories": [],
+      "rationale": "Oracle本来为空，正确说明缺失。"
+    }
+  ],
+  "diagnostic_source_counts": {
+    "RANKING": 16,
+    "VISIBLE": 9,
+    "RETRIEVAL_CANDIDATE_CAP": 11,
+    "RETRIEVAL_LEXICAL_MISMATCH": 3,
+    "PACKING": 2
+  },
+  "scope": "pilot first automatic read-only memory view; not full Agent loop; not held-out generalization",
+  "reviewer": "unblinded executing agent; independent human review NOT_RUN",
+  "conclusion": "The first-view evidence selection/packing path is a demonstrated bottleneck, not the only bottleneck. Oracle improves factual coverage but does not remove format, evidence-boundary, ambiguity, or evaluation failures."
+}

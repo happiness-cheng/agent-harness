@@ -27,7 +27,7 @@ def report(pack,result,reviews):
             if annotation is not None:
                 if response is None:raise ValueError('没有真实回答就不能导入评分')
                 validate_review(case,group,response,annotation)
-                metrics.update(book_scores=annotation['book_scores'],dimensions=annotation['dimensions'],
+                metrics.update(status='ANSWERED_SOURCE_REVIEWED',book_scores=annotation['book_scores'],dimensions=annotation['dimensions'],
                     verified_failure_categories=annotation.get('failure_categories',[]),reviewer=annotation['reviewer'],
                     rationale=annotation['rationale'],bottleneck='REVIEWED_CASE_ONLY')
             rows.append(dict(case_id=case['case_id'],group=group,question=case['question'],
@@ -38,7 +38,7 @@ def report(pack,result,reviews):
         known_peak_usage_cost_usd=(result or {}).get('total_peak_usage_cost_usd','NOT_RUN'),
         reserved_upper_usd=(result or {}).get('reserved_upper_usd','NOT_RUN'),
         invoice_cost=(result or {}).get('invoice_cost','NOT_RUN'),
-        overall_bottleneck='NOT_DETERMINED_WITHOUT_PAIRED_SEMANTIC_REVIEW',
+        overall_bottleneck='SOURCE_REVIEW_AVAILABLE_SEE_PAIRED_ANALYSIS' if reviewed else 'NOT_DETERMINED_WITHOUT_PAIRED_SEMANTIC_REVIEW',
         external_judge='NOT_RUN',private_imports=0)
 
 

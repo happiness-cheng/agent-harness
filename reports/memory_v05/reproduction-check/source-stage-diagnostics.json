@@ -1,0 +1,740 @@
+[
+  {
+    "case_id": "layer1_01_bank_account",
+    "memory_id": "99960778-2ed0-54d9-ba39-abf8cf18019e",
+    "source": {
+      "conversation_id": "bank_setup_001",
+      "message_index": 61
+    },
+    "quote": "I can provide you with our routing number and your new account number for that. Our routing number is 123006800, and your new checking account number is 4429853327.",
+    "ranks": {
+      "all_pool_lexical_hits": 10,
+      "initial_candidates": 10,
+      "merged_before_cap": 10,
+      "merged_candidates": 10
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer1_08_hotel_reservation",
+    "memory_id": "875118d6-d677-54c1-82e5-f6ff8c605845",
+    "source": {
+      "conversation_id": "hotel_booking_001",
+      "message_index": 69
+    },
+    "quote": "Thank you. Your reservation is confirmed! Your confirmation number is HSD-445782.",
+    "ranks": {
+      "all_pool_lexical_hits": 2,
+      "initial_candidates": 2,
+      "merged_before_cap": 2,
+      "merged_candidates": 2
+    },
+    "top8": true,
+    "visible": true,
+    "stage": "VISIBLE"
+  },
+  {
+    "case_id": "layer1_08_hotel_reservation",
+    "memory_id": "ca615f47-4e9d-5619-a9ae-16221edca9da",
+    "source": {
+      "conversation_id": "hotel_booking_001",
+      "message_index": 41
+    },
+    "quote": "Room 1912 is now reserved for you. Would you like to make any dinner reservations?",
+    "ranks": {
+      "all_pool_lexical_hits": 3,
+      "initial_candidates": 3,
+      "merged_before_cap": 3,
+      "merged_candidates": 3
+    },
+    "top8": true,
+    "visible": true,
+    "stage": "VISIBLE"
+  },
+  {
+    "case_id": "layer1_08_hotel_reservation",
+    "memory_id": "a5350657-be2a-5bda-9756-fb93742c3ed2",
+    "source": {
+      "conversation_id": "hotel_booking_001",
+      "message_index": 81
+    },
+    "quote": "It's my pleasure, Mr. Thompson! To summarize: December 8-10, room 1912 Junior Suite with bay view on the 19th floor, Romance Package included, dinner at Vela on Saturday at 7:30 PM, confirmation HSD-445782. Total is $1,333.",
+    "ranks": {
+      "all_pool_lexical_hits": 5,
+      "initial_candidates": 4,
+      "merged_before_cap": 4,
+      "merged_candidates": 4
+    },
+    "top8": true,
+    "visible": true,
+    "stage": "VISIBLE"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "memory_id": "e90817a9-7ce8-5e6e-a97f-f6084e5d1f33",
+    "source": {
+      "conversation_id": "auto_insurance_001",
+      "message_index": 5
+    },
+    "quote": "Perfect. I see you currently have a 2019 Honda Accord on your policy. Tell me about your new vehicle.",
+    "ranks": {
+      "all_pool_lexical_hits": 3,
+      "initial_candidates": 4,
+      "merged_before_cap": 4,
+      "merged_candidates": 4
+    },
+    "top8": true,
+    "visible": true,
+    "stage": "VISIBLE"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "memory_id": "ca11c2a1-4c7e-5c88-a616-f67fc54666e9",
+    "source": {
+      "conversation_id": "auto_insurance_001",
+      "message_index": 6
+    },
+    "quote": "I just bought a 2023 Tesla Model 3.",
+    "ranks": {
+      "all_pool_lexical_hits": 99,
+      "initial_candidates": 100,
+      "merged_before_cap": 100,
+      "merged_candidates": 100
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "memory_id": "0d19063b-51cc-5c16-9b13-fb69073e6548",
+    "source": {
+      "conversation_id": "auto_service_001",
+      "message_index": 4
+    },
+    "quote": "It's a 2019 Honda Accord.",
+    "ranks": {
+      "all_pool_lexical_hits": 133,
+      "initial_candidates": null,
+      "merged_before_cap": 134,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_CANDIDATE_CAP"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "memory_id": "36f75375-a95c-55c0-ad3e-37f456ebdf88",
+    "source": {
+      "conversation_id": "auto_service_001",
+      "message_index": 65
+    },
+    "quote": "No problem. So just the Honda Accord on Friday at 8 AM.",
+    "ranks": {
+      "all_pool_lexical_hits": 143,
+      "initial_candidates": null,
+      "merged_before_cap": 143,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_CANDIDATE_CAP"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "memory_id": "85759dd7-5f31-5d0d-95a2-003397561739",
+    "source": {
+      "conversation_id": "auto_service_001",
+      "message_index": 83
+    },
+    "quote": "Exactly. Plenty of parking too. Your appointment is confirmed for Friday, November 24th at 8 AM.",
+    "ranks": {
+      "all_pool_lexical_hits": 98,
+      "initial_candidates": 99,
+      "merged_before_cap": 99,
+      "merged_candidates": 99
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "memory_id": "e810426e-8eeb-507b-b0a3-6c797547b845",
+    "source": {
+      "conversation_id": "auto_service_001",
+      "message_index": 89
+    },
+    "quote": "Target next door will definitely be busy! Your confirmation number is FS-447291.",
+    "ranks": {
+      "all_pool_lexical_hits": 148,
+      "initial_candidates": null,
+      "merged_before_cap": 148,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_CANDIDATE_CAP"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "memory_id": "f5cdb8d6-6ab4-512c-9ec6-865274570f21",
+    "source": {
+      "conversation_id": "chase_card_activation_001",
+      "message_index": 9
+    },
+    "quote": "Perfect. I see your Freedom Unlimited ending in 7823. Your card is now activated!",
+    "ranks": {
+      "all_pool_lexical_hits": 174,
+      "initial_candidates": null,
+      "merged_before_cap": 174,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_CANDIDATE_CAP"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "memory_id": "50fb183c-e1f2-51cf-9159-29af484c25a3",
+    "source": {
+      "conversation_id": "chase_card_activation_001",
+      "message_index": 11
+    },
+    "quote": "Of course! You earn 1.5% cash back on all purchases, no categories to track.",
+    "ranks": {
+      "all_pool_lexical_hits": 56,
+      "initial_candidates": 54,
+      "merged_before_cap": 54,
+      "merged_candidates": 54
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "memory_id": "7077d438-ba1e-57b5-830a-9f7b3b79ca71",
+    "source": {
+      "conversation_id": "chase_card_activation_001",
+      "message_index": 21
+    },
+    "quote": "There's a 3% foreign transaction fee on international purchases.",
+    "ranks": {
+      "all_pool_lexical_hits": 128,
+      "initial_candidates": null,
+      "merged_before_cap": 130,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_CANDIDATE_CAP"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "memory_id": "c10f22bc-3eea-593d-943e-6596a2b5caf8",
+    "source": {
+      "conversation_id": "amex_application_002",
+      "message_index": 1
+    },
+    "quote": "Good morning! I'm Diana from American Express. I'd be happy to help you find the perfect travel card. Are you familiar with our travel cards?",
+    "ranks": {
+      "all_pool_lexical_hits": 21,
+      "initial_candidates": 9,
+      "merged_before_cap": 9,
+      "merged_candidates": 9
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "memory_id": "d72ea585-b5bd-5d5e-8f22-90a0edd5766a",
+    "source": {
+      "conversation_id": "amex_application_002",
+      "message_index": 7
+    },
+    "quote": "The Gold Card might be perfect for you. It earns 4x points on restaurants and groceries, 3x on flights.",
+    "ranks": {
+      "all_pool_lexical_hits": 101,
+      "initial_candidates": 87,
+      "merged_before_cap": 87,
+      "merged_candidates": 87
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "memory_id": "daf2090e-de97-5ee7-8021-1aba8149ebe0",
+    "source": {
+      "conversation_id": "amex_application_002",
+      "message_index": 9
+    },
+    "quote": "The Gold Card is $250 annually, but it includes $120 in dining credits and $120 in Uber credits.",
+    "ranks": {
+      "all_pool_lexical_hits": 98,
+      "initial_candidates": 85,
+      "merged_before_cap": 85,
+      "merged_candidates": 85
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "memory_id": "4bd54a15-dc51-5346-9fd5-d2441425a013",
+    "source": {
+      "conversation_id": "amex_application_002",
+      "message_index": 16
+    },
+    "quote": "I don't fly enough for that. Let's go with the Gold Card.",
+    "ranks": {
+      "all_pool_lexical_hits": 132,
+      "initial_candidates": 95,
+      "merged_before_cap": 95,
+      "merged_candidates": 95
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "memory_id": "3d478724-7ffe-583a-b346-393ef70912da",
+    "source": {
+      "conversation_id": "amex_application_002",
+      "message_index": 35
+    },
+    "quote": "Let me process this... Congratulations! You're approved for the Gold Card with a $15,000 credit limit.",
+    "ranks": {
+      "all_pool_lexical_hits": 102,
+      "initial_candidates": 88,
+      "merged_before_cap": 88,
+      "merged_candidates": 88
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "memory_id": "2a1a6a03-cffc-5873-909f-48ab6894756b",
+    "source": {
+      "conversation_id": "fraud_alert_003",
+      "message_index": 8
+    },
+    "quote": "That's my Freedom Unlimited.",
+    "ranks": {
+      "all_pool_lexical_hits": 105,
+      "initial_candidates": null,
+      "merged_before_cap": 110,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_CANDIDATE_CAP"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "memory_id": "75e5d642-d917-55f6-be3e-b585e9723c68",
+    "source": {
+      "conversation_id": "fraud_alert_003",
+      "message_index": 17
+    },
+    "quote": "Likely the number was compromised online. We'll cancel this card and send a replacement.",
+    "ranks": {
+      "all_pool_lexical_hits": 44,
+      "initial_candidates": 32,
+      "merged_before_cap": 32,
+      "merged_candidates": 32
+    },
+    "top8": false,
+    "visible": true,
+    "stage": "VISIBLE"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "memory_id": "aa2c9e03-35a1-597c-b714-bd4824f3b67b",
+    "source": {
+      "conversation_id": "passport_renewal_001",
+      "message_index": 5
+    },
+    "quote": "Thank you, Ms. Martinez. When exactly does it expire?",
+    "ranks": {
+      "all_pool_lexical_hits": null,
+      "initial_candidates": null,
+      "merged_before_cap": null,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_LEXICAL_MISMATCH"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "memory_id": "f7ca19e6-6973-5027-8a1a-562bb84b3c1d",
+    "source": {
+      "conversation_id": "passport_renewal_001",
+      "message_index": 6
+    },
+    "quote": "February 18th, 2025.",
+    "ranks": {
+      "all_pool_lexical_hits": null,
+      "initial_candidates": null,
+      "merged_before_cap": null,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_LEXICAL_MISMATCH"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "memory_id": "a4d8038a-a563-52dc-ba0d-f69c41b78a96",
+    "source": {
+      "conversation_id": "flight_booking_002",
+      "message_index": 9
+    },
+    "quote": "I have a non-stop flight, DL 7 departing LAX at 11:30 AM on January 15th, arriving Haneda at 4:45 PM on January 16th.",
+    "ranks": {
+      "all_pool_lexical_hits": 45,
+      "initial_candidates": 43,
+      "merged_before_cap": 43,
+      "merged_candidates": 43
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "memory_id": "89f90bb9-5e6a-5fc8-a919-b541c0c07492",
+    "source": {
+      "conversation_id": "flight_booking_002",
+      "message_index": 11
+    },
+    "quote": "DL 8 departs Haneda at 6:00 PM on January 22nd, arriving LAX at 10:15 AM the same day.",
+    "ranks": {
+      "all_pool_lexical_hits": 58,
+      "initial_candidates": 62,
+      "merged_before_cap": 62,
+      "merged_candidates": 62
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "memory_id": "9259442c-45ff-538b-8ad1-408ecc003dab",
+    "source": {
+      "conversation_id": "flight_booking_002",
+      "message_index": 51
+    },
+    "quote": "Processing... Approved! Your confirmation number is DELTA-JMK892.",
+    "ranks": {
+      "all_pool_lexical_hits": 80,
+      "initial_candidates": 82,
+      "merged_before_cap": 82,
+      "merged_candidates": 82
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "memory_id": "3423c527-7399-5720-8f25-c2b8aba5a164",
+    "source": {
+      "conversation_id": "credit_card_003",
+      "message_index": 27
+    },
+    "quote": "You have Priority Pass membership included. Over 1,300 lounges worldwide.",
+    "ranks": {
+      "all_pool_lexical_hits": null,
+      "initial_candidates": null,
+      "merged_before_cap": null,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_LEXICAL_MISMATCH"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "memory_id": "8c27432c-e8a0-58be-9c4f-e1123412bd92",
+    "source": {
+      "conversation_id": "credit_card_003",
+      "message_index": 31
+    },
+    "quote": "You can use the digital card in the Priority Pass app. Just download and link to your account.",
+    "ranks": {
+      "all_pool_lexical_hits": 50,
+      "initial_candidates": 48,
+      "merged_before_cap": 48,
+      "merged_candidates": 48
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "memory_id": "49ca4d77-c40a-5998-bd19-3075d582f970",
+    "source": {
+      "conversation_id": "mortgage_preapproval_001",
+      "message_index": 57
+    },
+    "quote": "90 days, until November 20th, 2024. If you need an extension, just call us.",
+    "ranks": {
+      "all_pool_lexical_hits": 100,
+      "initial_candidates": 96,
+      "merged_before_cap": 96,
+      "merged_candidates": 96
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "memory_id": "c51f3106-41e9-51ea-b7b0-dea4b9e499ac",
+    "source": {
+      "conversation_id": "home_purchase_offer_002",
+      "message_index": 19
+    },
+    "quote": "Let's put December 20th as closing date. That's 35 days.",
+    "ranks": {
+      "all_pool_lexical_hits": 140,
+      "initial_candidates": null,
+      "merged_before_cap": 140,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_CANDIDATE_CAP"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "memory_id": "22a7c64b-3bfd-52dd-866d-95557b4fc67a",
+    "source": {
+      "conversation_id": "home_purchase_offer_002",
+      "message_index": 30
+    },
+    "quote": "Yes. My parents are gifting us $30,000 to help.",
+    "ranks": {
+      "all_pool_lexical_hits": 178,
+      "initial_candidates": null,
+      "merged_before_cap": 178,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_CANDIDATE_CAP"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "memory_id": "b931df9e-0a8d-5ac2-8640-490063bca36c",
+    "source": {
+      "conversation_id": "home_purchase_offer_002",
+      "message_index": 32
+    },
+    "quote": "Wells Fargo mentioned we need a gift letter.",
+    "ranks": {
+      "all_pool_lexical_hits": 199,
+      "initial_candidates": null,
+      "merged_before_cap": 199,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_CANDIDATE_CAP"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "memory_id": "b6d5e559-ee05-57f7-9028-faff50c958ab",
+    "source": {
+      "conversation_id": "home_purchase_offer_002",
+      "message_index": 13
+    },
+    "quote": "Yes, 10 days is typical. And your financing contingency?",
+    "ranks": {
+      "all_pool_lexical_hits": 152,
+      "initial_candidates": null,
+      "merged_before_cap": 152,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_CANDIDATE_CAP"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "memory_id": "e86b36a7-7f3d-5e85-a486-856d39627ddc",
+    "source": {
+      "conversation_id": "home_purchase_offer_002",
+      "message_index": 15
+    },
+    "quote": "Good. We'll include 21 days for financing contingency. When do you want to close?",
+    "ranks": {
+      "all_pool_lexical_hits": 6,
+      "initial_candidates": 6,
+      "merged_before_cap": 6,
+      "merged_candidates": 6
+    },
+    "top8": true,
+    "visible": false,
+    "stage": "PACKING"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "memory_id": "173ad80a-e709-515b-b545-f760eed3750f",
+    "source": {
+      "conversation_id": "moving_company_quote_003",
+      "message_index": 46
+    },
+    "quote": "Oh, I should check that. Speaking of insurance, I need to get homeowner's insurance still.",
+    "ranks": {
+      "all_pool_lexical_hits": 68,
+      "initial_candidates": 71,
+      "merged_before_cap": 71,
+      "merged_candidates": 71
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "memory_id": "85d3546f-a5ca-5d40-8329-7fd0847b448a",
+    "source": {
+      "conversation_id": "moving_company_quote_003",
+      "message_index": 47
+    },
+    "quote": "Definitely do that before closing. The bank will require it.",
+    "ranks": {
+      "all_pool_lexical_hits": 83,
+      "initial_candidates": 84,
+      "merged_before_cap": 84,
+      "merged_candidates": 84
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RANKING"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "memory_id": "07c4e201-0bb9-5bb5-a8de-f64a164d56e2",
+    "source": {
+      "conversation_id": "moving_company_quote_003",
+      "message_index": 49
+    },
+    "quote": "Usually a week before closing, so by December 13th.",
+    "ranks": {
+      "all_pool_lexical_hits": 138,
+      "initial_candidates": null,
+      "merged_before_cap": 138,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": false,
+    "stage": "RETRIEVAL_CANDIDATE_CAP"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "memory_id": "e84b87e4-afa6-5a36-b766-d5507b327fbf",
+    "source": {
+      "conversation_id": "moving_company_quote_003",
+      "message_index": 87
+    },
+    "quote": "I'll note your move is contingent on closing. Your confirmation is ALV-122124.",
+    "ranks": {
+      "all_pool_lexical_hits": 4,
+      "initial_candidates": 8,
+      "merged_before_cap": 8,
+      "merged_candidates": 8
+    },
+    "top8": true,
+    "visible": false,
+    "stage": "PACKING"
+  },
+  {
+    "case_id": "v05_current_instruction",
+    "memory_id": "65376040-be0d-54e4-8eda-0e7e28650925",
+    "source": {
+      "conversation_id": "preferences",
+      "message_index": 0
+    },
+    "quote": "I prefer detailed answers in English.",
+    "ranks": {
+      "all_pool_lexical_hits": null,
+      "initial_candidates": null,
+      "merged_before_cap": null,
+      "merged_candidates": null
+    },
+    "top8": false,
+    "visible": true,
+    "stage": "VISIBLE"
+  },
+  {
+    "case_id": "v05_current_instruction",
+    "memory_id": "c23bc9fd-ee7b-5f72-bbb1-9710b674c246",
+    "source": {
+      "conversation_id": "preferences",
+      "message_index": 1
+    },
+    "quote": "项目代号已经确认是 ORCHID-17。",
+    "ranks": {
+      "all_pool_lexical_hits": 1,
+      "initial_candidates": 1,
+      "merged_before_cap": 1,
+      "merged_candidates": 1
+    },
+    "top8": true,
+    "visible": true,
+    "stage": "VISIBLE"
+  },
+  {
+    "case_id": "v05_temporal_state",
+    "memory_id": "5f621b2e-2eed-5dad-b367-0f1cea76adb9",
+    "source": {
+      "conversation_id": "old",
+      "message_index": 0
+    },
+    "quote": "设备 D7 的状态是待审核。",
+    "ranks": {
+      "all_pool_lexical_hits": 1,
+      "initial_candidates": 1,
+      "merged_before_cap": 1,
+      "merged_candidates": 1
+    },
+    "top8": true,
+    "visible": true,
+    "stage": "VISIBLE"
+  },
+  {
+    "case_id": "v05_temporal_state",
+    "memory_id": "e0b1d053-6b82-576c-8fba-bae920eb3034",
+    "source": {
+      "conversation_id": "cancel",
+      "message_index": 0
+    },
+    "quote": "确认：设备D7已取消，不再是待审核状态。",
+    "ranks": {
+      "all_pool_lexical_hits": 2,
+      "initial_candidates": 2,
+      "merged_before_cap": 2,
+      "merged_candidates": 2
+    },
+    "top8": true,
+    "visible": true,
+    "stage": "VISIBLE"
+  }
+]

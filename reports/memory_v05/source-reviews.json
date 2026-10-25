@@ -1,0 +1,1893 @@
+[
+  {
+    "case_id": "layer1_01_bank_account",
+    "group": "A",
+    "answer_sha256": "f127faa5b408a0ba520355b150036bf4aad4dee8848509adc30d1d3ebf6365c7",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 1,
+      "reasoning": 1,
+      "proactivity": 2
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 0,
+        "visible": 0,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "I don't have your checking account number, and I can't see any account details in the records available to me — so I can",
+    "source_evidence": [
+      {
+        "memory_id": "99960778-2ed0-54d9-ba39-abf8cf18019e",
+        "quote": "I can provide you with our routing number and your new account number for that. Our routing number is 123006800, and your new checking account number is 4429853327."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "没有历史，正确承认缺失，但未完成原书号码回忆目标。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      0,
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer1_01_bank_account",
+    "group": "B",
+    "answer_sha256": "725924d556872e9065f3adb1dbb1c8739086c722af851d8dce5750d1626fd3f4",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 3,
+      "recall": 1,
+      "reasoning": 1,
+      "proactivity": 2
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 4,
+        "visible": 4,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "I don't have a checking account number saved in the records I can see. The notes from your session with First National B",
+    "source_evidence": [
+      {
+        "memory_id": "99960778-2ed0-54d9-ba39-abf8cf18019e",
+        "quote": "I can provide you with our routing number and your new account number for that. Our routing number is 123006800, and your new checking account number is 4429853327."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [
+      "RANKING"
+    ],
+    "rationale": "未获账号和路由号，未误把4827当账号；把当前视图缺失扩大成全部历史没有号码，措辞过强。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      0,
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer1_01_bank_account",
+    "group": "C",
+    "answer_sha256": "19b481612ce5d9e3cdb74fc9377620cda701d0cae06bb513a1ae60a5de3dd8ce",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 4,
+      "reasoning": 4,
+      "proactivity": 4
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 2,
+        "audited": 2,
+        "ratio": 1.0,
+        "claims": [
+          {
+            "quote": "123006800",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "4429853327",
+            "supported_by_visible_evidence": true
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 1,
+        "visible": 1,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "From an earlier message in this session, I recorded: routing number 123006800 and new checking account number 4429853327",
+    "source_evidence": [
+      {
+        "memory_id": "99960778-2ed0-54d9-ba39-abf8cf18019e",
+        "quote": "I can provide you with our routing number and your new account number for that. Our routing number is 123006800, and your new checking account number is 4429853327."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "正确给出账号及路由号，明确历史assistant陈述和实时银行核验的区别。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1,
+      1
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer1_08_hotel_reservation",
+    "group": "A",
+    "answer_sha256": "94bfa7b68aa8ec7dd3587e89e507c83a85a12ec905ae3d705f4f2bb412e6ab53",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 1,
+      "reasoning": 1,
+      "proactivity": 2
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 0,
+        "visible": 0,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "I don't have that information to give you. In this session there are no visible memory records — no past conversation, n",
+    "source_evidence": [
+      {
+        "memory_id": "875118d6-d677-54c1-82e5-f6ff8c605845",
+        "quote": "Thank you. Your reservation is confirmed! Your confirmation number is HSD-445782."
+      },
+      {
+        "memory_id": "ca615f47-4e9d-5619-a9ae-16221edca9da",
+        "quote": "Room 1912 is now reserved for you. Would you like to make any dinner reservations?"
+      },
+      {
+        "memory_id": "a5350657-be2a-5bda-9756-fb93742c3ed2",
+        "quote": "It's my pleasure, Mr. Thompson! To summarize: December 8-10, room 1912 Junior Suite with bay view on the 19th floor, Romance Package included, dinner at Vela on Saturday at 7:30 PM, confirmation HSD-445782. Total is $1,333."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "无历史正确弃答；一般性的入住分配房号建议不代表该用户预订事实。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      0,
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer1_08_hotel_reservation",
+    "group": "B",
+    "answer_sha256": "4f193983e311e05a49cb3a26c1998878bca86d26c19ccf0e8920a8fb09f7e577",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 4,
+      "reasoning": 4,
+      "proactivity": 3
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 2,
+        "audited": 2,
+        "ratio": 1.0,
+        "claims": [
+          {
+            "quote": "HSD-445782",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "1912",
+            "supported_by_visible_evidence": true
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [
+          "916d0461-a784-57a8-8d22-7a28e7e2483a"
+        ],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 5,
+        "visible": 4,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "From our earlier booking conversation, here's what was recorded:\n\n- **Confirmation number:** HSD-445782\n- **Room:** 1912",
+    "source_evidence": [
+      {
+        "memory_id": "875118d6-d677-54c1-82e5-f6ff8c605845",
+        "quote": "Thank you. Your reservation is confirmed! Your confirmation number is HSD-445782."
+      },
+      {
+        "memory_id": "ca615f47-4e9d-5619-a9ae-16221edca9da",
+        "quote": "Room 1912 is now reserved for you. Would you like to make any dinner reservations?"
+      },
+      {
+        "memory_id": "a5350657-be2a-5bda-9756-fb93742c3ed2",
+        "quote": "It's my pleasure, Mr. Thompson! To summarize: December 8-10, room 1912 Junior Suite with bay view on the 19th floor, Romance Package included, dinner at Vela on Saturday at 7:30 PM, confirmation HSD-445782. Total is $1,333."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "号码、房型、日期及套餐均有原句；一个引用ID拼写错误，引用维度另记失败。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1,
+      1
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer1_08_hotel_reservation",
+    "group": "C",
+    "answer_sha256": "243ba35d3857d3ef9a69a374089959afc6e91d17a6eaff79ba1b36e456559be5",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 4,
+      "reasoning": 4,
+      "proactivity": 3
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 2,
+        "audited": 2,
+        "ratio": 1.0,
+        "claims": [
+          {
+            "quote": "HSD-445782",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "1912",
+            "supported_by_visible_evidence": true
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 3,
+        "visible": 3,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "From our earlier chat about this booking, here's what I have:\n\n- **Confirmation number:** HSD-445782\n- **Room:** 1912 — ",
+    "source_evidence": [
+      {
+        "memory_id": "875118d6-d677-54c1-82e5-f6ff8c605845",
+        "quote": "Thank you. Your reservation is confirmed! Your confirmation number is HSD-445782."
+      },
+      {
+        "memory_id": "ca615f47-4e9d-5619-a9ae-16221edca9da",
+        "quote": "Room 1912 is now reserved for you. Would you like to make any dinner reservations?"
+      },
+      {
+        "memory_id": "a5350657-be2a-5bda-9756-fb93742c3ed2",
+        "quote": "It's my pleasure, Mr. Thompson! To summarize: December 8-10, room 1912 Junior Suite with bay view on the 19th floor, Romance Package included, dinner at Vela on Saturday at 7:30 PM, confirmation HSD-445782. Total is $1,333."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [
+      "EVALUATION"
+    ],
+    "rationale": "正确给出预订号和1912；合理指出历史周末日期矛盾，不伪称实时核实。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1,
+      1
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "group": "A",
+    "answer_sha256": "c740d9864dcab9c709e2d6e4e5c1f0d383d534fd712dc1437688d0dddbb78009",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 1,
+      "reasoning": 1,
+      "proactivity": 2
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 0,
+        "visible": 0,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "I don't see any record of scheduled car services in what's available to me right now — no service appointments, maintena",
+    "source_evidence": [
+      {
+        "memory_id": "e90817a9-7ce8-5e6e-a97f-f6084e5d1f33",
+        "quote": "Perfect. I see you currently have a 2019 Honda Accord on your policy. Tell me about your new vehicle."
+      },
+      {
+        "memory_id": "ca11c2a1-4c7e-5c88-a616-f67fc54666e9",
+        "quote": "I just bought a 2023 Tesla Model 3."
+      },
+      {
+        "memory_id": "0d19063b-51cc-5c16-9b13-fb69073e6548",
+        "quote": "It's a 2019 Honda Accord."
+      },
+      {
+        "memory_id": "36f75375-a95c-55c0-ad3e-37f456ebdf88",
+        "quote": "No problem. So just the Honda Accord on Friday at 8 AM."
+      },
+      {
+        "memory_id": "85759dd7-5f31-5d0d-95a2-003397561739",
+        "quote": "Exactly. Plenty of parking too. Your appointment is confirmed for Friday, November 24th at 8 AM."
+      },
+      {
+        "memory_id": "e810426e-8eeb-507b-b0a3-6c797547b845",
+        "quote": "Target next door will definitely be busy! Your confirmation number is FS-447291."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "没有历史，无法回答已预约内容。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      0,
+      0,
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "group": "B",
+    "answer_sha256": "ed2a571ca68b20832d84030b626c99f1296df0b0375f7650d58aa8ea5d00b923",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 1,
+      "reasoning": 1,
+      "proactivity": 2
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 6,
+        "visible": 6,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "I don't have any record of a booked service appointment in the available history. What I can see from the Firestone Auto",
+    "source_evidence": [
+      {
+        "memory_id": "e90817a9-7ce8-5e6e-a97f-f6084e5d1f33",
+        "quote": "Perfect. I see you currently have a 2019 Honda Accord on your policy. Tell me about your new vehicle."
+      },
+      {
+        "memory_id": "ca11c2a1-4c7e-5c88-a616-f67fc54666e9",
+        "quote": "I just bought a 2023 Tesla Model 3."
+      },
+      {
+        "memory_id": "0d19063b-51cc-5c16-9b13-fb69073e6548",
+        "quote": "It's a 2019 Honda Accord."
+      },
+      {
+        "memory_id": "36f75375-a95c-55c0-ad3e-37f456ebdf88",
+        "quote": "No problem. So just the Honda Accord on Friday at 8 AM."
+      },
+      {
+        "memory_id": "85759dd7-5f31-5d0d-95a2-003397561739",
+        "quote": "Exactly. Plenty of parking too. Your appointment is confirmed for Friday, November 24th at 8 AM."
+      },
+      {
+        "memory_id": "e810426e-8eeb-507b-b0a3-6c797547b845",
+        "quote": "Target next door will definitely be busy! Your confirmation number is FS-447291."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [
+      "RANKING",
+      "RETRIEVAL"
+    ],
+    "rationale": "缺少预约和第二辆车关键证据；虽有Honda原句，答案也没有利用它。不能据此声称完整Oracle下推理失败。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      0,
+      0,
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "group": "C",
+    "answer_sha256": "4c50323b4a02de571c693d1fb63270e9014723c12eb8ec4db345f4246821dcf9",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 2,
+      "reasoning": 2,
+      "proactivity": 3
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 3,
+        "audited": 3,
+        "ratio": 1.0,
+        "claims": [
+          {
+            "quote": "2019 Honda Accord",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "Friday, November 24th at 8 AM",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "FS-447291",
+            "supported_by_visible_evidence": true
+          }
+        ]
+      },
+      "entity_scenario": "TESLA_ONLY_IN_UNCERTAINTIES_NO_MAIN_ANSWER_DISAMBIGUATION",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 4,
+        "visible": 4,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "Based on the service conversation in my records, there is one scheduled appointment:\n\n- **Vehicle:** 2019 Honda Accord\n-",
+    "source_evidence": [
+      {
+        "memory_id": "e90817a9-7ce8-5e6e-a97f-f6084e5d1f33",
+        "quote": "Perfect. I see you currently have a 2019 Honda Accord on your policy. Tell me about your new vehicle."
+      },
+      {
+        "memory_id": "ca11c2a1-4c7e-5c88-a616-f67fc54666e9",
+        "quote": "I just bought a 2023 Tesla Model 3."
+      },
+      {
+        "memory_id": "0d19063b-51cc-5c16-9b13-fb69073e6548",
+        "quote": "It's a 2019 Honda Accord."
+      },
+      {
+        "memory_id": "36f75375-a95c-55c0-ad3e-37f456ebdf88",
+        "quote": "No problem. So just the Honda Accord on Friday at 8 AM."
+      },
+      {
+        "memory_id": "85759dd7-5f31-5d0d-95a2-003397561739",
+        "quote": "Exactly. Plenty of parking too. Your appointment is confirmed for Friday, November 24th at 8 AM."
+      },
+      {
+        "memory_id": "e810426e-8eeb-507b-b0a3-6c797547b845",
+        "quote": "Target next door will definitely be busy! Your confirmation number is FS-447291."
+      }
+    ],
+    "adequate_visible_evidence": true,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [
+      "REASONING",
+      "EVALUATION"
+    ],
+    "rationale": "准确回忆Honda时间和确认号并指出日期矛盾；Tesla仅放在uncertainties，没有在主回答呈现双车并询问哪辆。服务套餐/价格/门店未纳入Oracle，不将其遗漏全部归于模型。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1,
+      0,
+      1
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "group": "A",
+    "answer_sha256": "d4a798c324fefe0bae64275d072c222ce2bfe4047d904cf8d2c8a2cb50182b72",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 1,
+      "reasoning": 1,
+      "proactivity": 2
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 0,
+        "visible": 0,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "I don't have any record of your cards in this session — no card names, issuers, or reward structures are visible to me r",
+    "source_evidence": [
+      {
+        "memory_id": "f5cdb8d6-6ab4-512c-9ec6-865274570f21",
+        "quote": "Perfect. I see your Freedom Unlimited ending in 7823. Your card is now activated!"
+      },
+      {
+        "memory_id": "50fb183c-e1f2-51cf-9159-29af484c25a3",
+        "quote": "Of course! You earn 1.5% cash back on all purchases, no categories to track."
+      },
+      {
+        "memory_id": "7077d438-ba1e-57b5-830a-9f7b3b79ca71",
+        "quote": "There's a 3% foreign transaction fee on international purchases."
+      },
+      {
+        "memory_id": "c10f22bc-3eea-593d-943e-6596a2b5caf8",
+        "quote": "Good morning! I'm Diana from American Express. I'd be happy to help you find the perfect travel card. Are you familiar with our travel cards?"
+      },
+      {
+        "memory_id": "d72ea585-b5bd-5d5e-8f22-90a0edd5766a",
+        "quote": "The Gold Card might be perfect for you. It earns 4x points on restaurants and groceries, 3x on flights."
+      },
+      {
+        "memory_id": "daf2090e-de97-5ee7-8021-1aba8149ebe0",
+        "quote": "The Gold Card is $250 annually, but it includes $120 in dining credits and $120 in Uber credits."
+      },
+      {
+        "memory_id": "4bd54a15-dc51-5346-9fd5-d2441425a013",
+        "quote": "I don't fly enough for that. Let's go with the Gold Card."
+      },
+      {
+        "memory_id": "3d478724-7ffe-583a-b346-393ef70912da",
+        "quote": "Let me process this... Congratulations! You're approved for the Gold Card with a $15,000 credit limit."
+      },
+      {
+        "memory_id": "2a1a6a03-cffc-5873-909f-48ab6894756b",
+        "quote": "That's my Freedom Unlimited."
+      },
+      {
+        "memory_id": "75e5d642-d917-55f6-be3e-b585e9723c68",
+        "quote": "Likely the number was compromised online. We'll cancel this card and send a replacement."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "Amex Gold只是举例所需卡名，不是记起用户持卡，词面命中不能算真实召回。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      0,
+      0,
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "group": "C",
+    "answer_sha256": "938665ebcdfc2d39a04afa89b14b63e308329c150358984e38f09c0e823db117",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 2,
+      "recall": 3,
+      "reasoning": 3,
+      "proactivity": 3
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 4,
+        "audited": 6,
+        "ratio": 0.6666666666666666,
+        "claims": [
+          {
+            "quote": "3x points on flights",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "1.5% cash back",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "3% foreign transaction fee",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "is being cancelled with a replacement sent",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "the Gold avoids the 3% foreign transaction fee",
+            "supported_by_visible_evidence": false
+          },
+          {
+            "quote": "Book **directly with the airline** (not a third-party site) so the charge codes as an airline purchase and earns the 3x",
+            "supported_by_visible_evidence": false
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 2,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 8,
+        "visible": 8,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "Based on what's in your records, the Amex Gold is the better card for a flight purchase — but there's an important wrink",
+    "source_evidence": [
+      {
+        "memory_id": "f5cdb8d6-6ab4-512c-9ec6-865274570f21",
+        "quote": "Perfect. I see your Freedom Unlimited ending in 7823. Your card is now activated!"
+      },
+      {
+        "memory_id": "50fb183c-e1f2-51cf-9159-29af484c25a3",
+        "quote": "Of course! You earn 1.5% cash back on all purchases, no categories to track."
+      },
+      {
+        "memory_id": "7077d438-ba1e-57b5-830a-9f7b3b79ca71",
+        "quote": "There's a 3% foreign transaction fee on international purchases."
+      },
+      {
+        "memory_id": "c10f22bc-3eea-593d-943e-6596a2b5caf8",
+        "quote": "Good morning! I'm Diana from American Express. I'd be happy to help you find the perfect travel card. Are you familiar with our travel cards?"
+      },
+      {
+        "memory_id": "d72ea585-b5bd-5d5e-8f22-90a0edd5766a",
+        "quote": "The Gold Card might be perfect for you. It earns 4x points on restaurants and groceries, 3x on flights."
+      },
+      {
+        "memory_id": "daf2090e-de97-5ee7-8021-1aba8149ebe0",
+        "quote": "The Gold Card is $250 annually, but it includes $120 in dining credits and $120 in Uber credits."
+      },
+      {
+        "memory_id": "4bd54a15-dc51-5346-9fd5-d2441425a013",
+        "quote": "I don't fly enough for that. Let's go with the Gold Card."
+      },
+      {
+        "memory_id": "3d478724-7ffe-583a-b346-393ef70912da",
+        "quote": "Let me process this... Congratulations! You're approved for the Gold Card with a $15,000 credit limit."
+      },
+      {
+        "memory_id": "2a1a6a03-cffc-5873-909f-48ab6894756b",
+        "quote": "That's my Freedom Unlimited."
+      },
+      {
+        "memory_id": "75e5d642-d917-55f6-be3e-b585e9723c68",
+        "quote": "Likely the number was compromised online. We'll cancel this card and send a replacement."
+      }
+    ],
+    "adequate_visible_evidence": true,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [
+      "REASONING",
+      "EVALUATION"
+    ],
+    "rationale": "完成两卡实体与3x/1.5%及换卡状态综合；但凭空断言Gold免外币费、仅航空公司直订才获3x。前者连原始历史也没有，原书标准本身包含这项无来源事实。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1,
+      1,
+      1
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "group": "A",
+    "answer_sha256": "a6ec0eb1ad4452c0d0fd7aec52584b7711c34c8839e9325e4c2e2b081f4a3309",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 1,
+      "reasoning": 1,
+      "proactivity": 2
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 0,
+        "visible": 0,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "I don't see any stored notes, todos, or reminders about this trip in what's visible to me — no dates, bookings, or packi",
+    "source_evidence": [
+      {
+        "memory_id": "aa2c9e03-35a1-597c-b714-bd4824f3b67b",
+        "quote": "Thank you, Ms. Martinez. When exactly does it expire?"
+      },
+      {
+        "memory_id": "f7ca19e6-6973-5027-8a1a-562bb84b3c1d",
+        "quote": "February 18th, 2025."
+      },
+      {
+        "memory_id": "a4d8038a-a563-52dc-ba0d-f69c41b78a96",
+        "quote": "I have a non-stop flight, DL 7 departing LAX at 11:30 AM on January 15th, arriving Haneda at 4:45 PM on January 16th."
+      },
+      {
+        "memory_id": "89f90bb9-5e6a-5fc8-a919-b541c0c07492",
+        "quote": "DL 8 departs Haneda at 6:00 PM on January 22nd, arriving LAX at 10:15 AM the same day."
+      },
+      {
+        "memory_id": "9259442c-45ff-538b-8ad1-408ecc003dab",
+        "quote": "Processing... Approved! Your confirmation number is DELTA-JMK892."
+      },
+      {
+        "memory_id": "3423c527-7399-5720-8f25-c2b8aba5a164",
+        "quote": "You have Priority Pass membership included. Over 1,300 lounges worldwide."
+      },
+      {
+        "memory_id": "8c27432c-e8a0-58be-9c4f-e1123412bd92",
+        "quote": "You can use the digital card in the Priority Pass app. Just download and link to your account."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "只给通用出行检查项，提passport不等于回忆用户护照事实。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "group": "B",
+    "answer_sha256": "0f3f635d9a844991e695852533bc9d53fcd4bd64bf67d0d770fbacf9dbebf963",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 1,
+      "recall": 2,
+      "reasoning": 2,
+      "proactivity": 3
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 2,
+        "audited": 4,
+        "ratio": 0.5,
+        "claims": [
+          {
+            "quote": "your passport expires in February 2025",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "January 15–22, 2025",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "only about a week of margin after you return",
+            "supported_by_visible_evidence": false
+          },
+          {
+            "quote": "Japan requires your passport to be valid for the duration of your stay",
+            "supported_by_visible_evidence": false
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "WRONG_MARGIN_ABOUT_ONE_WEEK",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 2,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 7,
+        "visible": 7,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "The main thing is your passport, and it's worth dealing with now rather than after you book.\n\nFrom what you've told me e",
+    "source_evidence": [
+      {
+        "memory_id": "aa2c9e03-35a1-597c-b714-bd4824f3b67b",
+        "quote": "Thank you, Ms. Martinez. When exactly does it expire?"
+      },
+      {
+        "memory_id": "f7ca19e6-6973-5027-8a1a-562bb84b3c1d",
+        "quote": "February 18th, 2025."
+      },
+      {
+        "memory_id": "a4d8038a-a563-52dc-ba0d-f69c41b78a96",
+        "quote": "I have a non-stop flight, DL 7 departing LAX at 11:30 AM on January 15th, arriving Haneda at 4:45 PM on January 16th."
+      },
+      {
+        "memory_id": "89f90bb9-5e6a-5fc8-a919-b541c0c07492",
+        "quote": "DL 8 departs Haneda at 6:00 PM on January 22nd, arriving LAX at 10:15 AM the same day."
+      },
+      {
+        "memory_id": "9259442c-45ff-538b-8ad1-408ecc003dab",
+        "quote": "Processing... Approved! Your confirmation number is DELTA-JMK892."
+      },
+      {
+        "memory_id": "3423c527-7399-5720-8f25-c2b8aba5a164",
+        "quote": "You have Priority Pass membership included. Over 1,300 lounges worldwide."
+      },
+      {
+        "memory_id": "8c27432c-e8a0-58be-9c4f-e1123412bd92",
+        "quote": "You can use the digital card in the Priority Pass app. Just download and link to your account."
+      }
+    ],
+    "adequate_visible_evidence": true,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [
+      "RETRIEVAL",
+      "RANKING",
+      "REASONING",
+      "EVALUATION"
+    ],
+    "rationale": "利用护照月份和行程提示风险，但把2月到期相对1月22日的间隔说成约一周；日值、预订号、Priority Pass未进视图。历史assistant提到的入境规则被当成已核实规则。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1,
+      0,
+      0,
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "group": "C",
+    "answer_sha256": "ac940f0b8bf19ab342197b6326c5e1aadec480fdf5cf0808c81f727627e23549",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 2,
+      "recall": 2,
+      "reasoning": 3,
+      "proactivity": 3
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 4,
+        "audited": 6,
+        "ratio": 0.6666666666666666,
+        "claims": [
+          {
+            "quote": "February 18, 2025",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "January 22, 2025",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "DELTA-JMK892",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "Priority Pass",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "which is what Japan's visa-free entry requires",
+            "supported_by_visible_evidence": false
+          },
+          {
+            "quote": "airlines sometimes apply stricter validity checks at check-in",
+            "supported_by_visible_evidence": false
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 2,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 7,
+        "visible": 7,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "Based on what's in your records, here's what stands out before your January Tokyo trip (DL 7 LAX→Haneda Jan 15–16, retur",
+    "source_evidence": [
+      {
+        "memory_id": "aa2c9e03-35a1-597c-b714-bd4824f3b67b",
+        "quote": "Thank you, Ms. Martinez. When exactly does it expire?"
+      },
+      {
+        "memory_id": "f7ca19e6-6973-5027-8a1a-562bb84b3c1d",
+        "quote": "February 18th, 2025."
+      },
+      {
+        "memory_id": "a4d8038a-a563-52dc-ba0d-f69c41b78a96",
+        "quote": "I have a non-stop flight, DL 7 departing LAX at 11:30 AM on January 15th, arriving Haneda at 4:45 PM on January 16th."
+      },
+      {
+        "memory_id": "89f90bb9-5e6a-5fc8-a919-b541c0c07492",
+        "quote": "DL 8 departs Haneda at 6:00 PM on January 22nd, arriving LAX at 10:15 AM the same day."
+      },
+      {
+        "memory_id": "9259442c-45ff-538b-8ad1-408ecc003dab",
+        "quote": "Processing... Approved! Your confirmation number is DELTA-JMK892."
+      },
+      {
+        "memory_id": "3423c527-7399-5720-8f25-c2b8aba5a164",
+        "quote": "You have Priority Pass membership included. Over 1,300 lounges worldwide."
+      },
+      {
+        "memory_id": "8c27432c-e8a0-58be-9c4f-e1123412bd92",
+        "quote": "You can use the digital card in the Priority Pass app. Just download and link to your account."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [
+      "EVALUATION"
+    ],
+    "rationale": "正确关联到期日、行程、预订号和Priority Pass；入境及航司政策未经本轮核验却被确定陈述。Oracle缺原书要求的保险/付款/加急时长证据，原书六个月规则也与原历史assistant说法冲突，不按未照抄Gold判错。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "group": "A",
+    "answer_sha256": "d73e02b7e199315895b56608b05a333a7701b26d032605d9ea7f8c9d4592b274",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 1,
+      "reasoning": 1,
+      "proactivity": 2
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 0,
+        "visible": 0,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "I don't have any records in this session about your house closing or move—no saved tasks, notes, or timeline I can check",
+    "source_evidence": [
+      {
+        "memory_id": "49ca4d77-c40a-5998-bd19-3075d582f970",
+        "quote": "90 days, until November 20th, 2024. If you need an extension, just call us."
+      },
+      {
+        "memory_id": "c51f3106-41e9-51ea-b7b0-dea4b9e499ac",
+        "quote": "Let's put December 20th as closing date. That's 35 days."
+      },
+      {
+        "memory_id": "22a7c64b-3bfd-52dd-866d-95557b4fc67a",
+        "quote": "Yes. My parents are gifting us $30,000 to help."
+      },
+      {
+        "memory_id": "b931df9e-0a8d-5ac2-8640-490063bca36c",
+        "quote": "Wells Fargo mentioned we need a gift letter."
+      },
+      {
+        "memory_id": "b6d5e559-ee05-57f7-9028-faff50c958ab",
+        "quote": "Yes, 10 days is typical. And your financing contingency?"
+      },
+      {
+        "memory_id": "e86b36a7-7f3d-5e85-a486-856d39627ddc",
+        "quote": "Good. We'll include 21 days for financing contingency. When do you want to close?"
+      },
+      {
+        "memory_id": "173ad80a-e709-515b-b545-f760eed3750f",
+        "quote": "Oh, I should check that. Speaking of insurance, I need to get homeowner's insurance still."
+      },
+      {
+        "memory_id": "85d3546f-a5ca-5d40-8329-7fd0847b448a",
+        "quote": "Definitely do that before closing. The bank will require it."
+      },
+      {
+        "memory_id": "07c4e201-0bb9-5bb5-a8de-f64a164d56e2",
+        "quote": "Usually a week before closing, so by December 13th."
+      },
+      {
+        "memory_id": "e84b87e4-afa6-5a36-b766-d5507b327fbf",
+        "quote": "I'll note your move is contingent on closing. Your confirmation is ALV-122124."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "无记录不能判断是否按期推进，正确请求背景。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "group": "B",
+    "answer_sha256": "e390ac4868d7677019646ff1d10bc2572c3dfc9a596c99fe2387a45ee44cef74",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 3,
+      "recall": 2,
+      "reasoning": 2,
+      "proactivity": 3
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 2,
+        "audited": 2,
+        "ratio": 1.0,
+        "claims": [
+          {
+            "quote": "expires Nov 20",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "two days from today (Nov 18)",
+            "supported_by_visible_evidence": true
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 6,
+        "visible": 6,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "Short answer: I can't confirm it's all on track — the records I can see show at least two open items, and one is time-se",
+    "source_evidence": [
+      {
+        "memory_id": "49ca4d77-c40a-5998-bd19-3075d582f970",
+        "quote": "90 days, until November 20th, 2024. If you need an extension, just call us."
+      },
+      {
+        "memory_id": "c51f3106-41e9-51ea-b7b0-dea4b9e499ac",
+        "quote": "Let's put December 20th as closing date. That's 35 days."
+      },
+      {
+        "memory_id": "22a7c64b-3bfd-52dd-866d-95557b4fc67a",
+        "quote": "Yes. My parents are gifting us $30,000 to help."
+      },
+      {
+        "memory_id": "b931df9e-0a8d-5ac2-8640-490063bca36c",
+        "quote": "Wells Fargo mentioned we need a gift letter."
+      },
+      {
+        "memory_id": "b6d5e559-ee05-57f7-9028-faff50c958ab",
+        "quote": "Yes, 10 days is typical. And your financing contingency?"
+      },
+      {
+        "memory_id": "e86b36a7-7f3d-5e85-a486-856d39627ddc",
+        "quote": "Good. We'll include 21 days for financing contingency. When do you want to close?"
+      },
+      {
+        "memory_id": "173ad80a-e709-515b-b545-f760eed3750f",
+        "quote": "Oh, I should check that. Speaking of insurance, I need to get homeowner's insurance still."
+      },
+      {
+        "memory_id": "85d3546f-a5ca-5d40-8329-7fd0847b448a",
+        "quote": "Definitely do that before closing. The bank will require it."
+      },
+      {
+        "memory_id": "07c4e201-0bb9-5bb5-a8de-f64a164d56e2",
+        "quote": "Usually a week before closing, so by December 13th."
+      },
+      {
+        "memory_id": "e84b87e4-afa6-5a36-b766-d5507b327fbf",
+        "quote": "I'll note your move is contingent on closing. Your confirmation is ALV-122124."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [
+      "RANKING",
+      "PACKING",
+      "EVALUATION"
+    ],
+    "rationale": "通过Core的等价来源正确发现11月20日即将到期；缺保险/赠与及搬家确认，部分话术从看不到预订推到似乎没订，缺证据影响状态判断。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "group": "C",
+    "answer_sha256": "dfa09d0af9c8f01d07384caa8799c6e7d0cf6e06cbdc4fa68d6ce929fb7e3aac",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 2,
+      "reasoning": 3,
+      "proactivity": 4
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 6,
+        "audited": 6,
+        "ratio": 1.0,
+        "claims": [
+          {
+            "quote": "expiring November 20, 2024",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "That's two days from today",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "December 13",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "Gift letter for your parents' $30,000",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "contingent on closing",
+            "supported_by_visible_evidence": true
+          },
+          {
+            "quote": "ALV-122124",
+            "supported_by_visible_evidence": true
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 10,
+        "visible": 10,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "Based on the notes I have, here's where things stand — with one item that needs attention soon.\n\nMost urgent: your mortg",
+    "source_evidence": [
+      {
+        "memory_id": "49ca4d77-c40a-5998-bd19-3075d582f970",
+        "quote": "90 days, until November 20th, 2024. If you need an extension, just call us."
+      },
+      {
+        "memory_id": "c51f3106-41e9-51ea-b7b0-dea4b9e499ac",
+        "quote": "Let's put December 20th as closing date. That's 35 days."
+      },
+      {
+        "memory_id": "22a7c64b-3bfd-52dd-866d-95557b4fc67a",
+        "quote": "Yes. My parents are gifting us $30,000 to help."
+      },
+      {
+        "memory_id": "b931df9e-0a8d-5ac2-8640-490063bca36c",
+        "quote": "Wells Fargo mentioned we need a gift letter."
+      },
+      {
+        "memory_id": "b6d5e559-ee05-57f7-9028-faff50c958ab",
+        "quote": "Yes, 10 days is typical. And your financing contingency?"
+      },
+      {
+        "memory_id": "e86b36a7-7f3d-5e85-a486-856d39627ddc",
+        "quote": "Good. We'll include 21 days for financing contingency. When do you want to close?"
+      },
+      {
+        "memory_id": "173ad80a-e709-515b-b545-f760eed3750f",
+        "quote": "Oh, I should check that. Speaking of insurance, I need to get homeowner's insurance still."
+      },
+      {
+        "memory_id": "85d3546f-a5ca-5d40-8329-7fd0847b448a",
+        "quote": "Definitely do that before closing. The bank will require it."
+      },
+      {
+        "memory_id": "07c4e201-0bb9-5bb5-a8de-f64a164d56e2",
+        "quote": "Usually a week before closing, so by December 13th."
+      },
+      {
+        "memory_id": "e84b87e4-afa6-5a36-b766-d5507b327fbf",
+        "quote": "I'll note your move is contingent on closing. Your confirmation is ALV-122124."
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [
+      "EVALUATION"
+    ],
+    "rationale": "五个冻结核心事实均表达正确，按11月18日判断两天后到期正确；原书要求已过期有时点错误。缺未提供的搬家时间/钢琴等细节，不能当作完整Oracle。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "v05_current_instruction",
+    "group": "A",
+    "answer_sha256": "f6a24b0a3bc137e3660f6f86b96a25ab90b19cbdefa82aa05409d306baf461de",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 1,
+      "reasoning": 1,
+      "proactivity": 4
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "PASS_CURRENT_CHINESE_ONE_SENTENCE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 0,
+        "visible": 0,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "当前可用的记录里没有出现任何已确认的项目代号，因此我无法给出具体代号。",
+    "source_evidence": [
+      {
+        "memory_id": "65376040-be0d-54e4-8eda-0e7e28650925",
+        "quote": "I prefer detailed answers in English."
+      },
+      {
+        "memory_id": "c23bc9fd-ee7b-5f72-bbb1-9710b674c246",
+        "quote": "项目代号已经确认是 ORCHID-17。"
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "一句中文说明没有代号证据，未编造。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "v05_current_instruction",
+    "group": "B",
+    "answer_sha256": "c2eebfb25e7f91a295216785d7a52e17cd2bdeca869a7cc2510661122aa2e9c6",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 4,
+      "reasoning": 4,
+      "proactivity": 4
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 1,
+        "audited": 1,
+        "ratio": 1.0,
+        "claims": [
+          {
+            "quote": "ORCHID-17",
+            "supported_by_visible_evidence": true
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "PASS_CURRENT_CHINESE_ONE_SENTENCE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 2,
+        "visible": 2,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "记录中的用户陈述显示项目代号已确认为 ORCHID-17（属历史陈述，非当前系统核实状态）。",
+    "source_evidence": [
+      {
+        "memory_id": "65376040-be0d-54e4-8eda-0e7e28650925",
+        "quote": "I prefer detailed answers in English."
+      },
+      {
+        "memory_id": "c23bc9fd-ee7b-5f72-bbb1-9710b674c246",
+        "quote": "项目代号已经确认是 ORCHID-17。"
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "一句中文给出ORCHID-17，没有遵循旧英文长回答偏好。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "v05_current_instruction",
+    "group": "C",
+    "answer_sha256": "c44f3028a22615eed0073091b625fc67c27411a7f90fea815591e578193275c3",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 4,
+      "reasoning": 4,
+      "proactivity": 4
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 1,
+        "audited": 1,
+        "ratio": 1.0,
+        "claims": [
+          {
+            "quote": "ORCHID-17",
+            "supported_by_visible_evidence": true
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "PASS_CURRENT_CHINESE_ONE_SENTENCE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 1,
+        "visible": 1,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "记录中提到的已确认项目代号是 ORCHID-17。",
+    "source_evidence": [
+      {
+        "memory_id": "65376040-be0d-54e4-8eda-0e7e28650925",
+        "quote": "I prefer detailed answers in English."
+      },
+      {
+        "memory_id": "c23bc9fd-ee7b-5f72-bbb1-9710b674c246",
+        "quote": "项目代号已经确认是 ORCHID-17。"
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "一句中文给出ORCHID-17，没有遵循旧英文长回答偏好。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "v05_temporal_state",
+    "group": "A",
+    "answer_sha256": "fa2908349014125cb86eea41201bfda6af246bf6f546654348e1cebd4ff373df",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 1,
+      "reasoning": 1,
+      "proactivity": 3
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 0,
+        "visible": 0,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "我无法确认设备 D7 在 2024-10-05 的状态。这次会话里我看不到任何与设备 D7 相关的记忆记录、状态日志或来源条目，因此既没有依据说它在线、离线、故障还是其他状态，也不能把“没有记录”当作“状态正常”或“不存在”的证据。如果你能",
+    "source_evidence": [
+      {
+        "memory_id": "5f621b2e-2eed-5dad-b367-0f1cea76adb9",
+        "quote": "设备 D7 的状态是待审核。"
+      },
+      {
+        "memory_id": "e0b1d053-6b82-576c-8fba-bae920eb3034",
+        "quote": "确认：设备D7已取消，不再是待审核状态。"
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "无状态证据正确弃答，未猜测。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      0
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "v05_temporal_state",
+    "group": "B",
+    "answer_sha256": "0e4d02dc846a3f65ed932ada4af898531dd08386094f772c11a08c212868072f",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 4,
+      "reasoning": 4,
+      "proactivity": 3
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 1,
+        "audited": 1,
+        "ratio": 1.0,
+        "claims": [
+          {
+            "quote": "「已取消」",
+            "supported_by_visible_evidence": true
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 2,
+        "visible": 2,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "根据现有记忆记录：2024-10-01 曾记录设备 D7 的状态为「待审核」，但 2024-10-03 有一条更新的用户确认，明确说明「设备 D7 已取消，不再是待审核状态」。两条记录范围不同（前者来自 session=old，后者来自 s",
+    "source_evidence": [
+      {
+        "memory_id": "5f621b2e-2eed-5dad-b367-0f1cea76adb9",
+        "quote": "设备 D7 的状态是待审核。"
+      },
+      {
+        "memory_id": "e0b1d053-6b82-576c-8fba-bae920eb3034",
+        "quote": "确认：设备D7已取消，不再是待审核状态。"
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "正确以10月3日取消覆盖10月1日待审核；没有读到10月10日未来恢复。说明过长但结论准确。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "v05_temporal_state",
+    "group": "C",
+    "answer_sha256": "c5b3ac74767275c992bec29b3616e30ebdddee432dbc5e837fc174700c0285f7",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 4,
+      "reasoning": 4,
+      "proactivity": 3
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 1,
+        "audited": 1,
+        "ratio": 1.0,
+        "claims": [
+          {
+            "quote": "「已取消」",
+            "supported_by_visible_evidence": true
+          }
+        ]
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 2,
+        "visible": 2,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "根据现有记录，截至2024年10月5日，设备D7处于「已取消」状态。依据是：2024年10月1日曾记录D7为「待审核」，随后在2024年10月3日，你明确确认「设备D7已取消，不再是待审核状态」。因此应以时间较晚的10月3日记录为准，D7不",
+    "source_evidence": [
+      {
+        "memory_id": "5f621b2e-2eed-5dad-b367-0f1cea76adb9",
+        "quote": "设备 D7 的状态是待审核。"
+      },
+      {
+        "memory_id": "e0b1d053-6b82-576c-8fba-bae920eb3034",
+        "quote": "确认：设备D7已取消，不再是待审核状态。"
+      }
+    ],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "正确解释时间更新，未使用未来恢复；额外实时核验声明不改变截至时点结论。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [
+      1
+    ],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "v05_missing_memory",
+    "group": "A",
+    "answer_sha256": "48350f4351f70e1e479b12f8dc7d92ec22fed74a9a8b80bd5f527c7b2a534847",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 4,
+      "reasoning": 4,
+      "proactivity": 4
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 0,
+        "visible": 0,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "目前这次对话里我能看到的记录中没有你保存过的门禁密码相关信息，所以我无法回答具体密码。我也不会猜测或编造密码，因为那可能误导你，甚至影响安全。建议你查看记录密码时所用的应用或随身记录；如果你能提供当时记录的来源（例如某条笔记或某个会话），我",
+    "source_evidence": [],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "正确拒绝编造不存在的密码。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "v05_missing_memory",
+    "group": "B",
+    "answer_sha256": "22350ff884060728287fbd57e8096e9cf40fdcbed0c9a47a2835a005e5adc8e6",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 4,
+      "reasoning": 4,
+      "proactivity": 4
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 1,
+        "visible": 1,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "我在当前可回查的记录里没有找到你记录过的门禁密码。唯一相关的已存信息是“项目代号是 ORCHID-17”，这与门禁密码无关。因此我无法提供该密码，也不会猜测。如果你希望，可以告诉我它大致记录在哪个会话或场景中，我再按范围帮你查找。",
+    "source_evidence": [],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "正确区分项目代号与门禁密码，没有把ORCHID-17当密码。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  },
+  {
+    "case_id": "v05_missing_memory",
+    "group": "C",
+    "answer_sha256": "3af649fb7722b676811d651ddcb7f157364bf2fa528606c0e7e76ffb49a4f180",
+    "reviewer": "executing Codex agent, unblinded source audit, no external Judge",
+    "verified": true,
+    "book_scores": {
+      "precision": 4,
+      "recall": 4,
+      "reasoning": 4,
+      "proactivity": 4
+    },
+    "dimensions": {
+      "fact_accuracy": {
+        "scope": "explicitly listed core assertions; not exhaustive full-answer accuracy",
+        "supported": 0,
+        "audited": 0,
+        "ratio": "N/A_ABSTENTION_OR_NO_CORE_FACT",
+        "claims": []
+      },
+      "entity_scenario": "NO_UNSUPPORTED_ENTITY_MERGE",
+      "temporal_state": "NO_OBSERVED_TEMPORAL_CONTRADICTION_OR_NOT_APPLICABLE",
+      "current_conflict": "NOT_APPLICABLE",
+      "unsupported_memory": {
+        "invented_visible_ids": [],
+        "unsupported_core_assertions": 0,
+        "note": "unsupported by supplied evidence does not establish a real-world policy false"
+      },
+      "evidence_use": {
+        "declared": 0,
+        "visible": 0,
+        "note": "self-report, not causal proof; provenance does not by itself verify real-world truth"
+      }
+    },
+    "answer_excerpt": "我目前看不到任何已保存的记录，无法确认你之前是否记过门禁密码，因此不能给出具体内容——这种信息也不适合靠猜测填补。如果你确实保存过，可能在别处（比如备忘录或某个具体应用），你可以指出位置，我再帮你核对。",
+    "source_evidence": [],
+    "adequate_visible_evidence": false,
+    "adequacy_scope": "local diagnosed issue only; not a claim that Oracle covers every original criterion",
+    "failure_categories": [],
+    "rationale": "Oracle本来为空，正确说明缺失。",
+    "original_book_scores_applicable": false,
+    "semantic_required_fact_matches": [],
+    "semantic_review_note": "separate evidence-based audit, original Gold and literal proxy untouched"
+  }
+]
