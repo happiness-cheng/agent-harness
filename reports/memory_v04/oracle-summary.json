@@ -1,0 +1,106 @@
+{
+  "seen_original_dev": {
+    "R0": {
+      "candidate": 22,
+      "rank_ceiling": 22,
+      "candidate_budget_ceiling": 22,
+      "actual_topk": 14,
+      "full_topk_budget_ceiling": 14,
+      "actual_p0": 14,
+      "extracted_unlimited": 14,
+      "extracted_budget_ceiling": 14,
+      "actual_p1": 12,
+      "actual_p2": 11
+    },
+    "R1": {
+      "candidate": 22,
+      "rank_ceiling": 22,
+      "candidate_budget_ceiling": 22,
+      "actual_topk": 14,
+      "full_topk_budget_ceiling": 14,
+      "actual_p0": 14,
+      "extracted_unlimited": 14,
+      "extracted_budget_ceiling": 14,
+      "actual_p1": 12,
+      "actual_p2": 11
+    }
+  },
+  "seen_previous_test_now_dev": {
+    "R0": {
+      "candidate": 11,
+      "rank_ceiling": 11,
+      "candidate_budget_ceiling": 11,
+      "actual_topk": 6,
+      "full_topk_budget_ceiling": 6,
+      "actual_p0": 6,
+      "extracted_unlimited": 5,
+      "extracted_budget_ceiling": 5,
+      "actual_p1": 5,
+      "actual_p2": 5
+    },
+    "R1": {
+      "candidate": 11,
+      "rank_ceiling": 11,
+      "candidate_budget_ceiling": 11,
+      "actual_topk": 7,
+      "full_topk_budget_ceiling": 7,
+      "actual_p0": 7,
+      "extracted_unlimited": 6,
+      "extracted_budget_ceiling": 6,
+      "actual_p1": 6,
+      "actual_p2": 6
+    }
+  },
+  "seen_frozen_test": {
+    "R0": {
+      "candidate": 10,
+      "rank_ceiling": 10,
+      "candidate_budget_ceiling": 10,
+      "actual_topk": 6,
+      "full_topk_budget_ceiling": 6,
+      "actual_p0": 4,
+      "extracted_unlimited": 6,
+      "extracted_budget_ceiling": 6,
+      "actual_p1": 2,
+      "actual_p2": 2
+    },
+    "R1": {
+      "candidate": 10,
+      "rank_ceiling": 10,
+      "candidate_budget_ceiling": 10,
+      "actual_topk": 10,
+      "full_topk_budget_ceiling": 10,
+      "actual_p0": 8,
+      "extracted_unlimited": 10,
+      "extracted_budget_ceiling": 10,
+      "actual_p1": 6,
+      "actual_p2": 6
+    }
+  },
+  "frozen_test": {
+    "R0": {
+      "candidate": 5,
+      "rank_ceiling": 5,
+      "candidate_budget_ceiling": 5,
+      "actual_topk": 4,
+      "full_topk_budget_ceiling": 4,
+      "actual_p0": 4,
+      "extracted_unlimited": 4,
+      "extracted_budget_ceiling": 4,
+      "actual_p1": 4,
+      "actual_p2": 3
+    },
+    "R1": {
+      "candidate": 5,
+      "rank_ceiling": 5,
+      "candidate_budget_ceiling": 5,
+      "actual_topk": 4,
+      "full_topk_budget_ceiling": 4,
+      "actual_p0": 4,
+      "extracted_unlimited": 4,
+      "extracted_budget_ceiling": 4,
+      "actual_p1": 4,
+      "actual_p2": 3
+    }
+  }
+}

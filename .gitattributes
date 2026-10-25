@@ -99,3 +99,18 @@
 /tests/unit/test_context_evaluation_v04.py -text
 /tests/unit/test_evidence_context_v04.py -text
 /tests/unit/test_fact_binding_v04.py -text
+
+# v0.4报告与运行证据保持精确字节。
+/docs/MEMORY_CONTEXT_V04.md -text
+/reports/memory_v04/build.txt -text
+/reports/memory_v04/cli-overwrite-refusal.txt -text
+/reports/memory_v04/context-fixed.json.gz -text
+/reports/memory_v04/context-run.txt -text
+/reports/memory_v04/evaluation_v04.md -text
+/reports/memory_v04/failure_analysis_v04.md -text
+/reports/memory_v04/full-regression.txt -text
+/reports/memory_v04/inspection-example.json -text
+/reports/memory_v04/oracle-summary.json -text
+/reports/memory_v04/review.md -text
+/scripts/inspect_memory_context_v04.py -text
+/scripts/report_memory_context_v04.py -text
