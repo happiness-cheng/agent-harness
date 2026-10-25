@@ -76,7 +76,7 @@ def test_correction_keeps_actual_first_turn_history_in_second_turn():
     model = ScriptedModel([stop("先不记录明天写周报"), stop("已按后天理解，尚未记录")])
     report = run_case(case, model)
     assert report["structural_ok"] is True
-    assert [message.content for message in model.calls[1] if message.role != "system"][-3:] == [
+    assert [message.content for message in model.calls[1][:-1] if message.role != "system"][-3:] == [
         case.prompts[0], "先不记录明天写周报", case.prompts[1],
     ]
 

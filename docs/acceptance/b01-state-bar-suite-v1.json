@@ -1,0 +1,21 @@
+{
+  "version": "state-bar-v1",
+  "status": "frozen-before-implementation",
+  "scope": "公开离线机制验收，真实Runtime/工具/预算/上下文；脚本模型，不评价自然语言质量或真实Token收益。",
+  "cases": [
+    {"id":"B01","scenario":"simple","group":"development","expected":{"no_extra_bar":true,"no_plan_created":true,"single_basic_context":true,"dynamic_at_end":true}},
+    {"id":"B02","scenario":"progress","group":"development","expected":{"bar_present":true,"verified_one":true,"pending_one":true,"goal_matches":true,"goal_verification_unknown":true}},
+    {"id":"B03","scenario":"reads","group":"acceptance","expected":{"bar_present":true,"verified_zero":true,"pending_two":true,"tool_calls":3}},
+    {"id":"B04","scenario":"failure","group":"acceptance","expected":{"failure_visible":true,"verified_zero":true,"bounded_requests":true}},
+    {"id":"B05","scenario":"unknown","group":"acceptance","expected":{"unknown_visible":true,"not_success":true,"handler_attempts":1,"runtime_stopped":true}},
+    {"id":"B06","scenario":"permission","group":"acceptance","expected":{"mode_refreshed":true,"single_bar_each_call":true}},
+    {"id":"B07","scenario":"permission_race","group":"acceptance","expected":{"latest_guard_blocks":true,"no_write":true}},
+    {"id":"B08","scenario":"compaction","group":"acceptance","expected":{"actual_compaction":true,"bar_refreshed":true,"single_bar_each_call":true,"history_not_polluted":true}},
+    {"id":"B09","scenario":"ended","group":"acceptance","expected":{"old_bar_cleared":true,"no_stale_goal":true}},
+    {"id":"B10","scenario":"false_completion","group":"acceptance","expected":{"verified_zero":true,"goal_verification_unknown":true,"real_progress_unchanged":true}},
+    {"id":"B11","scenario":"builder_failure","group":"acceptance","expected":{"no_model_call":true,"no_write":true,"runtime_stopped":true}},
+    {"id":"B12","scenario":"checkpoint","group":"acceptance","expected":{"checkpoint_exists":true,"restored_bar":true,"no_duplicate_tool":true,"unverified_note_not_promoted":true}},
+    {"id":"B13","scenario":"readonly","group":"acceptance","expected":{"real_progress_unchanged":true,"no_write":true,"projection_isolated":true}},
+    {"id":"B14","scenario":"forgery","group":"acceptance","expected":{"forged_text_kept_as_history":true,"latest_guard_blocks":true,"no_write":true}}
+  ]
+}

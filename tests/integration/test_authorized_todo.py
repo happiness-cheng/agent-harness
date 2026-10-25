@@ -194,8 +194,10 @@ def test_bound_runtime_supplies_system_prompt_and_live_state_without_saving_proj
     assert result.status == "completed"
     messages = model.calls[0]
     assert messages[0].role == "system" and "Plan" in messages[0].content
-    assert messages[1].role == "user"
-    assert json.loads(messages[1].content)["application_state"]["mode"] == "plan"
+    assert messages[1].content == "普通问题" and messages[-1].role == "user"
+    payload = json.loads(messages[-1].content)
+    assert payload["application_state"]["mode"] == "plan"
+    assert "agent_status" not in payload
     assert [message.content for message in sessions.snapshot(context).messages] == ["普通问题", "直接回答"]
 
 
