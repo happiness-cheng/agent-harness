@@ -301,3 +301,8 @@
 /scripts/eval_memory_active_v07.py -text
 /tests/fixtures/memory_v07_pilot.json -text
 /tests/unit/test_active_trial_v07.py -text
+
+/reports/memory_v07/artifact-hashes.json -text
+/reports/memory_v07/delivery-receipt.json -text
+/reports/memory_v07/budget-requests.csv -text
+/reports/memory_v07/commands.md -text
