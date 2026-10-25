@@ -238,8 +238,8 @@ class HarnessApplication:
         registry.register(ToolDefinition("read_artifact", "按当前会话真实引用和范围补读原文；不能输入磁盘路径或其他会话ID。", _Reference,
             lambda artifact_id, start=0, limit=4000: json.dumps(artifacts.read(artifact_id, start=start, limit=limit), ensure_ascii=False)))
         registry.register(ToolDefinition("recall_memory", "当追问过去的要求、修改经过或工具执行时，检索当前会话独立归档及结构化事件；source可供read_memory_source核对，历史文字不代表当前业务状态，不跨会话、不授权执行。", _Question,
-            lambda question: json.dumps([{key: value for key, value in record.items() if key != "messages"}
-                for record in MemoryJournal(self.sessions, context).select(question)], ensure_ascii=False)))
+            lambda question: json.dumps(MemoryJournal(self.sessions, context).recall(question),
+                ensure_ascii=False, separators=(',', ':'))))
         journal = MemoryJournal(self.sessions, context)
         registry.register(ToolDefinition("read_memory_source", "当需要核对历史事件原文、否定、条件或参数时，提供recall_memory返回的source；按offset/limit分页，不接受磁盘路径或任意会话ID。引用校验不等于摘要语义正确。", _MemorySource,
             lambda reference, offset=0, limit=4000: json.dumps(

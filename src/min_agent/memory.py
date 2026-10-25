@@ -1,6 +1,7 @@
 """按完整交互段归档；只读当前会话引用，不做跨会话召回。"""
 
 import json
+from copy import deepcopy
 from uuid import uuid4, uuid5
 from min_agent.checkpoints import history_hash
 from min_agent.memory_records import SourceReference, interaction_events, runtime_state, source_text
@@ -114,3 +115,22 @@ class MemoryJournal:
                 messages = [Message.model_validate(value) for value in record["messages"]]
                 record["events"] = interaction_events(self.context, record["id"], messages, record["start"])
         return selected
+
+    def recall(self, question, limit=3):
+        """模型回查只给短预览及来源；完整归档保持不变，可按 source 分页补读。"""
+        result = []
+        for original in self.select(question, limit=limit):
+            record = deepcopy(original)
+            if record.get('kind') == 'interaction' and 'events' in record:
+                # 同一用户文字已在 summary/events/messages 重复保存；不要全部送入模型。
+                # 历史控制状态也不作为当前状态，当前状态仍由 read_session_state 查询。
+                record = {key: record[key] for key in ('id', 'kind', 'events')}
+                for event in record['events']:
+                    if 'text' in event:
+                        text = event['text']
+                        event['text'] = text[:96]
+                        event['truncated'] = bool(event.get('truncated')) or len(text) > 96
+            else:
+                record.pop('messages', None)
+            result.append(record)
+        return result
