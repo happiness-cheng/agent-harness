@@ -282,3 +282,22 @@
 /reports/memory_v07/v06-budget-breakdown.json -text
 /reports/memory_v07/v06-budget-diagnosis.json -text
 /reports/memory_v07/v06-worktree-report-preserved.md -text
+
+/MEMORY_ACTIVE_RETRIEVAL_V07.md -text
+/experiments/memory_v07/trial.py -text
+/reports/memory_v07/budget_root_cause.md -text
+/reports/memory_v07/build.txt -text
+/reports/memory_v07/dependency-check.txt -text
+/reports/memory_v07/evaluation_v07.md -text
+/reports/memory_v07/full-tests.txt -text
+/reports/memory_v07/p0-control.json -text
+/reports/memory_v07/prepared.json.gz -text
+/reports/memory_v07/request-materials.md -text
+/reports/memory_v07/review.md -text
+/reports/memory_v07/trial-green.txt -text
+/reports/memory_v07/trial-red.txt -text
+/reports/memory_v07/verification.json -text
+/scripts/control_memory_active_v07.py -text
+/scripts/eval_memory_active_v07.py -text
+/tests/fixtures/memory_v07_pilot.json -text
+/tests/unit/test_active_trial_v07.py -text

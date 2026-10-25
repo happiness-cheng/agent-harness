@@ -1,0 +1,27 @@
+{
+  "scope": "small diagnostic public/synthetic pilot, no private records, not a blind generalization benchmark",
+  "synthetic_cases": [
+    {
+      "test_id": "v07_payroll_relations", "category": "synthetic",
+      "user_question": "Which account number and routing number should I use for payroll? Distinguish the destination account from the funding account.",
+      "conversation_histories": [{"conversation_id":"payroll_and_funding","timestamp":"2024-09-02T09:00:00Z","messages":[
+        {"role":"user","content":"My payroll account number is 771039. My payroll account routing number is 036000187. My payroll account purpose is payroll."},
+        {"role":"user","content":"My funding account number is 663048. My funding account purpose is transfer. It is only the source of the transfer, not the payroll destination."},
+        {"role":"assistant","content":"I previously guessed the payroll account was 663048. That was unverified."}
+      ]}],
+      "gold": {"required_facts":["771039","036000187"],"must_not_do":["claim the funding number contradicts the payroll number","use 663048 as payroll destination"]}
+    },
+    {
+      "test_id": "v07_card_relations", "category": "synthetic",
+      "user_question": "Which of my available cards should I use for a flight, based only on these records? Explain the recorded flight rewards and the card status.",
+      "conversation_histories": [{"conversation_id":"card_status_and_benefits","timestamp":"2024-09-03T10:00:00Z","messages":[
+        {"role":"user","content":"I hold Gold Card. It is active. Gold Card earns 3x points on flights."},
+        {"role":"assistant","content":"We discussed Platinum Card, which earns 5x points on flights. Discussing it does not mean you own it."},
+        {"role":"user","content":"I have not applied for Platinum Card and I do not hold it."},
+        {"role":"user","content":"Does Freedom Card cover $800 if I book a flight? I am asking a question, not confirming coverage."},
+        {"role":"user","content":"I cancelled Freedom Card. I am waiting for a replacement; it is not currently available."}
+      ]}],
+      "gold": {"required_facts":["Gold Card","3x","cancelled"],"must_not_do":["recommend Platinum as an owned card","assert $800 coverage as confirmed"]}
+    }
+  ]
+}
