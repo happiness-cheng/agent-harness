@@ -162,12 +162,13 @@ def live(pack,auth,pack_hash,credentials,proxy,output):
         try:
             from min_agent.llm.deepseek import DeepSeekSettings,DeepSeekResponsesModel
             settings=DeepSeekSettings.from_credentials_file(credentials,model=MODEL,reasoning_effort='high',
-                max_output_tokens=4096,max_requests=pack['max_requests'],timeout_seconds=180)
-            provider=DeepSeekResponsesModel(settings,proxy=proxy)
+                max_output_tokens=4096,max_requests=pack['b2_max_model_calls'],timeout_seconds=180)
             for number,case in enumerate(pack['cases']):
                 order=list(GROUPS);offset=number%len(order);order=order[offset:]+order[:offset]
                 for group in order:
                     before=len(ledger.rows)
+                    # 每单元独立客户端≤3次；整个实验仍受共享ledger的105次硬限。
+                    provider=DeepSeekResponsesModel(settings,proxy=proxy)
                     model=MeteredModel(provider,ledger,total_units=65536 if group=='B2' else 32768,label=dict(case_id=case['case_id'],group=group))
                     if group=='B2':
                         memory,ctx,query=fixture(case);row=run_active(memory,ctx,query,model=model)
@@ -184,6 +185,7 @@ def live(pack,auth,pack_hash,credentials,proxy,output):
                         latency_ms=sum(r['latency_ms'] for r in used),cost_peak_usd=sum(r['cost_peak_usd'] or 0 for r in used),
                         semantic_source_review='NOT_RUN')
                     cells.append(row);record(dict(event='cell',**row))
+                    provider.close();provider=None
                     if ledger.stop_reason:raise RuntimeError('batch_stop')
         except Exception:
             record(dict(event='batch_stopped',reason=ledger.stop_reason or 'local_or_provider_failure_no_retry'))

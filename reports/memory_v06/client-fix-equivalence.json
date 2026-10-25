@@ -1,0 +1,13 @@
+{
+  "original_authorized_pack_sha256": "928f30ec43c34455c1b5bb52f95f58900ecb311484853db2d67f4c1e8cd8f45c",
+  "executed_package_sha256": "8c2e782b7cbdceff2107fad1f9de64a65778fdcef1e347c2f315320642eadc22",
+  "changes": [
+    "scripts/eval_memory_value_v06.py"
+  ],
+  "all_15_case_requests_and_fixtures_identical": true,
+  "algorithm_policy_unchanged": true,
+  "initial_model_requests": 0,
+  "max_total_requests": 105,
+  "max_cost_usd": 2,
+  "authorization_basis": "same user-confirmed model/data/tools/fee scope; local configuration repair before first API request"
+}

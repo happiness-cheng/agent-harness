@@ -1,0 +1,2 @@
+{"event": "batch_stopped", "reason": "local_or_provider_failure_no_retry"}
+{"event": "finished", "model_calls": 0, "reserved_usd": 0.0, "cost_peak_usd": 0.0, "invoice": "NOT_AVAILABLE", "automatic_retries": 0, "stop_reason": null, "pack_sha256": "928f30ec43c34455c1b5bb52f95f58900ecb311484853db2d67f4c1e8cd8f45c", "status": "PARTIAL", "source_commit": "ae681022b8cc452af0e98525ccd2a31107424618"}

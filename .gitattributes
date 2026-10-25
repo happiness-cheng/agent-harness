@@ -200,3 +200,11 @@
 /reports/memory_v06/offline-report/source-review-template.json -text
 /reports/memory_v06/offline-report/summary.json -text
 /reports/memory_v06/wheels/agent_harness-0.1.0-py3-none-any.whl -text
+/reports/memory_v06/authorization-client-fix.json -text
+/reports/memory_v06/client-fix-equivalence.json -text
+/reports/memory_v06/client-limit-green.txt -text
+/reports/memory_v06/client-limit-red.txt -text
+/reports/memory_v06/live-results.json -text
+/reports/memory_v06/live-results.jsonl -text
+/reports/memory_v06/prepared-client-fix.json.gz -text
+/reports/memory_v06/trial-final.txt -text

@@ -1,0 +1,38 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+____ test_client_limit_is_per_cell_while_global_ledger_bounds_whole_trial _____
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-500/test_client_limit_is_per_cell_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000015ECE569940>
+
+    def test_client_limit_is_per_cell_while_global_ledger_bounds_whole_trial(tmp_path,monkeypatch):
+        from min_agent.models import ModelResponse
+        import min_agent.llm.deepseek as adapter
+        pack,digest=packet();pack['source_hashes']=trial.sources();auth=permission(digest)
+        monkeypatch.setattr(trial,'ROOT',tmp_path)
+        monkeypatch.setattr(trial,'sources',lambda:pack['source_hashes'])
+        options=[];clients=[]
+        def settings(path,**kwargs):
+            assert kwargs['max_requests']<=3
+            options.append(kwargs);return object()
+        class Fake:
+            def __init__(self,settings,proxy):self.usage=[];self.closed=False;clients.append(self)
+            def generate(self,messages,*,tools=None):
+                self.usage.append(dict(input_tokens=10,output_tokens=5))
+                return ModelResponse(finish_reason='stop',content='{"answer":"UNIT_TEST_ONLY","used_evidence_ids":[],"uncertainties":[]}')
+            def close(self):self.closed=True
+        monkeypatch.setattr(adapter.DeepSeekSettings,'from_credentials_file',settings)
+        monkeypatch.setattr(adapter,'DeepSeekResponsesModel',Fake)
+        # fixture使用内存store，ROOT只用于本地claim/版本信息；stub git版本读取。
+        monkeypatch.setattr(trial.subprocess,'check_output',lambda *a,**k:'unit-test-version')
+        result=trial.live(pack,auth,digest,tmp_path/'never-read','proxy',tmp_path/'trial.json')
+>       assert result['status']=='COMPLETE' and result['model_calls']==75
+E       AssertionError: assert ('PARTIAL' == 'COMPLETE'
+E         
+E         - COMPLETE
+E         + PARTIAL)
+
+tests\unit\test_evidence_trial_v06.py:90: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/test_evidence_trial_v06.py::test_client_limit_is_per_cell_while_global_ledger_bounds_whole_trial
+1 failed, 8 deselected in 2.60s

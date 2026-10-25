@@ -12,7 +12,7 @@ from min_agent.long_memory.active_evidence import validate_answer
 
 
 def packet():
-    path=ROOT/'reports/memory_v06/prepared.json.gz'
+    path=ROOT/'reports/memory_v06/prepared-client-fix.json.gz'
     return trial.load(path),sha256(path.read_bytes()).hexdigest()
 def permission(digest):
     return dict(approved_by_user=True,pack_sha256=digest,model='deepseek-flash',reasoning_effort='high',
@@ -64,3 +64,28 @@ def test_existing_real_responses_replay_structure_and_citation_error_without_new
         checks.append(validate_answer(response['raw_answer'],set(ids)))
     assert sum(c['json_valid'] for c in checks)==26
     assert sum(c['schema_valid'] and not c['citation_valid'] for c in checks)==1
+
+
+def test_client_limit_is_per_cell_while_global_ledger_bounds_whole_trial(tmp_path,monkeypatch):
+    from min_agent.models import ModelResponse
+    import min_agent.llm.deepseek as adapter
+    pack,digest=packet();pack['source_hashes']=trial.sources();auth=permission(digest)
+    monkeypatch.setattr(trial,'ROOT',tmp_path)
+    monkeypatch.setattr(trial,'sources',lambda:pack['source_hashes'])
+    options=[];clients=[]
+    def settings(path,**kwargs):
+        assert kwargs['max_requests']<=3
+        options.append(kwargs);return object()
+    class Fake:
+        def __init__(self,settings,proxy):self.usage=[];self.closed=False;clients.append(self)
+        def generate(self,messages,*,tools=None):
+            self.usage.append(dict(input_tokens=10,output_tokens=5))
+            return ModelResponse(finish_reason='stop',content='{"answer":"UNIT_TEST_ONLY","used_evidence_ids":[],"uncertainties":[]}')
+        def close(self):self.closed=True
+    monkeypatch.setattr(adapter.DeepSeekSettings,'from_credentials_file',settings)
+    monkeypatch.setattr(adapter,'DeepSeekResponsesModel',Fake)
+    # fixture使用内存store，ROOT只用于本地claim/版本信息；stub git版本读取。
+    monkeypatch.setattr(trial.subprocess,'check_output',lambda *a,**k:'unit-test-version')
+    result=trial.live(pack,auth,digest,tmp_path/'never-read','proxy',tmp_path/'trial.json')
+    assert result['status']=='COMPLETE' and result['model_calls']==75
+    assert len(options)==1 and len(clients)==75 and all(c.closed for c in clients)
