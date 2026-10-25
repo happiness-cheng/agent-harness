@@ -1,0 +1,152 @@
+diagnostic_dev layer1_01_bank_account {'A': 0.5, 'B': 0.5, 'C': 0.5}
+diagnostic_dev layer1_02_insurance_claim {'A': 1.0, 'B': 1.0, 'C': 1.0}
+diagnostic_dev layer1_03_medical_appointment {'A': 0.0, 'B': 0.25, 'C': 0.25}
+diagnostic_dev layer1_04_airline_booking {'A': 0.0, 'B': 0.0, 'C': 0.0}
+diagnostic_dev layer2_01_multiple_vehicles {'A': 0.3333, 'B': 0.0, 'C': 0.0}
+diagnostic_dev layer2_03_multiple_credit_cards {'A': 0.0, 'B': 0.0, 'C': 0.0}
+diagnostic_dev layer3_01_travel_coordination {'A': 0.25, 'B': 0.25, 'C': 0.25}
+diagnostic_dev layer3_04_warranty_coordination {'A': 0.0, 'B': 0.25, 'C': 0.25}
+independent_test layer1_05_internet_service {'A': 0.0, 'B': 1.0, 'C': 1.0}
+independent_test layer1_06_credit_card_app {'A': 1.0, 'B': 1.0, 'C': 1.0}
+independent_test layer2_02_multiple_properties {'A': 0.2, 'B': 0.2, 'C': 0.2}
+independent_test layer2_04_multiple_subscriptions {'A': 0.0, 'B': 0.1667, 'C': 0.1667}
+independent_test layer3_02_medical_insurance_coordination {'A': 0.0, 'B': 0.0, 'C': 0.0}
+independent_test layer3_03_home_purchase_coordination {'A': 0.4, 'B': 0.0, 'C': 0.0}
+{
+  "diagnostic_dev": {
+    "A": {
+      "hit_at_k": 0.5,
+      "fact_recall_at_k": 0.2604166666666667,
+      "mrr": 0.24375,
+      "candidate_fact_coverage": 0.8541666666666666,
+      "full_pre_cap_fact_coverage": 0.8958333333333334,
+      "legal_history_fact_coverage": 0.9270833333333334,
+      "visible_fact_recall": 0.21875,
+      "context_bytes": 1885.125,
+      "unique_before_topk": 91.875,
+      "unique_before_cap": 124.375,
+      "duplicate_hits_before_topk": 0,
+      "retrieval_median_ms": 25.088962499921763,
+      "storage_canonical_bytes": 308687.5,
+      "storage_card_sidecar_bytes": 0,
+      "indexed_text_bytes": 18502,
+      "cross_scenario_surface_collisions": 0,
+      "cases": 8,
+      "facts": 26,
+      "exception_facts_covered": 0,
+      "exception_facts_total": 0
+    },
+    "B": {
+      "hit_at_k": 0.625,
+      "fact_recall_at_k": 0.28125,
+      "mrr": 0.2708333333333333,
+      "candidate_fact_coverage": 0.9270833333333334,
+      "full_pre_cap_fact_coverage": 0.9270833333333334,
+      "legal_history_fact_coverage": 0.9270833333333334,
+      "visible_fact_recall": 0.1875,
+      "context_bytes": 1891.125,
+      "unique_before_topk": 97.75,
+      "unique_before_cap": 152.875,
+      "duplicate_hits_before_topk": 0,
+      "retrieval_median_ms": 39.62665000017296,
+      "storage_canonical_bytes": 308687.5,
+      "storage_card_sidecar_bytes": 148449.875,
+      "indexed_text_bytes": 34425.25,
+      "cross_scenario_surface_collisions": 0,
+      "cases": 8,
+      "facts": 26,
+      "exception_facts_covered": 0,
+      "exception_facts_total": 0
+    },
+    "C": {
+      "hit_at_k": 0.625,
+      "fact_recall_at_k": 0.28125,
+      "mrr": 0.2708333333333333,
+      "candidate_fact_coverage": 0.9270833333333334,
+      "full_pre_cap_fact_coverage": 0.9270833333333334,
+      "legal_history_fact_coverage": 0.9270833333333334,
+      "visible_fact_recall": 0.1875,
+      "context_bytes": 1891.125,
+      "unique_before_topk": 97.75,
+      "unique_before_cap": 152.875,
+      "duplicate_hits_before_topk": 0,
+      "retrieval_median_ms": 63.26023750079912,
+      "storage_canonical_bytes": 308687.5,
+      "storage_card_sidecar_bytes": 148449.875,
+      "indexed_text_bytes": 34425.25,
+      "cross_scenario_surface_collisions": 0,
+      "cases": 8,
+      "facts": 26,
+      "exception_facts_covered": 0,
+      "exception_facts_total": 0
+    }
+  },
+  "independent_test": {
+    "A": {
+      "hit_at_k": 0.5,
+      "fact_recall_at_k": 0.26666666666666666,
+      "mrr": 0.2708333333333333,
+      "candidate_fact_coverage": 0.6277777777777778,
+      "full_pre_cap_fact_coverage": 0.7555555555555555,
+      "legal_history_fact_coverage": 1.0,
+      "visible_fact_recall": 0.2,
+      "context_bytes": 1958.8333333333333,
+      "unique_before_topk": 97,
+      "unique_before_cap": 145.66666666666666,
+      "duplicate_hits_before_topk": 30.333333333333332,
+      "retrieval_median_ms": 29.646599999371876,
+      "storage_canonical_bytes": 347645.3333333333,
+      "storage_card_sidecar_bytes": 0,
+      "indexed_text_bytes": 21356.833333333332,
+      "cross_scenario_surface_collisions": 0,
+      "cases": 6,
+      "facts": 23,
+      "exception_facts_covered": 2,
+      "exception_facts_total": 5
+    },
+    "B": {
+      "hit_at_k": 0.6666666666666666,
+      "fact_recall_at_k": 0.39444444444444443,
+      "mrr": 0.19305555555555556,
+      "candidate_fact_coverage": 0.6555555555555556,
+      "full_pre_cap_fact_coverage": 1.0,
+      "legal_history_fact_coverage": 1.0,
+      "visible_fact_recall": 0.19444444444444445,
+      "context_bytes": 1877.5,
+      "unique_before_topk": 98.66666666666667,
+      "unique_before_cap": 175.16666666666666,
+      "duplicate_hits_before_topk": 32,
+      "retrieval_median_ms": 46.53266666658359,
+      "storage_canonical_bytes": 347645.3333333333,
+      "storage_card_sidecar_bytes": 167678.16666666666,
+      "indexed_text_bytes": 39184.333333333336,
+      "cross_scenario_surface_collisions": 0,
+      "cases": 6,
+      "facts": 23,
+      "exception_facts_covered": 1,
+      "exception_facts_total": 5
+    },
+    "C": {
+      "hit_at_k": 0.6666666666666666,
+      "fact_recall_at_k": 0.39444444444444443,
+      "mrr": 0.19305555555555556,
+      "candidate_fact_coverage": 0.6555555555555556,
+      "full_pre_cap_fact_coverage": 1.0,
+      "legal_history_fact_coverage": 1.0,
+      "visible_fact_recall": 0.19444444444444445,
+      "context_bytes": 1877.5,
+      "unique_before_topk": 98.66666666666667,
+      "unique_before_cap": 175.16666666666666,
+      "duplicate_hits_before_topk": 32,
+      "retrieval_median_ms": 74.55523333434637,
+      "storage_canonical_bytes": 347645.3333333333,
+      "storage_card_sidecar_bytes": 167678.16666666666,
+      "indexed_text_bytes": 39184.333333333336,
+      "cross_scenario_surface_collisions": 0,
+      "cases": 6,
+      "facts": 23,
+      "exception_facts_covered": 1,
+      "exception_facts_total": 5
+    }
+  }
+}

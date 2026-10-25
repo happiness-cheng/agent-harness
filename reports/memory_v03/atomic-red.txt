@@ -1,0 +1,16 @@
+
+=================================== ERRORS ====================================
+___________ ERROR collecting tests/unit/test_atomic_memory_cards.py ___________
+ImportError while importing test module 'C:\Users\陈独秀\.codex\tmp\adrian-memory-v02\tests\unit\test_atomic_memory_cards.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_atomic_memory_cards.py:7: in <module>
+    from min_agent.long_memory.atomic_cards import QuoteRef, build_atomic_card, validate_atomic_card
+E   ModuleNotFoundError: No module named 'min_agent.long_memory.atomic_cards'
+=========================== short test summary info ===========================
+ERROR tests/unit/test_atomic_memory_cards.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.81s

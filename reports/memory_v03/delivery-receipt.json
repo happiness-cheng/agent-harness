@@ -1,0 +1,47 @@
+{
+  "base_head": "b90f104c52cb321d7585accd1e8aa1a6758fe87a",
+  "branch": "feat/adrian-memory-v02-local",
+  "state": "uncommitted local overlay on actual v02; no push",
+  "old_source_unchanged": true,
+  "old_reports_unchanged": true,
+  "production_default_unchanged": true,
+  "all_20_a_candidates_and_metrics_identical": true,
+  "code_hashes": {
+    "docs/MEMORY_RETRIEVAL_V03.md": "1fe89160984e1c9694b35d0327e85d27638672ca9dcc09c6264afad54ac0b3d4",
+    "docs/steps/ADRIAN_MEMORY_V03_PLAN.md": "38fde1cf853ca1ac5b071a6a100dec5a7d2326a49f9de23f2ed6ea1ed8388936",
+    "scripts/eval_memory_quality_v03.py": "49ea76cc91e08006eb75e9f1f994d905b3edd9ed7215da076bf8ba2e8ba2612d",
+    "scripts/inspect_memory_quality_v03.py": "45d140b220906cd42bb5c133b0e0b08f39097781978606f059e89106a26ce3b3",
+    "scripts/report_memory_quality_v03.py": "54e5961aea613bfd21c02bb659105e231fb9a68519a5353108602ffb8303dba3",
+    "src/min_agent/long_memory/atomic_cards.py": "bf26dcf5dbfe0597a3da02d0559ca0bedd8a60e1c2bce7694ff3038f31057ca0",
+    "src/min_agent/long_memory/quality_evaluation.py": "219c5581413d4eaf738e795528b05c7002930a8831862f523ebeac86d9fce0d2",
+    "src/min_agent/long_memory/retrieval_quality.py": "1adfb38fc6a2ebe6bfbc14636de9abd9a2485cb5a50cffe2d716a21136016ef5",
+    "tests/fixtures/memory_v03_holdout.json": "51b8259238c8b1ca71616d7b5d58f10ce26278b8a8f1321e22d75b8205c4f0f8",
+    "tests/unit/test_atomic_memory_cards.py": "f9c0b1c365a15535939c859dff2ea36a0cd4491e1174ac8c1769c6ce71b7acd0",
+    "tests/unit/test_memory_quality_evaluation.py": "21e0db0b67b0f76473455732ff36edc6410917daea6322f4de5e98ccbc1e57fd",
+    "tests/unit/test_memory_retrieval_quality.py": "82599e99bcb2bfce333240641d4bc5da93fdd18667d1434d7387c0bd58381b34"
+  },
+  "measured_code_hashes_unchanged": true,
+  "post_experiment_changes": "report and inspection scripts, docs only; no measured source changed",
+  "source_archive_sha256": "6429eacfced5f1428cb7b25af350771cd5c477fce2ee0b5c7973cb73994db0b8",
+  "patch_sha256": "85e46ea4ecbdbc467ab9dd1aee4d950d27e494a060e833f3c83e9d1bf0645296",
+  "patch_check": "git apply --check validates new-file patch against b90f104; actual v02 baseline verified by all preexisting source hashes",
+  "wheel_sha256": "d70cd72c486339bd9df105d5dd3cc1abc3233921fa908a0012b8a81460e6a2cb",
+  "wheel_python_files_checked": 64,
+  "dependencies": {
+    "pydantic": "2.14.1",
+    "pyyaml": "6.0.3",
+    "sqlite": "3.50.4"
+  },
+  "full_regression": "1200 passed, 3 live deselected, 1 existing warning",
+  "new_targeted_tests": 13,
+  "type_check": "NOT_RUN: tool/config unavailable",
+  "lint": "NOT_RUN: tool/config unavailable",
+  "optional_tools": {
+    "mypy": false,
+    "ruff": false
+  },
+  "live_model_calls": 0,
+  "private_imports": 0,
+  "judge": "NOT_RUN",
+  "provider_tokens": "NOT_RUN"
+}

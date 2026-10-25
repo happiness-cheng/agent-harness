@@ -1,0 +1,232 @@
+original_dev layer1_01_bank_account {'A': (2, 1, 1), 'B': (2, 2, 2), 'C': (2, 1, 1), 'D': (2, 2, 2)}
+original_dev layer1_02_insurance_claim {'A': (3, 3, 2), 'B': (3, 3, 3), 'C': (3, 3, 2), 'D': (3, 3, 3)}
+original_dev layer1_03_medical_appointment {'A': (4, 0, 0), 'B': (4, 3, 3), 'C': (4, 0, 0), 'D': (4, 3, 3)}
+original_dev layer1_04_airline_booking {'A': (3, 0, 0), 'B': (3, 3, 3), 'C': (3, 0, 0), 'D': (3, 3, 3)}
+original_dev layer2_01_multiple_vehicles {'A': (3, 1, 1), 'B': (3, 0, 0), 'C': (2, 1, 1), 'D': (2, 0, 0)}
+original_dev layer2_03_multiple_credit_cards {'A': (1, 0, 0), 'B': (1, 1, 1), 'C': (2, 0, 0), 'D': (2, 1, 1)}
+original_dev layer3_01_travel_coordination {'A': (3, 1, 1), 'B': (3, 1, 1), 'C': (3, 1, 1), 'D': (3, 1, 1)}
+original_dev layer3_04_warranty_coordination {'A': (3, 0, 0), 'B': (3, 1, 1), 'C': (3, 0, 0), 'D': (3, 1, 1)}
+previous_test_now_dev layer1_05_internet_service {'A': (1, 0, 0), 'B': (1, 0, 0), 'C': (1, 0, 0), 'D': (1, 0, 0)}
+previous_test_now_dev layer1_06_credit_card_app {'A': (1, 1, 1), 'B': (1, 1, 1), 'C': (1, 1, 1), 'D': (1, 1, 1)}
+previous_test_now_dev layer2_02_multiple_properties {'A': (3, 1, 1), 'B': (3, 3, 3), 'C': (4, 1, 1), 'D': (4, 3, 3)}
+previous_test_now_dev layer2_04_multiple_subscriptions {'A': (1, 0, 0), 'B': (1, 0, 0), 'C': (0, 0, 0), 'D': (0, 0, 0)}
+previous_test_now_dev layer3_02_medical_insurance_coordination {'A': (1, 0, 0), 'B': (1, 0, 0), 'C': (1, 0, 0), 'D': (1, 0, 0)}
+previous_test_now_dev layer3_03_home_purchase_coordination {'A': (4, 2, 0), 'B': (4, 2, 2), 'C': (4, 2, 0), 'D': (4, 2, 2)}
+frozen_test layer1_07_car_rental {'A': (2, 1, 1), 'B': (2, 0, 0), 'C': (2, 1, 1), 'D': (2, 0, 0)}
+frozen_test layer1_08_hotel_reservation {'A': (2, 2, 2), 'B': (2, 0, 0), 'C': (2, 2, 2), 'D': (2, 0, 0)}
+frozen_test layer2_05_multiple_bank_accounts {'A': (4, 0, 0), 'B': (4, 4, 2), 'C': (6, 0, 0), 'D': (6, 5, 2)}
+frozen_test layer2_06_multiple_insurance_policies {'A': (2, 0, 0), 'B': (2, 2, 2), 'C': (5, 0, 0), 'D': (5, 1, 1)}
+frozen_test layer3_05_tax_preparation_synthesis {'A': (0, 0, 0), 'B': (0, 0, 0), 'C': (0, 0, 0), 'D': (0, 0, 0)}
+frozen_test layer3_06_business_expansion_coordination {'A': (0, 0, 0), 'B': (0, 0, 0), 'C': (1, 0, 0), 'D': (1, 0, 0)}
+{
+  "original_dev": {
+    "A": {
+      "cases": 8,
+      "facts": 26,
+      "candidate_facts": 22,
+      "topk_facts": 6,
+      "visible_facts": 5,
+      "macro_candidate_recall": 0.8541666666666666,
+      "macro_recall_at_8": 0.2604166666666667,
+      "macro_visible_recall": 0.21875,
+      "micro_candidate_recall": 0.8461538461538461,
+      "micro_recall_at_8": 0.23076923076923078,
+      "micro_visible_recall": 0.19230769230769232,
+      "mean_candidate_count": 91.875,
+      "mean_pre_cap_count": 124.375,
+      "mean_context_bytes": 1885.125,
+      "mean_search_ms": 44.6885750002366
+    },
+    "B": {
+      "cases": 8,
+      "facts": 26,
+      "candidate_facts": 22,
+      "topk_facts": 14,
+      "visible_facts": 14,
+      "macro_candidate_recall": 0.8541666666666666,
+      "macro_recall_at_8": 0.5729166666666666,
+      "macro_visible_recall": 0.5729166666666666,
+      "micro_candidate_recall": 0.8461538461538461,
+      "micro_recall_at_8": 0.5384615384615384,
+      "micro_visible_recall": 0.5384615384615384,
+      "mean_candidate_count": 91.875,
+      "mean_pre_cap_count": 124.375,
+      "mean_context_bytes": 1934.875,
+      "mean_search_ms": 80.154374999438
+    },
+    "C": {
+      "cases": 8,
+      "facts": 26,
+      "candidate_facts": 22,
+      "topk_facts": 6,
+      "visible_facts": 5,
+      "macro_candidate_recall": 0.8541666666666666,
+      "macro_recall_at_8": 0.2604166666666667,
+      "macro_visible_recall": 0.21875,
+      "micro_candidate_recall": 0.8461538461538461,
+      "micro_recall_at_8": 0.23076923076923078,
+      "micro_visible_recall": 0.19230769230769232,
+      "mean_candidate_count": 94,
+      "mean_pre_cap_count": 117.25,
+      "mean_context_bytes": 1885.125,
+      "mean_search_ms": 88.28382499950749
+    },
+    "D": {
+      "cases": 8,
+      "facts": 26,
+      "candidate_facts": 22,
+      "topk_facts": 14,
+      "visible_facts": 14,
+      "macro_candidate_recall": 0.8541666666666666,
+      "macro_recall_at_8": 0.5729166666666666,
+      "macro_visible_recall": 0.5729166666666666,
+      "micro_candidate_recall": 0.8461538461538461,
+      "micro_recall_at_8": 0.5384615384615384,
+      "micro_visible_recall": 0.5384615384615384,
+      "mean_candidate_count": 94,
+      "mean_pre_cap_count": 117.25,
+      "mean_context_bytes": 1925.75,
+      "mean_search_ms": 88.56541249997463
+    }
+  },
+  "previous_test_now_dev": {
+    "A": {
+      "cases": 6,
+      "facts": 23,
+      "candidate_facts": 11,
+      "topk_facts": 4,
+      "visible_facts": 2,
+      "macro_candidate_recall": 0.6277777777777778,
+      "macro_recall_at_8": 0.26666666666666666,
+      "macro_visible_recall": 0.2,
+      "micro_candidate_recall": 0.4782608695652174,
+      "micro_recall_at_8": 0.17391304347826086,
+      "micro_visible_recall": 0.08695652173913043,
+      "mean_candidate_count": 97,
+      "mean_pre_cap_count": 145.66666666666666,
+      "mean_context_bytes": 1958.8333333333333,
+      "mean_search_ms": 53.13941666706038
+    },
+    "B": {
+      "cases": 6,
+      "facts": 23,
+      "candidate_facts": 11,
+      "topk_facts": 6,
+      "visible_facts": 6,
+      "macro_candidate_recall": 0.6277777777777778,
+      "macro_recall_at_8": 0.3333333333333333,
+      "macro_visible_recall": 0.3333333333333333,
+      "micro_candidate_recall": 0.4782608695652174,
+      "micro_recall_at_8": 0.2608695652173913,
+      "micro_visible_recall": 0.2608695652173913,
+      "mean_candidate_count": 97,
+      "mean_pre_cap_count": 145.66666666666666,
+      "mean_context_bytes": 1911.8333333333333,
+      "mean_search_ms": 91.64721666638798
+    },
+    "C": {
+      "cases": 6,
+      "facts": 23,
+      "candidate_facts": 11,
+      "topk_facts": 4,
+      "visible_facts": 2,
+      "macro_candidate_recall": 0.6333333333333333,
+      "macro_recall_at_8": 0.26666666666666666,
+      "macro_visible_recall": 0.2,
+      "micro_candidate_recall": 0.4782608695652174,
+      "micro_recall_at_8": 0.17391304347826086,
+      "micro_visible_recall": 0.08695652173913043,
+      "mean_candidate_count": 97,
+      "mean_pre_cap_count": 116.5,
+      "mean_context_bytes": 1958.8333333333333,
+      "mean_search_ms": 96.18018333336902
+    },
+    "D": {
+      "cases": 6,
+      "facts": 23,
+      "candidate_facts": 11,
+      "topk_facts": 6,
+      "visible_facts": 6,
+      "macro_candidate_recall": 0.6333333333333333,
+      "macro_recall_at_8": 0.3333333333333333,
+      "macro_visible_recall": 0.3333333333333333,
+      "micro_candidate_recall": 0.4782608695652174,
+      "micro_recall_at_8": 0.2608695652173913,
+      "micro_visible_recall": 0.2608695652173913,
+      "mean_candidate_count": 97,
+      "mean_pre_cap_count": 116.5,
+      "mean_context_bytes": 1899,
+      "mean_search_ms": 101.01621666702461
+    }
+  },
+  "frozen_test": {
+    "A": {
+      "cases": 6,
+      "facts": 30,
+      "candidate_facts": 10,
+      "topk_facts": 3,
+      "visible_facts": 3,
+      "macro_candidate_recall": 0.48412698412698413,
+      "macro_recall_at_8": 0.25,
+      "macro_visible_recall": 0.25,
+      "micro_candidate_recall": 0.3333333333333333,
+      "micro_recall_at_8": 0.1,
+      "micro_visible_recall": 0.1,
+      "mean_candidate_count": 91.33333333333333,
+      "mean_pre_cap_count": 156,
+      "mean_context_bytes": 1904.6666666666667,
+      "mean_search_ms": 56.337000001197644
+    },
+    "B": {
+      "cases": 6,
+      "facts": 30,
+      "candidate_facts": 10,
+      "topk_facts": 6,
+      "visible_facts": 4,
+      "macro_candidate_recall": 0.48412698412698413,
+      "macro_recall_at_8": 0.15079365079365079,
+      "macro_visible_recall": 0.10317460317460317,
+      "micro_candidate_recall": 0.3333333333333333,
+      "micro_recall_at_8": 0.2,
+      "micro_visible_recall": 0.13333333333333333,
+      "mean_candidate_count": 91.33333333333333,
+      "mean_pre_cap_count": 156,
+      "mean_context_bytes": 1939.1666666666667,
+      "mean_search_ms": 97.27600000102636
+    },
+    "C": {
+      "cases": 6,
+      "facts": 30,
+      "candidate_facts": 16,
+      "topk_facts": 3,
+      "visible_facts": 3,
+      "macro_candidate_recall": 0.6428571428571429,
+      "macro_recall_at_8": 0.25,
+      "macro_visible_recall": 0.25,
+      "micro_candidate_recall": 0.5333333333333333,
+      "micro_recall_at_8": 0.1,
+      "micro_visible_recall": 0.1,
+      "mean_candidate_count": 93.5,
+      "mean_pre_cap_count": 119.33333333333333,
+      "mean_context_bytes": 1904.6666666666667,
+      "mean_search_ms": 102.8756166670064
+    },
+    "D": {
+      "cases": 6,
+      "facts": 30,
+      "candidate_facts": 16,
+      "topk_facts": 6,
+      "visible_facts": 3,
+      "macro_candidate_recall": 0.6428571428571429,
+      "macro_recall_at_8": 0.14682539682539683,
+      "macro_visible_recall": 0.07539682539682539,
+      "micro_candidate_recall": 0.5333333333333333,
+      "micro_recall_at_8": 0.2,
+      "micro_visible_recall": 0.1,
+      "mean_candidate_count": 93.5,
+      "mean_pre_cap_count": 119.33333333333333,
+      "mean_context_bytes": 1934.5,
+      "mean_search_ms": 106.64776666574956
+    }
+  }
+}

@@ -1,0 +1,71 @@
+--- a/src/min_agent/application.py
++++ b/src/min_agent/application.py
+@@ -238,8 +238,8 @@
+         registry.register(ToolDefinition("read_artifact", "按当前会话真实引用和范围补读原文；不能输入磁盘路径或其他会话ID。", _Reference,
+             lambda artifact_id, start=0, limit=4000: json.dumps(artifacts.read(artifact_id, start=start, limit=limit), ensure_ascii=False)))
+         registry.register(ToolDefinition("recall_memory", "当追问过去的要求、修改经过或工具执行时，检索当前会话独立归档及结构化事件；source可供read_memory_source核对，历史文字不代表当前业务状态，不跨会话、不授权执行。", _Question,
+-            lambda question: json.dumps([{key: value for key, value in record.items() if key != "messages"}
+-                for record in MemoryJournal(self.sessions, context).select(question)], ensure_ascii=False)))
++            lambda question: json.dumps(MemoryJournal(self.sessions, context).recall(question),
++                ensure_ascii=False, separators=(',', ':'))))
+         journal = MemoryJournal(self.sessions, context)
+         registry.register(ToolDefinition("read_memory_source", "当需要核对历史事件原文、否定、条件或参数时，提供recall_memory返回的source；按offset/limit分页，不接受磁盘路径或任意会话ID。引用校验不等于摘要语义正确。", _MemorySource,
+             lambda reference, offset=0, limit=4000: json.dumps(
+--- a/src/min_agent/memory.py
++++ b/src/min_agent/memory.py
+@@ -1,6 +1,7 @@
+ """按完整交互段归档；只读当前会话引用，不做跨会话召回。"""
+ 
+ import json
++from copy import deepcopy
+ from uuid import uuid4, uuid5
+ from min_agent.checkpoints import history_hash
+ from min_agent.memory_records import SourceReference, interaction_events, runtime_state, source_text
+@@ -114,3 +115,22 @@
+                 messages = [Message.model_validate(value) for value in record["messages"]]
+                 record["events"] = interaction_events(self.context, record["id"], messages, record["start"])
+         return selected
++
++    def recall(self, question, limit=3):
++        """模型回查只给短预览及来源；完整归档保持不变，可按 source 分页补读。"""
++        result = []
++        for original in self.select(question, limit=limit):
++            record = deepcopy(original)
++            if record.get('kind') == 'interaction' and 'events' in record:
++                # 同一用户文字已在 summary/events/messages 重复保存；不要全部送入模型。
++                # 历史控制状态也不作为当前状态，当前状态仍由 read_session_state 查询。
++                record = {key: record[key] for key in ('id', 'kind', 'events')}
++                for event in record['events']:
++                    if 'text' in event:
++                        text = event['text']
++                        event['text'] = text[:96]
++                        event['truncated'] = bool(event.get('truncated')) or len(text) > 96
++            else:
++                record.pop('messages', None)
++            result.append(record)
++        return result
+--- /dev/null
++++ b/tests/unit/test_memory_recall_projection.py
+@@ -0,0 +1,22 @@
++from min_agent.memory import MemoryJournal
++from min_agent.models import Message
++from min_agent.sessions import SessionStore
++
++
++def test_recall_is_explicit_preview_with_full_hash_checked_source_still_readable():
++    from uuid import uuid4
++    sessions = SessionStore()
++    context = sessions.create(uuid4())
++    task = sessions.begin(context)
++    original = '周报：' + 'background ' * 220 + '不要删除原文'
++    sessions.append(context, task.task_id, [Message(role='user', content=original)])
++    sessions.finish(context, task.task_id, status='completed')
++    journal = MemoryJournal(sessions, context)
++    before = journal.select('周报')
++    result = journal.recall('周报')
++    assert len(result[0]['events'][0]['text']) <= 96
++    assert result[0]['events'][0]['truncated'] is True
++    assert 'summary' not in result[0] and 'messages' not in result[0]
++    assert result[0]['events'][0]['verified'] is False
++    assert journal.read_source(result[0]['events'][0]['source'])['text'] == original
++    assert before == journal.select('周报')

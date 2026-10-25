@@ -1,0 +1,577 @@
+{
+  "base_head": "b90f104c52cb321d7585accd1e8aa1a6758fe87a",
+  "actual_branch": "feat/adrian-memory-v02-local",
+  "v02_source_verified": true,
+  "pre_v03_source_hashes": {
+    "src/min_agent/application.py": "60be5e532f625bb3fa426021cdab7286e48ca603186e3893e2ad7b1d9b4afe24",
+    "src/min_agent/artifacts.py": "b8d2b85da766609a7f9a606c61fbb5b6015cc2a75248d8aeabce6ca4a7a46c14",
+    "src/min_agent/budget.py": "ef2e287b127cb643197896aa237adfc8ced7d070547ebbc55dbcd0ed6648fe44",
+    "src/min_agent/budget_persistence.py": "b78c73a479d38f984bd064fe726547670515e0ac84a8cf8fec0471df4f55e41e",
+    "src/min_agent/checkpoints.py": "a81f8f8f0cc1d83013dc42adba24168488f9db44b6b1b1a46d005c5c549601f9",
+    "src/min_agent/clock.py": "9f96638765ea20a2dcd2f564459bfe3c034a4f84776bcec050e7d720696fae78",
+    "src/min_agent/compaction.py": "299fa8e9640ebc1b12f60b42bb227defd0af891eee889c75907a05420132a858",
+    "src/min_agent/compression_evidence.py": "c5cf329492e6d47514772edb92ab180a99e12d56cf8b6c3570da2918141db237",
+    "src/min_agent/compression_selector.py": "75a365fa1800fa73bc286c8c4115aca04c8bbf4cf3ce352ae3bd4652e0918d4a",
+    "src/min_agent/compression_summary.py": "a84bf03570740def5ec287656521c645dbefd5951653de6019ef7d56f6299dfd",
+    "src/min_agent/compression_text.py": "7cf60e42b8eadbac108236d4a94e7be9b36c9c7378580c14e02c1af083de7e08",
+    "src/min_agent/context.py": "6a29a2260a2fb3ada0c9d4c24399f9e40242eb6129b32f3c7642791e9627b14c",
+    "src/min_agent/desktop_notifications.py": "4c59937ebcb01dc81417fd6201c4cc0bf2cd4ca8286afaa90569db2b603fed3c",
+    "src/min_agent/events.py": "7bbfea84811c256ea33473f2571c1aefbba58b1518a70d07724eaf905c5697d1",
+    "src/min_agent/memory.py": "55f81c4332f3f5613c0d27fd7e9a7aa9e7edfb57c01fbbe8705de8edec4c54cf",
+    "src/min_agent/memory_records.py": "9a7c1ae86a6d7262c9b20058ee1cec434be1a1811d3d7843801f4862aa3e0080",
+    "src/min_agent/memory_state.py": "63996d0e3c4375739ba4b805a04e81310aa65922ed65556471f19374c820c63d",
+    "src/min_agent/models.py": "cd05e1c29187409fbcc621752027b6f2fea2c5195a24bddcaea58dc457d6d3b1",
+    "src/min_agent/notifications.py": "2ac6977ca187eb94eee2721d3eb454c6bc19e036d2e94d73906cfb54f2691b31",
+    "src/min_agent/operations.py": "4210321ed3b277ef0792002798aca4170652c989687629459cf11f93a3f8fe86",
+    "src/min_agent/progress_guard.py": "92bed27c5abcfe87f418659e23ae2198db7395854050cdd6e38bb9caa3722a0a",
+    "src/min_agent/research.py": "707d973215482c1f636e5ca7265f29dc19cf22fab0d9fdb35ffa435f59861e6c",
+    "src/min_agent/runtime.py": "45ba5d56fca9487635f9c22925825c39b0bb45eca37a988e6fff061b0ef67e76",
+    "src/min_agent/scheduler.py": "81ef8690a608ddd7ab7bf01dcf92750a513245738a1c90dd1c358215c471d838",
+    "src/min_agent/sessions.py": "3e0a1b3bbd4ea87436f2ce9a0c04d9f43e74769fd90469c71ac57aa8a1a0873e",
+    "src/min_agent/skills.py": "52603cb17e5ec083e56b8b264958394c30e2869e5a61a69c168e6fdebf02a4af",
+    "src/min_agent/skill_retention.py": "b0c4757c41a17427128d8cf54be3e11fa42b9039f1bbf5f3ea02bb18b0806cc3",
+    "src/min_agent/state_bar.py": "aaa14f7c10afa821590f884c73c13147d5736a8825d4846e6ccbc3c96ddc5ed1",
+    "src/min_agent/storage.py": "00701daa682c8d574f78d834e35cdde42a4bdcf91a4f8433b3fa436968e2a5e5",
+    "src/min_agent/structured_context.py": "7c2d9f22619d09db664201010bf4f64a6cf9f4fbbb2360a66b99ad0d921cddf6",
+    "src/min_agent/task_state.py": "58cd8660fc6fbc00f2948617a415fc8512252f9bfb93df3d15712b6be4756bc1",
+    "src/min_agent/trace.py": "b2b738cdc25d6b7e1d1ae93c8a18db66b11f8fa960cc528a730f6b9b4f5f1980",
+    "src/min_agent/__init__.py": "9aea9c286c5cdf735adb6c8abd47ebedda2862ac78fcf0d2b41dcb576f172fb3",
+    "src/min_agent/llm/client.py": "b39be57ff364af0f23340b9041029712215b78a8de784834df46bd99f63db0e9",
+    "src/min_agent/llm/config.py": "c3f504b40eccd052dad6a741f59146cbc12eb789b36eb41af6f68013cbfe71fe",
+    "src/min_agent/llm/context_capabilities.py": "b4d975a02ef233ad4fb8c08de28fa83113a325710feb1d97682e11e8ed3af258",
+    "src/min_agent/llm/deepseek.py": "b49be6a0640330471101ed6b0225369f10dce090b559e9ecf38b60f25755161a",
+    "src/min_agent/llm/openai_protocol.py": "0012e58f73603cdb4e18cbc3c91c63fa858290dec60f7a662f1c14f24d734ac4",
+    "src/min_agent/llm/smoke.py": "6ba6ab9df347b1e3b157695ce04e169e54cb7b171dcca2c72df500bc18a7ec17",
+    "src/min_agent/llm/__init__.py": "3ef2b926fcb43d469da1c63319bd342f0488f274c6ab67cfa2a1ab2426ed5c5e",
+    "src/min_agent/long_memory/cards.py": "54993fe597112d29181a787bbfe29d87bbe1384cbb4389ac1d85fe6e193602fe",
+    "src/min_agent/long_memory/evaluation.py": "aae0d9929a8e3929c51f5d2820ddcb510d3511fc0599b0f1385333c1cdd8f8f7",
+    "src/min_agent/long_memory/integration.py": "884016cc145ceff648502e9a9ef15ee9f99481a68f56e1fbd817e0b744559192",
+    "src/min_agent/long_memory/models.py": "7db0f3ef2d55e8ba49fafbacb71625607421e150cf1f8f826f488ab0f2f8684f",
+    "src/min_agent/long_memory/retrieval.py": "a0171ad0f72fc60c99aa4d499cf2234e3f035936dd14535e891b7fd80442c383",
+    "src/min_agent/long_memory/retrieval_experiment.py": "3c3651a4b95f91a24b30d4547fac159357aff29010765afc76e21e2c42dbf6bc",
+    "src/min_agent/long_memory/selection.py": "a93563f628a2bb173c3852018f7710414a296f92bc3d07c1a3dc912e79e063e7",
+    "src/min_agent/long_memory/store.py": "63d3ed9b960c5c36bc64e842cc758b34465fe0ab41d00c48fa3395cd3fd74d5c",
+    "src/min_agent/long_memory/__init__.py": "750c028d952587df0f6a94f8915d24bb0eb55249765589c8388e3e2b3fa6f648",
+    "src/min_agent/tools/calculator.py": "48535309234e5254970c09ccd4afe7d968cf823892e87d88a813ffcdb3455e96",
+    "src/min_agent/tools/read_webpage.py": "e21dcd3b8e890cc50182c53121127f81c555445d3e7a1c310297bf683be8dc40",
+    "src/min_agent/tools/registry.py": "1d3762792bb44e2291ee6b56dcf63e7f7c014f84f1b44eef37394027f679e823",
+    "src/min_agent/tools/reminder.py": "f98a341042cb8c8728abaa860e118a500465527e8bfdb2c4df29f28bfbb9dbcd",
+    "src/min_agent/tools/reminder_tools.py": "c6e1949a8e1436cbc8c50d45fb87dd274cc4aa9f269655ece09ff52cd07cfc1e",
+    "src/min_agent/tools/search.py": "b387260b4abf2c68932194877f5d03b1a06451079185bc96cedcc726ed59011c",
+    "src/min_agent/tools/todo.py": "7a93c58f4dcba15b9a32b8192412fa424135bb9c2ea074abce33292308151273",
+    "src/min_agent/tools/todo_tools.py": "3676fc6342172118d2a16b909a50d82f4b2c65bbfd4c6c86674983892a8d4fb3",
+    "src/min_agent/tools/__init__.py": "e951368f80d786e3885c0dcd78557475e7597aead70985c0309d69ce927c76bf",
+    "src/min_agent/web/app.py": "db3da3cc595653b7d3379c6866faae18a34706db69f09ad276d09a5de646a1be",
+    "src/min_agent/web/__init__.py": "ba98de11124d5f25693f8dd697d68182c5fcc215bea50a91f744bbd1b2ba0cc5",
+    "src/min_agent/web/__main__.py": "3929a59db4eda221554a39d6edc0b635765f1c46cca3a6c4215ec24a0221474a",
+    "scripts/audit_legacy_source_read_v02.py": "7285f1c1571d90d82b347f3f3d81bf90be52f8f63f448581b4eed7a699346c47",
+    "scripts/audit_multi_compaction.py": "5ae72e489a5318fd3c968abba6efd4583496300a54c5252ca03a47ee25074d34",
+    "scripts/audit_skill_compaction.py": "8cbf25c0f481b5a6ae410ac5ec8285d5866bada0de6756c01b7ecaed28c62f28",
+    "scripts/audit_skill_disclosure.py": "a85eece50e4fefad7ad31603a15d97b95c487e2aa6bfe7ef0ac8ff5b7a1a9c3f",
+    "scripts/audit_skill_lifecycle.py": "fd4cd2ee6d411ae319f7f116289f587640dc7f3603b4f3a87d93b1cedcbd1a67",
+    "scripts/audit_state_bar.py": "5f102c75f32b49350960f3fe02b7798278a0fb5d5d1d9bf9d96c56dc7d26cde4",
+    "scripts/audit_task_input.py": "361f5f089789739736aaf7b387b7ffd5157560f0fd1f642e26057f33bb157472",
+    "scripts/eval_adrian_memory.py": "29f121774f3e72a586e686f11bb1ff5f759a73ceeb63b6063d940aa480b1226d",
+    "scripts/eval_memory.py": "00ceac31e1d69ed21a6efc0282a1b7eb68b4eb7b22a8ffef2727c14873a17bce",
+    "scripts/eval_memory_retrieval_v02.py": "f0d5b6046ac81785a759e539201e53795e6ef67a5ccd7b07e7d41b1994560c0a",
+    "scripts/eval_secretary_prompt.py": "6426b64831610d4ee9f84968367abaaf9bca18d30cb808c11f9b6cfb7cb0a120",
+    "scripts/eval_skill_disclosure.py": "1fd7fc233ec23ace88a50cd06b784378117e60822b66f7df2686e4a280cddbe7",
+    "scripts/eval_skill_retention.py": "4b154f42cd01b339669ac524f394c3b06da45592296b292408f38183b31c2bef",
+    "scripts/eval_tool_exposure.py": "4bd2a87b977c524ae3b2d4f3bf01643928697637a4fc9db298f0f65060b4869e",
+    "scripts/inspect_memory_retrieval_v02.py": "f9474b62a71ca04eaa001b2e46d288462d9b1873803de4e7069d7056a303b2ec",
+    "scripts/live_acceptance.py": "173cbafb477ca0fe363ea31f4774da183c52336658db767083b8a4e7e3612cd8",
+    "scripts/live_continuity.py": "4a9e55528a0b206e5cb53a778512973223aaf778c079ca8cf991702e946784b5",
+    "scripts/live_followup.py": "5c9065989193ed287da62f87edceaa63262567cd967db5056827f531a3db3968",
+    "scripts/report_memory_retrieval_v02.py": "b64672bede00c355d433a266e496c25ca8c72ef905127d43f374cc690198ffd5",
+    "scripts/verify_adrian_memory.py": "187818b2764b62d772e180204a85d71326f7791f9f2b4bb41acb681c9ab73d37",
+    "scripts/verify_release.py": "951e077d9a183b7b2829050987f1082d45ac05bfff39cf114209e4c1b434aa1e",
+    "tests/__init__.py": "dbb8ca6d3558d5db23f184e954dc1f991991651582aab858c1411634104099de",
+    "tests/e2e/test_acceptance.py": "3db1229401e5166a223d646197d9c3e813a98fb9a39c95341d6d4510b2a9cf16",
+    "tests/fakes/model.py": "8dd0356a1701e9462317da82dbf056ad64df6af15998eacc3de8ae51f5eedd3f",
+    "tests/fakes/__init__.py": "fd238ee6d5d8e52094f7b34e37587e46ca6c54989e575351e144001483a33b42",
+    "tests/integration/test_application_flow.py": "0df1438f3171d72d8978221db83650ab702a858673dbb346af7230ef1852111a",
+    "tests/integration/test_authorized_todo.py": "9e50ac03ec07519fac99b61f306c336c9b0047063b9d37f9205c2950208ae6bf",
+    "tests/integration/test_budget_persistence.py": "f3823fb10d2d68b6054deaf4de66b7b1e2209ccc122486bf29bd29bf4a684e8d",
+    "tests/integration/test_checkpoint_persistence.py": "596670edcc576ab4bf59eed40908ee23dfcb9b5cef16edb646eb21e09ad62e51",
+    "tests/integration/test_compression_layers.py": "df4b5f250a5d71cdeb04f29c5e7ef9b8a0c49ce03bb7b07d0bc4ed7a65ce1cbf",
+    "tests/integration/test_confirmed_action_instances.py": "51900c747648d0e19a7ea186260aeac8d62cf2fb2f663c7f2975e30cba8ce587",
+    "tests/integration/test_deepseek_restart.py": "af235743cb40ac5dce748c5c4baf2fedadc213a3e15cbc48a09f5359f403f319",
+    "tests/integration/test_excerpt_priority.py": "f2efe11caa530e43d1b7a2d2fef655c350fd306321f7a402b335765659fc6f8e",
+    "tests/integration/test_integrated_boundaries.py": "20a9e072f5d71d0951acf7312b2bd6eee6a05ebfeaceb5949f1964f0d196b73a",
+    "tests/integration/test_llm_restart.py": "4a7f3a347c7b3df75a5a6f323c1bcf6872e94b88bcf331816e600f86cd706ab3",
+    "tests/integration/test_logical_task_budgets.py": "e8378edd4efad1a837e126f1a78d349661a544503c61643124a5636f3bb578cb",
+    "tests/integration/test_long_memory_runtime.py": "53136922e754a31c36c6788e89af6097310d0992fcdef9b20984793a7a984907",
+    "tests/integration/test_memory_state.py": "12698637de57ef889b9b7b704f4d2fc649bfd45536d5d8fcbf5295f683acc92a",
+    "tests/integration/test_memory_tools.py": "d3d151e9e90864a5db29082d8191dbcab99d33b2be52362de138cdaab00ba44f",
+    "tests/integration/test_multi_compaction_regression.py": "3facff5e18c88530605dd4be68187fee4ae3c94a5cef3458b9e660da65b9c645",
+    "tests/integration/test_operation_recovery.py": "8979827d95cfe4125ed3583bec04aaf535770dd1057b963e0f6bb8010850d6ad",
+    "tests/integration/test_research_traces.py": "653a52047b4b210deaff76551d0344816ae5f723b1c77f2245d28c44e897eb51",
+    "tests/integration/test_selection_provenance.py": "a376f5eed2fd1f68908dae23bab1ba8e37137fbb6b1af9ad62060a499527a167",
+    "tests/integration/test_semantic_compression.py": "1204a9fcfe36c5eb167c862407505309fd2b5a84bf54eae0b1b30edf12f8d4b8",
+    "tests/integration/test_service_persistence.py": "947d0139cb77566fe4d403ce3abab13f43ddae3f802f0f0af5b4b6304dd06aec",
+    "tests/integration/test_state_bar.py": "7d34d85b1ec3bf8cfcdb17a300e2e258c4191b3d5d87012cb21512dae04ee25b",
+    "tests/integration/test_storage_restart.py": "ffe27a3ee9566e72693837909b5a2d0fd9806631941f8634dc78377b7d06b972",
+    "tests/integration/test_structured_memory.py": "856291f21be8a8a9017f22a63489b2bdfdc99cc68f07096d4516628ae309ebb6",
+    "tests/integration/test_task_input_coverage.py": "50d07b1bcfb604577b665bac92ce20051408534c8129725e0851e824eb691e5c",
+    "tests/integration/test_turn_archives.py": "58679e99881746ba99130a0f7b5c238fd41b720f9cc391e9455d26571e5b5c6c",
+    "tests/live/test_deepseek_smoke.py": "a653646b9aae7d87ba81eeb55ebc47852573c679dfb59c17fb60e66412861cae",
+    "tests/live/test_intent_contract.py": "7352f36e79b505afb5f41df45ccfcd0d6c1ce88eb3bad54aec34f05699747a3a",
+    "tests/live/test_openai_smoke.py": "b02d4def9d39b9fb19ed56f6c1502d22be8a2c0af7f0822ecf5c7e201547b9d5",
+    "tests/live/__init__.py": "d5ff1ecbcc5df705ef18e869245d592b913b85117eda24b03cab0a51afdb511a",
+    "tests/scenarios/intent_cases.py": "7fbfd479eb111a2480ae8ce30b33a4782954a749e7d2aaf265f47693f6416802",
+    "tests/scenarios/test_intent_contract.py": "c7e4b1bade85701f95ac7220f249e2525e61438fc7419aa43008bf7256942115",
+    "tests/scenarios/test_research_evidence.py": "eaa7ac17b435fb1f160bba8d63be3daadb16ec850e7345fe3d4f538ffedbd445",
+    "tests/scenarios/__init__.py": "a3505bf1015ba7cbb20a3acf17f3e170e7bb03ea5855ff52681ddbfbb000f5bf",
+    "tests/ui/test_chat_flow.py": "6b96722cf0b330d2ca43f3d7cd0f21af5021bce1264b6d458915d48e1b6e11e5",
+    "tests/unit/test_adrian_memory_eval.py": "c6dfb3b058779849b1880c23d264df1b2415b20bb960cf2951964cb2fed32073",
+    "tests/unit/test_budget.py": "62898abf983f681b12cf52aee229bb8f7ff70e5aa8edd6ed50b1d4cf41bbbcd8",
+    "tests/unit/test_budget_snapshot.py": "2e34bb9a91be192aefa979019b9a6b60a7bfc60a93baafefbea27119df168d91",
+    "tests/unit/test_calculator.py": "4d7e5311880f6083a7f846a1b4988664ebef9fc215c9f1d2da7658286236a165",
+    "tests/unit/test_checkpoint_resume.py": "88aeb1de674db4684f0528c9ba03c7d11311ee4544d9c1d76f71f5cd912f9a83",
+    "tests/unit/test_compaction.py": "b8658af5f253d3a1a1bd4642282e85107dd4c3eaecf869da049aed03df5bfddf",
+    "tests/unit/test_compression_summary.py": "8a26f22dc5481d7ec606d1da5118fbe2c0834707e89f8da2b2c820fdfd2103b7",
+    "tests/unit/test_context_lifecycle.py": "c5a96013210b89c197094171c8b79282efd40e6869e6c9ec23c451b9287fd1ac",
+    "tests/unit/test_deepseek_adapter.py": "03b2ffdf53b56a9e7b0158ff58398734f9c3007f0618fdbfcd5d06962c3dee53",
+    "tests/unit/test_deepseek_smoke.py": "c59b900984bc9a3b2954f2f4c85579efec18283e797b7b878fb4e57e61ec9b41",
+    "tests/unit/test_execution_control.py": "35a245120f5e22ecb94aa9d095dc138be317042713f351fb6dda46eed90a3023",
+    "tests/unit/test_llm_adapter.py": "56d6db67688e2dd1f5979e5c7eafcdbd47daf97c8821e2453392199f0e757c5c",
+    "tests/unit/test_llm_http_diagnostics.py": "169971bf68709acdd442bd48c811ea93bec0b8fda4ac7b9d27db85a36f115cf3",
+    "tests/unit/test_llm_proxy.py": "4629d21dc0ea40ae047c488906e78c4ccaadbe2acbeb56a77445994ce71e0946",
+    "tests/unit/test_llm_smoke_guard.py": "ebb21dbee8fe66730bb360e5baf59603bccff24cb265f8310f34bc6fbfeececc",
+    "tests/unit/test_long_memory_retrieval.py": "7bdf8e3fc66ad37dc21e750c0baf3ff59acdaa0029ff2cd640a856758e3e30cb",
+    "tests/unit/test_long_memory_safety.py": "d64dab8823aaad50a62e0e81ba310b00ee5c4fd20a4289ef02946baf4f7a3fd7",
+    "tests/unit/test_long_memory_selection.py": "c2db8ecc076ad5a1e33e513c273c6c18b678b050d735d189aab9e39f2e962c06",
+    "tests/unit/test_long_memory_store.py": "c36937b0f807b47e6c91b4e0abf29918242cac6f6c9878d04ed4000286f8b00e",
+    "tests/unit/test_memory_cards.py": "189a49a08898ae45253d00779324bb07326329b6e8648fe27c18c3ca1c02400a",
+    "tests/unit/test_memory_erasure_transactions.py": "c918102b3d28ac0bd050e282c12ccbb40d8a6b7d3b81e18ee3c84ebab89f19c2",
+    "tests/unit/test_memory_evaluation.py": "663ce2f9e77750bedd81215cbd3b679d8cc67c5038405edeec1f59a3575d3b7b",
+    "tests/unit/test_memory_recall_projection.py": "7bb0cf1f9270a7a28195727568b9b032a847b87ccca4e904f249f2c8517710e7",
+    "tests/unit/test_memory_retrieval_diagnostics.py": "00b54d89de2ad5d7455800e7d6ee4a774df6683c1f392b2a4c0f8301f5927196",
+    "tests/unit/test_memory_retrieval_experiment.py": "dbdc61bbf7d9f2ec2fdad76d03ca1142cb6bd27c8704f3d0a1c6bcdd7d4b3750",
+    "tests/unit/test_models.py": "ce0d1b2250935cc3c28aaf4e8ee6dd8359a06f8a8de5914ef69291b2d4283a19",
+    "tests/unit/test_mode_authorization.py": "bd228f0bf0c9788a73f5f480bd128f14a0ed3ef2dd5648101ff9b3f778b9a0ec",
+    "tests/unit/test_package.py": "be48c1e991582f9524d2e8c3f46d1aac8e344a7971a40a661a7bedbe14b2afb7",
+    "tests/unit/test_public_web.py": "67e6093fed609a11d4fa92eb351e23c4baf319874e9f66b1202bb128f3957ebb",
+    "tests/unit/test_reminder_scheduler.py": "658717a044b76e81f5a40fb7c2e62f17c9bf1a88ec7cc0815abc95a2ff87d623",
+    "tests/unit/test_runtime_reply.py": "13140bc0c317e9f4cf10aa7c084d5ef88ab8e3ca76fcc06e2be851a6bdd5a53f",
+    "tests/unit/test_runtime_tool_errors.py": "257dbad2703cbb8a4d1d3ac319e7051785cbe96fbbdbfe8e0f898b8684d1d586",
+    "tests/unit/test_runtime_tool_loop.py": "bc71d1f1817cb2b475fd5bead9c375080f2d4a54084eeeae416980219464eb30",
+    "tests/unit/test_session_isolation.py": "ccbf8a2e9110b5b5981a31a57da8a792d63f6c9744700fd498e6cdeac6c53b41",
+    "tests/unit/test_skill_compaction.py": "56ad610a0f67be5326737494de2e0ae3a709e1492379f367ed191088f9d0d588",
+    "tests/unit/test_skill_context.py": "dda862c6852f4e5b3d1a157b72df1d7ed5d49c3509685849ada640b77729f9b6",
+    "tests/unit/test_skill_disclosure_eval.py": "e748692981a855f2a42a8bb5e1fb428d02dd535e089a20175970372b4736db34",
+    "tests/unit/test_skill_metadata.py": "7b5de72d3d5ca1a6f74e528f33607e5f6cd5f5c2fd0ead62aea2770d0e927136",
+    "tests/unit/test_skill_retention_eval.py": "2a3dadb13c886ecb1210ffa4f4938ce9f3461c45a13042a9011e516c33b64728",
+    "tests/unit/test_todo_add_list.py": "27f050017af7f4c673581352f71a0d2f86c452596e40c803f8b9b93adab151c5",
+    "tests/unit/test_todo_complete.py": "55c8b178b69c2184bf331ae32bf2e540d0b4734ac9dd4c01ec422bd111682600",
+    "tests/unit/test_todo_dates.py": "cd515ecdd984802a99af418b9c69107181b19aed10464048802c386112ead017",
+    "tests/unit/test_todo_delete.py": "2647215bc5bd305549ab0ebf6cf91129986bf9222f1f8fbaebc5740b99197125",
+    "tests/unit/test_todo_update.py": "d099dd3fca57bbc8d1b4bb612e3bee7cc595050f0d89f380443e2e0cdc76b09c",
+    "tests/unit/test_tool_exposure_eval.py": "d2c9482ccea5498b29a25400a9c9516f9760a571379c324d795a23dfac2f9080",
+    "tests/unit/test_tool_registry.py": "8b41118c2696cc909604c4785040ca97339cb08c6e209584f86b0474d17c80e4",
+    "tests/unit/test_trace.py": "3fb24289c27686c2fe003c370ba617fd5a703a48be729830c66414e3a63f3bdc"
+  },
+  "v01_v02_report_hashes": {
+    "reports/memory_v01/book-final.json.gz": "f290842e56782ba7270e02a41ef21909064a384d914057c1034702f60937b7ee",
+    "reports/memory_v01/book-full.json.gz": "b6f935c9f35f3821be3acc8c447e0e16df189fb42932afda9c9a071897fb59a7",
+    "reports/memory_v01/book-reviewed.json.gz": "2a484c744643e3b388d4342567fb87e4a97a7ec152f3bb3f75593e8040cb021b",
+    "reports/memory_v01/book-smoke.json.gz": "562327352faa9a3a040363c94fbddc8c397d88933ead8ada85eac1dca2daf054",
+    "reports/memory_v01/experiment-source.zip": "cd8f9b6152b8d2822decf76e40063ab9f42da543da33804bc22020786eec5bfa",
+    "reports/memory_v01/failure_cases.json": "ba55740bbed0c6455902d2454e3a71f921c0a300171d000e783f6981c8d7323c",
+    "reports/memory_v01/focused-final.json": "c1f4400e59454fccddcebacec5d9bd9f4bdbd27f76d0bd4f60e65dc185800bcf",
+    "reports/memory_v01/mechanism-controls.json": "9052c510d3d7a90083b75f7ed9a9084382dadc2a412320c9187d207b00d5b08b",
+    "reports/memory_v01/release-regression.json": "29ebc50e322b847687059ccb25eea5b5d1f2242c74cee9e43bd55113561c8b82",
+    "reports/memory_v01/review.md": "1a05c13e0425d617533c9deaee7f9d0d5e635ddcd90073566bcfabd72648b930",
+    "reports/memory_v01/source-version-receipt.json": "3b5f6c55b30954d9c67280f7d19b431a2a28de7b8fe471f1422681c917136611",
+    "reports/memory_v01/summary.json": "82d039efce10a0dacfcc2534835e58d6181d19dccaf563a5b8457461163d04ea",
+    "reports/memory_v01/summary.md": "e179b9c977a816633f04cfc3e4da3d37e2c1bac6baa540f9c3d38e32e27c4249",
+    "reports/memory_v01/wheel-final.json": "0b394cec01b24f4cabc5fd468fa63463a2d977233e4c009937cc60400710826c",
+    "reports/memory_v02/abc-fixed.json.gz": "cd4638e57e844fc30dafb4270af03eff2f503b70bfb23f56102aa28ed6a53bf0",
+    "reports/memory_v02/abc-run.txt": "c30b83f3de300e8f5429e024efc293035222a95ef8b326fa717e6ce22f111602",
+    "reports/memory_v02/artifact-hashes.json": "14623a178626358715b7cc97e1237f1726fab9a262be5a021daeeb80f3a05bca",
+    "reports/memory_v02/baseline.json": "ccfa2015be4c55722fdee47954482b4878dd54bcc063cf472c2dd44d2c109b43",
+    "reports/memory_v02/build.txt": "730f55da4452f4f0b93a67db79998928b616da9613767e4c68fe7ad560af178a",
+    "reports/memory_v02/delivery-receipt.json": "2dabdc71fdb703aed482b7657b38ef68c9cba127ef9682826d5721cc706d9ca8",
+    "reports/memory_v02/derived-metrics.json": "11a22b619f9c34382fad7f2ca7094f1455c189610e61f0e7f12e36e907c60760",
+    "reports/memory_v02/evaluation_v02.md": "33608c2dc3e4ff817e967a1324717ee064ea88252a76a0b9ad4959d37d7b32f0",
+    "reports/memory_v02/focused-tests.txt": "bd0de03ef3a74600e01527cb4c0b84eb31e5abc9f05512a665fd21966b3ae6e1",
+    "reports/memory_v02/full-regression.txt": "2edf435c4f10e339fa0771ee3e68bd09ae3447e66fb15c0f8a1bf91300fec246",
+    "reports/memory_v02/gold-audit-notes.md": "31ad99842d3d6cef16a03ff2b6df4ba60b529446b7ba76fd49b0330f0e0d1d01",
+    "reports/memory_v02/implementation.patch": "ee95b202e419a72aefe8e3fa17e5f78452b3bcaac973a584176a2e03260ef59e",
+    "reports/memory_v02/inspection-example.json": "c352780ef3d133be30b16588c0a4f167b9d830ece19703dd9957acd48964d819",
+    "reports/memory_v02/legacy-source-read-attempt-notes.md": "e9cca2d85f2e9e72279c43ba451e7e150b713e6c48683a6e7a39a68ddfa32741",
+    "reports/memory_v02/legacy-source-read-verified.json": "1d00caf0acc48a40506f5f79eb11e91f5c71df34690505d8c432eba55bf4f5f0",
+    "reports/memory_v02/legacy-source-read.json": "107ae83513c0b099c515854df87e86263dff62b52ec475be64cc5c299b89acca",
+    "reports/memory_v02/legacy-source-read.patch": "deea71942af2d810c454e20e4553850eda1926d987662d4c96989f2443fdc024",
+    "reports/memory_v02/retrieval_failure_analysis.md": "b0cf76695fb760f4ef02995792e4508282c16e7a449c6f1b4a8f64ad8a370d40",
+    "reports/memory_v02/review.md": "8db0f2855fd3d2da2da69201b936e81fc14ede934be4cd7311f6a9a6642f9160",
+    "reports/memory_v02/source-v02.zip": "95b5be50b8f17e07b2693c77022c03e517862120adbd21f4c7157f078092bd49",
+    "reports/memory_v02/supplemental-evidence-audit.json": "bf1ff2feecd80070ab2d999c8e77f27c3fb82b64aa8596071c25837f597fe911",
+    "reports/memory_v02/version-audit.json": "9f23ba0eb3d1a50330c155086279c6d36713fe120244650944c5ee1b9c1d0665"
+  },
+  "book_manifest": [
+    {
+      "path": "test_cases/layer1/01_bank_account_setup.yaml",
+      "case_id": "layer1_01_bank_account",
+      "sha256": "8e7cea077d1df03d31fa361bc9c04892f8d42bb3976ed1c3f691ce6920413594"
+    },
+    {
+      "path": "test_cases/layer1/02_insurance_claim.yaml",
+      "case_id": "layer1_02_insurance_claim",
+      "sha256": "752fe683c206d6111c5bb1f116bdd053bdc3aad0c0e2dc3441197ce7bbbe2f1c"
+    },
+    {
+      "path": "test_cases/layer1/03_medical_appointment.yaml",
+      "case_id": "layer1_03_medical_appointment",
+      "sha256": "337456c44fafb7df69cb2b847c8dc2c621ae7528790952eb5db4d2189c17ff12"
+    },
+    {
+      "path": "test_cases/layer1/04_airline_booking.yaml",
+      "case_id": "layer1_04_airline_booking",
+      "sha256": "96c808a3cc6846635c8c9e9583779906d5b6059dc47004193d3c2c1267831f2b"
+    },
+    {
+      "path": "test_cases/layer1/05_internet_service_setup.yaml",
+      "case_id": "layer1_05_internet_service",
+      "sha256": "174c77859863095c43045ceda2159113eefe7f1c66614da53e1ebf49dfdcc51f"
+    },
+    {
+      "path": "test_cases/layer1/06_credit_card_application.yaml",
+      "case_id": "layer1_06_credit_card_app",
+      "sha256": "acaa9f23bfb20fc6aaf950c29886004fdaecaf10dd80ba969832b219f3abc924"
+    },
+    {
+      "path": "test_cases/layer1/07_car_rental.yaml",
+      "case_id": "layer1_07_car_rental",
+      "sha256": "61e34951e16813a7e9e565efc4581174524c4db6509319899e55fc6b89fa72f4"
+    },
+    {
+      "path": "test_cases/layer1/08_hotel_reservation.yaml",
+      "case_id": "layer1_08_hotel_reservation",
+      "sha256": "2e6553059363498bda19cf22b38cfe006bb87d48f443756fc032812e50036173"
+    },
+    {
+      "path": "test_cases/layer1/09_home_security.yaml",
+      "case_id": "layer1_09_home_security",
+      "sha256": "be8746c14fa822fe8e730707f19339da5bb9ff1d3b61cbc82ff427290fd6bdf8"
+    },
+    {
+      "path": "test_cases/layer1/10_pharmacy_transfer.yaml",
+      "case_id": "layer1_10_pharmacy_transfer",
+      "sha256": "17369b210d99079af23eb48fc3f5fcc9d4ad3d1f075051a00d6c0a17b5cac76d"
+    },
+    {
+      "path": "test_cases/layer1/11_mortgage_application.yaml",
+      "case_id": "layer1_11_mortgage_application",
+      "sha256": "2d2472971a763d692d51a9a529c0b5f0b5bf6fb752d5652cc594cb23dbef7955"
+    },
+    {
+      "path": "test_cases/layer1/12_gym_membership.yaml",
+      "case_id": "layer1_12_gym_membership",
+      "sha256": "3a6f9ee0e19f532a9b258dc7babeab23ac316522a9bc72f817bef8f0362b63db"
+    },
+    {
+      "path": "test_cases/layer1/13_tax_preparation.yaml",
+      "case_id": "layer1_13_tax_preparation",
+      "sha256": "9857f1a5e9dda6a6d8535b7a05b8b36ea7223132b29d31a030564d116c707d2b"
+    },
+    {
+      "path": "test_cases/layer1/14_cellphone_upgrade.yaml",
+      "case_id": "layer1_14_cellphone_upgrade",
+      "sha256": "d2d4e25a0318584b70fa5f17a1e5a4dc889fce57ec1d1da80bfa976657010c62"
+    },
+    {
+      "path": "test_cases/layer1/15_college_enrollment.yaml",
+      "case_id": "layer1_15_college_enrollment",
+      "sha256": "0a38e08a46687d47ba0911f838a9d798e259d60bfe321ecbb8f5d4478be52cc5"
+    },
+    {
+      "path": "test_cases/layer1/16_home_renovation.yaml",
+      "case_id": "layer1_16_home_renovation",
+      "sha256": "54c00bd99a7643adea471619bee66ff22b8435e015e8f05c6ccd62fca9f3f398"
+    },
+    {
+      "path": "test_cases/layer1/17_veterinary_care.yaml",
+      "case_id": "layer1_17_veterinary_care",
+      "sha256": "410b7bd2f38919d860c4d7d520479e9c893d06ad3123e5ee3341227f0f40a35f"
+    },
+    {
+      "path": "test_cases/layer1/18_retirement_planning.yaml",
+      "case_id": "layer1_18_retirement_planning",
+      "sha256": "401266fd18d6785e9dd319d77ab3c1ebe500f902ae8a288e9dd9151eee892c19"
+    },
+    {
+      "path": "test_cases/layer1/19_wedding_venue.yaml",
+      "case_id": "layer1_19_wedding_venue",
+      "sha256": "a2b48c1a369406f0828e952cd825383644e4689c3f483c48708ea4fecff2ab84"
+    },
+    {
+      "path": "test_cases/layer1/20_daycare_enrollment.yaml",
+      "case_id": "layer1_20_daycare_enrollment",
+      "sha256": "b2934dd1af717ea6ae013f97aee2a2376b7ed7ac4ae31639aedf786d87183a40"
+    },
+    {
+      "path": "test_cases/layer2/01_multiple_vehicles.yaml",
+      "case_id": "layer2_01_multiple_vehicles",
+      "sha256": "62cd1cdff5278f9ffe63d5ddec2ac3369efc46bd59b79ca3430afccf54ac89f7"
+    },
+    {
+      "path": "test_cases/layer2/02_multiple_properties.yaml",
+      "case_id": "layer2_02_multiple_properties",
+      "sha256": "0a61112e0926d7f010865e231e0990936966c8b25c57fc7ba89bed1c289eb5f0"
+    },
+    {
+      "path": "test_cases/layer2/03_multiple_credit_cards.yaml",
+      "case_id": "layer2_03_multiple_credit_cards",
+      "sha256": "608eaa8ce4a88ee10d5cbf6e90f3f73150e1971ccee238c738bb58ea4eb06e52"
+    },
+    {
+      "path": "test_cases/layer2/04_multiple_subscriptions.yaml",
+      "case_id": "layer2_04_multiple_subscriptions",
+      "sha256": "4bab8c6db36385f5886ca76ffea2c925ffe3cc29c475f58b112e3d6b840c1266"
+    },
+    {
+      "path": "test_cases/layer2/05_multiple_bank_accounts.yaml",
+      "case_id": "layer2_05_multiple_bank_accounts",
+      "sha256": "f225d7f39eb4d56cb238ef64d693e9d41e0ca4730c409b4b4599b434cf6c0906"
+    },
+    {
+      "path": "test_cases/layer2/06_multiple_insurance_policies.yaml",
+      "case_id": "layer2_06_multiple_insurance_policies",
+      "sha256": "8676cbb27a548806ded000c497c7d43da8a358d78d7c063a222e5550606cb611"
+    },
+    {
+      "path": "test_cases/layer2/07_multiple_medications.yaml",
+      "case_id": "layer2_07_multiple_medications",
+      "sha256": "9311b646c8af7f626a16f1189c83da26232fec10664199d16fad01046818a6f4"
+    },
+    {
+      "path": "test_cases/layer2/08_multiple_rental_properties.yaml",
+      "case_id": "layer2_08_multiple_rental_properties",
+      "sha256": "4982ac70b2a46d6bcf95968a81b85fbaa28d5401b71845a8863ac42864080cff"
+    },
+    {
+      "path": "test_cases/layer2/09_multiple_children_schools.yaml",
+      "case_id": "layer2_09_multiple_children_schools",
+      "sha256": "f8e03bf8ae299710b7e8f06c4bb6daece10855fb25e03cdc34f35c7afae3c2c4"
+    },
+    {
+      "path": "test_cases/layer2/10_travel_rebooking_chain.yaml",
+      "case_id": "layer2_10_travel_rebooking_chain",
+      "sha256": "46a7e6ad4f1d99b2e3adcc678fda41c04adde43cc42f255f66715fa126f9488d"
+    },
+    {
+      "path": "test_cases/layer2/11_medical_treatment_evolution.yaml",
+      "case_id": "layer2_11_medical_treatment_evolution",
+      "sha256": "32390c986d52e784e20329a4b8faf37f19c802ca96265eda3b6cc5c2831f3c3c"
+    },
+    {
+      "path": "test_cases/layer2/12_contradictory_financial_instructions.yaml",
+      "case_id": "layer2_12_contradictory_financial_instructions",
+      "sha256": "baac359dabb3eabd19911d4882f7cb4516b27428bb75fc576809de8124f9be75"
+    },
+    {
+      "path": "test_cases/layer2/13_home_services_cascade.yaml",
+      "case_id": "layer2_13_home_services_cascade",
+      "sha256": "72e858eecf41220293ed082318d986efc80db852cb76a7dd40c185d7b42eb88b"
+    },
+    {
+      "path": "test_cases/layer2/14_product_order_modifications.yaml",
+      "case_id": "layer2_14_product_order_modifications",
+      "sha256": "58b1ae744164502868401120a4a67324b0398a6b44aa966352efba78b566fc36"
+    },
+    {
+      "path": "test_cases/layer2/15_employment_negotiation.yaml",
+      "case_id": "layer2_15_employment_negotiation",
+      "sha256": "ded252523d26614a29cdeaebcae2b2d35556d30f329924eaad2b3b66fbff59ae"
+    },
+    {
+      "path": "test_cases/layer2/16_family_event_conflicting_input.yaml",
+      "case_id": "layer2_16_family_event_conflicting_input",
+      "sha256": "aa5477197e93a0dfba1c6a75cbafc0325897c3c99d5cb5de9458d9e09e743b01"
+    },
+    {
+      "path": "test_cases/layer2/17_tech_support_cascade.yaml",
+      "case_id": "layer2_17_tech_support_cascade",
+      "sha256": "20a150eb0aa15e35c48d62e5d57725ed512861af603c018400e673b8a1483e49"
+    },
+    {
+      "path": "test_cases/layer2/18_education_prerequisite_chain.yaml",
+      "case_id": "layer2_18_education_prerequisite_chain",
+      "sha256": "1576a379f4c162bd74aa8a4a0d0ce57378a6e3e0060ddb2e36d419842bfe8019"
+    },
+    {
+      "path": "test_cases/layer2/19_investment_market_response.yaml",
+      "case_id": "layer2_19_investment_market_response",
+      "sha256": "5574d6671286897425d03ba5dead91f99629720f04c86e2a00b629738c2b53ff"
+    },
+    {
+      "path": "test_cases/layer2/20_healthcare_coverage_changes.yaml",
+      "case_id": "layer2_20_healthcare_coverage_changes",
+      "sha256": "3690e460e88208fd5323da31d78dc6c190ddf082702d4d56f6f4d8ed90bb9556"
+    },
+    {
+      "path": "test_cases/layer3/01_travel_coordination.yaml",
+      "case_id": "layer3_01_travel_coordination",
+      "sha256": "6e4e812ae4129b7116045061d00145fc54d8060424b62f6f56d186c12412822f"
+    },
+    {
+      "path": "test_cases/layer3/02_medical_insurance_coordination.yaml",
+      "case_id": "layer3_02_medical_insurance_coordination",
+      "sha256": "57b267fdb42f91e6460d79552e422a32cd2a56a7d6c1cc804d106f1928c689eb"
+    },
+    {
+      "path": "test_cases/layer3/03_home_purchase_coordination.yaml",
+      "case_id": "layer3_03_home_purchase_coordination",
+      "sha256": "46112c8b897510081c84edb0c678d7f2414cf5116554850f257797c388cc44ef"
+    },
+    {
+      "path": "test_cases/layer3/04_warranty_coordination.yaml",
+      "case_id": "layer3_04_warranty_coordination",
+      "sha256": "d5704a5b1871b5fc9f60446f71c1361538df7dbc58c28bd9dc82290c86eedd12"
+    },
+    {
+      "path": "test_cases/layer3/05_tax_preparation_synthesis.yaml",
+      "case_id": "layer3_05_tax_preparation_synthesis",
+      "sha256": "e47584a2239d7db6ed6b2a845e1f7d18ce800067d8330fe0e3a174cc5f738104"
+    },
+    {
+      "path": "test_cases/layer3/06_business_expansion_coordination.yaml",
+      "case_id": "layer3_06_business_expansion_coordination",
+      "sha256": "4c86a9f5bfb522d95f5188cf3f707d6f5291cd62b4906bfc52f6d8f6ad93bb5c"
+    },
+    {
+      "path": "test_cases/layer3/07_eldercare_coordination.yaml",
+      "case_id": "layer3_07_eldercare_coordination",
+      "sha256": "0508c27c37f8e0e6df53551da7d5b41d7e1b2301044587f7be31e0bda758b1b0"
+    },
+    {
+      "path": "test_cases/layer3/08_divorce_settlement_complexity.yaml",
+      "case_id": "layer3_08_divorce_settlement_complexity",
+      "sha256": "5221c51f5c11cbb5e8a14e5834c9f0627ab9846e2f80dfe7227c43c1cbf690ff"
+    },
+    {
+      "path": "test_cases/layer3/09_vehicle_accident_cascade.yaml",
+      "case_id": "layer3_09_vehicle_accident_cascade",
+      "sha256": "14d7d191f33cd25f6b10f20e59fd2f0ee8ca4105f6ecb10818f585d9d38f8918"
+    },
+    {
+      "path": "test_cases/layer3/10_education_financing_maze.yaml",
+      "case_id": "layer3_10_education_financing_maze",
+      "sha256": "b0ebb86a93cb82845f6de7e962c00ccc87efee91107b70675db17abb2070bfb7"
+    },
+    {
+      "path": "test_cases/layer3/11_immigration_status_complexity.yaml",
+      "case_id": "layer3_11_immigration_status_complexity",
+      "sha256": "ec77339451743cc1c1cb6b883636c655bad5ef713aa92bd018b98b8dff1bd2ec"
+    },
+    {
+      "path": "test_cases/layer3/12_real_estate_investment_tangle.yaml",
+      "case_id": "layer3_12_real_estate_investment_tangle",
+      "sha256": "b7cdf6854597e24dae7cc56c250ee29e61a97f46b666cc6436d7ff15b264d90d"
+    },
+    {
+      "path": "test_cases/layer3/13_emergency_medical_cascade.yaml",
+      "case_id": "layer3_13_emergency_medical_cascade",
+      "sha256": "2df15375e6efeea93f6ab2fb56c74c2bebb1e3be060d06bd9b5acfd45d90b645"
+    },
+    {
+      "path": "test_cases/layer3/14_hidden_medical_insurance_web.yaml",
+      "case_id": "layer3_14_hidden_medical_insurance_web",
+      "sha256": "fe62c5c0364b5e561584afe18fb8c128c923dced0ee7bfa51ada07537f20bb84"
+    },
+    {
+      "path": "test_cases/layer3/15_identity_theft_discovery.yaml",
+      "case_id": "layer3_15_identity_theft_discovery",
+      "sha256": "dafd7a82b91e84da8edf91b3be3b9668a789a980a9f75b64441d0bba5a0302b7"
+    },
+    {
+      "path": "test_cases/layer3/16_cryptocurrency_inheritance_puzzle.yaml",
+      "case_id": "layer3_16_cryptocurrency_inheritance_puzzle",
+      "sha256": "d2014915ba44ae4a7a56f9007d5c90cdf224c562e39f7048752d905eff81a9ba"
+    },
+    {
+      "path": "test_cases/layer3/17_environmental_contamination_cascade.yaml",
+      "case_id": "layer3_17_environmental_contamination_cascade",
+      "sha256": "f874ae6774dba5ad2e3ff3cdb4738666953bdb42bc67332d4ca932ff767a2c4c"
+    },
+    {
+      "path": "test_cases/layer3/18_genetic_testing_revelation.yaml",
+      "case_id": "layer3_18_genetic_testing_revelation",
+      "sha256": "03a60db41b12e3a02a82074030ebddc49438b795e4dc3887dabe6939a066f3a5"
+    },
+    {
+      "path": "test_cases/layer3/19_employment_fraud_network.yaml",
+      "case_id": "layer3_19_employment_fraud_network",
+      "sha256": "04e52b6f90fc137aea240268d936e4fccce3e4b446ea10621fa47dfe8f746b95"
+    },
+    {
+      "path": "test_cases/layer3/20_medical_malpractice_pattern.yaml",
+      "case_id": "layer3_20_medical_malpractice_pattern",
+      "sha256": "eb0eca8dd0e129559612c7f7c26a1ed20d22f4bdd2292c6fcd36879aafd8b025"
+    }
+  ],
+  "original_gold_sha256": "dd5142742b20173bbcee72390a45335e921d7181f59919e766f684bddc9cc0a2",
+  "book_commit": "dbc046eb896ac4e39aa19c7774c8bf49583b89a6",
+  "seen_dev_ids": [
+    "layer1_01_bank_account",
+    "layer1_02_insurance_claim",
+    "layer1_03_medical_appointment",
+    "layer1_04_airline_booking",
+    "layer1_05_internet_service",
+    "layer1_06_credit_card_app",
+    "layer2_01_multiple_vehicles",
+    "layer2_02_multiple_properties",
+    "layer2_03_multiple_credit_cards",
+    "layer2_04_multiple_subscriptions",
+    "layer3_01_travel_coordination",
+    "layer3_02_medical_insurance_coordination",
+    "layer3_03_home_purchase_coordination",
+    "layer3_04_warranty_coordination"
+  ],
+  "frozen_test_selection": [
+    {
+      "path": "test_cases/layer1/07_car_rental.yaml",
+      "case_id": "layer1_07_car_rental",
+      "sha256": "61e34951e16813a7e9e565efc4581174524c4db6509319899e55fc6b89fa72f4"
+    },
+    {
+      "path": "test_cases/layer1/08_hotel_reservation.yaml",
+      "case_id": "layer1_08_hotel_reservation",
+      "sha256": "2e6553059363498bda19cf22b38cfe006bb87d48f443756fc032812e50036173"
+    },
+    {
+      "path": "test_cases/layer2/05_multiple_bank_accounts.yaml",
+      "case_id": "layer2_05_multiple_bank_accounts",
+      "sha256": "f225d7f39eb4d56cb238ef64d693e9d41e0ca4730c409b4b4599b434cf6c0906"
+    },
+    {
+      "path": "test_cases/layer2/06_multiple_insurance_policies.yaml",
+      "case_id": "layer2_06_multiple_insurance_policies",
+      "sha256": "8676cbb27a548806ded000c497c7d43da8a358d78d7c063a222e5550606cb611"
+    },
+    {
+      "path": "test_cases/layer3/05_tax_preparation_synthesis.yaml",
+      "case_id": "layer3_05_tax_preparation_synthesis",
+      "sha256": "e47584a2239d7db6ed6b2a845e1f7d18ce800067d8330fe0e3a174cc5f738104"
+    },
+    {
+      "path": "test_cases/layer3/06_business_expansion_coordination.yaml",
+      "case_id": "layer3_06_business_expansion_coordination",
+      "sha256": "4c86a9f5bfb522d95f5188cf3f707d6f5291cd62b4906bfc52f6d8f6ad93bb5c"
+    }
+  ],
+  "selection_rule": "first two files per layer among 46 not used in v02 diagnostic or holdout, before new retrieval outputs",
+  "legacy_fix_files": [
+    "src/min_agent/application.py",
+    "src/min_agent/memory.py",
+    "tests/unit/test_memory_recall_projection.py"
+  ],
+  "v02_experimental_files": [
+    "src/min_agent/long_memory/retrieval.py",
+    "src/min_agent/long_memory/cards.py",
+    "src/min_agent/long_memory/retrieval_experiment.py"
+  ],
+  "production_default_change": false,
+  "external_calls": 0
+}

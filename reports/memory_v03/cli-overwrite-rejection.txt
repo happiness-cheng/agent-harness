@@ -1,0 +1,2 @@
+usage: eval_memory_quality_v03.py [-h] --book-root BOOK_ROOT --report REPORT
+eval_memory_quality_v03.py: error: 不覆盖既有结果，请指定新路径

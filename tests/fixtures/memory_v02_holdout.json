@@ -1,0 +1,481 @@
+{
+  "protocol": "v02 independent source-fact test, not full task quality",
+  "annotator": "executing agent source review; not independent human approval",
+  "frozen_before_search": true,
+  "selection_rule": "first two unannotated files per layer in lexical order, before v02 search",
+  "cases": {
+    "layer1_05_internet_service": {
+      "required_facts": [
+        {
+          "fact_id": "layer1_05_internet_service:f1",
+          "label": "Internet account identifier",
+          "variants": [
+            "VEL-89923476"
+          ],
+          "sources": [
+            {
+              "conversation_id": "internet_setup_001",
+              "message_index": 77,
+              "role": "assistant",
+              "timestamp": "2024-11-08 11:00:00",
+              "start": 27,
+              "end": 39,
+              "quote": "VEL-89923476",
+              "message_sha256": "c8b7d880664f4f22d67427e24cfcd21394128a9e066feea9346464d1a57ba1ed"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer1/05_internet_service_setup.yaml",
+      "source_sha256": "174c77859863095c43045ceda2159113eefe7f1c66614da53e1ebf49dfdcc51f"
+    },
+    "layer1_06_credit_card_app": {
+      "required_facts": [
+        {
+          "fact_id": "layer1_06_credit_card_app:f1",
+          "label": "New credit card identifier",
+          "variants": [
+            "5524-8897-2234-4001"
+          ],
+          "sources": [
+            {
+              "conversation_id": "credit_card_app_001",
+              "message_index": 93,
+              "role": "assistant",
+              "timestamp": "2024-11-06 13:20:00",
+              "start": 74,
+              "end": 93,
+              "quote": "5524-8897-2234-4001",
+              "message_sha256": "368dc1fe532af659fd0a1021ca496ab6c2ed1a105210d762cea5c08629f046c3"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer1/06_credit_card_application.yaml",
+      "source_sha256": "acaa9f23bfb20fc6aaf950c29886004fdaecaf10dd80ba969832b219f3abc924"
+    },
+    "layer2_02_multiple_properties": {
+      "required_facts": [
+        {
+          "fact_id": "layer2_02_multiple_properties:f1",
+          "label": "Primary property policy",
+          "variants": [
+            "HO-558847291"
+          ],
+          "sources": [
+            {
+              "conversation_id": "primary_home_insurance_001",
+              "message_index": 65,
+              "role": "assistant",
+              "timestamp": "2024-09-12 11:00:00",
+              "start": 38,
+              "end": 50,
+              "quote": "HO-558847291",
+              "message_sha256": "0173aeb7bab7737c9f3456a6dc23c3564c52638f80dd0dd80ee366ae5fc071a6"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_02_multiple_properties:f2",
+          "label": "Chicago property policy",
+          "variants": [
+            "HO-558897435"
+          ],
+          "sources": [
+            {
+              "conversation_id": "rental_property_insurance_002",
+              "message_index": 87,
+              "role": "assistant",
+              "timestamp": "2024-10-28 15:30:00",
+              "start": 48,
+              "end": 60,
+              "quote": "HO-558897435",
+              "message_sha256": "d8ab9274754c753c868c11123080970eb0ec44cb359f1378b4b3de1c2f5598a8"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_02_multiple_properties:f3",
+          "label": "Primary water backup coverage",
+          "variants": [
+            "$10,000"
+          ],
+          "sources": [
+            {
+              "conversation_id": "primary_home_insurance_001",
+              "message_index": 59,
+              "role": "assistant",
+              "timestamp": "2024-09-12 11:00:00",
+              "start": 79,
+              "end": 86,
+              "quote": "$10,000",
+              "message_sha256": "46183449b8058548a22e1f7e21103012b87036bebb31941b42fa58db2f65b52e"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_02_multiple_properties:f4",
+          "label": "Primary chosen deductible",
+          "variants": [
+            "$1,000"
+          ],
+          "sources": [
+            {
+              "conversation_id": "primary_home_insurance_001",
+              "message_index": 56,
+              "role": "user",
+              "timestamp": "2024-09-12 11:00:00",
+              "start": 13,
+              "end": 19,
+              "quote": "$1,000",
+              "message_sha256": "36cb5d186572918db45be78961f285ee0b203c8f2b033aed0980a5beb4a3fc99"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_02_multiple_properties:f5",
+          "label": "Rental water backup recommendation, not a purchased coverage assertion",
+          "variants": [
+            "water backup coverage is smart"
+          ],
+          "sources": [
+            {
+              "conversation_id": "rental_property_insurance_002",
+              "message_index": 55,
+              "role": "assistant",
+              "timestamp": "2024-10-28 15:30:00",
+              "start": 32,
+              "end": 62,
+              "quote": "water backup coverage is smart",
+              "message_sha256": "c1a3fc68445d3d91f03c73246dd4ebf56ae19cd5c9c71c0be440e543ddf232e8"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer2/02_multiple_properties.yaml",
+      "source_sha256": "0a61112e0926d7f010865e231e0990936966c8b25c57fc7ba89bed1c289eb5f0"
+    },
+    "layer2_04_multiple_subscriptions": {
+      "required_facts": [
+        {
+          "fact_id": "layer2_04_multiple_subscriptions:f1",
+          "label": "Current Netflix monthly price",
+          "variants": [
+            "$22.99"
+          ],
+          "sources": [
+            {
+              "conversation_id": "netflix_support_001",
+              "message_index": 3,
+              "role": "assistant",
+              "timestamp": "2024-09-15 14:00:00",
+              "start": 79,
+              "end": 85,
+              "quote": "$22.99",
+              "message_sha256": "15199bf3964fc2b848bbb593950d593770500ca19181a84b76bc015a9258bb5a"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_04_multiple_subscriptions:f2",
+          "label": "Current Disney Bundle monthly price",
+          "variants": [
+            "$19.99"
+          ],
+          "sources": [
+            {
+              "conversation_id": "disney_support_001",
+              "message_index": 5,
+              "role": "assistant",
+              "timestamp": "2024-10-22 10:30:00",
+              "start": 44,
+              "end": 50,
+              "quote": "$19.99",
+              "message_sha256": "a199d2ff6cb24bfbf87c3ed54fbbd8f94c315dcb4b20a3113a38433b66e8f049"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_04_multiple_subscriptions:f3",
+          "label": "Current Max monthly price",
+          "variants": [
+            "$19.99"
+          ],
+          "sources": [
+            {
+              "conversation_id": "hbo_support_001",
+              "message_index": 5,
+              "role": "assistant",
+              "timestamp": "2024-11-10 16:15:00",
+              "start": 61,
+              "end": 67,
+              "quote": "$19.99",
+              "message_sha256": "eecf89a84aa4c1b916ade79e9efcd8ad03bd28315dc6de82bfa3ed14c12bd154"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_04_multiple_subscriptions:f4",
+          "label": "Netflix Standard alternative",
+          "variants": [
+            "$15.49"
+          ],
+          "sources": [
+            {
+              "conversation_id": "netflix_support_001",
+              "message_index": 7,
+              "role": "assistant",
+              "timestamp": "2024-09-15 14:00:00",
+              "start": 20,
+              "end": 26,
+              "quote": "$15.49",
+              "message_sha256": "8b10304d10be4ba5125a361b4e24150e2c952d1e8ff62dc93c6e73447b66db5a"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_04_multiple_subscriptions:f5",
+          "label": "Conditional T-Mobile benefit",
+          "variants": [
+            "usually covers Standard with ads"
+          ],
+          "sources": [
+            {
+              "conversation_id": "netflix_support_001",
+              "message_index": 69,
+              "role": "assistant",
+              "timestamp": "2024-09-15 14:00:00",
+              "start": 9,
+              "end": 41,
+              "quote": "usually covers Standard with ads",
+              "message_sha256": "b7fb9d61487ec062cc329122df334a134c4c4d86b8381cbf4705239a7b106f9a"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_04_multiple_subscriptions:f6",
+          "label": "Conditional Verizon benefit",
+          "variants": [
+            "Some Verizon unlimited plans include Max Standard"
+          ],
+          "sources": [
+            {
+              "conversation_id": "hbo_support_001",
+              "message_index": 43,
+              "role": "assistant",
+              "timestamp": "2024-11-10 16:15:00",
+              "start": 0,
+              "end": 49,
+              "quote": "Some Verizon unlimited plans include Max Standard",
+              "message_sha256": "6bfdbb7a537e79705197a04a63526f60038355879d49bbc67de95f9163538ba2"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer2/04_multiple_subscriptions.yaml",
+      "source_sha256": "4bab8c6db36385f5886ca76ffea2c925ffe3cc29c475f58b112e3d6b840c1266"
+    },
+    "layer3_02_medical_insurance_coordination": {
+      "required_facts": [
+        {
+          "fact_id": "layer3_02_medical_insurance_coordination:f1",
+          "label": "Historical pending surgery authorization; not proof of present status",
+          "variants": [
+            "I don't see it yet"
+          ],
+          "sources": [
+            {
+              "conversation_id": "orthopedic_consultation_002",
+              "message_index": 25,
+              "role": "assistant",
+              "timestamp": "2024-11-20 14:30:00",
+              "start": 16,
+              "end": 34,
+              "quote": "I don't see it yet",
+              "message_sha256": "b4f7f3a3e282e9d68f8b1f4f942168e0282d3f7169ed9eb82c8783d765c26c37"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_02_medical_insurance_coordination:f2",
+          "label": "Pre-op schedule",
+          "variants": [
+            "November 28th at 2 PM"
+          ],
+          "sources": [
+            {
+              "conversation_id": "orthopedic_consultation_002",
+              "message_index": 67,
+              "role": "assistant",
+              "timestamp": "2024-11-20 14:30:00",
+              "start": 36,
+              "end": 57,
+              "quote": "November 28th at 2 PM",
+              "message_sha256": "0198bc57ee46351369e7ba0c0b4800b8932ee360f4022c668d13f42fb10a5912"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_02_medical_insurance_coordination:f3",
+          "label": "Individual in-network maximum, not an unrestricted maximum",
+          "variants": [
+            "$4,000"
+          ],
+          "sources": [
+            {
+              "conversation_id": "insurance_enrollment_001",
+              "message_index": 11,
+              "role": "assistant",
+              "timestamp": "2024-01-15 10:00:00",
+              "start": 22,
+              "end": 28,
+              "quote": "$4,000",
+              "message_sha256": "eb61a1cdbb1ee508434b0caec425f28826b0bbb43aa8b2c804dd581c51e152ec"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_02_medical_insurance_coordination:f4",
+          "label": "Anesthesia network",
+          "variants": [
+            "in-network with BlueCross PPO"
+          ],
+          "sources": [
+            {
+              "conversation_id": "anesthesia_billing_003",
+              "message_index": 11,
+              "role": "assistant",
+              "timestamp": "2024-11-22 16:00:00",
+              "start": 18,
+              "end": 47,
+              "quote": "in-network with BlueCross PPO",
+              "message_sha256": "27f8e8a2d21f9a3f99ce58e12a31327e95c955593a30e2602801346906eca805"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_02_medical_insurance_coordination:f5",
+          "label": "Anesthesia preventive offer, not medical guidance",
+          "variants": [
+            "anti-nausea medication preventively"
+          ],
+          "sources": [
+            {
+              "conversation_id": "anesthesia_billing_003",
+              "message_index": 73,
+              "role": "assistant",
+              "timestamp": "2024-11-22 16:00:00",
+              "start": 17,
+              "end": 52,
+              "quote": "anti-nausea medication preventively",
+              "message_sha256": "c1f4cf2ecbe3e0b87cee15889d5ab38742e44fb9d0e23968c58dfa5940c56fd1"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer3/02_medical_insurance_coordination.yaml",
+      "source_sha256": "57b267fdb42f91e6460d79552e422a32cd2a56a7d6c1cc804d106f1928c689eb"
+    },
+    "layer3_03_home_purchase_coordination": {
+      "required_facts": [
+        {
+          "fact_id": "layer3_03_home_purchase_coordination:f1",
+          "label": "Preapproval expiry",
+          "variants": [
+            "November 20th, 2024"
+          ],
+          "sources": [
+            {
+              "conversation_id": "mortgage_preapproval_001",
+              "message_index": 57,
+              "role": "assistant",
+              "timestamp": "2024-08-20 11:00:00",
+              "start": 15,
+              "end": 34,
+              "quote": "November 20th, 2024",
+              "message_sha256": "c3bee8eb4451b3fb0a619e010686df158a6285b892959f53a90470cad24d03e1"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_03_home_purchase_coordination:f2",
+          "label": "Gift documentation requirement",
+          "variants": [
+            "gift letter"
+          ],
+          "sources": [
+            {
+              "conversation_id": "mortgage_preapproval_001",
+              "message_index": 9,
+              "role": "assistant",
+              "timestamp": "2024-08-20 11:00:00",
+              "start": 86,
+              "end": 97,
+              "quote": "gift letter",
+              "message_sha256": "fdbce31ff4f064da671f5e8a15158407d9815e23c31c332ae6207c8ee5671b52"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_03_home_purchase_coordination:f3",
+          "label": "Insurance proof deadline",
+          "variants": [
+            "December 13th"
+          ],
+          "sources": [
+            {
+              "conversation_id": "moving_company_quote_003",
+              "message_index": 49,
+              "role": "assistant",
+              "timestamp": "2024-11-18 10:00:00",
+              "start": 37,
+              "end": 50,
+              "quote": "December 13th",
+              "message_sha256": "34e0259200fcc7df8e4ac526f89ea0fd9122a464a40de218577b3b17d135a21f"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_03_home_purchase_coordination:f4",
+          "label": "Mover confirmation",
+          "variants": [
+            "ALV-122124"
+          ],
+          "sources": [
+            {
+              "conversation_id": "moving_company_quote_003",
+              "message_index": 87,
+              "role": "assistant",
+              "timestamp": "2024-11-18 10:00:00",
+              "start": 67,
+              "end": 77,
+              "quote": "ALV-122124",
+              "message_sha256": "a558c77209636114e704cddc33ffe5132af06ab578f5f04d1320b473e2bdc686"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_03_home_purchase_coordination:f5",
+          "label": "Mover exception condition",
+          "variants": [
+            "contingent on closing"
+          ],
+          "sources": [
+            {
+              "conversation_id": "moving_company_quote_003",
+              "message_index": 87,
+              "role": "assistant",
+              "timestamp": "2024-11-18 10:00:00",
+              "start": 23,
+              "end": 44,
+              "quote": "contingent on closing",
+              "message_sha256": "a558c77209636114e704cddc33ffe5132af06ab578f5f04d1320b473e2bdc686"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer3/03_home_purchase_coordination.yaml",
+      "source_sha256": "46112c8b897510081c84edb0c678d7f2414cf5116554850f257797c388cc44ef"
+    }
+  }
+}

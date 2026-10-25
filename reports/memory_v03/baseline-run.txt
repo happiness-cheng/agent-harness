@@ -1,0 +1,21 @@
+baseline captured: layer1_01_bank_account
+baseline captured: layer1_02_insurance_claim
+baseline captured: layer1_03_medical_appointment
+baseline captured: layer1_04_airline_booking
+baseline captured: layer1_05_internet_service
+baseline captured: layer1_06_credit_card_app
+baseline captured: layer1_07_car_rental
+baseline captured: layer1_08_hotel_reservation
+baseline captured: layer2_01_multiple_vehicles
+baseline captured: layer2_02_multiple_properties
+baseline captured: layer2_03_multiple_credit_cards
+baseline captured: layer2_04_multiple_subscriptions
+baseline captured: layer2_05_multiple_bank_accounts
+baseline captured: layer2_06_multiple_insurance_policies
+baseline captured: layer3_01_travel_coordination
+baseline captured: layer3_02_medical_insurance_coordination
+baseline captured: layer3_03_home_purchase_coordination
+baseline captured: layer3_04_warranty_coordination
+baseline captured: layer3_05_tax_preparation_synthesis
+baseline captured: layer3_06_business_expansion_coordination
+Baseline outputs saved; no holdout scores displayed.

@@ -1,0 +1,33 @@
+{
+  "experiment_archive_sha256": "cd8f9b6152b8d2822decf76e40063ab9f42da543da33804bc22020786eec5bfa",
+  "post_experiment_to_b90f104": [
+    {
+      "path": "src/min_agent/long_memory/integration.py",
+      "experiment_sha256": "e830085bda2a101d979a7c3c0fe79e4f5c8fd13ddd3de7218186f4bb1fc56a7d",
+      "baseline_sha256": "e6789cf911a3b358c505d9fbb611033a4a40aa47d734e2bbf8d7cb58f275700a",
+      "changed_functions": [
+        "bind_runtime_memory",
+        "bind_runtime_memory.build",
+        "bind_runtime_memory.search"
+      ]
+    },
+    {
+      "path": "src/min_agent/long_memory/selection.py",
+      "experiment_sha256": "ad0e12885b861c6091b3324b0260128a1d515a3925f4ff3ad2abbac8a367036b",
+      "baseline_sha256": "2810fc0f8b17463b06932e16ce4fddb1aed47737e5715e8a65da0c4deeedf870",
+      "changed_functions": [
+        "assemble_context"
+      ]
+    },
+    {
+      "path": "src/min_agent/long_memory/store.py",
+      "experiment_sha256": "0a8bc49c3854eb43aaf693b893cb7f7a8d718e6c297732350ee7f870c03e00a1",
+      "baseline_sha256": "69ea4ebecd9c6187b512a0e74ba5d78030ae666b99f853e25a96ec6b9806dac2",
+      "changed_functions": [
+        "LongMemory.delete",
+        "LongMemory.delete.action"
+      ]
+    }
+  ],
+  "note": "v01 构建/records/rank_for_core/retrieval.search 未变；v02 A 的14题Top-K已逐项与v01结果核对相同。"
+}

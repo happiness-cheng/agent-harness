@@ -1,0 +1,54 @@
+{
+  "compact_bytes": 1850,
+  "budget": 2048,
+  "entries": [
+    {
+      "memory_id": "d6717169-c179-5cb7-b8ff-3e75da080ff8",
+      "content": "[assistant;session=chase_banking_001;range=0:138] Total Checking requires either a $1,500 minimum daily balance, direct deposit of $500+, or a combined $5,000 across linked Chase accounts.",
+      "evidence_type": "INFERRED",
+      "evidence_refs": [
+        "76523d79-a9ba-592d-97a4-bf91365dbd88"
+      ]
+    },
+    {
+      "memory_id": "791aae65-6f52-5266-bc65-662e8ea0b500",
+      "content": "[assistant;session=chase_banking_001;range=0:136] Correct. You have Chase Total Checking with a balance of $8,456.23, Chase Savings with $22,150.00, and a Sapphire Preferred credit card.",
+      "evidence_type": "INFERRED",
+      "evidence_refs": [
+        "d6f2a5c0-a737-5920-b480-f2f6c750ada9"
+      ]
+    },
+    {
+      "memory_id": "7e740089-a9d2-58f9-8e7e-f6d2cbfff2d8",
+      "content": "[assistant;session=chase_banking_001;range=0:112] Premier Savings needs a $15,000 minimum balance and linking to a Chase checking account, which you already have.",
+      "evidence_type": "INFERRED",
+      "evidence_refs": [
+        "44ae6fe1-fdc3-5eb3-b2f3-da577555a4d6"
+      ]
+    },
+    {
+      "memory_id": "f77f6470-8b94-57ce-9e4c-a7499d0b1dfc",
+      "content": "[assistant;session=chase_banking_001;range=0:99] You have 48,592 Ultimate Rewards points, worth $485.92 as cash back or potentially more for travel.",
+      "evidence_type": "INFERRED",
+      "evidence_refs": [
+        "d88a9626-b3a7-55d4-a4cb-ab801c1a8029"
+      ]
+    },
+    {
+      "memory_id": "3b6a95e5-3d67-5593-a1b0-e0613f08f13b",
+      "content": "[assistant;session=wellsfargo_banking_001;range=0:90] Thank you Ms. Williams. I show you have a Way2Save Savings account and a mortgage with us.",
+      "evidence_type": "INFERRED",
+      "evidence_refs": [
+        "5a4e9f7c-f6ec-5ff7-b501-831f5b9120c2"
+      ]
+    },
+    {
+      "memory_id": "abf706af-09c0-5d4c-b38c-efc714551f7c",
+      "content": "[assistant;session=wellsfargo_banking_001;range=0:67] Your escrow account has $4,231.56 for property taxes and insurance.",
+      "evidence_type": "INFERRED",
+      "evidence_refs": [
+        "4aa29113-ef23-51e6-a2b8-3af89ca4c16d"
+      ]
+    }
+  ]
+}

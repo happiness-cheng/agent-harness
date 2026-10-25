@@ -1,0 +1,1466 @@
+--- a/src/min_agent/application.py
++++ b/src/min_agent/application.py
+@@ -238,8 +238,8 @@
+         registry.register(ToolDefinition("read_artifact", "按当前会话真实引用和范围补读原文；不能输入磁盘路径或其他会话ID。", _Reference,
+             lambda artifact_id, start=0, limit=4000: json.dumps(artifacts.read(artifact_id, start=start, limit=limit), ensure_ascii=False)))
+         registry.register(ToolDefinition("recall_memory", "当追问过去的要求、修改经过或工具执行时，检索当前会话独立归档及结构化事件；source可供read_memory_source核对，历史文字不代表当前业务状态，不跨会话、不授权执行。", _Question,
+-            lambda question: json.dumps([{key: value for key, value in record.items() if key != "messages"}
+-                for record in MemoryJournal(self.sessions, context).select(question)], ensure_ascii=False)))
++            lambda question: json.dumps(MemoryJournal(self.sessions, context).recall(question),
++                ensure_ascii=False, separators=(',', ':'))))
+         journal = MemoryJournal(self.sessions, context)
+         registry.register(ToolDefinition("read_memory_source", "当需要核对历史事件原文、否定、条件或参数时，提供recall_memory返回的source；按offset/limit分页，不接受磁盘路径或任意会话ID。引用校验不等于摘要语义正确。", _MemorySource,
+             lambda reference, offset=0, limit=4000: json.dumps(
+--- a/src/min_agent/long_memory/retrieval.py
++++ b/src/min_agent/long_memory/retrieval.py
+@@ -66,7 +66,7 @@
+     return result,filtered,len(records)
+ 
+ 
+-def search(memory,context,query,*,use_fts=True,extra_hits=()):
++def search(memory,context,query,*,use_fts=True,extra_hits=(),inspect=False):
+     query=Query.model_validate(query.model_dump())
+     doc=memory.document(context)
+     pool,filtered,qualified_count=eligible_for_query(memory,context,query)
+@@ -110,10 +110,24 @@
+             next_frontier.add(other); seen.add(other); expanded+=1
+         frontier=next_frontier
+     unique=fuse_hits(hits,top_k=query.max_candidates)
+-    return dict(hits=unique[:query.top_k],trace=dict(
++    result = dict(hits=unique[:query.top_k],trace=dict(
+         document_revision=doc.revision,backend=backend,filtered=dict(filtered),
+         routed_topics=[t for _,t in routes],omitted_topic_count=max(0,len(routed)-len(routes)),
+         global_fallback=fallback,raw_hit_count=len(hits),unique_candidate_count=len(unique),
+         duplicate_hit_count=len(hits)-len({h.memory_id for h in hits}),graph_expanded=expanded,
+         candidate_cap=query.max_candidates,candidate_cap_reached=len(unique)>=query.max_candidates,
+         final_ids=[r['memory_id'] for r in unique[:query.top_k]],as_of=query.as_of.isoformat()))
++    if inspect:
++        # 只读离线视图；不改变 cap、路由或生产 Top-K，不接收任何 Gold。
++        all_rows, all_backend = _lookup(pool, query.text, use_fts=use_fts)
++        result['diagnostic'] = dict(
++            eligible_ids=sorted(eligible),
++            topics=[dict(topic_id=t,score=s,selected=(s,t) in routes) for s,t in routed],
++            initial_candidates=initial,
++            raw_hits=[h.model_dump(mode='json') for h in hits],
++            all_pool_lexical_hits=[dict(memory_id=i,score=s) for i,s in all_rows],
++            all_pool_backend=all_backend,
++            merged_before_cap=fuse_hits(hits,top_k=len(hits)),
++            merged_candidates=unique,
++            query_terms=sorted(terms(query.text))[:80])
++    return result
+--- a/src/min_agent/memory.py
++++ b/src/min_agent/memory.py
+@@ -1,6 +1,7 @@
+ """按完整交互段归档；只读当前会话引用，不做跨会话召回。"""
+ 
+ import json
++from copy import deepcopy
+ from uuid import uuid4, uuid5
+ from min_agent.checkpoints import history_hash
+ from min_agent.memory_records import SourceReference, interaction_events, runtime_state, source_text
+@@ -114,3 +115,22 @@
+                 messages = [Message.model_validate(value) for value in record["messages"]]
+                 record["events"] = interaction_events(self.context, record["id"], messages, record["start"])
+         return selected
++
++    def recall(self, question, limit=3):
++        """模型回查只给短预览及来源；完整归档保持不变，可按 source 分页补读。"""
++        result = []
++        for original in self.select(question, limit=limit):
++            record = deepcopy(original)
++            if record.get('kind') == 'interaction' and 'events' in record:
++                # 同一用户文字已在 summary/events/messages 重复保存；不要全部送入模型。
++                # 历史控制状态也不作为当前状态，当前状态仍由 read_session_state 查询。
++                record = {key: record[key] for key in ('id', 'kind', 'events')}
++                for event in record['events']:
++                    if 'text' in event:
++                        text = event['text']
++                        event['text'] = text[:96]
++                        event['truncated'] = bool(event.get('truncated')) or len(text) > 96
++            else:
++                record.pop('messages', None)
++            result.append(record)
++        return result
+--- /dev/null
++++ b/scripts/audit_legacy_source_read_v02.py
+@@ -0,0 +1,58 @@
++"""独立重放旧回查响应形状与新投影，使用已有原文完整性回归作为判据。"""
++from dataclasses import replace
++import json
++from pathlib import Path
++import runpy
++import sys
++import tempfile
++
++ROOT = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT/'src'))
++sys.path.insert(0, str(ROOT))
++import min_agent.context as module
++from min_agent.memory import MemoryJournal
++from min_agent.tools.registry import ToolRegistry
++
++
++def main():
++    old_fit, old_register = module.ContextManager._fits, ToolRegistry.register
++    measures = []
++    def fit(self, messages, tools):
++        measures.append(module.request_bound(messages, tools)+self.output_reserve+self.safety_margin)
++        return old_fit(self, messages, tools)
++    def register(self, tool):
++        if tool.name == 'recall_memory':
++            def handler(question):
++                return json.dumps([{k:v for k,v in row.items() if k != 'messages'}
++                    for row in MemoryJournal(self._sessions,self._context).select(question)],ensure_ascii=False)
++            tool = replace(tool, handler=handler)
++        return old_register(self, tool)
++    test = runpy.run_path(str(ROOT/'tests/integration/test_memory_tools.py'))[
++        'test_explicit_source_read_and_structured_recall_are_not_silently_head_truncated']
++    results = {}
++    try:
++        module.ContextManager._fits = fit
++        for variant in ('old-recall-shape','new-recall-shape'):
++            ToolRegistry.register = register if variant == 'old-recall-shape' else old_register
++            measures.clear()
++            with tempfile.TemporaryDirectory() as folder:
++                try:
++                    test(Path(folder))
++                    passed = True
++                except AssertionError:
++                    passed = False
++            results[variant] = dict(existing_integration_test_passed=passed,
++                request_bounds_including_reserves=list(measures), window=32768)
++        assert results['old-recall-shape']['existing_integration_test_passed'] is False
++        assert max(results['old-recall-shape']['request_bounds_including_reserves']) > 32768
++        assert results['new-recall-shape']['existing_integration_test_passed'] is True
++        assert max(results['new-recall-shape']['request_bounds_including_reserves']) <= 32768
++        with (ROOT/'reports/memory_v02/legacy-source-read-verified.json').open('x',encoding='utf-8') as stream:
++            json.dump(results,stream,ensure_ascii=False,indent=2)
++        print(json.dumps(results,ensure_ascii=False,indent=2))
++    finally:
++        module.ContextManager._fits, ToolRegistry.register = old_fit, old_register
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/scripts/eval_memory_retrieval_v02.py
+@@ -0,0 +1,110 @@
++"""冻结公共输入的 A/B/C 检索组件实验；不导入在线模型，不读取凭据。"""
++import argparse
++import gzip
++from hashlib import sha256
++import json
++from pathlib import Path
++import platform
++from statistics import mean
++import subprocess
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'src'))
++from min_agent.long_memory.retrieval_experiment import compare_case
++
++
++def digest(path):
++    return sha256(path.read_bytes()).hexdigest()
++
++
++def main():
++    import yaml
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--book-root', type=Path, required=True)
++    parser.add_argument('--report', type=Path, required=True)
++    args = parser.parse_args()
++    if args.report.exists():
++        parser.error('不覆盖已有结果，请使用新文件名')
++    project = Path(__file__).resolve().parents[1]
++    base = args.book_root/'chapter3/user-memory-evaluation'
++    if not base.is_dir():
++        base = args.book_root
++    baseline = json.loads((project/'reports/memory_v02/baseline.json').read_text(encoding='utf-8'))
++    holdout_path = project/'tests/fixtures/memory_v02_holdout.json'
++    holdout = json.loads(holdout_path.read_text(encoding='utf-8'))
++    expected_holdout = '5771618d056d6e32b8635d32152079edaa3c7c784eb002964140fcb9dbcd6a5e'
++    if digest(holdout_path) != expected_holdout:
++        raise ValueError('固定独立 Gold 被修改，不执行实验')
++    original_gold_path = base/'fixtures/gold_facts.json'
++    if digest(original_gold_path) != baseline['gold_sha256']:
++        raise ValueError('书中原始 Gold 改变')
++    gold = json.loads(original_gold_path.read_text(encoding='utf-8'))
++    cases = {}
++    for item in baseline['manifest']:
++        path = base/item['path']
++        if digest(path) != item['sha256']:
++            raise ValueError('公共历史被修改: '+item['path'])
++        cases[item['case_id']] = yaml.safe_load(path.read_text(encoding='utf-8'))
++    assert len(cases) == 60
++    assert not set(holdout['cases']) & set(baseline['diagnostic_ids'])
++    # 先验锚点核验，不根据任何检索/模型输出修改 Gold。
++    for case_id, entry in holdout['cases'].items():
++        case = cases[case_id]
++        histories = {h['conversation_id']:h for h in case['conversation_histories']}
++        for fact in entry['required_facts']:
++            for source in fact['sources']:
++                text = histories[source['conversation_id']]['messages'][source['message_index']]['content']
++                assert sha256(text.encode()).hexdigest() == source['message_sha256']
++                assert text[source['start']:source['end']] == source['quote']
++    code = sorted((project/'src/min_agent/long_memory').glob('*.py'))+[Path(__file__).resolve()]
++    hashes = {p.relative_to(project).as_posix():digest(p) for p in code}
++    v01 = json.loads(gzip.decompress((project/'reports/memory_v01/book-reviewed.json.gz').read_bytes()))
++    old_cases = {c['case_id']:c for c in v01['cases']}
++    rows = []
++    for split, ids in [('diagnostic_dev', baseline['diagnostic_ids']), ('independent_test', list(holdout['cases']))]:
++        for case_id in ids:
++            facts = (gold[case_id] if split == 'diagnostic_dev' else holdout['cases'][case_id])['required_facts']
++            row = compare_case(cases[case_id], gold=facts, budget=2048)
++            row['split'] = split
++            row['v01_baseline_topk_identical'] = (
++                row['groups']['A']['retrieval']['trace']['final_ids'] == old_cases[case_id]['shared_retrieval_trace']['final_ids'])
++            if not row['v01_baseline_topk_identical']:
++                raise ValueError('A 组与 v01 Top-K 不同，停止发布: '+case_id)
++            rows.append(row)
++            print(split, case_id, {g:round(r['fact_recall_at_k'],4) for g,r in row['groups'].items()}, flush=True)
++    summaries = {}
++    measures = ('hit_at_k','fact_recall_at_k','mrr','candidate_fact_coverage','full_pre_cap_fact_coverage',
++                'legal_history_fact_coverage','visible_fact_recall','context_bytes','unique_before_topk',
++                'unique_before_cap','duplicate_hits_before_topk','retrieval_median_ms',
++                'storage_canonical_bytes','storage_card_sidecar_bytes','indexed_text_bytes',
++                'cross_scenario_surface_collisions')
++    for split in ('diagnostic_dev','independent_test'):
++        summaries[split] = {}
++        subset = [r for r in rows if r['split'] == split]
++        for group in ('A','B','C'):
++            summaries[split][group] = {name:mean(r['groups'][group][name] for r in subset) for name in measures}
++            summaries[split][group].update(cases=len(subset), facts=sum(r['gold_fact_count'] for r in subset),
++                exception_facts_covered=sum(r['groups'][group]['exception_facts_covered'] for r in subset),
++                exception_facts_total=sum(r['groups'][group]['exception_facts_total'] for r in subset))
++    assert hashes == {p.relative_to(project).as_posix():digest(p) for p in code}
++    result = dict(protocol='Adrian v02 retrieval components; one fixed run; Gold only posthoc',
++        base_commit=baseline['base_commit'], execution_head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=project,text=True).strip(),
++        source_hashes=hashes, gold_sha256=digest(original_gold_path), independent_gold_sha256=digest(holdout_path),
++        public_manifest=baseline['manifest'], book_commit=baseline['book_commit'], python=platform.python_version(),
++        top_k=8, candidate_cap=100, top_g=3, context_budget=2048, context_budget_unit='UTF-8 compact serialized bytes',
++        timing_protocol='median of 3 ordinary searches per group/case; full diagnostics excluded; same process, not production SLA',
++        cards_protocol='own Episode plus up to 600 characters of immediately preceding message in same source conversation; explicit roles',
++        structured_protocol='verbatim proper-name/identifier plus original Name (ALIAS); exact phrase hit score fixed at 1.0',
++        dev_metric='original any-variant source text match, no business-header credit',
++        test_metric='variant plus frozen source-message evidence association; 23 source facts, not complete 6-task rubrics',
++        private_imports=0, live_model_calls=0, model_quality='NOT_RUN', judge='NOT_RUN', provider_tokens='NOT_RUN',
++        semantic_wrong_scenario_rate='NOT_RUN', summaries=summaries, cases=rows)
++    args.report.parent.mkdir(parents=True, exist_ok=True)
++    # 一份压缩 JSON 保留完整原始 Episode/卡片、候选池及路径，避免只留下汇总。
++    with args.report.open('xb') as stream:
++        stream.write(gzip.compress((json.dumps(result,ensure_ascii=False,indent=2)+'\n').encode(),mtime=0))
++    print(json.dumps(summaries,ensure_ascii=False,indent=2))
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/scripts/inspect_memory_retrieval_v02.py
+@@ -0,0 +1,31 @@
++"""只读检查已保存的完整候选池/逐事实证据，不运行模型，不重建检索。"""
++import argparse
++import gzip
++import json
++from pathlib import Path
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--report', type=Path, required=True)
++    parser.add_argument('--case', required=True)
++    parser.add_argument('--group', choices=['A','B','C'], default='A')
++    parser.add_argument('--pool', choices=['topk','initial','pre-cap','capped','all-legal','global-probe'], default='pre-cap')
++    parser.add_argument('--facts', action='store_true')
++    args = parser.parse_args()
++    data = json.loads(gzip.decompress(args.report.read_bytes()))
++    case = next((c for c in data['cases'] if c['case_id'] == args.case), None)
++    if case is None:
++        parser.error('未找到 case')
++    if args.facts:
++        result = case['raw_fact_attribution']
++    else:
++        row = case['groups'][args.group]['retrieval']
++        key = {'initial':'initial_candidates','pre-cap':'merged_before_cap','capped':'merged_candidates',
++               'all-legal':'eligible_ids','global-probe':'all_pool_lexical_hits'}.get(args.pool)
++        result = row['hits'] if args.pool == 'topk' else row['diagnostic'][key]
++    print(json.dumps(result,ensure_ascii=False,indent=2))
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/scripts/report_memory_retrieval_v02.py
+@@ -0,0 +1,125 @@
++"""从固定原始结果生成可阅读报告；不重跑检索，不修改 Gold。"""
++import gzip
++from hashlib import sha256
++import json
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++def save(path, text):
++    with (ROOT/path).open('x', encoding='utf-8', newline='\n') as stream:
++        stream.write(text.rstrip()+'\n')
++
++
++def main():
++    artifact = ROOT/'reports/memory_v02/abc-fixed.json.gz'
++    data = json.loads(gzip.decompress(artifact.read_bytes()))
++    metrics = {}
++    for split in data['summaries']:
++        subset = [c for c in data['cases'] if c['split'] == split]
++        metrics[split] = {}
++        for group in ('A','B','C'):
++            matches = [m for c in subset for m in c['groups'][group]['fact_matches']]
++            metrics[split][group] = dict(facts=len(matches),
++                topk_covered=sum(bool(m['hit_ids']) for m in matches),
++                visible_covered=sum(bool(m['visible_ids']) for m in matches),
++                micro_fact_recall=sum(bool(m['hit_ids']) for m in matches)/len(matches),
++                micro_visible_recall=sum(bool(m['visible_ids']) for m in matches)/len(matches))
++    save('reports/memory_v02/derived-metrics.json', json.dumps(dict(
++        source_sha256=sha256(artifact.read_bytes()).hexdigest(),metrics=metrics),ensure_ascii=False,indent=2))
++    lines = ['# Adrian Memory v0.2 检索漏召归因', '',
++        '这是原八题的离线开发诊断，不是模型任务失败分析。原始完整候选池、来源 Episode 和卡片保存在 `reports/memory_v02/abc-fixed.json.gz`。Gold 仅在检索后匹配；原 60 题和 Gold 均未修改。', '',
++        '逐事实的全部来源、消息位置、字符范围、哈希、时间、Topic、情景、初始/合并候选、路径/分数/排名、Top-K/预算去向在原始 JSON 的 `raw_fact_attribution`。下表显示最靠前的一个来源；其他重复来源不隐藏，可用检查命令完整导出。', '',
++        '注意：旧字面指标不能识别跨句合成事实。`source_exists_in_legal_history` 在原始运行中实际表示“连续表面字样存在”，两处例外以本报告与 `gold-audit-notes.md` 的原文审查为准。', '',
++        '```powershell',
++        '& C:/Users/陈独秀/Documents/agent-harness/.venv/Scripts/python.exe -X utf8 scripts/inspect_memory_retrieval_v02.py --report reports/memory_v02/abc-fixed.json.gz --case layer2_03_multiple_credit_cards --facts',
++        '& C:/Users/陈独秀/Documents/agent-harness/.venv/Scripts/python.exe -X utf8 scripts/inspect_memory_retrieval_v02.py --report reports/memory_v02/abc-fixed.json.gz --case layer1_03_medical_appointment --pool pre-cap',
++        '```', '',
++        '所有原书历史在本轮最终截点均已可用；没有当前 directive 或请求级 Scenario 限制。真实过滤器仍先执行。原文权限/时间过滤未排除下列合法来源；缺失项不能一概归咎于时间或预算。', '']
++    for case in data['cases']:
++        if case['split'] != 'diagnostic_dev':
++            continue
++        a = case['groups']['A']
++        lines += ['## '+case['case_id'], '', '问题：'+case['question'], '',
++                  f"A：Top-8 事实覆盖 {a['fact_recall_at_k']:.2%}；预算可见 {a['visible_fact_recall']:.2%}；as_of={case['as_of']}。", '',
++                  '| 必要事实组 | 证据位置（消息从 0 起） | 最佳合并排名 / 分数 | 检索去向 |',
++                  '|---|---|---|---|']
++        for f in case['raw_fact_attribution']:
++            ordered = sorted(f['sources'], key=lambda s:(s['merged_rank'] is None, s['merged_rank'] or 999999))
++            if ordered:
++                best = ordered[0]
++                label = '；'.join(f['variants']).replace('|','/')
++                where = f"{best['conversation_id']} / {best['message_index']} / {best['timestamp']}"
++                rank = f"{best['merged_rank']} / {best['score']:.6f}" if best['score'] is not None else '不在实际融合池'
++                stages = ', '.join(sorted({s['cause'] for s in ordered}))
++                lines.append(f'| {label} | {where} | {rank} | {stages} |')
++            else:
++                label = '；'.join(f['variants'])
++                note = '原历史跨句可组合；连续表面不匹配' if 'Amex Gold' in label else '原历史无此金额；仅评分要求存在'
++                lines.append(f'| {label} | 见 Gold 审查注记 | 无字面候选 | {note} |')
++        trace = a['retrieval']['trace']
++        detail = a['retrieval']['diagnostic']
++        lines += ['', f"实际 cap 前融合候选 {len(detail['merged_before_cap'])}，cap 后 {len(detail['merged_candidates'])}；路由 Topic={trace['routed_topics']}，fallback={trace['global_fallback']}。", '']
++        explanation = {
++            'layer1_01_bank_account':'账号已有第 5 名命中；routing number 已在候选池但第 10 名，被 Top-8 截断。独立的纯数字回答不含问题词，FTS 不命中；重复陈述中的完整事实仍能进池。',
++            'layer1_02_insurance_claim':'这是第八个没有完整检索漏召的对照例：三组事实都在 Top-8，问题出在有限预算没有装入第 8 名的完整 claim 条目。不能把 Core 或上下文遗漏说成检索器未找到。',
++            'layer1_03_medical_appointment':'四个事实的最佳排名分别是 22、21、9、12，均进了候选池；主要是排序/Top-K，而不是历史不存在。短编号还存在完全无词重叠的独立来源。',
++            'layer1_04_airline_booking':'确认码及两个座位均有原文，最佳排名 21/27/27；问题主要是大量通用对话词命中后的排序，未被权限、时间或预算过滤。',
++            'layer2_01_multiple_vehicles':'Honda 在第 4 名；Tesla 在第 100 名；保单号最佳第 70 名，其他来源被 cap=100 截掉。这里同时有候选 cap 和 Top-K 两个损失点；不能只看最终八条。',
++            'layer2_03_multiple_credit_cards':'Chase 的最佳来源排第 110 名，先被 cap=100 排除；3x 在第 87 名，被 Top-8 排除。Amex Gold 在原文由 American Express / Gold Card / Amex 多句建立，不符合旧连续字符串匹配，不能说模型/记忆忘记了这张卡。',
++            'layer3_01_travel_coordination':'passport 是宽泛词，第 2 名已有命中；February 18 的独立来源与最终问题无词重叠，因此没有进入 FTS 初始池。航班码第 82 名、Priority Pass 第 48 名则属于排序截断。护照单词命中不等于理解到期风险。',
++            'layer3_04_warranty_coordination':'MacBook 最佳第 30 名、Chase 第 22 名、延保日期第 82 名，均在池中但未进八条。600–800 美元维修费不在原历史，是评分要求中的外部估计；不能复制答案补记忆。此结论只谈给定证据，不核实现实保修/价格。',
++        }[case['case_id']]
++        lines += ['归因：'+explanation, '']
++    lines += ['## 已证实与待验证', '',
++        '- 已证实：上述阶段去向由同一次运行的候选 ID、路径和排名确定；14 题 A 的最终 ID 与 v0.1 逐项一致。',
++        '- 假设：通用对话词导致相关证据稀释。这与候选规模和词重叠相符，但本轮未单独做停用词或 reranker 消融，不能认定为唯一原因。',
++        '- 假设：更精炼、带实体和属性关联的卡片可解决跨句实体名称问题；本轮只做邻接上下文化，未验证一般语义提炼。',
++        '- 没有证据支持把所有七题不完整召回归为一种原因；也没有证据支持改 Goal-Value 权重。']
++    save('reports/memory_v02/retrieval_failure_analysis.md', '\n'.join(lines))
++    evaluation = ['# Adrian Memory v0.2 固定 A/B/C 实验', '',
++        '结论：上下文化卡片提高了部分题目的候选覆盖和 Top-8 宏平均召回，但没有改善独立测试总事实命中数，也没有改善同预算可见信息。当前证据不足以用它替换 Runtime 的默认记忆表示。C 在 14 个自然问题中没有触发结构化路径，与 B 完全相同；不能宣称实体检索已被这些题验证有效。', '',
++        '运行一次 8 题开发诊断 + 6 题独立测试；未依据本轮结果调整排序或 Gold。无外部调用、无私人导入；模型任务/Judge/实际 Token 均 NOT_RUN。指标是检索组件代理指标，不是第二大脑任务成功率。', '']
++    for split, values in data['summaries'].items():
++        evaluation += ['## '+split, '',
++            '| 组 | Hit@8 | Fact Recall@8（宏） | MRR | 候选覆盖 cap 后 / 前 | 预算可见覆盖（宏） | 实际事实命中（微） |',
++            '|---|---:|---:|---:|---:|---:|---:|']
++        for g, v in values.items():
++            m = metrics[split][g]
++            evaluation.append(f"| {g} | {v['hit_at_k']:.2%} | {v['fact_recall_at_k']:.2%} | {v['mrr']:.4f} | {v['candidate_fact_coverage']:.2%} / {v['full_pre_cap_fact_coverage']:.2%} | {v['visible_fact_recall']:.2%} | {m['topk_covered']}/{m['facts']} = {m['micro_fact_recall']:.2%} |")
++        evaluation += ['', '| 组 | 原始存储字节/题 | 额外卡片字节/题 | 索引输入字节/题 | 上下文字节/题 | 检索毫秒/题 | cap 前 / 后去重候选 | 重复路径数/题 |',
++            '|---|---:|---:|---:|---:|---:|---:|---:|']
++        for g, v in values.items():
++            evaluation.append(f"| {g} | {v['storage_canonical_bytes']:.1f} | {v['storage_card_sidecar_bytes']:.1f} | {v['indexed_text_bytes']:.1f} | {v['context_bytes']:.1f} | {v['retrieval_median_ms']:.2f} | {v['unique_before_cap']:.2f} / {v['unique_before_topk']:.2f} | {v['duplicate_hits_before_topk']:.2f} |")
++        evaluation += ['', '字节是逻辑序列化成本，不是磁盘/Token；毫秒是各题三次普通调用中位数的跨题均值，不含完整离线诊断，不是线上 SLA。', '']
++    evaluation += ['## 每题结果与退化', '', '| 案例 | 事实数 | A Top-8 / 可见 | B Top-8 / 可见 | C Top-8 / 可见 |', '|---|---:|---:|---:|---:|']
++    for c in data['cases']:
++        scores = [f"{c['groups'][g]['fact_recall_at_k']:.2%} / {c['groups'][g]['visible_fact_recall']:.2%}" for g in ('A','B','C')]
++        evaluation.append(f"| {c['case_id']} | {c['gold_fact_count']} | "+' | '.join(scores)+' |')
++    evaluation += ['',
++        '独立六题 A/B 都只命中 4/23 个事实。B 赢了单事实网络账号题和一个订阅事实，却丢掉房屋交割题的两个事实，因此宏平均上升 12.78 个百分点，微平均没有增加。不能只展示上升的一列。开发八题 A 为 6/26，B 为 7/26；有开发收益，但不代表泛化。', '',
++        'B 把独立题 cap 前候选池覆盖从 75.56% 提高到 100%，但 cap 后只有 65.56%，Top-8 39.44%，预算可见 19.44%。这条损失链说明下一轮不能只继续扩大召回池。开发集的原 Gold 还有一项连续表面不匹配、一项非历史事实，合法历史表面覆盖只有 92.71%，见归因报告。', '',
++        '错误情景：跨情景同表面值碰撞代理在这批 Top-8 中为 0；没有全面语义情景标注，真实错误率 NOT_RUN，不能称“零错误”。独立测试的 5 个已标注具体例外/条件原句，A 覆盖 2 个，B/C 只覆盖 1 个；是否理解这些条件仍 NOT_RUN。', '',
++        'C 的结构化实体路径在 14 题触发 0 次；这些问题大多只有 account/card/property 等普通类别词，未出现提取出的完整名字或显式缩写。AP 合成 Fixture 已验证别名路径、ID 去重与权限，但不能替代自然检索质量证据。C 的额外扫描有真实延迟成本，本轮没有收益。', '',
++        '## 评测有效性与已知限制', '',
++        '- 独立六题依据固定文件顺序选择并在检索前标注，不是随机大样本；同一执行代理标注和审查，未经独立人工复核。它是保留测试，不是新的 60 题全面模型验收。',
++        '- 独立 Gold 是 23 个来源事实，不覆盖原六题完整业务推理/澄清/主动提醒标准；历史 assistant 话语只是来源陈述，不保证现实事实正确。',
++        '- 邻接卡片保留原文和角色，但不做原子事实抽取、跨句实体解析、时间关系推理；前一句最多 600 字符只是上下文片段，原始 Episode 和来源全文仍全部保存。',
++        '- 生产 Runtime 尚未启用卡片，SQLite/schema/权限未变；私人导入、人工确认生产流程集成、实时模型和 Judge 未执行。',
++        '- 明确分开原 Top-8、2048 字节打包和 v0.1 Core 策略得分；本轮不报告 Recency/Frequency/Goal-Value 重新排名。', '',
++        '## 下一轮只建议三件事（本轮不实施）', '',
++        '1. 建立小批人工审核的原子卡片与实体—属性—情景绑定；优先覆盖 Amex/Gold Card 这种跨句事实，同时加入错误实体拼接反例。',
++        '2. 在固定候选上单独比较排序与预算打包：保护数字标识、具体例外及多业务覆盖，报告微/宏召回和同预算可见事实，而不是只扩大候选池。',
++        '3. 扩充并独立审核事实/情景/例外 Gold；隔离“历史可召回”“需要推理”“需要外部知识”，然后再安排有预算的真实任务/Judge 验证。', '',
++        '## 复现命令', '', '工作目录：`C:/Users/陈独秀/.codex/tmp/adrian-memory-v02`。先在 PowerShell 设置 `$env:PYTHONPATH="src"`。', '', '```powershell',
++        '& C:/Users/陈独秀/Documents/agent-harness/.venv/Scripts/python.exe -X utf8 scripts/eval_memory_retrieval_v02.py --book-root C:/Users/陈独秀/.codex/tmp/ai-agent-book-memory-reference --report reports/memory_v02/abc-reproduction.json.gz',
++        '& C:/Users/陈独秀/Documents/agent-harness/.venv/Scripts/python.exe -X utf8 -m pytest -q --tb=short',
++        '& C:/Users/陈独秀/Documents/agent-harness/.venv/Scripts/python.exe -X utf8 -m pip wheel . --no-deps --no-build-isolation --no-index --wheel-dir dist/memory-v02-reproduction',
++        '```', '',
++        f"实际原始输出 SHA256：`{sha256(artifact.read_bytes()).hexdigest()}`；完整源码哈希在原始 JSON `source_hashes`，基线/data 哈希在 `baseline.json`，独立 Gold SHA256 为 `{data['independent_gold_sha256']}`。旧 v0.1 所有报告未覆盖。"]
++    save('reports/memory_v02/evaluation_v02.md', '\n'.join(evaluation))
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/src/min_agent/long_memory/cards.py
+@@ -0,0 +1,159 @@
++"""批准 Fixture 的只读上下文化实验；不提供生产记忆写入/确认入口。"""
++from datetime import datetime
++from hashlib import sha256
++import re
++from typing import Literal
++
++from pydantic import BaseModel, ConfigDict, Field, model_validator
++
++from min_agent.long_memory.models import SearchHit
++from min_agent.long_memory.retrieval import eligible_for_query
++
++
++class EntityName(BaseModel):
++    model_config = ConfigDict(extra='forbid', frozen=True)
++    name: str
++    aliases: list[str] = Field(default_factory=list)
++
++
++class ValidTime(BaseModel):
++    model_config = ConfigDict(extra='forbid', frozen=True)
++    start: datetime
++    end: datetime | None = None
++
++    @model_validator(mode='after')
++    def validate_interval(self):
++        if self.start.tzinfo is None or self.end is not None and self.end.tzinfo is None:
++            raise ValueError('卡片时间必须有时区')
++        if self.end is not None and self.end <= self.start:
++            raise ValueError('卡片有效区间为空')
++        return self
++
++
++class MemoryCard(BaseModel):
++    model_config = ConfigDict(extra='forbid', frozen=True)
++    memory_id: str
++    user_id: str
++    content: str = Field(min_length=1, max_length=8000)
++    entity: list[EntityName]
++    scenario: str
++    valid_time: ValidTime
++    evidence_refs: list[str] = Field(min_length=1)
++    evidence_type: Literal['DIRECT', 'INFERRED']
++    confirmation_status: Literal['pending', 'confirmed_fixture']
++    topic_ids: list[str]
++    source_episode_id: str
++    source_version: int
++    source_sha256: str
++
++
++def _fingerprint(memory):
++    return sha256(memory.model_dump_json().encode()).hexdigest()
++
++
++def _body(memory):
++    match = re.match(r'^\[(user|assistant|tool);session=(.*?);range=(\d+):(\d+)\] (.*)$', memory.content, re.S)
++    if match is None:
++        raise ValueError('仅接受带角色和范围的原始 Episode Fixture')
++    return match.group(1), match.group(2), int(match.group(3)), match.group(5)
++
++
++def _entities(text, business):
++    # 只识别原文可见的名字/编号；别名必须采用原文的 Name (ALIAS) 声明。
++    names = {business} if business else set()
++    names.update(re.findall(r'\b[A-Z][a-z]+(?: [A-Z][a-z]+){1,3}\b|\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+\b', text))
++    aliases = {}
++    for name, alias in re.findall(r'\b([A-Z][A-Za-z]+(?: [A-Z][A-Za-z]+){0,3})\s*\(([A-Z][A-Z0-9]{1,9})\)', text+' '+business):
++        names.add(name)
++        aliases.setdefault(name, []).append(alias)
++    return [EntityName(name=n, aliases=sorted(set(aliases.get(n, [])))) for n in sorted(names)]
++
++
++def build_cards(memory, context, *, approval):
++    if approval != 'approved_fixture':
++        raise PermissionError('语义卡片实验仅允许显式批准的合成/公共 Fixture')
++    doc = memory.document(context)
++    latest = [versions[-1] for versions in doc.memories.values()]
++    if any(not m.confirmation_ref.startswith('approved_fixture:') for m in latest):
++        raise PermissionError('未审核的生产/私人记录不能套用 Fixture 批准')
++    by_position = {}
++    for m in latest:
++        evidence = doc.evidence[m.evidence_refs[0]]
++        _, _, start, _ = _body(m)
++        if start == 0:
++            by_position[(evidence.session_id, evidence.message_ref)] = m
++    cards = []
++    for m in latest:
++        role, scenario, start, body = _body(m)
++        evidence = doc.evidence[m.evidence_refs[0]]
++        previous = by_position.get((evidence.session_id, evidence.message_ref-1)) if start == 0 else None
++        refs = list(m.evidence_refs)
++        context_text = ''
++        if previous is not None:
++            prev_role, _, _, prev_body = _body(previous)
++            context_text = f'Context excerpt ({prev_role}): {prev_body[:600]}\n'
++            refs += previous.evidence_refs
++        business = ' / '.join(doc.topics[t].name for t in m.topic_ids if t in doc.topics)
++        content = f'Source business: {business}\n{context_text}Statement ({role}): {body}'
++        cards.append(MemoryCard(memory_id=m.id, user_id=m.user_id, content=content,
++            entity=_entities(content, business), scenario=scenario,
++            valid_time=ValidTime(start=m.effective_from, end=m.valid_until),
++            evidence_refs=list(dict.fromkeys(refs)), evidence_type=m.evidence_type,
++            confirmation_status='confirmed_fixture', topic_ids=m.topic_ids,
++            source_episode_id=m.id, source_version=m.version, source_sha256=_fingerprint(m)))
++    return cards
++
++
++class CardView:
++    """每次读取先过原权威层过滤，再投影；卡片不能复活已撤回/过期的来源。"""
++    def __init__(self, memory, context, cards):
++        self.memory, self.context = memory, memory.sessions.check_access(context)
++        self.cards = {}
++        for card in cards:
++            card = MemoryCard.model_validate(card.model_dump())
++            if card.memory_id in self.cards:
++                raise ValueError('卡片 ID 重复，禁止静默覆盖')
++            self.cards[card.memory_id] = card
++
++    def _check(self, context):
++        self.memory.sessions.check_access(context)
++        if context != self.context:
++            raise PermissionError('卡片视图绑定固定会话及 owner')
++
++    def document(self, context):
++        self._check(context)
++        return self.memory.document(context)
++
++    def records(self, context, *, as_of, scenario_ids=None):
++        self._check(context)
++        doc = self.memory.document(context)
++        result = []
++        for source in self.memory.records(context, as_of=as_of, scenario_ids=scenario_ids):
++            card = self.cards.get(source.id)
++            if (card is None or card.user_id != str(context.owner_id)
++                    or card.confirmation_status != 'confirmed_fixture'
++                    or card.source_episode_id != source.id or card.source_version != source.version
++                    or card.source_sha256 != _fingerprint(source)
++                    or card.valid_time.start != source.effective_from or card.valid_time.end != source.valid_until):
++                continue
++            # 邻接上下文也必须仍有合法来源，不能在来源删除后残留。
++            if any(ref not in doc.evidence or doc.evidence[ref].user_id != str(context.owner_id)
++                   or doc.evidence[ref].observed_at > as_of for ref in card.evidence_refs):
++                continue
++            result.append(source.model_copy(update={'content': card.content, 'evidence_refs': card.evidence_refs}))
++        return result
++
++
++def entity_hits(view, context, query):
++    records, _, _ = eligible_for_query(view, context, query)
++    hits = []
++    for m in records:
++        card = view.cards[m.id]
++        matches = [e.name for e in card.entity if any(
++            re.search(r'(?<!\w)'+re.escape(name)+r'(?!\w)', query.text, re.I)
++            for name in [e.name, *e.aliases])]
++        if matches:
++            # 冻结的组件实验：精确实体证据优先，名称数量不无限加分。
++            hits.append(SearchHit(memory_id=m.id, source='structured_entity_alias',
++                score=1.0, reasons=['explicit_entity:'+n for n in matches]))
++    return hits
+--- /dev/null
++++ b/src/min_agent/long_memory/retrieval_experiment.py
+@@ -0,0 +1,196 @@
++"""检索组件对照与离线归因：Gold 仅在检索完成后参与打分。"""
++from datetime import timedelta
++from hashlib import sha256
++import json
++import re
++from statistics import median
++from time import perf_counter
++
++from min_agent.long_memory.cards import build_cards, CardView, entity_hits
++from min_agent.long_memory.evaluation import build_approved_fixture, normalized
++from min_agent.long_memory.models import Query
++from min_agent.long_memory.retrieval import search, terms
++
++
++def encoded(value):
++    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode()
++
++
++def _facts(gold):
++    return [f if isinstance(f, dict) else {'variants': f if isinstance(f, list) else [f], 'sources': []}
++            for f in gold]
++
++
++def _text(record):
++    # 不给来源标签/业务名计事实分；邻接原文是本轮实验的表示变量。
++    text = record.content
++    if text.startswith('Source business:'):
++        return text.split('\n', 1)[-1]
++    return text.split('] ', 1)[-1]
++
++
++def _matches(text, fact):
++    return any(normalized(v) in normalized(text) for v in fact['variants'])
++
++
++def _supports(record, fact, evidence_positions):
++    if not _matches(_text(record), fact):
++        return False
++    required = {(s['conversation_id'], s['message_index']) for s in fact.get('sources', [])}
++    return not required or bool(required & {evidence_positions[r] for r in record.evidence_refs})
++
++
++def pack_context(hits, pool, budget):
++    selected = []
++    entries = []
++    for hit in hits:
++        item = pool[hit['memory_id']]
++        entry = dict(memory_id=item.id, content=item.content, evidence_type=item.evidence_type,
++                     evidence_refs=item.evidence_refs)
++        if len(encoded(entries+[entry])) <= budget:
++            selected.append(item.id)
++            entries.append(entry)
++    return selected, len(encoded(entries)) if entries else 0
++
++
++def _diagnose(facts, original_pool, retrieval, selected, positions, source_messages):
++    diagnostic = retrieval['diagnostic']
++    initial = {h['memory_id']: h for h in diagnostic['initial_candidates']}
++    merged = {h['memory_id']: (i+1, h) for i, h in enumerate(diagnostic['merged_before_cap'])}
++    capped = {h['memory_id'] for h in diagnostic['merged_candidates']}
++    final = {h['memory_id'] for h in retrieval['hits']}
++    lexical = {h['memory_id'] for h in diagnostic['all_pool_lexical_hits']}
++    raw = {h['memory_id'] for h in diagnostic['raw_hits']}
++    rows = []
++    for number, fact in enumerate(facts, 1):
++        sources = []
++        for item in original_pool.values():
++            if not _supports(item, fact, positions):
++                continue
++            rank, hit = merged.get(item.id, (None, None))
++            reference = source_messages[item.evidence_refs[0]]
++            if item.id not in raw:
++                cause = 'topic_route_exclusion' if item.id in lexical else 'lexical_no_match'
++            elif item.id not in capped:
++                cause = 'candidate_cap'
++            elif item.id not in final:
++                cause = 'top_k_cutoff'
++            elif item.id not in selected:
++                cause = 'context_budget'
++            else:
++                cause = 'visible'
++            text = reference['content']
++            spans = []
++            for variant in fact['variants']:
++                spans.extend(dict(start=m.start(), end=m.end(), quote=text[m.start():m.end()])
++                    for m in re.finditer(re.escape(variant), text, re.I))
++            sources.append(dict(episode_id=item.id, evidence_refs=item.evidence_refs,
++                conversation_id=reference['conversation_id'], message_index=reference['message_index'],
++                timestamp=reference['timestamp'], role=reference['role'], evidence_spans=spans,
++                message_sha256=reference['message_sha256'], legal_at_cutoff=True,
++                topic_ids=item.topic_ids, scenario_ids=item.scenario_ids,
++                all_pool_lexical_match=item.id in lexical, initial_candidate=item.id in initial,
++                raw_candidate=item.id in raw, merged_candidate=item.id in capped,
++                merged_rank=rank, score=hit['score'] if hit else None,
++                paths=hit['paths'] if hit else [], final_top_k=item.id in final,
++                visible=item.id in selected, cause=cause,
++                matched_query_terms=sorted(terms(retrieval['query_text']) & terms(item.content))))
++        best = min((s['merged_rank'] for s in sources if s['merged_rank'] is not None), default=None)
++        rows.append(dict(fact_id=fact.get('fact_id', f'f{number}'), variants=fact['variants'],
++            source_exists_in_legal_history=bool(sources), best_merged_rank=best, sources=sources,
++            exclusion_note='All book sources are fixture-approved and available at the final session cutoff; no scene restriction or current directive.',
++            unknown='NOT_FOUND_IN_LEGAL_HISTORY' if not sources else None))
++    return rows
++
++
++def compare_case(case, *, gold, budget=2048):
++    if type(budget) is not int or budget < 0:
++        raise ValueError('预算必须为非负整数')
++    # 输入适配器只接收历史，不接触题目期望、评价标准或 Gold。
++    history = {k: case[k] for k in ('test_id', 'category', 'conversation_histories')}
++    memory, context, info = build_approved_fixture(history, approval='approved_fixture')
++    query = Query(text=case['user_question'], as_of=info['last_time']+timedelta(microseconds=1), top_k=8)
++    cards = build_cards(memory, context, approval='approved_fixture')
++    view = CardView(memory, context, cards)
++    doc = memory.document(context)
++    positions = {}
++    source_messages = {}
++    origin_by_hash = {}
++    for h in case['conversation_histories']:
++        for index, message in enumerate(h['messages']):
++            digest = sha256(message.get('content', '').encode()).hexdigest()
++            origin_by_hash.setdefault((digest, index), []).append((h, message))
++    # session UUID 与原始 conversation_id 的映射来自原始 Episode 头，不从答案猜测。
++    for versions in doc.memories.values():
++        item = versions[-1]
++        ref = item.evidence_refs[0]
++        evidence = doc.evidence[ref]
++        scenario = re.match(r'^\[.*?;session=(.*?);range=', item.content).group(1)
++        history_row, message = next((h, m) for h, m in origin_by_hash[(evidence.source_hash, evidence.message_ref)]
++                                    if str(h['conversation_id']) == scenario)
++        positions[ref] = (scenario, evidence.message_ref)
++        source_messages[ref] = dict(conversation_id=scenario, message_index=evidence.message_ref,
++            timestamp=str(history_row['timestamp']), role=evidence.role, content=message['content'],
++            message_sha256=evidence.source_hash)
++    groups = {}
++    for group, adapter in [('A', memory), ('B', view), ('C', view)]:
++        timings = []
++        ordinary = None
++        for _ in range(3):
++            start = perf_counter()
++            extras = entity_hits(view, context, query) if group == 'C' else ()
++            ordinary = search(adapter, context, query, extra_hits=extras)
++            timings.append((perf_counter()-start)*1000)
++        inspected = search(adapter, context, query,
++            extra_hits=entity_hits(view, context, query) if group == 'C' else (), inspect=True)
++        assert ordinary['hits'] == inspected['hits']
++        inspected['query_text'] = query.text
++        pool = {m.id: m for m in adapter.records(context, as_of=query.as_of, scenario_ids=[])}
++        selected, context_bytes = pack_context(inspected['hits'], pool, budget)
++        groups[group] = dict(retrieval=inspected, selected_ids=selected, context_bytes=context_bytes,
++            storage_canonical_bytes=len(encoded(doc.model_dump(mode='json'))),
++            storage_card_sidecar_bytes=0 if group == 'A' else len(encoded([c.model_dump(mode='json') for c in cards])),
++            indexed_text_bytes=sum(len(m.content.encode()) for m in pool.values()),
++            retrieval_ms=timings, retrieval_median_ms=median(timings), pool_count=len(pool),
++            top_k=query.top_k, budget=budget, provider_tokens='NOT_RUN', model_task_quality='NOT_RUN',
++            judge='NOT_RUN', live_model_calls=0, _pool=pool)
++    # 所有查询、卡片、候选、排名在这里之前已完成；以下才读取 Gold。
++    facts = _facts(gold)
++    for group, row in groups.items():
++        pool = row.pop('_pool')
++        hits = row['retrieval']['hits']
++        diagnostic = row['retrieval']['diagnostic']
++        def coverage(ids):
++            return sum(any(_supports(pool[i], f, positions) for i in ids) for f in facts)/len(facts) if facts else None
++        hit_ids = [h['memory_id'] for h in hits]
++        relevant = [any(_supports(pool[i], f, positions) for f in facts) for i in hit_ids]
++        row.update(hit_at_k=int(any(relevant)), fact_recall_at_k=coverage(hit_ids),
++            mrr=next((1/(i+1) for i, yes in enumerate(relevant) if yes), 0.0),
++            candidate_fact_coverage=coverage([h['memory_id'] for h in diagnostic['merged_candidates']]),
++            full_pre_cap_fact_coverage=coverage([h['memory_id'] for h in diagnostic['merged_before_cap']]),
++            legal_history_fact_coverage=coverage(pool), visible_fact_recall=coverage(row['selected_ids']),
++            unique_before_topk=len(diagnostic['merged_candidates']),
++            unique_before_cap=len(diagnostic['merged_before_cap']),
++            duplicate_hits_before_topk=row['retrieval']['trace']['duplicate_hit_count'])
++        exceptions = [f for f in facts if any(w in f.get('label','').casefold()
++            for w in ('conditional', 'exception', 'not a purchased', 'in-network maximum'))]
++        row['exception_facts_covered'] = sum(any(_supports(pool[i], f, positions) for i in hit_ids) for f in exceptions)
++        row['exception_facts_total'] = len(exceptions)
++        # 短表面形式在其他情景出现只作碰撞提示，不冒充完整语义错误率。
++        row['cross_scenario_surface_collisions'] = sum(
++            bool({s['conversation_id'] for s in f.get('sources', [])})
++            and _matches(_text(pool[i]), f)
++            and not ({s['conversation_id'] for s in f.get('sources', [])} & {positions[r][0] for r in pool[i].evidence_refs})
++            for f in facts for i in hit_ids)
++        row['semantic_wrong_scenario_rate'] = 'NOT_RUN'
++        row['fact_matches'] = [dict(fact_id=f.get('fact_id', f'f{n}'),
++            hit_ids=[i for i in hit_ids if _supports(pool[i], f, positions)],
++            visible_ids=[i for i in row['selected_ids'] if _supports(pool[i], f, positions)])
++            for n, f in enumerate(facts, 1)]
++    original = {m.id:m for m in memory.records(context, as_of=query.as_of, scenario_ids=[])}
++    attribution = _diagnose(facts, original, groups['A']['retrieval'], groups['A']['selected_ids'], positions, source_messages)
++    return dict(case_id=case['test_id'], category=case['category'], question=case['user_question'],
++        input_history_sha256=sha256(encoded(history)).hexdigest(), as_of=query.as_of.isoformat(),
++        gold_fact_count=len(facts), groups=groups, raw_fact_attribution=attribution,
++        cards=[c.model_dump(mode='json') for c in cards],
++        source_episodes=[m.model_dump(mode='json') for m in original.values()])
+--- /dev/null
++++ b/tests/fixtures/memory_v02_holdout.json
+@@ -0,0 +1,481 @@
++{
++  "protocol": "v02 independent source-fact test, not full task quality",
++  "annotator": "executing agent source review; not independent human approval",
++  "frozen_before_search": true,
++  "selection_rule": "first two unannotated files per layer in lexical order, before v02 search",
++  "cases": {
++    "layer1_05_internet_service": {
++      "required_facts": [
++        {
++          "fact_id": "layer1_05_internet_service:f1",
++          "label": "Internet account identifier",
++          "variants": [
++            "VEL-89923476"
++          ],
++          "sources": [
++            {
++              "conversation_id": "internet_setup_001",
++              "message_index": 77,
++              "role": "assistant",
++              "timestamp": "2024-11-08 11:00:00",
++              "start": 27,
++              "end": 39,
++              "quote": "VEL-89923476",
++              "message_sha256": "c8b7d880664f4f22d67427e24cfcd21394128a9e066feea9346464d1a57ba1ed"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer1/05_internet_service_setup.yaml",
++      "source_sha256": "174c77859863095c43045ceda2159113eefe7f1c66614da53e1ebf49dfdcc51f"
++    },
++    "layer1_06_credit_card_app": {
++      "required_facts": [
++        {
++          "fact_id": "layer1_06_credit_card_app:f1",
++          "label": "New credit card identifier",
++          "variants": [
++            "5524-8897-2234-4001"
++          ],
++          "sources": [
++            {
++              "conversation_id": "credit_card_app_001",
++              "message_index": 93,
++              "role": "assistant",
++              "timestamp": "2024-11-06 13:20:00",
++              "start": 74,
++              "end": 93,
++              "quote": "5524-8897-2234-4001",
++              "message_sha256": "368dc1fe532af659fd0a1021ca496ab6c2ed1a105210d762cea5c08629f046c3"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer1/06_credit_card_application.yaml",
++      "source_sha256": "acaa9f23bfb20fc6aaf950c29886004fdaecaf10dd80ba969832b219f3abc924"
++    },
++    "layer2_02_multiple_properties": {
++      "required_facts": [
++        {
++          "fact_id": "layer2_02_multiple_properties:f1",
++          "label": "Primary property policy",
++          "variants": [
++            "HO-558847291"
++          ],
++          "sources": [
++            {
++              "conversation_id": "primary_home_insurance_001",
++              "message_index": 65,
++              "role": "assistant",
++              "timestamp": "2024-09-12 11:00:00",
++              "start": 38,
++              "end": 50,
++              "quote": "HO-558847291",
++              "message_sha256": "0173aeb7bab7737c9f3456a6dc23c3564c52638f80dd0dd80ee366ae5fc071a6"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_02_multiple_properties:f2",
++          "label": "Chicago property policy",
++          "variants": [
++            "HO-558897435"
++          ],
++          "sources": [
++            {
++              "conversation_id": "rental_property_insurance_002",
++              "message_index": 87,
++              "role": "assistant",
++              "timestamp": "2024-10-28 15:30:00",
++              "start": 48,
++              "end": 60,
++              "quote": "HO-558897435",
++              "message_sha256": "d8ab9274754c753c868c11123080970eb0ec44cb359f1378b4b3de1c2f5598a8"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_02_multiple_properties:f3",
++          "label": "Primary water backup coverage",
++          "variants": [
++            "$10,000"
++          ],
++          "sources": [
++            {
++              "conversation_id": "primary_home_insurance_001",
++              "message_index": 59,
++              "role": "assistant",
++              "timestamp": "2024-09-12 11:00:00",
++              "start": 79,
++              "end": 86,
++              "quote": "$10,000",
++              "message_sha256": "46183449b8058548a22e1f7e21103012b87036bebb31941b42fa58db2f65b52e"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_02_multiple_properties:f4",
++          "label": "Primary chosen deductible",
++          "variants": [
++            "$1,000"
++          ],
++          "sources": [
++            {
++              "conversation_id": "primary_home_insurance_001",
++              "message_index": 56,
++              "role": "user",
++              "timestamp": "2024-09-12 11:00:00",
++              "start": 13,
++              "end": 19,
++              "quote": "$1,000",
++              "message_sha256": "36cb5d186572918db45be78961f285ee0b203c8f2b033aed0980a5beb4a3fc99"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_02_multiple_properties:f5",
++          "label": "Rental water backup recommendation, not a purchased coverage assertion",
++          "variants": [
++            "water backup coverage is smart"
++          ],
++          "sources": [
++            {
++              "conversation_id": "rental_property_insurance_002",
++              "message_index": 55,
++              "role": "assistant",
++              "timestamp": "2024-10-28 15:30:00",
++              "start": 32,
++              "end": 62,
++              "quote": "water backup coverage is smart",
++              "message_sha256": "c1a3fc68445d3d91f03c73246dd4ebf56ae19cd5c9c71c0be440e543ddf232e8"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer2/02_multiple_properties.yaml",
++      "source_sha256": "0a61112e0926d7f010865e231e0990936966c8b25c57fc7ba89bed1c289eb5f0"
++    },
++    "layer2_04_multiple_subscriptions": {
++      "required_facts": [
++        {
++          "fact_id": "layer2_04_multiple_subscriptions:f1",
++          "label": "Current Netflix monthly price",
++          "variants": [
++            "$22.99"
++          ],
++          "sources": [
++            {
++              "conversation_id": "netflix_support_001",
++              "message_index": 3,
++              "role": "assistant",
++              "timestamp": "2024-09-15 14:00:00",
++              "start": 79,
++              "end": 85,
++              "quote": "$22.99",
++              "message_sha256": "15199bf3964fc2b848bbb593950d593770500ca19181a84b76bc015a9258bb5a"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_04_multiple_subscriptions:f2",
++          "label": "Current Disney Bundle monthly price",
++          "variants": [
++            "$19.99"
++          ],
++          "sources": [
++            {
++              "conversation_id": "disney_support_001",
++              "message_index": 5,
++              "role": "assistant",
++              "timestamp": "2024-10-22 10:30:00",
++              "start": 44,
++              "end": 50,
++              "quote": "$19.99",
++              "message_sha256": "a199d2ff6cb24bfbf87c3ed54fbbd8f94c315dcb4b20a3113a38433b66e8f049"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_04_multiple_subscriptions:f3",
++          "label": "Current Max monthly price",
++          "variants": [
++            "$19.99"
++          ],
++          "sources": [
++            {
++              "conversation_id": "hbo_support_001",
++              "message_index": 5,
++              "role": "assistant",
++              "timestamp": "2024-11-10 16:15:00",
++              "start": 61,
++              "end": 67,
++              "quote": "$19.99",
++              "message_sha256": "eecf89a84aa4c1b916ade79e9efcd8ad03bd28315dc6de82bfa3ed14c12bd154"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_04_multiple_subscriptions:f4",
++          "label": "Netflix Standard alternative",
++          "variants": [
++            "$15.49"
++          ],
++          "sources": [
++            {
++              "conversation_id": "netflix_support_001",
++              "message_index": 7,
++              "role": "assistant",
++              "timestamp": "2024-09-15 14:00:00",
++              "start": 20,
++              "end": 26,
++              "quote": "$15.49",
++              "message_sha256": "8b10304d10be4ba5125a361b4e24150e2c952d1e8ff62dc93c6e73447b66db5a"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_04_multiple_subscriptions:f5",
++          "label": "Conditional T-Mobile benefit",
++          "variants": [
++            "usually covers Standard with ads"
++          ],
++          "sources": [
++            {
++              "conversation_id": "netflix_support_001",
++              "message_index": 69,
++              "role": "assistant",
++              "timestamp": "2024-09-15 14:00:00",
++              "start": 9,
++              "end": 41,
++              "quote": "usually covers Standard with ads",
++              "message_sha256": "b7fb9d61487ec062cc329122df334a134c4c4d86b8381cbf4705239a7b106f9a"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_04_multiple_subscriptions:f6",
++          "label": "Conditional Verizon benefit",
++          "variants": [
++            "Some Verizon unlimited plans include Max Standard"
++          ],
++          "sources": [
++            {
++              "conversation_id": "hbo_support_001",
++              "message_index": 43,
++              "role": "assistant",
++              "timestamp": "2024-11-10 16:15:00",
++              "start": 0,
++              "end": 49,
++              "quote": "Some Verizon unlimited plans include Max Standard",
++              "message_sha256": "6bfdbb7a537e79705197a04a63526f60038355879d49bbc67de95f9163538ba2"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer2/04_multiple_subscriptions.yaml",
++      "source_sha256": "4bab8c6db36385f5886ca76ffea2c925ffe3cc29c475f58b112e3d6b840c1266"
++    },
++    "layer3_02_medical_insurance_coordination": {
++      "required_facts": [
++        {
++          "fact_id": "layer3_02_medical_insurance_coordination:f1",
++          "label": "Historical pending surgery authorization; not proof of present status",
++          "variants": [
++            "I don't see it yet"
++          ],
++          "sources": [
++            {
++              "conversation_id": "orthopedic_consultation_002",
++              "message_index": 25,
++              "role": "assistant",
++              "timestamp": "2024-11-20 14:30:00",
++              "start": 16,
++              "end": 34,
++              "quote": "I don't see it yet",
++              "message_sha256": "b4f7f3a3e282e9d68f8b1f4f942168e0282d3f7169ed9eb82c8783d765c26c37"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_02_medical_insurance_coordination:f2",
++          "label": "Pre-op schedule",
++          "variants": [
++            "November 28th at 2 PM"
++          ],
++          "sources": [
++            {
++              "conversation_id": "orthopedic_consultation_002",
++              "message_index": 67,
++              "role": "assistant",
++              "timestamp": "2024-11-20 14:30:00",
++              "start": 36,
++              "end": 57,
++              "quote": "November 28th at 2 PM",
++              "message_sha256": "0198bc57ee46351369e7ba0c0b4800b8932ee360f4022c668d13f42fb10a5912"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_02_medical_insurance_coordination:f3",
++          "label": "Individual in-network maximum, not an unrestricted maximum",
++          "variants": [
++            "$4,000"
++          ],
++          "sources": [
++            {
++              "conversation_id": "insurance_enrollment_001",
++              "message_index": 11,
++              "role": "assistant",
++              "timestamp": "2024-01-15 10:00:00",
++              "start": 22,
++              "end": 28,
++              "quote": "$4,000",
++              "message_sha256": "eb61a1cdbb1ee508434b0caec425f28826b0bbb43aa8b2c804dd581c51e152ec"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_02_medical_insurance_coordination:f4",
++          "label": "Anesthesia network",
++          "variants": [
++            "in-network with BlueCross PPO"
++          ],
++          "sources": [
++            {
++              "conversation_id": "anesthesia_billing_003",
++              "message_index": 11,
++              "role": "assistant",
++              "timestamp": "2024-11-22 16:00:00",
++              "start": 18,
++              "end": 47,
++              "quote": "in-network with BlueCross PPO",
++              "message_sha256": "27f8e8a2d21f9a3f99ce58e12a31327e95c955593a30e2602801346906eca805"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_02_medical_insurance_coordination:f5",
++          "label": "Anesthesia preventive offer, not medical guidance",
++          "variants": [
++            "anti-nausea medication preventively"
++          ],
++          "sources": [
++            {
++              "conversation_id": "anesthesia_billing_003",
++              "message_index": 73,
++              "role": "assistant",
++              "timestamp": "2024-11-22 16:00:00",
++              "start": 17,
++              "end": 52,
++              "quote": "anti-nausea medication preventively",
++              "message_sha256": "c1f4cf2ecbe3e0b87cee15889d5ab38742e44fb9d0e23968c58dfa5940c56fd1"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer3/02_medical_insurance_coordination.yaml",
++      "source_sha256": "57b267fdb42f91e6460d79552e422a32cd2a56a7d6c1cc804d106f1928c689eb"
++    },
++    "layer3_03_home_purchase_coordination": {
++      "required_facts": [
++        {
++          "fact_id": "layer3_03_home_purchase_coordination:f1",
++          "label": "Preapproval expiry",
++          "variants": [
++            "November 20th, 2024"
++          ],
++          "sources": [
++            {
++              "conversation_id": "mortgage_preapproval_001",
++              "message_index": 57,
++              "role": "assistant",
++              "timestamp": "2024-08-20 11:00:00",
++              "start": 15,
++              "end": 34,
++              "quote": "November 20th, 2024",
++              "message_sha256": "c3bee8eb4451b3fb0a619e010686df158a6285b892959f53a90470cad24d03e1"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_03_home_purchase_coordination:f2",
++          "label": "Gift documentation requirement",
++          "variants": [
++            "gift letter"
++          ],
++          "sources": [
++            {
++              "conversation_id": "mortgage_preapproval_001",
++              "message_index": 9,
++              "role": "assistant",
++              "timestamp": "2024-08-20 11:00:00",
++              "start": 86,
++              "end": 97,
++              "quote": "gift letter",
++              "message_sha256": "fdbce31ff4f064da671f5e8a15158407d9815e23c31c332ae6207c8ee5671b52"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_03_home_purchase_coordination:f3",
++          "label": "Insurance proof deadline",
++          "variants": [
++            "December 13th"
++          ],
++          "sources": [
++            {
++              "conversation_id": "moving_company_quote_003",
++              "message_index": 49,
++              "role": "assistant",
++              "timestamp": "2024-11-18 10:00:00",
++              "start": 37,
++              "end": 50,
++              "quote": "December 13th",
++              "message_sha256": "34e0259200fcc7df8e4ac526f89ea0fd9122a464a40de218577b3b17d135a21f"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_03_home_purchase_coordination:f4",
++          "label": "Mover confirmation",
++          "variants": [
++            "ALV-122124"
++          ],
++          "sources": [
++            {
++              "conversation_id": "moving_company_quote_003",
++              "message_index": 87,
++              "role": "assistant",
++              "timestamp": "2024-11-18 10:00:00",
++              "start": 67,
++              "end": 77,
++              "quote": "ALV-122124",
++              "message_sha256": "a558c77209636114e704cddc33ffe5132af06ab578f5f04d1320b473e2bdc686"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_03_home_purchase_coordination:f5",
++          "label": "Mover exception condition",
++          "variants": [
++            "contingent on closing"
++          ],
++          "sources": [
++            {
++              "conversation_id": "moving_company_quote_003",
++              "message_index": 87,
++              "role": "assistant",
++              "timestamp": "2024-11-18 10:00:00",
++              "start": 23,
++              "end": 44,
++              "quote": "contingent on closing",
++              "message_sha256": "a558c77209636114e704cddc33ffe5132af06ab578f5f04d1320b473e2bdc686"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer3/03_home_purchase_coordination.yaml",
++      "source_sha256": "46112c8b897510081c84edb0c678d7f2414cf5116554850f257797c388cc44ef"
++    }
++  }
++}
+\ No newline at end of file
+--- /dev/null
++++ b/tests/unit/test_memory_cards.py
+@@ -0,0 +1,110 @@
++from datetime import timedelta
++
++import pytest
++
++from min_agent.long_memory import Query
++from min_agent.long_memory.cards import build_cards, CardView, entity_hits
++from min_agent.long_memory.evaluation import build_approved_fixture
++from min_agent.long_memory.retrieval import search
++
++
++def fixture():
++    case = dict(test_id='card-synthetic', category='test', user_question='UNSEEN_QUESTION',
++        expected_behavior='GOLD_CANARY', conversation_histories=[dict(conversation_id='atlas',
++        timestamp='2026-01-01T00:00:00Z', metadata={'business': 'Atlas Payments (AP)'}, messages=[
++            {'role': 'assistant', 'content': 'What is your account number?'},
++            {'role': 'user', 'content': 'ATLAS-42'},
++            {'role': 'assistant', 'content': 'The result is uncertain; do not treat it as verified.'}]),
++        dict(conversation_id='other', timestamp='2026-02-01T00:00:00Z', messages=[
++            {'role': 'user', 'content': 'ATLAS-42'}])])
++    return build_approved_fixture(case, approval='approved_fixture')
++
++
++def test_cards_keep_context_role_evidence_and_independent_scenario_ids():
++    memory, ctx, info = fixture()
++    with pytest.raises(PermissionError): build_cards(memory, ctx, approval='automatic')
++    cards = build_cards(memory, ctx, approval='approved_fixture')
++    assert len(cards) == 4 and len({c.memory_id for c in cards}) == 4
++    replies = [c for c in cards if c.content.endswith('ATLAS-42')]
++    assert len(replies) == 2 and replies[0].scenario != replies[1].scenario
++    assert 'What is your account number?' in replies[0].content
++    assert len(replies[0].evidence_refs) == 2
++    assert all('GOLD_CANARY' not in c.model_dump_json() for c in cards)
++    assert cards[0].evidence_type == 'INFERRED' and cards[0].confirmation_status == 'confirmed_fixture'
++    assert len(memory.document(ctx).memories) == 4  # 卡片不反写权威层。
++
++
++def test_card_view_filters_future_foreign_expired_and_withdrawn_sources():
++    memory, ctx, info = fixture()
++    cards = build_cards(memory, ctx, approval='approved_fixture')
++    at = info['last_time'] - timedelta(days=1)
++    view = CardView(memory, ctx, cards)
++    query = Query(text='ATLAS', as_of=at)
++    result = search(view, ctx, query, extra_hits=entity_hits(view, ctx, query))
++    assert all(h['memory_id'] != cards[-1].memory_id for h in result['hits'])
++    bad = cards[1].model_copy(update={'user_id': 'foreign'})
++    assert bad.memory_id not in {m.id for m in CardView(memory, ctx, [bad]).records(ctx, as_of=at)}
++    from min_agent.task_state import TaskController, GoalSpec
++    controller = TaskController(memory.sessions)
++    proposal = controller.propose(ctx, GoalSpec(objective='删除测试记忆', completion_criteria=('撤回指定记录',)))
++    controller.confirm(ctx, proposal.proposal_id)
++    controller.select_mode(ctx, 'build')
++    memory.delete(ctx, cards[1].memory_id)
++    assert cards[1].memory_id not in {m.id for m in view.records(ctx, as_of=at)}
++
++
++def test_explicit_alias_is_structured_path_without_gold_and_dedup_before_topk():
++    memory, ctx, info = fixture()
++    view = CardView(memory, ctx, build_cards(memory, ctx, approval='approved_fixture'))
++    query = Query(text='AP', as_of=info['last_time'], top_k=8)
++    hits = entity_hits(view, ctx, query)
++    assert hits and all(h.source == 'structured_entity_alias' for h in hits)
++    result = search(view, ctx, query, extra_hits=hits)
++    assert len({h['memory_id'] for h in result['hits']}) == len(result['hits'])
++
++
++def test_pending_card_and_changed_source_fingerprint_are_not_searchable():
++    memory, ctx, info = fixture()
++    cards = build_cards(memory, ctx, approval='approved_fixture')
++    pending = cards[1].model_copy(update={'confirmation_status': 'pending'})
++    stale = cards[0].model_copy(update={'source_sha256': '0'*64})
++    view = CardView(memory, ctx, [pending, stale])
++    assert view.records(ctx, as_of=info['last_time']) == []
++    with pytest.raises(ValueError):
++        CardView(memory, ctx, [cards[0], cards[0]])
++
++
++def test_sidecar_respects_parent_expiry_scene_and_owner_even_with_alias_matches():
++    memory, ctx, info = fixture()
++    from uuid import uuid4
++    from min_agent.sessions import SessionStore
++    other = memory.sessions.create(uuid4())
++    cards = build_cards(memory, ctx, approval='approved_fixture')
++    view = CardView(memory, ctx, cards)
++    with pytest.raises(PermissionError):
++        view.records(other, as_of=info['last_time'])
++    parent_id = cards[1].memory_id
++    def scope_source(doc, now):
++        old = doc.memories[parent_id][-1]
++        doc.memories[parent_id][-1] = old.model_copy(update={
++            'valid_until': old.effective_from + timedelta(days=2), 'scenario_ids': ['scene-A']})
++    memory._write(ctx, scope_source)  # 受控 Fixture 元数据，不是生产写入口。
++    view = CardView(memory, ctx, build_cards(memory, ctx, approval='approved_fixture'))
++    assert parent_id not in {m.id for m in view.records(ctx, as_of=info['last_time'], scenario_ids=['scene-A'])}
++    at = cards[1].valid_time.start + timedelta(days=1)
++    assert parent_id not in {m.id for m in view.records(ctx, as_of=at, scenario_ids=['scene-B'])}
++    assert parent_id in {m.id for m in view.records(ctx, as_of=at, scenario_ids=['scene-A'])}
++
++
++def test_source_withdrawal_also_removes_neighbor_context_projection():
++    memory, ctx, info = fixture()
++    cards = build_cards(memory, ctx, approval='approved_fixture')
++    view = CardView(memory, ctx, cards)
++    from min_agent.task_state import TaskController, GoalSpec
++    controller = TaskController(memory.sessions)
++    proposal = controller.propose(ctx, GoalSpec(objective='撤回上下文来源', completion_criteria=('撤回指定记录',)))
++    controller.confirm(ctx, proposal.proposal_id)
++    controller.select_mode(ctx, 'build')
++    memory.delete(ctx, cards[0].memory_id)
++    available = {m.id for m in view.records(ctx, as_of=info['last_time'])}
++    assert cards[0].memory_id not in available and cards[1].memory_id not in available
+--- /dev/null
++++ b/tests/unit/test_memory_recall_projection.py
+@@ -0,0 +1,22 @@
++from min_agent.memory import MemoryJournal
++from min_agent.models import Message
++from min_agent.sessions import SessionStore
++
++
++def test_recall_is_explicit_preview_with_full_hash_checked_source_still_readable():
++    from uuid import uuid4
++    sessions = SessionStore()
++    context = sessions.create(uuid4())
++    task = sessions.begin(context)
++    original = '周报：' + 'background ' * 220 + '不要删除原文'
++    sessions.append(context, task.task_id, [Message(role='user', content=original)])
++    sessions.finish(context, task.task_id, status='completed')
++    journal = MemoryJournal(sessions, context)
++    before = journal.select('周报')
++    result = journal.recall('周报')
++    assert len(result[0]['events'][0]['text']) <= 96
++    assert result[0]['events'][0]['truncated'] is True
++    assert 'summary' not in result[0] and 'messages' not in result[0]
++    assert result[0]['events'][0]['verified'] is False
++    assert journal.read_source(result[0]['events'][0]['source'])['text'] == original
++    assert before == journal.select('周报')
+--- /dev/null
++++ b/tests/unit/test_memory_retrieval_diagnostics.py
+@@ -0,0 +1,27 @@
++from min_agent.long_memory import Query
++from min_agent.long_memory.retrieval import search
++from test_long_memory_store import setup_memory, candidate, commit
++
++
++def test_offline_full_pool_preserves_production_hits_and_exposes_pre_topk_ranks():
++    _, context, clock, memory = setup_memory()
++    ids = [commit(memory, context, memory.propose(context, f'Python example {i}', source_indices=[0])).id for i in range(12)]
++    query = Query(text='Python', as_of=clock.now, top_k=2, max_candidates=5)
++    ordinary = search(memory, context, query)
++    inspected = search(memory, context, query, inspect=True)
++    assert inspected['hits'] == ordinary['hits']
++    detail = inspected['diagnostic']
++    assert set(detail['eligible_ids']) == set(ids)
++    assert len(detail['merged_before_cap']) == 12
++    assert len(detail['merged_candidates']) == 5
++    assert len(detail['raw_hits']) == 12
++    assert 'diagnostic' not in ordinary
++
++
++def test_inspection_never_expands_authority_or_scene_filters():
++    _, context, clock, memory = setup_memory()
++    scene = memory.register_scenario(context, 'private-context')
++    item = commit(memory, context, candidate(memory, context, scenario_ids=[scene.id]))
++    result = search(memory, context, Query(text='Python', as_of=clock.now), inspect=True)
++    assert item.id not in result['diagnostic']['eligible_ids']
++    assert not result['hits']
+--- /dev/null
++++ b/tests/unit/test_memory_retrieval_experiment.py
+@@ -0,0 +1,30 @@
++from min_agent.long_memory.retrieval_experiment import compare_case
++
++
++def case():
++    return dict(test_id='isolation-synthetic', category='synthetic', user_question='account number',
++        expected_behavior='GOLD_SENTINEL', conversation_histories=[dict(conversation_id='only',
++        timestamp='2026-01-01T00:00:00Z', messages=[
++            {'role': 'assistant', 'content': 'What is your account number?'},
++            {'role': 'user', 'content': 'ATLAS-42'}])])
++
++
++def test_same_scope_budget_topk_and_posthoc_only_gold():
++    before = compare_case(case(), gold=['ATLAS-42'], budget=2048)
++    after = compare_case(case(), gold=['OTHER_GOLD_SENTINEL'], budget=2048)
++    for group in ('A', 'B', 'C'):
++        left, right = before['groups'][group], after['groups'][group]
++        assert left['retrieval'] == right['retrieval']
++        assert left['selected_ids'] == right['selected_ids']
++        assert left['context_bytes'] <= 2048
++        assert left['top_k'] == 8 and left['model_task_quality'] == 'NOT_RUN'
++    assert before['groups']['B']['candidate_fact_coverage'] == 1
++    assert before['groups']['A']['candidate_fact_coverage'] == 0
++    assert before['input_history_sha256'] == after['input_history_sha256']
++
++
++def test_budget_failure_is_separate_from_retrieval_failure():
++    result = compare_case(case(), gold=['ATLAS-42'], budget=0)
++    assert result['groups']['B']['fact_recall_at_k'] == 1
++    assert result['groups']['B']['visible_fact_recall'] == 0
++    assert result['groups']['B']['context_bytes'] == 0

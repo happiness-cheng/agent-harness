@@ -1,0 +1,38 @@
+{
+  "base_commit": "b90f104c52cb321d7585accd1e8aa1a6758fe87a",
+  "branch": "feat/adrian-memory-v02-local",
+  "delivery_state": "local worktree changes; not committed or pushed; apply checked patch to b90f104",
+  "code_hashes": {
+    "scripts/audit_legacy_source_read_v02.py": "7285f1c1571d90d82b347f3f3d81bf90be52f8f63f448581b4eed7a699346c47",
+    "scripts/eval_memory_retrieval_v02.py": "f0d5b6046ac81785a759e539201e53795e6ef67a5ccd7b07e7d41b1994560c0a",
+    "scripts/inspect_memory_retrieval_v02.py": "f9474b62a71ca04eaa001b2e46d288462d9b1873803de4e7069d7056a303b2ec",
+    "scripts/report_memory_retrieval_v02.py": "b64672bede00c355d433a266e496c25ca8c72ef905127d43f374cc690198ffd5",
+    "src/min_agent/application.py": "60be5e532f625bb3fa426021cdab7286e48ca603186e3893e2ad7b1d9b4afe24",
+    "src/min_agent/long_memory/cards.py": "54993fe597112d29181a787bbfe29d87bbe1384cbb4389ac1d85fe6e193602fe",
+    "src/min_agent/long_memory/retrieval.py": "a0171ad0f72fc60c99aa4d499cf2234e3f035936dd14535e891b7fd80442c383",
+    "src/min_agent/long_memory/retrieval_experiment.py": "3c3651a4b95f91a24b30d4547fac159357aff29010765afc76e21e2c42dbf6bc",
+    "src/min_agent/memory.py": "55f81c4332f3f5613c0d27fd7e9a7aa9e7edfb57c01fbbe8705de8edec4c54cf",
+    "tests/fixtures/memory_v02_holdout.json": "5771618d056d6e32b8635d32152079edaa3c7c784eb002964140fcb9dbcd6a5e",
+    "tests/unit/test_memory_cards.py": "189a49a08898ae45253d00779324bb07326329b6e8648fe27c18c3ca1c02400a",
+    "tests/unit/test_memory_recall_projection.py": "7bb0cf1f9270a7a28195727568b9b032a847b87ccca4e904f249f2c8517710e7",
+    "tests/unit/test_memory_retrieval_diagnostics.py": "00b54d89de2ad5d7455800e7d6ee4a774df6683c1f392b2a4c0f8301f5927196",
+    "tests/unit/test_memory_retrieval_experiment.py": "dbdc61bbf7d9f2ec2fdad76d03ca1142cb6bd27c8704f3d0a1c6bcdd7d4b3750"
+  },
+  "experiment_code_still_identical": true,
+  "post_experiment_changes": "added reporting/inspection/audit scripts, tests and docs only; measured retrieval/card/evaluation sources unchanged",
+  "source_archive_sha256": "95b5be50b8f17e07b2693c77022c03e517862120adbd21f4c7157f078092bd49",
+  "patch_sha256": "ee95b202e419a72aefe8e3fa17e5f78452b3bcaac973a584176a2e03260ef59e",
+  "wheel_sha256": "2b2d5d05e4b2f83c40a262a83a5a3ccdcaac88d03c0aca7b7a45533fdba1e89f",
+  "wheel_python_files_checked": 61,
+  "patches_apply_to_b90f104": true,
+  "external_calls": 0,
+  "private_imports": 0,
+  "type_checker": "NOT_RUN",
+  "linter": "NOT_RUN",
+  "optional_tools": {
+    "ruff": false,
+    "mypy": false
+  },
+  "tests": "1187 passed, 3 deselected, 1 warning",
+  "version_audit": "version-audit.json"
+}

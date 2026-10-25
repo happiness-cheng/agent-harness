@@ -1,0 +1,20 @@
+{
+  "old-recall-shape": {
+    "existing_integration_test_passed": false,
+    "request_bounds_including_reserves": [
+      27970,
+      27970
+    ],
+    "window": 32768
+  },
+  "new-recall-shape": {
+    "existing_integration_test_passed": true,
+    "request_bounds_including_reserves": [
+      27970,
+      27970,
+      32745,
+      32745
+    ],
+    "window": 32768
+  }
+}

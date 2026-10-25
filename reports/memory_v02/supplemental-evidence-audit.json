@@ -1,0 +1,163 @@
+{
+  "case_id": "layer2_03_multiple_credit_cards",
+  "fact": "Amex Gold / Amex Gold Card",
+  "semantic_history_support": "cross-message entity association supported by the listed original quotes; original literal Gold unchanged",
+  "retrieval_input_changed": false,
+  "sources": [
+    {
+      "episode_id": "c10f22bc-3eea-593d-943e-6596a2b5caf8",
+      "evidence_refs": [
+        "0b3a7541-1b84-5144-9ba8-2c4b778a8526"
+      ],
+      "conversation_id": "amex_application_002",
+      "observed_at": "2024-11-10T10:30:00Z",
+      "text": "Good morning! I'm Diana from American Express. I'd be happy to help you find the perfect travel card. Are you familiar with our travel cards?",
+      "quote_span": [
+        0,
+        141
+      ],
+      "source_sha256": "46143b44e1aac3df5dfbede30d986991ee5dd032ee940a20185bf9f91301b2eb",
+      "rank": 9,
+      "score": 0.2778142374602091,
+      "paths": [
+        {
+          "source": "global_fts5_bm25",
+          "topic_id": null,
+          "score": 0.2778142374602091
+        }
+      ],
+      "final_top_k": false,
+      "message_index": 1
+    },
+    {
+      "episode_id": "e20cf32c-7df0-52e9-bf7d-abadd1fc3400",
+      "evidence_refs": [
+        "1e62568d-dec9-522f-8011-2e518e1fd371"
+      ],
+      "conversation_id": "amex_application_002",
+      "observed_at": "2024-11-10T10:30:00Z",
+      "text": "We have several excellent options. Our most popular are the Gold Card and the Platinum Card. May I ask how much you typically spend on travel annually?",
+      "quote_span": [
+        0,
+        151
+      ],
+      "source_sha256": "3589fe588595b0a8c521d8b7838f3fc156ff6e6a173e64bf461f717887378d33",
+      "rank": 38,
+      "score": 0.18962916176335426,
+      "paths": [
+        {
+          "source": "global_fts5_bm25",
+          "topic_id": null,
+          "score": 0.18962916176335426
+        }
+      ],
+      "final_top_k": false,
+      "message_index": 3
+    },
+    {
+      "episode_id": "d72ea585-b5bd-5d5e-8f22-90a0edd5766a",
+      "evidence_refs": [
+        "aa662783-eb9c-5da8-9bec-d410a3555e59"
+      ],
+      "conversation_id": "amex_application_002",
+      "observed_at": "2024-11-10T10:30:00Z",
+      "text": "The Gold Card might be perfect for you. It earns 4x points on restaurants and groceries, 3x on flights.",
+      "quote_span": [
+        0,
+        103
+      ],
+      "source_sha256": "a533a0011819244f4d389f775b5a7b41b3f12b1b9dd34457df0c9028cd04ee2b",
+      "rank": 87,
+      "score": 0.13549060093829668,
+      "paths": [
+        {
+          "source": "global_fts5_bm25",
+          "topic_id": null,
+          "score": 0.13549060093829668
+        }
+      ],
+      "final_top_k": false,
+      "message_index": 7
+    },
+    {
+      "episode_id": "4bd54a15-dc51-5346-9fd5-d2441425a013",
+      "evidence_refs": [
+        "cb591991-b497-5775-8b28-7cff0d9af802"
+      ],
+      "conversation_id": "amex_application_002",
+      "observed_at": "2024-11-10T10:30:00Z",
+      "text": "I don't fly enough for that. Let's go with the Gold Card.",
+      "quote_span": [
+        0,
+        57
+      ],
+      "source_sha256": "d4e8c150facf350d5d4a721f8bccff4c743d3904c31981c7fbbea05bc2884cca",
+      "rank": 95,
+      "score": 0.12359238343689383,
+      "paths": [
+        {
+          "source": "global_fts5_bm25",
+          "topic_id": null,
+          "score": 0.12359238343689383
+        }
+      ],
+      "final_top_k": false,
+      "message_index": 16
+    },
+    {
+      "episode_id": "3d478724-7ffe-583a-b346-393ef70912da",
+      "evidence_refs": [
+        "c4e81554-ab4f-5a83-a6c5-4c89ff2aa8f8"
+      ],
+      "conversation_id": "amex_application_002",
+      "observed_at": "2024-11-10T10:30:00Z",
+      "text": "Let me process this... Congratulations! You're approved for the Gold Card with a $15,000 credit limit.",
+      "quote_span": [
+        0,
+        102
+      ],
+      "source_sha256": "472002abc8cc05ed8071e7887a343dc7862855f5abb76d103054cf9f8c3ddc2f",
+      "rank": 88,
+      "score": 0.1349029325048859,
+      "paths": [
+        {
+          "source": "global_fts5_bm25",
+          "topic_id": null,
+          "score": 0.1349029325048859
+        }
+      ],
+      "final_top_k": false,
+      "message_index": 35
+    },
+    {
+      "episode_id": "7f65ef0a-3427-58ab-8ada-3964649310f4",
+      "evidence_refs": [
+        "fb5ab884-1381-5062-b3d6-13a2e0e71bea"
+      ],
+      "conversation_id": "fraud_alert_003",
+      "observed_at": "2024-11-18T09:15:00Z",
+      "text": "Right, my Gold Card. That's fine.",
+      "quote_span": [
+        0,
+        33
+      ],
+      "source_sha256": "ec005d360eb047b9936e2ebbefd35f7900905a8faa85325381f6c9475ae596e5",
+      "rank": 117,
+      "score": 0.0836202121653738,
+      "paths": [
+        {
+          "source": "global_fts5_bm25",
+          "topic_id": null,
+          "score": 0.0836202121653738
+        }
+      ],
+      "final_top_k": false,
+      "message_index": 66
+    }
+  ],
+  "unsupported_fact": {
+    "case_id": "layer3_04_warranty_coordination",
+    "fact": "600-800 / 600",
+    "source": "evaluation_criteria only; no supporting historical Episode"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "abc-fixed.json.gz": "cd4638e57e844fc30dafb4270af03eff2f503b70bfb23f56102aa28ed6a53bf0",
+  "abc-run.txt": "c30b83f3de300e8f5429e024efc293035222a95ef8b326fa717e6ce22f111602",
+  "baseline.json": "ccfa2015be4c55722fdee47954482b4878dd54bcc063cf472c2dd44d2c109b43",
+  "build.txt": "730f55da4452f4f0b93a67db79998928b616da9613767e4c68fe7ad560af178a",
+  "delivery-receipt.json": "2dabdc71fdb703aed482b7657b38ef68c9cba127ef9682826d5721cc706d9ca8",
+  "derived-metrics.json": "11a22b619f9c34382fad7f2ca7094f1455c189610e61f0e7f12e36e907c60760",
+  "evaluation_v02.md": "33608c2dc3e4ff817e967a1324717ee064ea88252a76a0b9ad4959d37d7b32f0",
+  "focused-tests.txt": "bd0de03ef3a74600e01527cb4c0b84eb31e5abc9f05512a665fd21966b3ae6e1",
+  "full-regression.txt": "2edf435c4f10e339fa0771ee3e68bd09ae3447e66fb15c0f8a1bf91300fec246",
+  "gold-audit-notes.md": "31ad99842d3d6cef16a03ff2b6df4ba60b529446b7ba76fd49b0330f0e0d1d01",
+  "implementation.patch": "ee95b202e419a72aefe8e3fa17e5f78452b3bcaac973a584176a2e03260ef59e",
+  "inspection-example.json": "c352780ef3d133be30b16588c0a4f167b9d830ece19703dd9957acd48964d819",
+  "legacy-source-read-attempt-notes.md": "e9cca2d85f2e9e72279c43ba451e7e150b713e6c48683a6e7a39a68ddfa32741",
+  "legacy-source-read-verified.json": "1d00caf0acc48a40506f5f79eb11e91f5c71df34690505d8c432eba55bf4f5f0",
+  "legacy-source-read.json": "107ae83513c0b099c515854df87e86263dff62b52ec475be64cc5c299b89acca",
+  "legacy-source-read.patch": "deea71942af2d810c454e20e4553850eda1926d987662d4c96989f2443fdc024",
+  "retrieval_failure_analysis.md": "b0cf76695fb760f4ef02995792e4508282c16e7a449c6f1b4a8f64ad8a370d40",
+  "review.md": "8db0f2855fd3d2da2da69201b936e81fc14ede934be4cd7311f6a9a6642f9160",
+  "source-v02.zip": "95b5be50b8f17e07b2693c77022c03e517862120adbd21f4c7157f078092bd49",
+  "supplemental-evidence-audit.json": "bf1ff2feecd80070ab2d999c8e77f27c3fb82b64aa8596071c25837f597fe911",
+  "version-audit.json": "9f23ba0eb3d1a50330c155086279c6d36713fe120244650944c5ee1b9c1d0665"
+}

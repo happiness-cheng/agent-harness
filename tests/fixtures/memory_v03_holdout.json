@@ -1,0 +1,614 @@
+{
+  "protocol": "v03 source facts frozen before new algorithms and outputs",
+  "annotator": "executing agent raw source review, not independent expert",
+  "frozen_before_search": true,
+  "selection_rule": "first two files per layer among 46 not used in v02 diagnostic or holdout, before new retrieval outputs",
+  "cases": {
+    "layer1_07_car_rental": {
+      "required_facts": [
+        {
+          "fact_id": "layer1_07_car_rental:f1",
+          "label": "Rental confirmation",
+          "variants": [
+            "E7739482M"
+          ],
+          "sources": [
+            {
+              "conversation_id": "car_rental_001",
+              "message_index": 67,
+              "role": "assistant",
+              "timestamp": "2024-11-14 10:15:00",
+              "start": 68,
+              "end": 77,
+              "quote": "E7739482M",
+              "message_sha256": "ca30f78de7c00d238f2a02d24f2a307a061f3df2650f2332e5d31475d9a8ed81"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer1_07_car_rental:f2",
+          "label": "Corporate discount code",
+          "variants": [
+            "TC-8847"
+          ],
+          "sources": [
+            {
+              "conversation_id": "car_rental_001",
+              "message_index": 87,
+              "role": "assistant",
+              "timestamp": "2024-11-14 10:15:00",
+              "start": 145,
+              "end": 152,
+              "quote": "TC-8847",
+              "message_sha256": "f392aa93755f6136d0fc6c69771a75a81f6c50c832a44d7807e28a57c1a8be21"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer1/07_car_rental.yaml",
+      "source_sha256": "61e34951e16813a7e9e565efc4581174524c4db6509319899e55fc6b89fa72f4"
+    },
+    "layer1_08_hotel_reservation": {
+      "required_facts": [
+        {
+          "fact_id": "layer1_08_hotel_reservation:f1",
+          "label": "Hotel confirmation",
+          "variants": [
+            "HSD-445782"
+          ],
+          "sources": [
+            {
+              "conversation_id": "hotel_booking_001",
+              "message_index": 69,
+              "role": "assistant",
+              "timestamp": "2024-11-09 19:30:00",
+              "start": 70,
+              "end": 80,
+              "quote": "HSD-445782",
+              "message_sha256": "94dbc3f0f543a0ee7d7a68ee2b13af8fabf7c695d0502fb77b2b8e898598426d"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer1_08_hotel_reservation:f2",
+          "label": "Reserved room",
+          "variants": [
+            "1912"
+          ],
+          "sources": [
+            {
+              "conversation_id": "hotel_booking_001",
+              "message_index": 41,
+              "role": "assistant",
+              "timestamp": "2024-11-09 19:30:00",
+              "start": 5,
+              "end": 9,
+              "quote": "1912",
+              "message_sha256": "12f824812977d766eb35f7df71115a17736dd676cfd3fa486bdd53094ac57444"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer1/08_hotel_reservation.yaml",
+      "source_sha256": "2e6553059363498bda19cf22b38cfe006bb87d48f443756fc032812e50036173"
+    },
+    "layer2_05_multiple_bank_accounts": {
+      "required_facts": [
+        {
+          "fact_id": "layer2_05_multiple_bank_accounts:f1",
+          "label": "Checking balance",
+          "variants": [
+            "$8,456.23"
+          ],
+          "sources": [
+            {
+              "conversation_id": "chase_banking_001",
+              "message_index": 5,
+              "role": "assistant",
+              "timestamp": "2024-08-20 09:30:00",
+              "start": 57,
+              "end": 66,
+              "quote": "$8,456.23",
+              "message_sha256": "028a1ddb3e4968a140ac9fde44e0142bc59a5f458a3c94c78ed5301052d7ac7c"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_05_multiple_bank_accounts:f2",
+          "label": "Savings balance",
+          "variants": [
+            "$22,150.00"
+          ],
+          "sources": [
+            {
+              "conversation_id": "chase_banking_001",
+              "message_index": 5,
+              "role": "assistant",
+              "timestamp": "2024-08-20 09:30:00",
+              "start": 87,
+              "end": 97,
+              "quote": "$22,150.00",
+              "message_sha256": "028a1ddb3e4968a140ac9fde44e0142bc59a5f458a3c94c78ed5301052d7ac7c"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_05_multiple_bank_accounts:f3",
+          "label": "Credit card balance",
+          "variants": [
+            "$2,847.93"
+          ],
+          "sources": [
+            {
+              "conversation_id": "chase_banking_001",
+              "message_index": 17,
+              "role": "assistant",
+              "timestamp": "2024-08-20 09:30:00",
+              "start": 19,
+              "end": 28,
+              "quote": "$2,847.93",
+              "message_sha256": "9ade9c9f6030a6d08b074664debc9e27e9d563f75b5423e0644b0bd14849c25f"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_05_multiple_bank_accounts:f4",
+          "label": "Other bank savings",
+          "variants": [
+            "$45,680.00"
+          ],
+          "sources": [
+            {
+              "conversation_id": "wellsfargo_banking_001",
+              "message_index": 5,
+              "role": "assistant",
+              "timestamp": "2024-09-12 14:00:00",
+              "start": 26,
+              "end": 36,
+              "quote": "$45,680.00",
+              "message_sha256": "ff451db63c14109d34768287bc6de99486df38423b7f8e03cddbe1d8e66d9db6"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_05_multiple_bank_accounts:f5",
+          "label": "Mortgage balance",
+          "variants": [
+            "$287,543.21"
+          ],
+          "sources": [
+            {
+              "conversation_id": "wellsfargo_banking_001",
+              "message_index": 11,
+              "role": "assistant",
+              "timestamp": "2024-09-12 14:00:00",
+              "start": 25,
+              "end": 36,
+              "quote": "$287,543.21",
+              "message_sha256": "ad89c3ac8a0aaa839f13e89f7e631937c0df5b9948b71b02a4f9650cce28539a"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_05_multiple_bank_accounts:f6",
+          "label": "IRA balance",
+          "variants": [
+            "$156,892.45"
+          ],
+          "sources": [
+            {
+              "conversation_id": "fidelity_investment_001",
+              "message_index": 5,
+              "role": "assistant",
+              "timestamp": "2024-10-28 11:00:00",
+              "start": 25,
+              "end": 36,
+              "quote": "$156,892.45",
+              "message_sha256": "07f2bbc25af06dd07da6047f0bd5d8ad16c83d2280ae93cf963cc7ba6b3559e6"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_05_multiple_bank_accounts:f7",
+          "label": "Brokerage balance",
+          "variants": [
+            "$87,234.18"
+          ],
+          "sources": [
+            {
+              "conversation_id": "fidelity_investment_001",
+              "message_index": 5,
+              "role": "assistant",
+              "timestamp": "2024-10-28 11:00:00",
+              "start": 68,
+              "end": 78,
+              "quote": "$87,234.18",
+              "message_sha256": "07f2bbc25af06dd07da6047f0bd5d8ad16c83d2280ae93cf963cc7ba6b3559e6"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer2/05_multiple_bank_accounts.yaml",
+      "source_sha256": "f225d7f39eb4d56cb238ef64d693e9d41e0ca4730c409b4b4599b434cf6c0906"
+    },
+    "layer2_06_multiple_insurance_policies": {
+      "required_facts": [
+        {
+          "fact_id": "layer2_06_multiple_insurance_policies:f1",
+          "label": "Auto comprehensive and collision deductible",
+          "variants": [
+            "$500"
+          ],
+          "sources": [
+            {
+              "conversation_id": "auto_insurance_001",
+              "message_index": 7,
+              "role": "assistant",
+              "timestamp": "2024-09-10 11:00:00",
+              "start": 59,
+              "end": 63,
+              "quote": "$500",
+              "message_sha256": "107983e2279b5328b712cd5875791f3a0900338c2c7a4f99fb1bfa4ec9012e78"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_06_multiple_insurance_policies:f2",
+          "label": "Home deductible update",
+          "variants": [
+            "$2,500"
+          ],
+          "sources": [
+            {
+              "conversation_id": "home_insurance_001",
+              "message_index": 23,
+              "role": "assistant",
+              "timestamp": "2024-10-05 14:30:00",
+              "start": 35,
+              "end": 41,
+              "quote": "$2,500",
+              "message_sha256": "5a388e309b52df6465b58e45dd623ed9aee2e1f0deaf383718565be86be1b6dc"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_06_multiple_insurance_policies:f3",
+          "label": "Exception: home deductible changes at renewal, not immediately",
+          "variants": [
+            "at renewal"
+          ],
+          "sources": [
+            {
+              "conversation_id": "home_insurance_001",
+              "message_index": 69,
+              "role": "assistant",
+              "timestamp": "2024-10-05 14:30:00",
+              "start": 36,
+              "end": 46,
+              "quote": "at renewal",
+              "message_sha256": "8fa6dacd4e90bd82f7a5a7880ec03690273ff234e3c1fcb8dd161e063fe5b3f7"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_06_multiple_insurance_policies:f4",
+          "label": "Exception: no flood coverage on record",
+          "variants": [
+            "doesn't show flood coverage"
+          ],
+          "sources": [
+            {
+              "conversation_id": "home_insurance_001",
+              "message_index": 33,
+              "role": "assistant",
+              "timestamp": "2024-10-05 14:30:00",
+              "start": 44,
+              "end": 71,
+              "quote": "doesn't show flood coverage",
+              "message_sha256": "5407a43d6719c8c1c58da2d0ee81d980225d2d2f18b470f68dc6ddc08d9c240b"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_06_multiple_insurance_policies:f5",
+          "label": "Conditional earthquake deductible if purchased",
+          "variants": [
+            "10%"
+          ],
+          "sources": [
+            {
+              "conversation_id": "home_insurance_001",
+              "message_index": 39,
+              "role": "assistant",
+              "timestamp": "2024-10-05 14:30:00",
+              "start": 92,
+              "end": 95,
+              "quote": "10%",
+              "message_sha256": "eeb9fa828fbac03c9161772149ecd8503d23bc561bcf5b8a83314813b0cd8e2e"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_06_multiple_insurance_policies:f6",
+          "label": "Conditional earthquake deductible amount",
+          "variants": [
+            "$75,000"
+          ],
+          "sources": [
+            {
+              "conversation_id": "home_insurance_001",
+              "message_index": 41,
+              "role": "assistant",
+              "timestamp": "2024-10-05 14:30:00",
+              "start": 30,
+              "end": 37,
+              "quote": "$75,000",
+              "message_sha256": "35d8743bd3cababd8812fb15ef4549bf61fe7f878120dd4ee6d88f5e695449d5"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer2/06_multiple_insurance_policies.yaml",
+      "source_sha256": "8676cbb27a548806ded000c497c7d43da8a358d78d7c063a222e5550606cb611"
+    },
+    "layer3_05_tax_preparation_synthesis": {
+      "required_facts": [
+        {
+          "fact_id": "layer3_05_tax_preparation_synthesis:f1",
+          "label": "Quoted property tax",
+          "variants": [
+            "$8,500"
+          ],
+          "sources": [
+            {
+              "conversation_id": "home_purchase_001",
+              "message_index": 13,
+              "role": "assistant",
+              "timestamp": "2024-02-15 10:00:00",
+              "start": 23,
+              "end": 29,
+              "quote": "$8,500",
+              "message_sha256": "06265c35818f500448ff13cdc36387de838c7c003242c3c1f761ea1d6769cbc2"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_05_tax_preparation_synthesis:f2",
+          "label": "Quoted year mortgage interest",
+          "variants": [
+            "$31,000"
+          ],
+          "sources": [
+            {
+              "conversation_id": "home_purchase_001",
+              "message_index": 19,
+              "role": "assistant",
+              "timestamp": "2024-02-15 10:00:00",
+              "start": 24,
+              "end": 31,
+              "quote": "$31,000",
+              "message_sha256": "a9ca2254d99bcc06edec654c31e4743571a83e963b81e95c576e816484f9f937"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_05_tax_preparation_synthesis:f3",
+          "label": "Quoted points paid",
+          "variants": [
+            "$7,500"
+          ],
+          "sources": [
+            {
+              "conversation_id": "home_purchase_001",
+              "message_index": 25,
+              "role": "assistant",
+              "timestamp": "2024-02-15 10:00:00",
+              "start": 54,
+              "end": 60,
+              "quote": "$7,500",
+              "message_sha256": "dd6e8d64889aa0001b6017de49348f52dc149832803035ed865094e60ea3f00c"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_05_tax_preparation_synthesis:f4",
+          "label": "Stock cost basis",
+          "variants": [
+            "$22,500"
+          ],
+          "sources": [
+            {
+              "conversation_id": "stock_sale_001",
+              "message_index": 29,
+              "role": "assistant",
+              "timestamp": "2024-06-20 14:00:00",
+              "start": 59,
+              "end": 66,
+              "quote": "$22,500",
+              "message_sha256": "e47ea31eb275983930e58a9000976fa608312822afeee8cc66b1243e445d9088"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_05_tax_preparation_synthesis:f5",
+          "label": "Charity donation valuation",
+          "variants": [
+            "$25,200"
+          ],
+          "sources": [
+            {
+              "conversation_id": "charity_donation_001",
+              "message_index": 17,
+              "role": "assistant",
+              "timestamp": "2024-08-15 11:00:00",
+              "start": 40,
+              "end": 47,
+              "quote": "$25,200",
+              "message_sha256": "23b2fc8ba8387689a88e3cf16639f909b7c41664956d1b586adf4280a9cd0d3f"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_05_tax_preparation_synthesis:f6",
+          "label": "Historical form instruction, not verified tax advice",
+          "variants": [
+            "8283"
+          ],
+          "sources": [
+            {
+              "conversation_id": "charity_donation_001",
+              "message_index": 43,
+              "role": "assistant",
+              "timestamp": "2024-08-15 11:00:00",
+              "start": 5,
+              "end": 9,
+              "quote": "8283",
+              "message_sha256": "ede902ddc7873e8fee54bd8c4b9a8c4bc355ba1e39286be50d8490056dbf7c4e"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_05_tax_preparation_synthesis:f7",
+          "label": "User business income quote",
+          "variants": [
+            "$18,000"
+          ],
+          "sources": [
+            {
+              "conversation_id": "side_business_001",
+              "message_index": 6,
+              "role": "user",
+              "timestamp": "2024-10-10 16:00:00",
+              "start": 6,
+              "end": 13,
+              "quote": "$18,000",
+              "message_sha256": "cc492f700ff28c1004e455d56ffee8dffaf18ed808fbde6c9457459b8f66a911"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer3/05_tax_preparation_synthesis.yaml",
+      "source_sha256": "e47584a2239d7db6ed6b2a845e1f7d18ce800067d8330fe0e3a174cc5f738104"
+    },
+    "layer3_06_business_expansion_coordination": {
+      "required_facts": [
+        {
+          "fact_id": "layer3_06_business_expansion_coordination:f1",
+          "label": "Loan underwriting quoted duration",
+          "variants": [
+            "2-3 weeks"
+          ],
+          "sources": [
+            {
+              "conversation_id": "business_loan_application",
+              "message_index": 45,
+              "role": "assistant",
+              "timestamp": "2024-08-15",
+              "start": 98,
+              "end": 107,
+              "quote": "2-3 weeks",
+              "message_sha256": "e87c0b77e12e8dbca7691296f39669f77557e26e9cfb886d1b2770a92a345cf8"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_06_business_expansion_coordination:f2",
+          "label": "Lease deadline",
+          "variants": [
+            "November 15th"
+          ],
+          "sources": [
+            {
+              "conversation_id": "commercial_lease_negotiation",
+              "message_index": 39,
+              "role": "assistant",
+              "timestamp": "2024-09-22",
+              "start": 49,
+              "end": 62,
+              "quote": "November 15th",
+              "message_sha256": "215a756796f0e2e1e54a2d50d1f55aacaa2b1273fb71bab94b34f88ea67c4222"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_06_business_expansion_coordination:f3",
+          "label": "User quoted upfront estimate; not authorization to pay",
+          "variants": [
+            "$18,000"
+          ],
+          "sources": [
+            {
+              "conversation_id": "commercial_lease_negotiation",
+              "message_index": 46,
+              "role": "user",
+              "timestamp": "2024-09-22",
+              "start": 62,
+              "end": 69,
+              "quote": "$18,000",
+              "message_sha256": "f28b24d89f2a4ecbf2ffa2c3c4ba6cc4b6977000da421a076b7b4221d80ab9b4"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_06_business_expansion_coordination:f4",
+          "label": "Permit quoted duration",
+          "variants": [
+            "8-12 weeks"
+          ],
+          "sources": [
+            {
+              "conversation_id": "equipment_supplier_discussion",
+              "message_index": 49,
+              "role": "assistant",
+              "timestamp": "2024-10-28",
+              "start": 86,
+              "end": 96,
+              "quote": "8-12 weeks",
+              "message_sha256": "c2f7c6f9f26d0a0463ec4da3dd8cebb4c082829d70804660da8a0b95ef0533f3"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_06_business_expansion_coordination:f5",
+          "label": "Electrical dependency",
+          "variants": [
+            "208V three-phase"
+          ],
+          "sources": [
+            {
+              "conversation_id": "equipment_supplier_discussion",
+              "message_index": 79,
+              "role": "assistant",
+              "timestamp": "2024-10-28",
+              "start": 15,
+              "end": 31,
+              "quote": "208V three-phase",
+              "message_sha256": "e67920dad600df52a5afa73d075f831c7695ce7488ac99cb7bbe283708748d12"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_06_business_expansion_coordination:f6",
+          "label": "Equipment order deadline",
+          "variants": [
+            "mid-November"
+          ],
+          "sources": [
+            {
+              "conversation_id": "equipment_supplier_discussion",
+              "message_index": 93,
+              "role": "assistant",
+              "timestamp": "2024-10-28",
+              "start": 16,
+              "end": 28,
+              "quote": "mid-November",
+              "message_sha256": "0639a00e5d7f9807fabf78d73e6cf75e78d2f5a8a5b9d5481c8856d4b7772af8"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer3/06_business_expansion_coordination.yaml",
+      "source_sha256": "4c86a9f5bfb522d95f5188cf3f707d6f5291cd62b4906bfc52f6d8f6ad93bb5c"
+    }
+  }
+}

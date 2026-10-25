@@ -1,0 +1,51 @@
+{
+  "source_sha256": "cd4638e57e844fc30dafb4270af03eff2f503b70bfb23f56102aa28ed6a53bf0",
+  "metrics": {
+    "diagnostic_dev": {
+      "A": {
+        "facts": 26,
+        "topk_covered": 6,
+        "visible_covered": 5,
+        "micro_fact_recall": 0.23076923076923078,
+        "micro_visible_recall": 0.19230769230769232
+      },
+      "B": {
+        "facts": 26,
+        "topk_covered": 7,
+        "visible_covered": 5,
+        "micro_fact_recall": 0.2692307692307692,
+        "micro_visible_recall": 0.19230769230769232
+      },
+      "C": {
+        "facts": 26,
+        "topk_covered": 7,
+        "visible_covered": 5,
+        "micro_fact_recall": 0.2692307692307692,
+        "micro_visible_recall": 0.19230769230769232
+      }
+    },
+    "independent_test": {
+      "A": {
+        "facts": 23,
+        "topk_covered": 4,
+        "visible_covered": 2,
+        "micro_fact_recall": 0.17391304347826086,
+        "micro_visible_recall": 0.08695652173913043
+      },
+      "B": {
+        "facts": 23,
+        "topk_covered": 4,
+        "visible_covered": 2,
+        "micro_fact_recall": 0.17391304347826086,
+        "micro_visible_recall": 0.08695652173913043
+      },
+      "C": {
+        "facts": 23,
+        "topk_covered": 4,
+        "visible_covered": 2,
+        "micro_fact_recall": 0.17391304347826086,
+        "micro_visible_recall": 0.08695652173913043
+      }
+    }
+  }
+}

@@ -66,7 +66,7 @@ def eligible_for_query(memory,context,query):
     return result,filtered,len(records)
 
 
-def search(memory,context,query,*,use_fts=True,extra_hits=()):
+def search(memory,context,query,*,use_fts=True,extra_hits=(),inspect=False):
     query=Query.model_validate(query.model_dump())
     doc=memory.document(context)
     pool,filtered,qualified_count=eligible_for_query(memory,context,query)
@@ -110,10 +110,24 @@ def search(memory,context,query,*,use_fts=True,extra_hits=()):
             next_frontier.add(other); seen.add(other); expanded+=1
         frontier=next_frontier
     unique=fuse_hits(hits,top_k=query.max_candidates)
-    return dict(hits=unique[:query.top_k],trace=dict(
+    result = dict(hits=unique[:query.top_k],trace=dict(
         document_revision=doc.revision,backend=backend,filtered=dict(filtered),
         routed_topics=[t for _,t in routes],omitted_topic_count=max(0,len(routed)-len(routes)),
         global_fallback=fallback,raw_hit_count=len(hits),unique_candidate_count=len(unique),
         duplicate_hit_count=len(hits)-len({h.memory_id for h in hits}),graph_expanded=expanded,
         candidate_cap=query.max_candidates,candidate_cap_reached=len(unique)>=query.max_candidates,
         final_ids=[r['memory_id'] for r in unique[:query.top_k]],as_of=query.as_of.isoformat()))
+    if inspect:
+        # 只读离线视图；不改变 cap、路由或生产 Top-K，不接收任何 Gold。
+        all_rows, all_backend = _lookup(pool, query.text, use_fts=use_fts)
+        result['diagnostic'] = dict(
+            eligible_ids=sorted(eligible),
+            topics=[dict(topic_id=t,score=s,selected=(s,t) in routes) for s,t in routed],
+            initial_candidates=initial,
+            raw_hits=[h.model_dump(mode='json') for h in hits],
+            all_pool_lexical_hits=[dict(memory_id=i,score=s) for i,s in all_rows],
+            all_pool_backend=all_backend,
+            merged_before_cap=fuse_hits(hits,top_k=len(hits)),
+            merged_candidates=unique,
+            query_terms=sorted(terms(query.text))[:80])
+    return result

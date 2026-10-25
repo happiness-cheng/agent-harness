@@ -1,0 +1,1150 @@
+[
+  {
+    "memory_id": "d8577b1c-2b81-5755-930c-5c0adfbb9bcf",
+    "score": 0.44,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.44
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "b1d5c903-3667-528c-9291-1ae6e4e8a118",
+    "score": 0.34486786904154454,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.34486786904154454
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "8912731b-6e57-5dbc-b61c-6ef162117ad6",
+    "score": 0.3301024059307761,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.3301024059307761
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "acb12f8b-ece8-5f9e-8a7e-adb5fcea06e3",
+    "score": 0.29414911558844775,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.29414911558844775
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "3f369ba0-bbd7-595f-bdab-cf9be558d74b",
+    "score": 0.2847105039245263,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.2847105039245263
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "c3040367-3fce-5840-903a-5b3b76d49c86",
+    "score": 0.27872195233777075,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.27872195233777075
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "eb02d8ed-76f3-5900-9066-189bb55dcfcd",
+    "score": 0.278238145997878,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.278238145997878
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "429782fe-fab3-50bc-b95a-78a37d5d447f",
+    "score": 0.2686471042772072,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.2686471042772072
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "01811944-8ace-57af-9369-582300972a46",
+    "score": 0.26145437540161043,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.26145437540161043
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "862a1e31-1cfd-5ee7-98d7-66f89693fae6",
+    "score": 0.26116941734595783,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.26116941734595783
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "385eca43-75f0-5a77-b1a0-ee23cd342460",
+    "score": 0.25586021330608405,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.25586021330608405
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "883ddccb-b891-5c9c-a948-0a08735cdaa3",
+    "score": 0.2552100785406651,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.2552100785406651
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "f582fbd4-2485-5469-b604-11403663e974",
+    "score": 0.24493851005135725,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.24493851005135725
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "b5cf6771-00db-5bff-a753-89e669e6c564",
+    "score": 0.22161635001009733,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.22161635001009733
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "97d73712-2063-5271-9e37-82bb77cbf49f",
+    "score": 0.2174439762071113,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.2174439762071113
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "3354ecc7-12aa-56ad-90d7-80f138c4f232",
+    "score": 0.21332764235672336,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.21332764235672336
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "997a66fb-6e92-5cbc-8e6a-158547e2fd0e",
+    "score": 0.20908381932504572,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.20908381932504572
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "ff7ffbd5-c2a3-5dd9-8e44-55a897ac9587",
+    "score": 0.20466580688948943,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.20466580688948943
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "13ff256f-17b0-55ad-8c2b-43ec31773de4",
+    "score": 0.20122250836905664,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.20122250836905664
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "1bcb21ea-bd41-52b7-8856-83edd5aa0106",
+    "score": 0.19850619498650726,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.19850619498650726
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "aa824892-f7bc-5dac-a74b-ed544d6b9971",
+    "score": 0.1951779201088485,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.1951779201088485
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "55415f38-c536-58b6-be04-9717fee8f458",
+    "score": 0.19083183499299905,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.19083183499299905
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "38f4a110-d66b-5f42-81df-87ac1052bd6d",
+    "score": 0.189317428391801,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.189317428391801
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "4b5a0c1b-1ed4-50b7-89a7-fc860ffc0d76",
+    "score": 0.17551625055861775,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.17551625055861775
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "22cf8214-2c97-5a9a-b494-99a3829bf52b",
+    "score": 0.17186826914451947,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.17186826914451947
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "206bd7d4-3bce-5eab-b58e-f75b65d692af",
+    "score": 0.16976806780411322,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.16976806780411322
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "b32fabc4-9fa3-541b-8735-4ad44a6f23dc",
+    "score": 0.16938730669260765,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.16938730669260765
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "471c8ab4-de66-511d-8636-40b611f53c75",
+    "score": 0.163832646847415,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.163832646847415
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "7fe2a954-be38-5cb7-a814-60b7efcd82ba",
+    "score": 0.16307068828958543,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.16307068828958543
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "9dce0489-6f23-501c-9dba-c2b61e9c19c4",
+    "score": 0.1596361017301814,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.1596361017301814
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "88c139cb-2874-5566-9b1a-dba61047e263",
+    "score": 0.15562880217517724,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.15562880217517724
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "83e38c41-e900-5206-953f-5925e0ccf0c2",
+    "score": 0.1537726765764022,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.1537726765764022
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "dcc18103-02f1-57be-a5d2-91c61a522a87",
+    "score": 0.14859615349415295,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.14859615349415295
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "b774f744-8d95-5306-a68b-dd694147aac9",
+    "score": 0.1473803115454934,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.1473803115454934
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "026c03f2-0c29-5b22-914c-576bef82f0a7",
+    "score": 0.14585552163499443,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.14585552163499443
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "96f3fb6a-3eb0-57b8-a684-288b077de9d2",
+    "score": 0.14104792263500282,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.14104792263500282
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "43dc601e-1a5f-53c5-8b37-e372167a6ab3",
+    "score": 0.14050893250808918,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.14050893250808918
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "3b86cdc2-6e8a-587d-be5d-fea201176d01",
+    "score": 0.1404092095989249,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.1404092095989249
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "ab9ec3ad-38bf-514b-a929-5c6300730de7",
+    "score": 0.13632681123564067,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.13632681123564067
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "3e3331e7-405f-5241-b943-e07a7d3472cc",
+    "score": 0.1340830443417745,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.1340830443417745
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "0b603000-c534-50bd-89dd-ea0bc01cd439",
+    "score": 0.13310310876659293,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.13310310876659293
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "d1182954-e687-58a8-be17-f76233fde6fb",
+    "score": 0.1327407855918609,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.1327407855918609
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "75aede21-0b90-5759-93f6-7cff36184e9c",
+    "score": 0.1286713092350943,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.1286713092350943
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "421985bd-0540-58c8-963a-4f9bf18ccc87",
+    "score": 0.12758357331098413,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.12758357331098413
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "6226c27e-1bca-57ec-b3a9-4b2fb7b066fa",
+    "score": 0.12716920643325447,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.12716920643325447
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "0ccfe47a-1601-5910-8923-9f760f4980a0",
+    "score": 0.1256141020994896,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.1256141020994896
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "0ff900cf-208f-5f26-ac13-f3c810cb5677",
+    "score": 0.1256141020994896,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.1256141020994896
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "58853074-c688-511e-b330-b13312c5fe82",
+    "score": 0.1218104309163551,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.1218104309163551
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "0030b584-91ab-541b-9e9a-ea5e28a49c7f",
+    "score": 0.11975932469460188,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.11975932469460188
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "54ece5e4-431c-5a67-8d07-f1cc877ebbb7",
+    "score": 0.11892659054628014,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.11892659054628014
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "c07a57f2-6fb7-598a-9193-5d735b981dc0",
+    "score": 0.11855312119371146,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.11855312119371146
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "d9686d32-b70a-5cea-9ae9-33a06ed67ce7",
+    "score": 0.11296172280822417,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.11296172280822417
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "8779ed3d-b91e-5a3a-b688-24c00b01c6a8",
+    "score": 0.0952362226028017,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.0952362226028017
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "f7fd4cc9-87de-5d0f-b124-26cb75409d04",
+    "score": 0.09384647545642405,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.09384647545642405
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "8a8a5cdd-ba75-5651-b50a-38cff047e93c",
+    "score": 0.0889228649189911,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.0889228649189911
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "e3a8ae00-57f3-5723-bd5f-b0cd7a0152cf",
+    "score": 0.0877594666429797,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.0877594666429797
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "dbb8c924-6aeb-57ab-99e0-cfa50bb5c81f",
+    "score": 0.08736337267253595,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.08736337267253595
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "534e36f4-75a6-5389-9282-14445a884410",
+    "score": 0.08519503505084075,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.08519503505084075
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "6f1fb098-4608-5cc3-9718-d6e384b33177",
+    "score": 0.08218654082436641,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.08218654082436641
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "76d9c74f-b650-5e40-b77d-293b8964d7d9",
+    "score": 0.08125555391893267,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.08125555391893267
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "0c004659-5183-513e-bd20-837909393531",
+    "score": 0.08120440794741067,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.08120440794741067
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "6710cd13-f875-5ddf-a4bd-45c38c69b549",
+    "score": 0.0749328392096226,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.0749328392096226
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "d6754350-4c2d-571d-805b-82be930d7660",
+    "score": 0.06907966774232453,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.06907966774232453
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "7858de0d-714e-559a-892c-4661392ef483",
+    "score": 0.06743473235821403,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.06743473235821403
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "0e34711f-764c-5efc-8f1d-196d12c7c2a8",
+    "score": 0.06677754249576517,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.06677754249576517
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "b1557b92-d52b-57ab-a725-143538ff560e",
+    "score": 0.06677754249576517,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.06677754249576517
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "6d60520b-8d11-5d8f-971a-12e4bd291616",
+    "score": 0.06391335971846167,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.06391335971846167
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "2ce7cb53-21fa-5fb1-9d3a-ee7a6dc28d64",
+    "score": 0.06356772873322553,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.06356772873322553
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "f90d4fe1-69b1-5ed1-9690-f7441f464338",
+    "score": 0.06294334393438686,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.06294334393438686
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "d2555579-644a-5ebb-ba1e-d3fb1fb45df4",
+    "score": 0.06235118917419316,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.06235118917419316
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "0120ae75-1c43-5510-8aa9-105362805800",
+    "score": 0.06178883172270071,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.06178883172270071
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "75aff331-c130-56bc-82aa-511466c95d37",
+    "score": 0.060259630636678524,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.060259630636678524
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "0b31f85a-f7d5-5a22-a90b-0c9faa91016a",
+    "score": 0.05979650593797854,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.05979650593797854
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "4761afd9-89e6-562b-9872-e507b7fa8ebb",
+    "score": 0.05979650593797854,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.05979650593797854
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "a417c938-4741-58a7-98cb-6fa495db063f",
+    "score": 0.05979650593797854,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.05979650593797854
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "217d4db9-d0a1-5a9d-9afe-38c2d058fc18",
+    "score": 0.058138004276933275,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.058138004276933275
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "6432cee8-642c-541a-b5f8-dc83f68995ff",
+    "score": 0.05655423543886741,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.05655423543886741
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "ac174664-9ad1-5158-ac27-a74e6890a19d",
+    "score": 0.05655423543886741,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.05655423543886741
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "cdf75469-d003-5adc-bbe2-9ade797ae129",
+    "score": 0.05551408116649056,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.05551408116649056
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "60208cf7-7b04-5ce0-9e3c-ac22c657d93e",
+    "score": 0.05519581435432505,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.05519581435432505
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "7669ca3f-d1ae-51c3-92da-a5ced82055ca",
+    "score": 0.05519581435432505,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.05519581435432505
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  },
+  {
+    "memory_id": "66ce2f76-9f78-5cb0-911d-f7483c4cfb78",
+    "score": 0.05499698063267507,
+    "paths": [
+      {
+        "source": "global_fts5_bm25",
+        "topic_id": null,
+        "score": 0.05499698063267507
+      }
+    ],
+    "reasons": [
+      "global_fallback"
+    ]
+  }
+]

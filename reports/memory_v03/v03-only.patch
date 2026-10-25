@@ -1,0 +1,1658 @@
+--- /dev/null
++++ b/docs/MEMORY_RETRIEVAL_V03.md
+@@ -0,0 +1,94 @@
++# Adrian Memory v0.3：检索质量实验与设计理由
++
++## 结论与范围
++
++完成一次固定 20 题的 A/B/C/D 消融和独立原子卡片检查。实验排序在原开发题收益较大，但新测试未证明稳定的同预算收益；不建议默认启用。召回扩展在相同 cap 下提高了新测试的候选来源覆盖，但收益没有传到最终上下文，暂保留为离线实验。
++
++本轮只新增实验模块、测试、Fixture、检查/评测脚本和报告。**没有改动任何已有 v0.2 源码**，包括生产 `search`、Runtime、Context、SQLite、权限/确认/删除与 Goal-Value。两种旧卡片和新原子卡均未接入生产；未调用模型/Judge，未读取或导入私人行为记录，未推送远端。
++
++## P0：实际代码和基线审计
++
++- 工作区 `C:/Users/陈独秀/.codex/tmp/adrian-memory-v02`，实际分支 `feat/adrian-memory-v02-local`，HEAD `b90f104c52cb321d7585accd1e8aa1a6758fe87a`。HEAD 本身不包含未提交的 v0.2/v0.3，必须结合基线/交付源码 hash 与补丁复核，不能只 checkout 这个提交就声称复现新实现。
++- 已读取 v0.2 三份报告并与 delivery-receipt 核对全部源码。`application.py`/`memory.py`/回查单测属于旧长原文修复；`retrieval.py` 的 inspect 及 cards/retrieval_experiment 属于旧实验，分别登记，不再混改。
++- `reports/memory_v03/baseline.json` 保存实施前源码 hash、所有 v0.1/v0.2 报告 hash、原 60 题 hash、旧 Gold hash 与新测试选择。旧结果均保留。
++- 实施前重新记录 20 题 A，保存在 baseline-results.json.gz；原 14 题和新六题的 A 最终 ID、可见 ID、主指标均在本轮再次核对相同。基线相关测试64 passed。
++- 原8题和上轮6题均按已见开发材料处理。新增6题按每层剩余题文件名排序各取前2题，共30个来源事实，先标注位置/片段/hash，再运行新算法。不是专家盲评。
++- 参考原书位置：[第三章 / user-memory-evaluation](https://github.com/bojieli/ai-agent-book/tree/dbc046eb896ac4e39aa19c7774c8bf49583b89a6/chapter3/user-memory-evaluation)。本轮是检索组件实验，不冒称完成原书的60题模型任务评测。
++
++## P1：可解释排序
++
++新模块 `src/min_agent/long_memory/retrieval_quality.py`，公共离线入口 `experiment_search`。默认生产模块不导入它。
++
++原排序器只依赖原词项重叠与 BM25，常把包含大量“我要、帮我、什么号码”的问句排在携带答案的短原句前。实验排序尝试以下信号：
++
++| 信号 | 设计理由 | 本轮局限 |
++|---|---|---|
++| 去通用词的查询 IDF 覆盖 | 降低礼貌语/通用动词的干扰 | 简单词形处理与缩写切分仍有噪声，非完整语言理解 |
++| 同源会话相邻原句覆盖 | 给纯数值回答提供局部问题线索 | 邻接不等于正确语义关联，可能把别的属性传过来 |
++| 属性词族匹配 | 区分编号、时间、费用、保障、权益等需求 | “编号”过宽，会员号与预订号仍混淆 |
++| 相关的数值/否定/约束 | 倾向携带具体取值的片段 | 地址、历史状态也可能被误提权；数值不等于正确事实 |
++| 实体或显式别名匹配 | 优先处理同一实体的候选 | 邻居的实体可能误影响当前片段 |
++| 原排序小权重 | 保留已有信号，方便解释差异 | 权重未经过泛化验证 |
++| 整段问句惩罚 | 避免反复召回提问本身 | 错伤前半句已陈述事实、末尾另有问句的消息 |
++
++冻结分数如下；不是 Goal-Value 的重要性权重：
++
++```python
++WEIGHTS = {
++    'query_overlap': 2.0, 'neighbor_overlap': 1.0,
++    'attribute_match': 1.0, 'specific_value': 0.75,
++    'entity_match': 2.0, 'old_score': 0.2, 'is_question': -0.6,
++}
++total = sum(WEIGHTS[key] * feature[key] for key in WEIGHTS)
++```
++
++B 只改变 cap 后原候选内部的顺序，不增加候选、不改原文。所有特征和邻居 ID 随结果保存；它们仅作排序线索，不写入事实数据库、不授予权限。新 `total` 与旧 `score` 分开记录。
++
++## P2：候选召回与融合
++
++1. 原路径保留；第二路按通用属性词族扩展查询，不含案例 ID、具体品牌、人名或答案数值。
++2. 仅从截至查询时点的授权原文识别显式 `Name (ALIAS)`，避免世界知识猜测别名。
++3. 取原路径与扩展路径各至多12个有关键词支持的锚点，沿同一源历史会话的消息索引 ±1 加候选；保留原始 Episode，不复制邻居正文进模型。
++4. 三路各自按 memory_id 去重，以 `RRF(k=60)` 在同一 cap=100 内决定成员。路径不要求严格超集，旧重要证据也可能被竞争掉，报告保留这类失败。
++
++C 的排序仍用旧分数：原完整融合池存在该 ID 就保留原分数；新词项候选用同一 `_lookup` 在原查询下的分数；纯邻接而无原词命中者为0。RRF 只控制成员，不偷偷作为 C 的最终排序分数。D 对与 C 完全相同的候选再使用新排序。
++
++实现未扩大 Top-K 或最终 cap。候选扩展的额外扫描、FTS、邻接及融合成本都包含在延迟记录中。底层内存 FTS 按调用重建，当前延迟不是缓存优化后的生产指标。
++
++## P3：原子卡片独立探索
++
++`atomic_cards.py` 提供 `subject / attribute / value`，场景、有效时间、原文字符引用、源版本 hash、evidence_type、claim_kind 和 confirmation_status。
++
++每个字段都必须逐字对上合法来源。不同源会话拒绝关联；跨句或 assistant 来源不能直接标为明确用户事实；输出始终 `pending`。后续读取通过 validate_atomic_card 重新校验，撤回/过期/来源变化后失效。构建过程不写生产 Memory。
++
++实际构建了受控 Orchid Travel / tier / Bronze，以及原 Amex 对话的 `American Express / card / Gold Card`。后者分别引用消息1、0、16，保留 `inferred + pending`；没有把 Gold 答案“Amex Gold”复制成新确定事实。另测跨事件、伪造字段、推断升级、未批准等拒绝路径，结果6/6受控检查通过。
++
++**这验证的是引用和构建约束，不是自动抽取能力。** 字段位置由受控 recipe 指定；同一源会话也不必然等于同一业务事件，任意跨句语义正确性还需要进一步审核。卡片不进入四组检索，公开实验日志也不属于生产删除链路；生产删除机制与边界本轮不变。
++
++## P4：实际结果与评测边界
++
++新六题按冻结来源规则：
++
++| 组 | 候选来源命中 | Top-8 来源命中 | 2048字节可见来源命中 |
++|---|---:|---:|---:|
++| A 原候选+原排序 | 10/30 | 3/30 | 3/30 |
++| B 原候选+新排序 | 10/30 | 6/30 | 4/30 |
++| C 新候选+原排序 | 16/30 | 3/30 | 3/30 |
++| D 新候选+新排序 | 16/30 | 6/30 | 3/30 |
++
++固定预算复用 v0.2 `pack_context`，每条包含原正文、ID、证据引用和类型，放不下就跳过；不截正文、不补Top-8以外结果。字节不是精确Token，模型任务/Judge成绩均 NOT_RUN。
++
++主评分不变，但本轮发现固定单消息来源标注不完整：同一事实可能出现在另一条可见汇总。`alternate-evidence-audit.json` 单独登记这种情况，未修改 Gold、主分数或按同值自动加分。因此主指标须称为“冻结来源锚点覆盖”，不据它直接断言全部真实事实都不存在。
++
++完整逐题、宏/微、候选数量、延迟、退化、原子卡结果见 `reports/memory_v03/evaluation_v03.md` / `abcd-fixed.json.gz`；仍未覆盖的来源、排名和证据在 `failure_analysis_v03.md`。原八题 Gold 的跨句实体与外部维修估价争议继续保留。
++
++## P5：工程与安全验收
++
++- 三份新单测覆盖13个行为，RED/GREEN日志保留。全量回归 **1200 passed、3 live deselected、1原有警告**，不删改旧测试或验收标准。
++- owner、确认、时间/场景、ID去重、不同情景记录、priority/lifecycle、源与派生撤回、Runtime/上下文窗口原回归全部保留。新增扩展路径和原子卡再测这些关键边界。
++- 离线 wheel 构建、compileall、pip check 通过；最终源码、wheel一致性、旧报告hash和补丁检查记录在 delivery-receipt.json。静态类型/lint工具缺失则NOT_RUN，不冒充类型证明。
++- 当前为同一独立工作区内的未提交本地改动，无自动远端发布或数据库迁移。
++
++## 后续建议
++
++建议只合并“可复核的离线实验和诊断材料”供评审，不启用新生产排序或召回。先审查等价证据/属性限定，再研究具体标识符绑定和子句范围，随后单独测预算内证据选择。到本轮固定实验为止，不继续实现这些建议。
+--- /dev/null
++++ b/docs/steps/ADRIAN_MEMORY_V03_PLAN.md
+@@ -0,0 +1,34 @@
++# Adrian Memory v0.3：固定实验计划与自审
++
++用户正式任务书授权实施。沿用实际 v0.2 工作区，不改既有 source/报告，不更换分支或推送，不改生产检索/Runtime/Goal 权重/数据库。不调用外部模型、不读或导入私人行为数据。
++
++## P0：冻结
++
++- 用 v0.2 delivery-receipt 核对全部实验源码；分别保留旧原文修复与检索实验的文件/hash。
++- 原 8 题与 v0.2 的 6 题均为本轮已见开发材料。
++- 新保留测试：从余下 46 题按每层文件名排序，各选前 2 题；在运行新检索前按原始证据制作有位置/hash的 Gold。不是独立专家盲评，不是原书完整任务评分。
++- 原书 60 题、旧 Gold 和所有旧输出不改。争议事实继续单独审计。
++
++## P1/P2：隔离变量
++
++- A=原 cap=100 候选、原分数；B=同一批候选、实验排序；C=改进候选、原分数；D=改进候选、实验排序。
++- Top-K=8，模型可见预算=2048 UTF-8 紧凑序列化字节，复用 v0.2 整条装入函数；各组原文内容/权限/时间/评分相同。精确 Token 与模型任务质量 NOT_RUN。
++- 实验排序：授权历史上的查询关键词 IDF 覆盖；同事件相邻原句支持；通用属性类型匹配；明确标识符/数值及实体匹配；问句惩罚；保留原始分数作小权重信号。无 case ID/Gold/特定人名金额。
++- 冻结线性权重：原句关键词 2、相邻关键词 1、属性且有取值 1、相关具体取值 0.75、精确实体 2、原分数 0.2、问句 -0.6。
++- 改进候选：通用属性词族扩展与历史中显式 Name (ALIAS)；原路径、扩展 FTS、同事件相邻 ±1 消息三路按每路唯一 ID 的 RRF(k=60) 分配同一 cap=100。相邻锚点每条词项路径最多 12。不扩大最终上限，不把 RRF 分数冒称原排序分数。
++- C 的旧分数：保留原始检索同 ID 的完整融合分数；新词项候选采用同一旧 _lookup 在原查询上的分数；完全无原词命中的邻居为 0。不偷偷让 C 使用新排序器。
++- 候选构建和排序都只用截至 as_of 的授权原文与证据，不追加到模型正文。追踪扩展词/锚点/特征贡献/融合路径。
++
++## P3：原子卡片单独验证
++
++主体、属性、取值都必须引用原文字符片段；跨句关联必须同一事件，推断关联保留 inferred，批准仅为 Fixture。测试同名不同事件、伪造取值、未来来源、未确认状态；另用原 Amex 对话构建带原始片段的上下文关联卡。不得从 Gold 创建缺失事实。不向生产写入，不参与 A/B/C/D。
++
++## P4/P5：判据与停止规则
++
++- 同时报告每题/宏平均/事实总数：Candidate Recall、Recall@8、预算可见覆盖、延迟、cap 前后数量、去重及来源路径。保留退化。
++- 已见 14 题和新测试 6 题分层报告。验证 A 与 v0.2 对应 14 题 ID/指标一致，B 的候选 ID 集与 A 一致，C/D 的候选集一致。
++- 合成契约先 RED/GREEN；固定算法/Gold/hash后仅一轮20题对照，不按测试结果改规则或调权重。错误实现允许独立复现后修复，保留失败证据。
++- 完成原安全/Runtime 完整回归、构建/编译/依赖/差异自审，保存准确版本与补丁。缺工具的静态检查标 NOT_RUN。
++- 交付三份报告和原始输出后停止。即使有收益也不自动启用默认策略。
++
++方案自审：比较了不加新模型的透明规则、付费 reranker、卡片替代三种路径；本轮选透明规则以隔离变量和成本，另两种不影响默认行为。按用户指引主代理自审，不调用子代理。
+--- /dev/null
++++ b/scripts/eval_memory_quality_v03.py
+@@ -0,0 +1,193 @@
++"""20 题冻结 A/B/C/D 与独立原子卡片探索；禁止覆盖旧结果，零外部调用。"""
++import argparse
++from datetime import timedelta
++import gzip
++from hashlib import sha256
++import json
++from pathlib import Path
++import platform
++from statistics import mean
++import subprocess
++import sys
++
++ROOT=Path(__file__).resolve().parents[1]
++sys.path.insert(0,str(ROOT/'src'))
++from min_agent.long_memory.atomic_cards import QuoteRef,build_atomic_card
++from min_agent.long_memory.evaluation import build_approved_fixture
++from min_agent.long_memory.models import Query
++from min_agent.long_memory.quality_evaluation import evaluate_quality_case
++from min_agent.long_memory.retrieval_quality import WEIGHTS,FAMILIES,STOP,RRF_K,ANCHORS_PER_ROUTE,body
++
++TEST_GOLD_SHA='51b8259238c8b1ca71616d7b5d58f10ce26278b8a8f1321e22d75b8205c4f0f8'
++
++
++def digest(path):
++    return sha256(path.read_bytes()).hexdigest()
++
++
++def load_inputs(base):
++    import yaml
++    baseline=json.loads((ROOT/'reports/memory_v03/baseline.json').read_text(encoding='utf-8'))
++    old_gold_path=base/'fixtures/gold_facts.json'
++    if digest(old_gold_path)!=baseline['original_gold_sha256']:
++        raise ValueError('原 Gold 已改变')
++    previous_path=ROOT/'tests/fixtures/memory_v02_holdout.json'
++    previous=json.loads(previous_path.read_text(encoding='utf-8'))
++    current_path=ROOT/'tests/fixtures/memory_v03_holdout.json'
++    if digest(current_path)!=TEST_GOLD_SHA:
++        raise ValueError('固定 v03 Gold 已改变')
++    current=json.loads(current_path.read_text(encoding='utf-8'))
++    assert not set(current['cases']) & set(baseline['seen_dev_ids'])
++    old=json.loads(old_gold_path.read_text(encoding='utf-8'))
++    cases={}
++    for item in baseline['book_manifest']:
++        path=base/item['path']
++        if digest(path)!=item['sha256']:
++            raise ValueError('原书数据被修改: '+item['path'])
++        case=yaml.safe_load(path.read_text(encoding='utf-8'))
++        cases[case['test_id']]=case
++    assert len(cases)==60
++    for fixture in (previous,current):
++        for identity,row in fixture['cases'].items():
++            histories={h['conversation_id']:h for h in cases[identity]['conversation_histories']}
++            for fact in row['required_facts']:
++                for source in fact['sources']:
++                    text=histories[source['conversation_id']]['messages'][source['message_index']]['content']
++                    assert sha256(text.encode()).hexdigest()==source['message_sha256']
++                    assert text[source['start']:source['end']]==source['quote']
++    splits=[('original_dev',[i for i in old if i!='_comment'],old),
++            ('previous_test_now_dev',list(previous['cases']),previous['cases']),
++            ('frozen_test',list(current['cases']),current['cases'])]
++    return baseline,cases,splits
++
++
++def _quote(memory,ctx,query,needle,*,index=None,scenario=None):
++    doc=memory.document(ctx)
++    for m in memory.records(ctx,as_of=query.as_of):
++        if index is not None and doc.evidence[m.evidence_refs[0]].message_ref!=index:
++            continue
++        if scenario is not None and f';session={scenario};' not in m.content:
++            continue
++        text=body(m)
++        if needle in text:
++            start=text.index(needle)
++            return QuoteRef(episode_id=m.id,start=start,end=start+len(needle),quote=needle)
++    raise ValueError('原文找不到指定片段: '+needle)
++
++
++def atomic_exploration(cases):
++    fixture=dict(test_id='v03-atomic-public',category='synthetic',conversation_histories=[dict(
++        conversation_id='orchid',timestamp='2026-01-01T00:00:00Z',messages=[
++            dict(role='assistant',content='Orchid Travel offers a membership.'),
++            dict(role='assistant',content='Which tier would you like?'),
++            dict(role='user',content='I choose Bronze.')]),dict(
++        conversation_id='harbor',timestamp='2026-02-01T00:00:00Z',messages=[
++            dict(role='assistant',content='Harbor also offers Bronze.')])])
++    memory,ctx,info=build_approved_fixture(fixture,approval='approved_fixture')
++    query=Query(text='membership tier',as_of=info['last_time'])
++    subject=_quote(memory,ctx,query,'Orchid Travel')
++    attribute=_quote(memory,ctx,query,'tier')
++    value=_quote(memory,ctx,query,'Bronze',index=2)
++    kwargs=dict(subject=subject,attribute=attribute,value=value,approval='approved_fixture')
++    card=build_atomic_card(memory,ctx,query,**kwargs)
++    checks=[dict(name='same_event_cross_sentence',expected='accepted_inferred_pending',
++        actual=card.claim_kind+'_'+card.confirmation_status,
++        passed=card.claim_kind=='inferred' and card.confirmation_status=='pending',card=card.model_dump(mode='json'))]
++    variants=[('cross_event',dict(value=_quote(memory,ctx,query,'Bronze',index=0))),
++              ('fabricated_quote',dict(value=value.model_copy(update={'quote':'MISSING'}))),
++              ('inference_upgrade',dict(claim_kind='explicit')),
++              ('unapproved',dict(approval='none'))]
++    for name,changes in variants:
++        try:
++            build_atomic_card(memory,ctx,query,**(kwargs|changes))
++            checks.append(dict(name=name,expected='rejected',actual='accepted',passed=False))
++        except (ValueError,PermissionError) as error:
++            checks.append(dict(name=name,expected='rejected',actual=type(error).__name__,passed=True,message=str(error)))
++    book=cases['layer2_03_multiple_credit_cards']
++    book_memory,book_ctx,book_info=build_approved_fixture(
++        {k:book[k] for k in ('test_id','category','conversation_histories')},approval='approved_fixture')
++    at=book_info['last_time']+timedelta(microseconds=1)
++    book_query=Query(text='card issuer and product',as_of=at)
++    scenario='amex_application_002'
++    book_card=build_atomic_card(book_memory,book_ctx,book_query,
++        subject=_quote(book_memory,book_ctx,book_query,'American Express',index=1,scenario=scenario),
++        attribute=_quote(book_memory,book_ctx,book_query,'card',index=0,scenario=scenario),
++        value=_quote(book_memory,book_ctx,book_query,'Gold Card',index=16,scenario=scenario),approval='approved_fixture')
++    checks.append(dict(name='book_cross_sentence_issuer_and_selected_product',expected='inferred_pending',
++        actual=book_card.claim_kind+'_'+book_card.confirmation_status,
++        passed=book_card.claim_kind=='inferred' and book_card.confirmation_status=='pending',
++        card=book_card.model_dump(mode='json')))
++    return dict(scope='controlled quote recipe construction only; no automatic extraction, retrieval gains or production import claims',
++        checks=checks,passed=sum(c['passed'] for c in checks),total=len(checks),
++        production_imports=0,used_in_abcd=False,model_quality='NOT_RUN')
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--book-root',type=Path,required=True)
++    parser.add_argument('--report',type=Path,required=True)
++    args=parser.parse_args()
++    if args.report.exists():
++        parser.error('不覆盖既有结果，请指定新路径')
++    base=args.book_root/'chapter3/user-memory-evaluation'
++    if not base.is_dir():base=args.book_root
++    baseline,cases,splits=load_inputs(base)
++    prior=json.loads(gzip.decompress((ROOT/'reports/memory_v03/baseline-results.json.gz').read_bytes()))
++    frozen_a={c['case_id']:c for c in prior['cases']}
++    sources=sorted((ROOT/'src/min_agent').rglob('*.py'))+[Path(__file__).resolve()]
++    code_hashes={p.relative_to(ROOT).as_posix():digest(p) for p in sources}
++    rows=[]
++    for split,ids,gold in splits:
++        for identity in ids:
++            row=evaluate_quality_case(cases[identity],gold=gold[identity]['required_facts'])
++            row['split']=split
++            old=frozen_a[identity]
++            assert row['input_history_sha256']==old['input_history_sha256']
++            assert row['groups']['A']['retrieval']['hits']==old['A']['retrieval']['hits']
++            assert row['groups']['A']['visible_ids']==old['A']['selected_ids']
++            assert row['groups']['A']['recall_at_8']==old['A']['fact_recall_at_k']
++            assert row['groups']['A']['visible_fact_recall']==old['A']['visible_fact_recall']
++            row['a_matches_frozen_baseline']=True
++            rows.append(row)
++            print(split,identity,{g:(r['candidate_facts'],r['topk_facts'],r['visible_facts']) for g,r in row['groups'].items()},flush=True)
++    summaries={}
++    for split,_,_ in splits:
++        selected=[r for r in rows if r['split']==split]
++        summaries[split]={}
++        for group in ('A','B','C','D'):
++            values=[r['groups'][group] for r in selected]
++            count=sum(v['fact_count'] for v in values)
++            totals={name:sum(v[name] for v in values) for name in ('candidate_facts','topk_facts','visible_facts')}
++            summaries[split][group]=dict(cases=len(selected),facts=count,**totals,
++                macro_candidate_recall=mean(v['candidate_recall'] for v in values),
++                macro_recall_at_8=mean(v['recall_at_8'] for v in values),
++                macro_visible_recall=mean(v['visible_fact_recall'] for v in values),
++                micro_candidate_recall=totals['candidate_facts']/count,
++                micro_recall_at_8=totals['topk_facts']/count,
++                micro_visible_recall=totals['visible_facts']/count,
++                mean_candidate_count=mean(v['candidate_count'] for v in values),
++                mean_pre_cap_count=mean(v['pre_cap_count'] for v in values),
++                mean_context_bytes=mean(v['context_bytes'] for v in values),
++                mean_search_ms=mean(v['median_search_ms'] for v in values))
++    atomic=atomic_exploration(cases)
++    assert atomic['passed']==atomic['total']
++    assert code_hashes=={p.relative_to(ROOT).as_posix():digest(p) for p in sources}
++    result=dict(protocol='Adrian Memory v03 frozen raw Episode 2x2 retrieval ablation',
++        base_head=baseline['base_head'],v02_actual_source_manifest='reports/memory_v03/baseline.json',
++        book_commit=baseline['book_commit'],book_manifest=baseline['book_manifest'],
++        original_gold_sha256=baseline['original_gold_sha256'],test_gold_sha256=TEST_GOLD_SHA,
++        baseline_result_sha256=digest(ROOT/'reports/memory_v03/baseline-results.json.gz'),
++        python=platform.python_version(),code_hashes=code_hashes,weights=WEIGHTS,families=FAMILIES,
++        stop_words=sorted(STOP),rrf_k=RRF_K,anchors_per_route=ANCHORS_PER_ROUTE,
++        top_k=8,candidate_cap=100,budget=2048,budget_unit='compact serialized UTF-8 bytes',
++        timing='mean across cases of median 3 experimental calls; includes shared full-pool baseline diagnostics; not comparable to production SLA or v02 absolute latency',
++        scoring='v02 unchanged literal variant match; evidence-bound source association for v02/v03 heldout; no business-header credit',
++        runtime_default_changed=False,live_model_calls=0,private_imports=0,provider_tokens='NOT_RUN',
++        model_task_quality='NOT_RUN',judge='NOT_RUN',summaries=summaries,cases=rows,atomic_exploration=atomic)
++    args.report.parent.mkdir(parents=True,exist_ok=True)
++    with args.report.open('xb') as stream:
++        stream.write(gzip.compress((json.dumps(result,ensure_ascii=False,indent=2)+'\n').encode(),mtime=0))
++    print(json.dumps(summaries,ensure_ascii=False,indent=2))
++
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/scripts/inspect_memory_quality_v03.py
+@@ -0,0 +1,34 @@
++"""只读查看冻结 v0.3 结果中的候选、排序特征、原文上下文与逐事实去向。"""
++import argparse
++import gzip
++import json
++from pathlib import Path
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--report',type=Path,required=True)
++    parser.add_argument('--case',required=True)
++    parser.add_argument('--group',choices=['A','B','C','D'],default='D')
++    parser.add_argument('--view',choices=['facts','candidates','ranking','context'],default='facts')
++    args=parser.parse_args()
++    data=json.loads(gzip.decompress(args.report.read_bytes()))
++    case=next((c for c in data['cases'] if c['case_id']==args.case),None)
++    if case is None:parser.error('case 不存在')
++    row=case['groups'][args.group]
++    pool={m['id']:m for m in case['source_episodes']}
++    if args.view=='facts':result=case['fact_analysis']
++    elif args.view=='candidates':result=row['retrieval']['candidates']
++    elif args.view=='ranking':
++        result=[dict(rank=n+1,**h,features=row['retrieval']['ranking_features'].get(h['memory_id']),
++                     episode=pool[h['memory_id']]) for n,h in enumerate(row['retrieval']['ranked'])]
++    else:
++        entries=[dict(memory_id=i,content=pool[i]['content'],evidence_type=pool[i]['evidence_type'],
++                      evidence_refs=pool[i]['evidence_refs']) for i in row['visible_ids']]
++        size=len(json.dumps(entries,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()) if entries else 0
++        assert size==row['context_bytes']
++        result=dict(compact_bytes=size,budget=row['context_budget'],entries=entries)
++    print(json.dumps(result,ensure_ascii=False,indent=2))
++
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/scripts/report_memory_quality_v03.py
+@@ -0,0 +1,118 @@
++"""后验报告和证据完整性审计；不修改原 Gold，不重跑或调参。"""
++from collections import Counter
++import gzip
++from hashlib import sha256
++import json
++from pathlib import Path
++import re
++
++ROOT=Path(__file__).resolve().parents[1]
++
++
++def save(path,text):
++    with (ROOT/path).open('x',encoding='utf-8',newline='\n') as f:f.write(text.rstrip()+'\n')
++
++
++def main():
++    artifact=ROOT/'reports/memory_v03/abcd-fixed.json.gz'
++    data=json.loads(gzip.decompress(artifact.read_bytes()))
++    # 同场景替代证据只登记审计，不计入冻结指标；相同金额可能表达不同属性。
++    alternatives=[]
++    for case in data['cases']:
++        if case['split']=='original_dev':continue
++        pool={m['id']:m for m in case['source_episodes']}
++        for fact in case['fact_analysis']:
++            expected_positions={(s['conversation_id'],s['message_index']) for s in fact['literal_history_support']}
++            expected_scenes={s[0] for s in expected_positions}
++            for group,row in case['groups'].items():
++                if fact['groups'][group]['visible_ids']:continue
++                for identity in row['visible_ids']:
++                    item=pool[identity]
++                    source=case['source_positions'][item['evidence_refs'][0]]
++                    position=(source['conversation_id'],source['message_index'])
++                    text=item['content'].split('] ',1)[-1]
++                    if position in expected_positions or position[0] not in expected_scenes:continue
++                    if any(v.casefold() in text.casefold() for v in fact['variants']):
++                        alternatives.append(dict(case_id=case['case_id'],group=group,fact_id=fact['fact_id'],
++                            variants=fact['variants'],episode_id=identity,source=source,quote=text,
++                            evidence_refs=item['evidence_refs'],observed_at=item['observed_at'],
++                            status='AUDIT_ONLY_same_scene_surface_not_automatically_equivalent',
++                            changes_primary_score=False))
++    save('reports/memory_v03/alternate-evidence-audit.json',json.dumps(dict(
++        protocol='posthoc evidence completeness audit, NOT a revised scoring set',
++        source_result_sha256=sha256(artifact.read_bytes()).hexdigest(),items=alternatives),ensure_ascii=False,indent=2))
++    lines=['# Adrian Memory v0.3 固定 A/B/C/D 结果','',
++        '结论：改进召回扩大了新测试的正确来源候选覆盖；新排序在已见开发题中明显提高，但未在新测试中证明稳定的同预算收益。B、C、D 均保留为实验，不默认启用。原子卡片单独处理，所有卡均 pending，不进入生产或四组指标。','',
++        '## 先说明评分的证据边界','',
++        '原八题沿用原表面匹配 Gold；v0.2/v0.3 保留题沿用固定“片段匹配且命中标注消息位置”的规则。本轮发现同一事实在原会话重复出现，而 Gold 只标了一处。因此下面的“事实命中”严格说是冻结来源锚点覆盖，不是所有等价证据的完整事实覆盖。','',
++        '本轮不根据输出补改 Gold 或主分数。另存 alternate-evidence-audit.json，登记可见的同场景同表面值；同值也可能不同属性，不能全部自动加分。不据此生成更好看的修订得分。','',
++        '具体例子：租车确认码 E7739482M 在 B/D 的可见汇总中出现，Gold 只认可原消息 67，故主分仍未命中。折扣码 TC-8847 则从 A 第1名退到 B 第12名 / D 第13名，属于真实可见性损失。酒店会员号 HH294857301 被新排序放到第1名，而任务需要的是预订号/房号，说明“实体+数字”无法替代属性绑定。','']
++    for split,groups in data['summaries'].items():
++        lines += ['## '+split,'','| 组 | 候选命中/事实总数 | Top-8命中 | 可见命中 | 候选宏召回 | Recall@8宏 | 可见宏覆盖 |',
++                  '|---|---:|---:|---:|---:|---:|---:|']
++        for g,v in groups.items():
++            lines.append(f"| {g} | {v['candidate_facts']}/{v['facts']} | {v['topk_facts']}/{v['facts']} | {v['visible_facts']}/{v['facts']} | {v['macro_candidate_recall']:.2%} | {v['macro_recall_at_8']:.2%} | {v['macro_visible_recall']:.2%} |")
++        lines += ['','| 组 | cap前数量/题 | cap后去重候选/题 | 检索毫秒/题 | 上下文字节/题 |','|---|---:|---:|---:|---:|']
++        for g,v in groups.items():
++            lines.append(f"| {g} | {v['mean_pre_cap_count']:.2f} | {v['mean_candidate_count']:.2f} | {v['mean_search_ms']:.2f} | {v['mean_context_bytes']:.2f} |")
++        lines += ['']
++    lines += ['## 逐题对照','', '每格为“候选 / Top-8 / 固定预算可见”的事实组数量；各组 Top-8=8、候选 cap=100、预算2048紧凑 UTF-8 字节。','',
++              '| 案例 | 分组 | 事实数 | A | B | C | D |','|---|---|---:|---:|---:|---:|---:|']
++    for c in data['cases']:
++        values=[f"{c['groups'][g]['candidate_facts']}/{c['groups'][g]['topk_facts']}/{c['groups'][g]['visible_facts']}" for g in 'ABCD']
++        lines.append(f"| {c['case_id']} | {c['split']} | {c['fact_count']} | "+' | '.join(values)+' |')
++    lines += ['','## 哪些方法有效、哪些没有证据支持','',
++        '- B 保持原候选集不变：原八题可见来源从5/26到14/26，上一轮六题从2/23到6/23；说明候选内部确有可挖掘的信息。新六题仅从3/30到4/30，且宏可见覆盖25.00%降到10.32%，租车/酒店退化，不能据开发集提升就默认启用。',
++        '- C 保持原排序：新测试候选命中10/30到16/30，候选上限仍100，平均去重数量91.33到93.50；收益不是直接提高Top-K。但模型可见仍3/30，证明新增候选没有自动变成有效上下文。',
++        '- D：新测试Top-8命中6/30，但可见仅3/30；并未超过A，排序和召回组合也未产生稳定增益。多银行题中3个标注事实已经进Top-8，却被整条打包预算排除。',
++        '- 新测试 A/B/C/D 微平均可见覆盖分别为10.00% / 13.33% / 10.00% / 10.00%；宏平均分别为25.00% / 10.32% / 25.00% / 7.54%。结论会随统计口径变化，必须同时展示原始计数与宏/微。',
++        '- 扩展/相邻路径在这20题确实触发，但显式括号别名不保证自然题有足够覆盖。原子卡6个受控检查通过，只证明逐字引用/隔离/推断标记机制，不证明自动提炼质量。',
++        '- 延迟为同进程每题三次调用中位数的跨题均值，含各组共用的完整池诊断；不是生产延迟，也不能与v0.2的绝对毫秒直接比较。没有计入LLM费用或精确Token。','',
++        '## 有效性与合并建议','',
++        '20题共79个冻结事实组；新六题30个原文事实按预定文件顺序从未用于v0.2的46题选出，标注先于新算法输出。标注者与执行者为同一代理，不是外部独立人工盲评；新Gold只覆盖原题的来源事实子集，不含完整业务推理和现实规则验证。','',
++        '不建议合并为生产默认。可以保留离线排序/召回和诊断工具供评审；目前所有新增模块均未接入Runtime。原记忆卡片默认关闭，Goal-Value、确认、SQLite、系统提示和上下文窗口不变。付费模型、Judge、用户私有记录、正式长期写入均未执行。','',
++        '下一轮只建议：(1) 在新冻结数据上补全等价证据并审查实体/属性限定；(2) 研究具体标识符类型、子句级问句/否定范围，避免邻居实体误传；(3) 单独设计预算内的事实级证据选择。上述项目本轮不实施。','',
++        '## 版本、原始输出与复现','',
++        f"基线 HEAD `{data['base_head']}` 加原 v0.2 实际未提交源码；逐文件版本冻结在 baseline.json / 交付收据，不冒称b90f104已包含本轮实现。新Gold SHA256 `{data['test_gold_sha256']}`。原始输出 SHA256 `{sha256(artifact.read_bytes()).hexdigest()}`。所有20题A的候选命中、最终ID与预算可见ID均与实施前基线相同。",'',
++        '工作目录：`C:/Users/陈独秀/.codex/tmp/adrian-memory-v02`；PowerShell先设置 `$env:PYTHONPATH="src"`。','',
++        '```powershell',
++        '& C:/Users/陈独秀/Documents/agent-harness/.venv/Scripts/python.exe -X utf8 scripts/eval_memory_quality_v03.py --book-root C:/Users/陈独秀/.codex/tmp/ai-agent-book-memory-reference --report reports/memory_v03/abcd-reproduction.json.gz',
++        '& C:/Users/陈独秀/Documents/agent-harness/.venv/Scripts/python.exe -X utf8 scripts/inspect_memory_quality_v03.py --report reports/memory_v03/abcd-fixed.json.gz --case layer1_07_car_rental --group D --view ranking',
++        '& C:/Users/陈独秀/Documents/agent-harness/.venv/Scripts/python.exe -X utf8 -m pytest -q --tb=short',
++        '& C:/Users/陈独秀/Documents/agent-harness/.venv/Scripts/python.exe -X utf8 -m pip wheel . --no-deps --no-build-isolation --no-index --wheel-dir dist/memory-v03-reproduction',
++        '```','',
++        '实际测试：full-regression.txt 中 1200 passed、3 live deselected、1已有警告。定向13个新测试通过，基线相关64个通过；RED/GREEN日志保留。构建、compileall、pip check和补丁检查见交付收据；无类型检查器/linter则NOT_RUN。未提交、未推送。']
++    save('reports/memory_v03/evaluation_v03.md','\n'.join(lines))
++    failures=['# Adrian Memory v0.3 遗漏与退化归因','',
++        '只依据冻结结果作后验分析，不回写排序/Gold。下文的“遗漏”按原评分的唯一来源锚点判定；同场景替代原句单独审计，不自动视为同一事实。完整候选、路径、特征贡献、原文/位置/时间/hash在 abcd-fixed.json.gz。','',
++        '## 可复核的主要问题','',
++        '1. 候选外：新测试D的14个来源事实不在cap后候选。税务7项均未覆盖；现有词族/局部邻接无法把抽象“税务项目”稳定连接到利息、捐赠、资产成本等不同会话。邻接的有限锚点还会漏掉与查询不直接重叠的纯数值回答。','',
++        '2. 排序：新测试D有10个来源事实在候选池却不在前八。实体匹配和“有数值”粗信号可能把会员号、地址等排在预订号/折扣码前；它们不是同一种编号。租车折扣码旧分0.4105第1名，新分2.3056却退至B第12/D第13；这是相对分数被其他片段超过，不是权限过滤。','',
++        '3. 问句范围：酒店房号的原消息还带“需要订晚餐吗？”；整段问句惩罚作用到已陈述的房号，B/D名次27/33。角色/子句范围不足，不能把整段结尾问号当作所有内容不确定。','',
++        '4. 预算：多银行题D的信用卡余额和两项投资余额已经进Top-8，但三个标注事实都没有装入2048字节。固定整条打包不按事实价值/字节成本选择，本轮保持打包器不变，不能把它算作召回失败。','',
++        '5. 候选竞争：RRF cap仍100，却可能换掉原有证据。如上一轮订阅题A/B尚有1个来源候选，C/D变0；多车Tesla也可能被替换。增加路径不保证集合严格超集。','',
++        '6. 评测遗漏：租车确认码存在于可见汇总，却因只标了另一条来源判未命中；税务收入也有同场景重复表面值。见 alternate-evidence-audit.json，需单独审查属性与限定。原八题Amex Gold为跨句组合、600–800估价无历史依据，保留v0.2审计，不补造事实。','',
++        '以上阶段去向和名次有直接结果证据。不同特征各自造成多少损失仍是待验证假设：本轮只做排序/召回2×2，没有逐项权重消融，不把这些相关现象称为唯一因果。','']
++    for split in data['summaries']:
++        counts=Counter(f['groups']['D']['reason'] for c in data['cases'] if c['split']==split for f in c['fact_analysis'])
++        failures+=['## '+split,'', 'D组去向：'+', '.join(f'{k}={v}' for k,v in sorted(counts.items())),'']
++        for c in data['cases']:
++            if c['split']!=split:continue
++            missed=[f for f in c['fact_analysis'] if f['groups']['D']['reason']!='visible']
++            if not missed:continue
++            failures+=['### '+c['case_id'],'','| 未覆盖来源事实 | D去向 | 最佳D排名 | 原始来源位置/时间 |','|---|---|---:|---|']
++            for f in missed:
++                supports=f['groups']['D']['sources']
++                best=min((s['rank'] for s in supports if s['rank'] is not None),default=None)
++                source=f['literal_history_support'][0] if f['literal_history_support'] else None
++                location=f"{source['conversation_id']} / {source['message_index']} / {source['observed_at']}" if source else '见v0.2争议事实审计'
++                failures.append('| '+' / '.join(f['variants']).replace('|','/')+f" | {f['groups']['D']['reason']} | {best} | {location} |")
++            failures+=['']
++    failures+=['## 证据审计与停止边界','',
++        f'后验替代证据提示共 {len(alternatives)} 条（按组/来源计数，不是新增正确事实数）。其中原文、位置和时间均保存；既不修改Gold，也不将同值不同属性全算命中。',
++        '语义任务正确率、具体例外是否被模型理解、模型误用号码的比例均NOT_RUN。没有调用模型，不能把检索命中数称为任务完成率。','',
++        '所有原v0.1/v0.2数据、报告和源码在本轮保留。当前未证明稳定的生产收益，不默认启用；本轮到此停止，等待设计评审。']
++    save('reports/memory_v03/failure_analysis_v03.md','\n'.join(failures))
++
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/src/min_agent/long_memory/atomic_cards.py
+@@ -0,0 +1,87 @@
++"""独立、未确认的原子卡片实验；字段逐字引用原文，不写生产 Memory。"""
++from hashlib import sha256
++from typing import Literal
++from uuid import uuid5
++
++from pydantic import BaseModel,ConfigDict,Field
++
++from min_agent.long_memory.cards import ValidTime
++from min_agent.long_memory.retrieval import eligible_for_query
++from min_agent.long_memory.retrieval_quality import body
++
++
++class QuoteRef(BaseModel):
++    model_config=ConfigDict(extra='forbid',frozen=True)
++    episode_id:str
++    start:int=Field(ge=0)
++    end:int=Field(gt=0)
++    quote:str=Field(min_length=1)
++
++
++class AtomicCard(BaseModel):
++    model_config=ConfigDict(extra='forbid',frozen=True)
++    memory_id:str
++    user_id:str
++    subject:str
++    attribute:str
++    value:str
++    scenario:str
++    valid_time:ValidTime
++    evidence_refs:list[str]
++    source_quotes:dict[str,QuoteRef]
++    source_hashes:dict[str,str]
++    claim_kind:Literal['explicit','inferred']
++    evidence_type:Literal['DIRECT','INFERRED']
++    confirmation_status:Literal['pending']='pending'
++
++
++def build_atomic_card(memory,context,query,*,subject,attribute,value,approval,claim_kind='inferred'):
++    if approval!='approved_fixture':
++        raise PermissionError('仅允许已批准公共/合成 Fixture 的原子卡实验')
++    if claim_kind not in {'explicit','inferred'}:
++        raise ValueError('未知事实标记')
++    memory.sessions.check_access(context)
++    pool={m.id:m for m in eligible_for_query(memory,context,query)[0]}
++    doc=memory.document(context)
++    refs={key:QuoteRef.model_validate(ref.model_dump()) for key,ref in
++          dict(subject=subject,attribute=attribute,value=value).items()}
++    selected=[];evidence=[];events=set();hashes={}
++    for key,ref in refs.items():
++        source=pool.get(ref.episode_id)
++        if source is None or not source.confirmation_ref.startswith('approved_fixture:'):
++            raise PermissionError('原子字段来源未批准、越权、未来或已撤回')
++        text=body(source)
++        if ref.start>=ref.end or ref.end>len(text) or text[ref.start:ref.end]!=ref.quote:
++            raise ValueError('字段不是原文逐字片段；拒绝补造缺失事实')
++        selected.append(source)
++        hashes[source.id]=sha256(source.model_dump_json().encode()).hexdigest()
++        for identity in source.evidence_refs:
++            e=doc.evidence.get(identity)
++            if e is None or e.user_id!=str(context.owner_id) or e.observed_at>query.as_of:
++                raise PermissionError('字段证据无效')
++            evidence.append(identity);events.add(e.session_id)
++    if len(events)!=1:
++        raise ValueError('不同事件不能因同名/相似取值自动关联')
++    if claim_kind=='explicit' and (len(hashes)!=1 or any(m.evidence_type!='DIRECT' for m in selected)):
++        raise ValueError('跨句或推断来源不能自动升级为明确用户事实')
++    start=max(max(m.effective_from,m.observed_at,m.confirmed_at,m.updated_at) for m in selected)
++    ends=[m.valid_until for m in selected if m.valid_until is not None]
++    identity=str(uuid5(context.owner_id,'atomic:'+':'.join(
++        f'{k}:{r.episode_id}:{r.start}:{r.end}' for k,r in refs.items())))
++    return AtomicCard(memory_id=identity,user_id=str(context.owner_id),
++        subject=subject.quote,attribute=attribute.quote,value=value.quote,scenario=next(iter(events)),
++        valid_time=ValidTime(start=start,end=min(ends) if ends else None),
++        evidence_refs=list(dict.fromkeys(evidence)),source_quotes=refs,source_hashes=hashes,
++        claim_kind=claim_kind,evidence_type='DIRECT' if claim_kind=='explicit' else 'INFERRED')
++
++
++def validate_atomic_card(memory,context,query,card):
++    try:
++        card=AtomicCard.model_validate(card.model_dump())
++        if card.user_id!=str(context.owner_id):
++            return False
++        rebuilt=build_atomic_card(memory,context,query,**card.source_quotes,
++            approval='approved_fixture',claim_kind=card.claim_kind)
++        return rebuilt==card
++    except (PermissionError,ValueError,KeyError):
++        return False
+--- /dev/null
++++ b/src/min_agent/long_memory/quality_evaluation.py
+@@ -0,0 +1,100 @@
++"""原始 Episode 的四组实验；查询与排序完成以后才读取 Gold。"""
++from datetime import timedelta
++from hashlib import sha256
++import re
++from statistics import median
++from time import perf_counter
++
++from min_agent.long_memory.evaluation import build_approved_fixture
++from min_agent.long_memory.models import Query
++from min_agent.long_memory.retrieval import eligible_for_query
++from min_agent.long_memory.retrieval_experiment import _facts,_supports,encoded,pack_context
++from min_agent.long_memory.retrieval_quality import experiment_search,body
++
++
++def evaluate_quality_case(case,*,gold,budget=2048):
++    if type(budget) is not int or budget<0:
++        raise ValueError('上下文预算需非负整数')
++    history={k:case[k] for k in ('test_id','category','conversation_histories')}
++    memory,ctx,info=build_approved_fixture(history,approval='approved_fixture')
++    query=Query(text=case['user_question'],as_of=info['last_time']+timedelta(microseconds=1),top_k=8)
++    pool={m.id:m for m in eligible_for_query(memory,ctx,query)[0]}
++    doc=memory.document(ctx)
++    positions={}
++    for item in pool.values():
++        scenario=re.match(r'^\[.*?;session=(.*?);range=',item.content).group(1)
++        for reference in item.evidence_refs:
++            positions[reference]=(scenario,doc.evidence[reference].message_ref)
++    groups={}
++    for name,recall,ranking in [('A',False,False),('B',False,True),('C',True,False),('D',True,True)]:
++        times=[];retrieval=None
++        for _ in range(3):
++            start=perf_counter()
++            result=experiment_search(memory,ctx,query,improved_candidates=recall,improved_ranking=ranking)
++            times.append((perf_counter()-start)*1000)
++            if retrieval is not None and result!=retrieval:
++                raise ValueError('同一输入的候选/排名不确定')
++            retrieval=result
++        selected,context_bytes=pack_context(retrieval['hits'],pool,budget)
++        groups[name]=dict(retrieval=retrieval,visible_ids=selected,context_bytes=context_bytes,
++            search_ms=times,median_search_ms=median(times),candidate_count=len(retrieval['candidates']),
++            pre_cap_count=retrieval['trace']['pre_cap_count'],top_k=8,context_budget=budget,
++            representation='unchanged_raw_episode',model_quality='NOT_RUN',provider_tokens='NOT_RUN',judge='NOT_RUN')
++    assert {h['memory_id'] for h in groups['A']['retrieval']['candidates']}=={h['memory_id'] for h in groups['B']['retrieval']['candidates']}
++    assert groups['C']['retrieval']['candidates']==groups['D']['retrieval']['candidates']
++    # Gold 不影响以上任何代码路径。
++    facts=_facts(gold)
++    matched={}
++    for group,row in groups.items():
++        candidates=[h['memory_id'] for h in row['retrieval']['candidates']]
++        hits=[h['memory_id'] for h in row['retrieval']['hits']]
++        matches=[]
++        for n,fact in enumerate(facts,1):
++            matches.append(dict(fact_id=fact.get('fact_id',f'f{n}'),
++                candidate_ids=[i for i in candidates if _supports(pool[i],fact,positions)],
++                topk_ids=[i for i in hits if _supports(pool[i],fact,positions)],
++                visible_ids=[i for i in row['visible_ids'] if _supports(pool[i],fact,positions)]))
++        candidate_facts=sum(bool(m['candidate_ids']) for m in matches)
++        topk_facts=sum(bool(m['topk_ids']) for m in matches)
++        visible_facts=sum(bool(m['visible_ids']) for m in matches)
++        row.update(fact_count=len(facts),candidate_facts=candidate_facts,topk_facts=topk_facts,
++            visible_facts=visible_facts,candidate_recall=candidate_facts/len(facts) if facts else None,
++            recall_at_8=topk_facts/len(facts) if facts else None,
++            visible_fact_recall=visible_facts/len(facts) if facts else None,
++            unique_before_topk=len(set(candidates)),fact_matches=matches)
++        matched[group]=matches
++    analyses=[]
++    for number,fact in enumerate(facts):
++        sources=[]
++        for identity,item in pool.items():
++            if not _supports(item,fact,positions):
++                continue
++            reference=item.evidence_refs[0]
++            conv,index=positions[reference]
++            text=body(item)
++            sources.append(dict(episode_id=identity,conversation_id=conv,message_index=index,
++                observed_at=item.observed_at.isoformat(),topic_ids=item.topic_ids,scenario_ids=item.scenario_ids,
++                evidence_refs=item.evidence_refs,evidence_type=item.evidence_type,
++                quote=text,source_sha256=sha256(text.encode()).hexdigest()))
++        paths={}
++        for group,row in groups.items():
++            match=matched[group][number]
++            if match['visible_ids']:reason='visible'
++            elif match['topk_ids']:reason='context_budget'
++            elif match['candidate_ids']:reason='ranking_cutoff'
++            elif not sources:reason='gold_surface_missing_or_external'
++            else:reason='candidate_gap'
++            candidates={h['memory_id']:h for h in row['retrieval']['candidates']}
++            ranks={h['memory_id']:n+1 for n,h in enumerate(row['retrieval']['ranked'])}
++            paths[group]=dict(reason=reason,**match,sources=[dict(
++                episode_id=s['episode_id'],rank=ranks.get(s['episode_id']),
++                old_score=candidates.get(s['episode_id'],{}).get('score'),
++                features=row['retrieval']['ranking_features'].get(s['episode_id']),
++                recall_paths=row['retrieval']['trace'].get('fusion_paths',{}).get(s['episode_id'],[])) for s in sources])
++        analyses.append(dict(fact_id=fact.get('fact_id',f'f{number+1}'),variants=fact['variants'],
++            label=fact.get('label',''),literal_history_support=sources,groups=paths))
++    return dict(case_id=case['test_id'],category=case['category'],question=case['user_question'],
++        input_history_sha256=sha256(encoded(history)).hexdigest(),as_of=query.as_of.isoformat(),fact_count=len(facts),
++        groups=groups,fact_analysis=analyses,source_episodes=[m.model_dump(mode='json') for m in pool.values()],
++        source_positions={r:dict(conversation_id=p[0],message_index=p[1]) for r,p in positions.items()},
++        live_model_calls=0)
+--- /dev/null
++++ b/src/min_agent/long_memory/retrieval_quality.py
+@@ -0,0 +1,185 @@
++"""v0.3 离线排序/召回消融；不注册到 Runtime，不修改生产 search。"""
++from collections import Counter, defaultdict
++from copy import deepcopy
++import math
++import re
++
++from min_agent.long_memory.models import Query
++from min_agent.long_memory.retrieval import _lookup, eligible_for_query, search, terms
++
++
++STOP = set('''a an the i me my mine we our ours you your yours he she it its they their
++this that these those is are am was were be been being do does did have has had will
++would can could may might must should please help need want know tell remind sure again
++also just all any anything what which when where how why for to of in on at by with
++from as about and or but if so up get make while looking now go before after new ready
++getting based take care supposed hi hello thanks thank yes okay good great perfect'''.split())
++
++# 通用属性词族，不包含案例 ID、人名、品牌、数值或 Gold 表面形式。
++FAMILIES = {
++    'identifier': 'number identifier reference confirmation code routing account id',
++    'timing': 'time date day schedule scheduled scheduling appointment calendar arrive arrival departure deadline expires expiry until',
++    'price': 'cost price bill monthly subscription fee rate charge amount balance asset debt worth payment',
++    'coverage': 'cover coverage insurance warranty repair claim damage protection deductible exclude exception',
++    'benefit': 'reward point cashback earn benefit',
++    'risk': 'prepare concern before ready track finalizing requirement required pending delay',
++}
++WEIGHTS = dict(query_overlap=2.0, neighbor_overlap=1.0, attribute_match=1.0,
++               specific_value=0.75, entity_match=2.0, old_score=0.2, is_question=-0.6)
++RRF_K = 60
++ANCHORS_PER_ROUTE = 12
++
++
++def _normal(word):
++    if len(word) > 4 and word.endswith('ies'):
++        return word[:-3]+'y'
++    if len(word) > 4 and word.endswith('s') and not word.endswith('ss'):
++        return word[:-1]
++    return word
++
++
++def keywords(text):
++    return {_normal(w) for w in terms(text) if w not in STOP}
++
++
++def body(item):
++    match = re.match(r'^\[(?:user|assistant|tool);session=.*?;range=\d+:\d+\] (.*)$', item.content, re.S)
++    return match.group(1) if match else item.content
++
++
++def _phrase(name, text):
++    return re.search(r'(?<!\w)'+re.escape(name)+r'(?!\w)', text, re.I) is not None
++
++
++def _index(memory, context, query):
++    pool, _, _ = eligible_for_query(memory, context, query)
++    records = {m.id:m for m in pool}
++    doc = memory.document(context)
++    positions = defaultdict(list)
++    location = {}
++    for m in pool:
++        if not m.evidence_refs:
++            continue
++        e = doc.evidence.get(m.evidence_refs[0])
++        if e is not None and e.user_id == str(context.owner_id) and e.observed_at <= query.as_of:
++            location[m.id] = (e.session_id, e.message_ref)
++            positions[location[m.id]].append(m.id)
++    neighbors = {}
++    for identity, (session, number) in location.items():
++        neighbors[identity] = sorted({i for offset in (-1,1)
++            for i in positions.get((session,number+offset),[])})
++    texts = {i:body(m) for i,m in records.items()}
++    token_sets = {i:keywords(text) for i,text in texts.items()}
++    frequencies = Counter(word for tokens in token_sets.values() for word in tokens)
++    idf = {word:math.log((len(pool)+1)/(count+1))+1 for word,count in frequencies.items()}
++    return records, texts, token_sets, neighbors, idf
++
++
++def _profile(text, texts):
++    tokens = keywords(text)
++    attributes = [kind for kind,words in FAMILIES.items() if tokens & keywords(words)]
++    entities = sorted({w for w in re.findall(r'\b[A-Z][A-Za-z0-9-]+\b',text) if w.casefold() not in STOP})
++    bindings = []
++    expansions = set(tokens)
++    for kind in attributes:
++        expansions |= keywords(FAMILIES[kind])
++    for identity, source in texts.items():
++        for name, alias in re.findall(r'\b([A-Z][A-Za-z]+(?: [A-Z][A-Za-z]+){0,3})\s*\(([A-Z][A-Z0-9]{1,9})\)',source):
++            if _phrase(name,text) or _phrase(alias,text):
++                bindings.append(dict(source_id=identity,name=name,alias=alias))
++                expansions |= keywords(name+' '+alias)
++                entities += [name,alias]
++    return dict(keywords=sorted(tokens),attributes=attributes,entities=sorted(set(entities)),
++                expanded_terms=sorted(expansions),alias_bindings=bindings)
++
++
++def _overlap(wanted, present, idf):
++    return sum(idf.get(w,1) for w in sorted(wanted & present))/sum(idf.get(w,1) for w in sorted(wanted)) if wanted else 0.0
++
++
++def _features(identity, score, profile, texts, tokens, neighbors, idf):
++    wanted = set(profile['keywords'])
++    text = texts[identity]
++    neighbor_ids = neighbors.get(identity,[])
++    local_overlap = _overlap(wanted,tokens[identity],idf)
++    adjacent_overlap = max((_overlap(wanted,tokens[i],idf) for i in neighbor_ids),default=0)
++    context_tokens = tokens[identity] | set().union(*(tokens[i] for i in neighbor_ids))
++    supported_attributes = [k for k in profile['attributes'] if context_tokens & keywords(FAMILIES[k])]
++    is_question = text.rstrip().endswith('?') or text.rstrip().endswith('？')
++    # 数值/否定只是“可能含具体约束”的信号，绝不作为事实验证或写入授权。
++    has_value = bool(re.search(r'\d|\b(?:no|not|never|without|except|until|requires)\b|不要|禁止',text,re.I))
++    entity = any(_phrase(name,text) for name in profile['entities'])
++    entity |= any(_phrase(name,texts[i]) for name in profile['entities'] for i in neighbor_ids)
++    relevance = max(local_overlap,adjacent_overlap,float(entity))
++    features = dict(query_overlap=local_overlap,neighbor_overlap=adjacent_overlap,
++        attribute_match=float(bool(supported_attributes) and has_value),
++        specific_value=float(has_value)*relevance,entity_match=float(entity),
++        old_score=score,is_question=float(is_question))
++    features['total'] = sum(WEIGHTS[k]*v for k,v in features.items())
++    features['neighbor_ids'] = neighbor_ids
++    features['matched_attributes'] = supported_attributes
++    return features
++
++
++def _improved_pool(original, records, texts, tokens, neighbors, idf, profile, query):
++    expanded, backend = _lookup(list(records.values()),' '.join(profile['expanded_terms']),use_fts=True)
++    expanded = sorted(expanded,key=lambda x:(-x[1],x[0]))
++    routes = [list(original['diagnostic']['merged_candidates']),
++              [dict(memory_id=i,score=s) for i,s in expanded[:query.max_candidates]]]
++    anchors = []
++    for route in routes:
++        ordered = sorted(route,key=lambda h:(-_overlap(set(profile['keywords']),tokens[h['memory_id']],idf),h['memory_id']))
++        anchors += [h['memory_id'] for h in ordered[:ANCHORS_PER_ROUTE]
++                    if _overlap(set(profile['keywords']),tokens[h['memory_id']],idf)>0]
++    neighbor_ids = sorted({i for anchor in anchors for i in neighbors.get(anchor,[])})
++    # 每个召回路径的同一个 ID 只计一次；RRF 只决定候选 cap 的成员。
++    route_ids = [[h['memory_id'] for h in route] for route in routes] + [neighbor_ids]
++    rrf = defaultdict(float)
++    paths = defaultdict(list)
++    for source, ids in zip(('original','expanded_fts','event_neighbor'),route_ids):
++        for rank, identity in enumerate(dict.fromkeys(ids),1):
++            rrf[identity] += 1/(RRF_K+rank)
++            paths[identity].append(dict(source=source,rank=rank,rrf=1/(RRF_K+rank)))
++    selected = sorted(rrf,key=lambda i:(-rrf[i],i))[:query.max_candidates]
++    original_scores = {h['memory_id']:h for h in original['diagnostic']['merged_before_cap']}
++    old_global = dict(_lookup(list(records.values()),query.text,use_fts=True)[0])
++    pool = []
++    for identity in selected:
++        old = original_scores.get(identity)
++        pool.append(dict(memory_id=identity,score=old['score'] if old else old_global.get(identity,0.0),
++            paths=deepcopy(old['paths']) if old else [],reasons=deepcopy(old['reasons']) if old else ['new_recall_only']))
++    return pool, dict(expanded_backend=backend,expanded_fts_matches=len(expanded),
++        expanded_fts_used=min(len(expanded),query.max_candidates),anchor_ids=sorted(set(anchors)),
++        neighbor_ids=neighbor_ids,fusion_paths=dict(paths),rrf_membership_scores=dict(rrf),
++        pre_cap_count=len(rrf),cap=query.max_candidates)
++
++
++def experiment_search(memory, context, query, *, improved_candidates=False, improved_ranking=False):
++    query = Query.model_validate(query.model_dump())
++    original = search(memory,context,query,inspect=True)
++    if not improved_candidates and not improved_ranking:
++        candidates=deepcopy(original['diagnostic']['merged_candidates'])
++        return dict(hits=deepcopy(original['hits']),candidates=candidates,ranked=deepcopy(candidates),
++            ranking_features={},trace=dict(original_candidate_count=len(candidates),
++                eligible_count=len(original['diagnostic']['eligible_ids']),
++                pre_cap_count=len(original['diagnostic']['merged_before_cap']),cap=query.max_candidates,
++                improved_candidates=False,improved_ranking=False),original_trace=original['trace'])
++    records,texts,tokens,neighbors,idf = _index(memory,context,query)
++    profile = _profile(query.text,texts)
++    candidates = deepcopy(original['diagnostic']['merged_candidates'])
++    trace = dict(profile,original_candidate_count=len(candidates),eligible_count=len(records),
++        pre_cap_count=len(original['diagnostic']['merged_before_cap']),cap=query.max_candidates,
++        improved_candidates=improved_candidates,improved_ranking=improved_ranking)
++    if improved_candidates:
++        candidates, extra = _improved_pool(original,records,texts,tokens,neighbors,idf,profile,query)
++        trace.update(extra)
++    features = {}
++    if improved_ranking:
++        features = {h['memory_id']:_features(h['memory_id'],h['score'],profile,texts,tokens,neighbors,idf) for h in candidates}
++        ranked = sorted(candidates,key=lambda h:(-features[h['memory_id']]['total'],h['memory_id']))
++    else:
++        ranked = sorted(candidates,key=lambda h:(-h['score'],h['memory_id']))
++    hits = deepcopy(ranked[:query.top_k])
++    # 原 score 始终保留；实验排序的总分单独存放，避免混淆多路径融合分数。
++    return dict(hits=hits,candidates=candidates,ranked=ranked,ranking_features=features,trace=trace,
++                original_trace=original['trace'])
+--- /dev/null
++++ b/tests/fixtures/memory_v03_holdout.json
+@@ -0,0 +1,614 @@
++{
++  "protocol": "v03 source facts frozen before new algorithms and outputs",
++  "annotator": "executing agent raw source review, not independent expert",
++  "frozen_before_search": true,
++  "selection_rule": "first two files per layer among 46 not used in v02 diagnostic or holdout, before new retrieval outputs",
++  "cases": {
++    "layer1_07_car_rental": {
++      "required_facts": [
++        {
++          "fact_id": "layer1_07_car_rental:f1",
++          "label": "Rental confirmation",
++          "variants": [
++            "E7739482M"
++          ],
++          "sources": [
++            {
++              "conversation_id": "car_rental_001",
++              "message_index": 67,
++              "role": "assistant",
++              "timestamp": "2024-11-14 10:15:00",
++              "start": 68,
++              "end": 77,
++              "quote": "E7739482M",
++              "message_sha256": "ca30f78de7c00d238f2a02d24f2a307a061f3df2650f2332e5d31475d9a8ed81"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer1_07_car_rental:f2",
++          "label": "Corporate discount code",
++          "variants": [
++            "TC-8847"
++          ],
++          "sources": [
++            {
++              "conversation_id": "car_rental_001",
++              "message_index": 87,
++              "role": "assistant",
++              "timestamp": "2024-11-14 10:15:00",
++              "start": 145,
++              "end": 152,
++              "quote": "TC-8847",
++              "message_sha256": "f392aa93755f6136d0fc6c69771a75a81f6c50c832a44d7807e28a57c1a8be21"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer1/07_car_rental.yaml",
++      "source_sha256": "61e34951e16813a7e9e565efc4581174524c4db6509319899e55fc6b89fa72f4"
++    },
++    "layer1_08_hotel_reservation": {
++      "required_facts": [
++        {
++          "fact_id": "layer1_08_hotel_reservation:f1",
++          "label": "Hotel confirmation",
++          "variants": [
++            "HSD-445782"
++          ],
++          "sources": [
++            {
++              "conversation_id": "hotel_booking_001",
++              "message_index": 69,
++              "role": "assistant",
++              "timestamp": "2024-11-09 19:30:00",
++              "start": 70,
++              "end": 80,
++              "quote": "HSD-445782",
++              "message_sha256": "94dbc3f0f543a0ee7d7a68ee2b13af8fabf7c695d0502fb77b2b8e898598426d"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer1_08_hotel_reservation:f2",
++          "label": "Reserved room",
++          "variants": [
++            "1912"
++          ],
++          "sources": [
++            {
++              "conversation_id": "hotel_booking_001",
++              "message_index": 41,
++              "role": "assistant",
++              "timestamp": "2024-11-09 19:30:00",
++              "start": 5,
++              "end": 9,
++              "quote": "1912",
++              "message_sha256": "12f824812977d766eb35f7df71115a17736dd676cfd3fa486bdd53094ac57444"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer1/08_hotel_reservation.yaml",
++      "source_sha256": "2e6553059363498bda19cf22b38cfe006bb87d48f443756fc032812e50036173"
++    },
++    "layer2_05_multiple_bank_accounts": {
++      "required_facts": [
++        {
++          "fact_id": "layer2_05_multiple_bank_accounts:f1",
++          "label": "Checking balance",
++          "variants": [
++            "$8,456.23"
++          ],
++          "sources": [
++            {
++              "conversation_id": "chase_banking_001",
++              "message_index": 5,
++              "role": "assistant",
++              "timestamp": "2024-08-20 09:30:00",
++              "start": 57,
++              "end": 66,
++              "quote": "$8,456.23",
++              "message_sha256": "028a1ddb3e4968a140ac9fde44e0142bc59a5f458a3c94c78ed5301052d7ac7c"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_05_multiple_bank_accounts:f2",
++          "label": "Savings balance",
++          "variants": [
++            "$22,150.00"
++          ],
++          "sources": [
++            {
++              "conversation_id": "chase_banking_001",
++              "message_index": 5,
++              "role": "assistant",
++              "timestamp": "2024-08-20 09:30:00",
++              "start": 87,
++              "end": 97,
++              "quote": "$22,150.00",
++              "message_sha256": "028a1ddb3e4968a140ac9fde44e0142bc59a5f458a3c94c78ed5301052d7ac7c"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_05_multiple_bank_accounts:f3",
++          "label": "Credit card balance",
++          "variants": [
++            "$2,847.93"
++          ],
++          "sources": [
++            {
++              "conversation_id": "chase_banking_001",
++              "message_index": 17,
++              "role": "assistant",
++              "timestamp": "2024-08-20 09:30:00",
++              "start": 19,
++              "end": 28,
++              "quote": "$2,847.93",
++              "message_sha256": "9ade9c9f6030a6d08b074664debc9e27e9d563f75b5423e0644b0bd14849c25f"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_05_multiple_bank_accounts:f4",
++          "label": "Other bank savings",
++          "variants": [
++            "$45,680.00"
++          ],
++          "sources": [
++            {
++              "conversation_id": "wellsfargo_banking_001",
++              "message_index": 5,
++              "role": "assistant",
++              "timestamp": "2024-09-12 14:00:00",
++              "start": 26,
++              "end": 36,
++              "quote": "$45,680.00",
++              "message_sha256": "ff451db63c14109d34768287bc6de99486df38423b7f8e03cddbe1d8e66d9db6"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_05_multiple_bank_accounts:f5",
++          "label": "Mortgage balance",
++          "variants": [
++            "$287,543.21"
++          ],
++          "sources": [
++            {
++              "conversation_id": "wellsfargo_banking_001",
++              "message_index": 11,
++              "role": "assistant",
++              "timestamp": "2024-09-12 14:00:00",
++              "start": 25,
++              "end": 36,
++              "quote": "$287,543.21",
++              "message_sha256": "ad89c3ac8a0aaa839f13e89f7e631937c0df5b9948b71b02a4f9650cce28539a"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_05_multiple_bank_accounts:f6",
++          "label": "IRA balance",
++          "variants": [
++            "$156,892.45"
++          ],
++          "sources": [
++            {
++              "conversation_id": "fidelity_investment_001",
++              "message_index": 5,
++              "role": "assistant",
++              "timestamp": "2024-10-28 11:00:00",
++              "start": 25,
++              "end": 36,
++              "quote": "$156,892.45",
++              "message_sha256": "07f2bbc25af06dd07da6047f0bd5d8ad16c83d2280ae93cf963cc7ba6b3559e6"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_05_multiple_bank_accounts:f7",
++          "label": "Brokerage balance",
++          "variants": [
++            "$87,234.18"
++          ],
++          "sources": [
++            {
++              "conversation_id": "fidelity_investment_001",
++              "message_index": 5,
++              "role": "assistant",
++              "timestamp": "2024-10-28 11:00:00",
++              "start": 68,
++              "end": 78,
++              "quote": "$87,234.18",
++              "message_sha256": "07f2bbc25af06dd07da6047f0bd5d8ad16c83d2280ae93cf963cc7ba6b3559e6"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer2/05_multiple_bank_accounts.yaml",
++      "source_sha256": "f225d7f39eb4d56cb238ef64d693e9d41e0ca4730c409b4b4599b434cf6c0906"
++    },
++    "layer2_06_multiple_insurance_policies": {
++      "required_facts": [
++        {
++          "fact_id": "layer2_06_multiple_insurance_policies:f1",
++          "label": "Auto comprehensive and collision deductible",
++          "variants": [
++            "$500"
++          ],
++          "sources": [
++            {
++              "conversation_id": "auto_insurance_001",
++              "message_index": 7,
++              "role": "assistant",
++              "timestamp": "2024-09-10 11:00:00",
++              "start": 59,
++              "end": 63,
++              "quote": "$500",
++              "message_sha256": "107983e2279b5328b712cd5875791f3a0900338c2c7a4f99fb1bfa4ec9012e78"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_06_multiple_insurance_policies:f2",
++          "label": "Home deductible update",
++          "variants": [
++            "$2,500"
++          ],
++          "sources": [
++            {
++              "conversation_id": "home_insurance_001",
++              "message_index": 23,
++              "role": "assistant",
++              "timestamp": "2024-10-05 14:30:00",
++              "start": 35,
++              "end": 41,
++              "quote": "$2,500",
++              "message_sha256": "5a388e309b52df6465b58e45dd623ed9aee2e1f0deaf383718565be86be1b6dc"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_06_multiple_insurance_policies:f3",
++          "label": "Exception: home deductible changes at renewal, not immediately",
++          "variants": [
++            "at renewal"
++          ],
++          "sources": [
++            {
++              "conversation_id": "home_insurance_001",
++              "message_index": 69,
++              "role": "assistant",
++              "timestamp": "2024-10-05 14:30:00",
++              "start": 36,
++              "end": 46,
++              "quote": "at renewal",
++              "message_sha256": "8fa6dacd4e90bd82f7a5a7880ec03690273ff234e3c1fcb8dd161e063fe5b3f7"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_06_multiple_insurance_policies:f4",
++          "label": "Exception: no flood coverage on record",
++          "variants": [
++            "doesn't show flood coverage"
++          ],
++          "sources": [
++            {
++              "conversation_id": "home_insurance_001",
++              "message_index": 33,
++              "role": "assistant",
++              "timestamp": "2024-10-05 14:30:00",
++              "start": 44,
++              "end": 71,
++              "quote": "doesn't show flood coverage",
++              "message_sha256": "5407a43d6719c8c1c58da2d0ee81d980225d2d2f18b470f68dc6ddc08d9c240b"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_06_multiple_insurance_policies:f5",
++          "label": "Conditional earthquake deductible if purchased",
++          "variants": [
++            "10%"
++          ],
++          "sources": [
++            {
++              "conversation_id": "home_insurance_001",
++              "message_index": 39,
++              "role": "assistant",
++              "timestamp": "2024-10-05 14:30:00",
++              "start": 92,
++              "end": 95,
++              "quote": "10%",
++              "message_sha256": "eeb9fa828fbac03c9161772149ecd8503d23bc561bcf5b8a83314813b0cd8e2e"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer2_06_multiple_insurance_policies:f6",
++          "label": "Conditional earthquake deductible amount",
++          "variants": [
++            "$75,000"
++          ],
++          "sources": [
++            {
++              "conversation_id": "home_insurance_001",
++              "message_index": 41,
++              "role": "assistant",
++              "timestamp": "2024-10-05 14:30:00",
++              "start": 30,
++              "end": 37,
++              "quote": "$75,000",
++              "message_sha256": "35d8743bd3cababd8812fb15ef4549bf61fe7f878120dd4ee6d88f5e695449d5"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer2/06_multiple_insurance_policies.yaml",
++      "source_sha256": "8676cbb27a548806ded000c497c7d43da8a358d78d7c063a222e5550606cb611"
++    },
++    "layer3_05_tax_preparation_synthesis": {
++      "required_facts": [
++        {
++          "fact_id": "layer3_05_tax_preparation_synthesis:f1",
++          "label": "Quoted property tax",
++          "variants": [
++            "$8,500"
++          ],
++          "sources": [
++            {
++              "conversation_id": "home_purchase_001",
++              "message_index": 13,
++              "role": "assistant",
++              "timestamp": "2024-02-15 10:00:00",
++              "start": 23,
++              "end": 29,
++              "quote": "$8,500",
++              "message_sha256": "06265c35818f500448ff13cdc36387de838c7c003242c3c1f761ea1d6769cbc2"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_05_tax_preparation_synthesis:f2",
++          "label": "Quoted year mortgage interest",
++          "variants": [
++            "$31,000"
++          ],
++          "sources": [
++            {
++              "conversation_id": "home_purchase_001",
++              "message_index": 19,
++              "role": "assistant",
++              "timestamp": "2024-02-15 10:00:00",
++              "start": 24,
++              "end": 31,
++              "quote": "$31,000",
++              "message_sha256": "a9ca2254d99bcc06edec654c31e4743571a83e963b81e95c576e816484f9f937"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_05_tax_preparation_synthesis:f3",
++          "label": "Quoted points paid",
++          "variants": [
++            "$7,500"
++          ],
++          "sources": [
++            {
++              "conversation_id": "home_purchase_001",
++              "message_index": 25,
++              "role": "assistant",
++              "timestamp": "2024-02-15 10:00:00",
++              "start": 54,
++              "end": 60,
++              "quote": "$7,500",
++              "message_sha256": "dd6e8d64889aa0001b6017de49348f52dc149832803035ed865094e60ea3f00c"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_05_tax_preparation_synthesis:f4",
++          "label": "Stock cost basis",
++          "variants": [
++            "$22,500"
++          ],
++          "sources": [
++            {
++              "conversation_id": "stock_sale_001",
++              "message_index": 29,
++              "role": "assistant",
++              "timestamp": "2024-06-20 14:00:00",
++              "start": 59,
++              "end": 66,
++              "quote": "$22,500",
++              "message_sha256": "e47ea31eb275983930e58a9000976fa608312822afeee8cc66b1243e445d9088"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_05_tax_preparation_synthesis:f5",
++          "label": "Charity donation valuation",
++          "variants": [
++            "$25,200"
++          ],
++          "sources": [
++            {
++              "conversation_id": "charity_donation_001",
++              "message_index": 17,
++              "role": "assistant",
++              "timestamp": "2024-08-15 11:00:00",
++              "start": 40,
++              "end": 47,
++              "quote": "$25,200",
++              "message_sha256": "23b2fc8ba8387689a88e3cf16639f909b7c41664956d1b586adf4280a9cd0d3f"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_05_tax_preparation_synthesis:f6",
++          "label": "Historical form instruction, not verified tax advice",
++          "variants": [
++            "8283"
++          ],
++          "sources": [
++            {
++              "conversation_id": "charity_donation_001",
++              "message_index": 43,
++              "role": "assistant",
++              "timestamp": "2024-08-15 11:00:00",
++              "start": 5,
++              "end": 9,
++              "quote": "8283",
++              "message_sha256": "ede902ddc7873e8fee54bd8c4b9a8c4bc355ba1e39286be50d8490056dbf7c4e"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_05_tax_preparation_synthesis:f7",
++          "label": "User business income quote",
++          "variants": [
++            "$18,000"
++          ],
++          "sources": [
++            {
++              "conversation_id": "side_business_001",
++              "message_index": 6,
++              "role": "user",
++              "timestamp": "2024-10-10 16:00:00",
++              "start": 6,
++              "end": 13,
++              "quote": "$18,000",
++              "message_sha256": "cc492f700ff28c1004e455d56ffee8dffaf18ed808fbde6c9457459b8f66a911"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer3/05_tax_preparation_synthesis.yaml",
++      "source_sha256": "e47584a2239d7db6ed6b2a845e1f7d18ce800067d8330fe0e3a174cc5f738104"
++    },
++    "layer3_06_business_expansion_coordination": {
++      "required_facts": [
++        {
++          "fact_id": "layer3_06_business_expansion_coordination:f1",
++          "label": "Loan underwriting quoted duration",
++          "variants": [
++            "2-3 weeks"
++          ],
++          "sources": [
++            {
++              "conversation_id": "business_loan_application",
++              "message_index": 45,
++              "role": "assistant",
++              "timestamp": "2024-08-15",
++              "start": 98,
++              "end": 107,
++              "quote": "2-3 weeks",
++              "message_sha256": "e87c0b77e12e8dbca7691296f39669f77557e26e9cfb886d1b2770a92a345cf8"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_06_business_expansion_coordination:f2",
++          "label": "Lease deadline",
++          "variants": [
++            "November 15th"
++          ],
++          "sources": [
++            {
++              "conversation_id": "commercial_lease_negotiation",
++              "message_index": 39,
++              "role": "assistant",
++              "timestamp": "2024-09-22",
++              "start": 49,
++              "end": 62,
++              "quote": "November 15th",
++              "message_sha256": "215a756796f0e2e1e54a2d50d1f55aacaa2b1273fb71bab94b34f88ea67c4222"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_06_business_expansion_coordination:f3",
++          "label": "User quoted upfront estimate; not authorization to pay",
++          "variants": [
++            "$18,000"
++          ],
++          "sources": [
++            {
++              "conversation_id": "commercial_lease_negotiation",
++              "message_index": 46,
++              "role": "user",
++              "timestamp": "2024-09-22",
++              "start": 62,
++              "end": 69,
++              "quote": "$18,000",
++              "message_sha256": "f28b24d89f2a4ecbf2ffa2c3c4ba6cc4b6977000da421a076b7b4221d80ab9b4"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_06_business_expansion_coordination:f4",
++          "label": "Permit quoted duration",
++          "variants": [
++            "8-12 weeks"
++          ],
++          "sources": [
++            {
++              "conversation_id": "equipment_supplier_discussion",
++              "message_index": 49,
++              "role": "assistant",
++              "timestamp": "2024-10-28",
++              "start": 86,
++              "end": 96,
++              "quote": "8-12 weeks",
++              "message_sha256": "c2f7c6f9f26d0a0463ec4da3dd8cebb4c082829d70804660da8a0b95ef0533f3"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_06_business_expansion_coordination:f5",
++          "label": "Electrical dependency",
++          "variants": [
++            "208V three-phase"
++          ],
++          "sources": [
++            {
++              "conversation_id": "equipment_supplier_discussion",
++              "message_index": 79,
++              "role": "assistant",
++              "timestamp": "2024-10-28",
++              "start": 15,
++              "end": 31,
++              "quote": "208V three-phase",
++              "message_sha256": "e67920dad600df52a5afa73d075f831c7695ce7488ac99cb7bbe283708748d12"
++            }
++          ]
++        },
++        {
++          "fact_id": "layer3_06_business_expansion_coordination:f6",
++          "label": "Equipment order deadline",
++          "variants": [
++            "mid-November"
++          ],
++          "sources": [
++            {
++              "conversation_id": "equipment_supplier_discussion",
++              "message_index": 93,
++              "role": "assistant",
++              "timestamp": "2024-10-28",
++              "start": 16,
++              "end": 28,
++              "quote": "mid-November",
++              "message_sha256": "0639a00e5d7f9807fabf78d73e6cf75e78d2f5a8a5b9d5481c8856d4b7772af8"
++            }
++          ]
++        }
++      ],
++      "source_path": "test_cases/layer3/06_business_expansion_coordination.yaml",
++      "source_sha256": "4c86a9f5bfb522d95f5188cf3f707d6f5291cd62b4906bfc52f6d8f6ad93bb5c"
++    }
++  }
++}
+--- /dev/null
++++ b/tests/unit/test_atomic_memory_cards.py
+@@ -0,0 +1,59 @@
++from datetime import timedelta
++
++import pytest
++
++from min_agent.long_memory import Query
++from min_agent.long_memory.evaluation import build_approved_fixture
++from min_agent.long_memory.atomic_cards import QuoteRef, build_atomic_card, validate_atomic_card
++
++
++def fixture():
++    case = dict(test_id='atomic-nonce',category='synthetic',conversation_histories=[
++        dict(conversation_id='lumen',timestamp='2026-01-01T00:00:00Z',messages=[
++            dict(role='assistant',content='Lumen offers a membership.'),
++            dict(role='assistant',content='Which tier do you choose?'),
++            dict(role='user',content='I choose Amber.')]),
++        dict(conversation_id='nova',timestamp='2026-02-01T00:00:00Z',messages=[
++            dict(role='assistant',content='Nova also offers Amber.')])])
++    memory,ctx,info = build_approved_fixture(case,approval='approved_fixture')
++    rows = memory.records(ctx,as_of=info['last_time'])
++    def ref(value,contains=None):
++        source = next(m for m in rows if value in m.content and (contains is None or contains in m.content))
++        text=source.content.split('] ',1)[1];start=text.index(value)
++        return QuoteRef(episode_id=source.id,start=start,end=start+len(value),quote=value)
++    return memory,ctx,Query(text='membership tier',as_of=info['last_time']),ref
++
++
++def test_cross_message_binding_keeps_evidence_and_inference_pending():
++    memory,ctx,query,ref = fixture()
++    card = build_atomic_card(memory,ctx,query,subject=ref('Lumen'),attribute=ref('tier'),value=ref('Amber','I choose'),approval='approved_fixture')
++    assert (card.subject,card.attribute,card.value)==('Lumen','tier','Amber')
++    assert card.claim_kind=='inferred' and card.evidence_type=='INFERRED'
++    assert card.confirmation_status=='pending' and len(card.evidence_refs)==3
++    assert validate_atomic_card(memory,ctx,query,card)
++    assert len(memory.document(ctx).memories)==4
++
++
++@pytest.mark.parametrize('error',['different_event','fabricated_value','future','explicit_upgrade','unapproved'])
++def test_bad_associations_do_not_become_facts(error):
++    memory,ctx,query,ref = fixture()
++    subject,attribute,value=ref('Lumen'),ref('tier'),ref('Amber','I choose')
++    extra={}
++    if error=='different_event':value=ref('Amber','Nova')
++    if error=='fabricated_value':value=value.model_copy(update={'quote':'MISSING-600'})
++    if error=='future':query=query.model_copy(update={'as_of':query.as_of-timedelta(days=40)})
++    if error=='explicit_upgrade':extra['claim_kind']='explicit'
++    with pytest.raises((PermissionError,ValueError)):
++        build_atomic_card(memory,ctx,query,subject=subject,attribute=attribute,value=value,
++                          approval='none' if error=='unapproved' else 'approved_fixture',**extra)
++
++
++def test_atomic_derivative_becomes_invalid_after_source_withdrawal():
++    from min_agent.task_state import TaskController,GoalSpec
++    memory,ctx,query,ref=fixture()
++    card=build_atomic_card(memory,ctx,query,subject=ref('Lumen'),attribute=ref('tier'),value=ref('Amber','I choose'),approval='approved_fixture')
++    controller=TaskController(memory.sessions)
++    proposal=controller.propose(ctx,GoalSpec(objective='撤回测试来源',completion_criteria=('撤回指定来源',)))
++    controller.confirm(ctx,proposal.proposal_id);controller.select_mode(ctx,'build')
++    memory.delete(ctx,ref('tier').episode_id)
++    assert not validate_atomic_card(memory,ctx,query,card)
+--- /dev/null
++++ b/tests/unit/test_memory_quality_evaluation.py
+@@ -0,0 +1,29 @@
++from min_agent.long_memory.quality_evaluation import evaluate_quality_case
++
++
++def case():
++    return dict(test_id='quality-eval',category='synthetic',user_question='reference number',
++        expected_behavior='GOLD_SENTINEL',conversation_histories=[dict(conversation_id='one',
++        timestamp='2026-01-01T00:00:00Z',messages=[
++            dict(role='assistant',content='What is your reference number?'),
++            dict(role='user',content='LUMEN-72')])])
++
++
++def test_gold_only_changes_offline_scores_and_never_candidates_or_context():
++    first=evaluate_quality_case(case(),gold=['LUMEN-72'])
++    second=evaluate_quality_case(case(),gold=['OTHER_GOLD'])
++    for group in ('A','B','C','D'):
++        a,b=first['groups'][group],second['groups'][group]
++        assert a['retrieval']==b['retrieval']
++        assert a['visible_ids']==b['visible_ids']
++        assert a['context_bytes']<=2048
++    assert first['groups']['D']['candidate_facts']==1
++    assert first['groups']['D']['visible_facts']==1
++
++
++def test_budget_is_separate_from_topk_and_no_fact_is_fabricated():
++    result=evaluate_quality_case(case(),gold=['LUMEN-72','ABSENT'],budget=0)
++    d=result['groups']['D']
++    assert d['topk_facts']==1 and d['visible_facts']==0
++    assert d['context_bytes']==0
++    assert result['fact_analysis'][1]['literal_history_support']==[]
+--- /dev/null
++++ b/tests/unit/test_memory_retrieval_quality.py
+@@ -0,0 +1,75 @@
++from datetime import timedelta
++
++import pytest
++
++from min_agent.long_memory import Query
++from min_agent.long_memory.evaluation import build_approved_fixture
++from min_agent.long_memory.retrieval import search
++from min_agent.long_memory.retrieval_quality import experiment_search
++
++
++def setup(messages):
++    case = dict(test_id='quality-nonce', category='synthetic', conversation_histories=[dict(
++        conversation_id='one', timestamp='2026-01-01T00:00:00Z',
++        messages=[dict(role=role, content=text) for role,text in messages])])
++    return build_approved_fixture(case, approval='approved_fixture')
++
++
++def test_reranking_preserves_exact_candidate_ids_and_promotes_value_over_question():
++    memory, ctx, info = setup([
++        ('user','What is my reference number? I need my reference number.'),
++        ('assistant','Your reference number is LUMEN-72.')])
++    query = Query(text='What is my reference number?', as_of=info['last_time'])
++    a = experiment_search(memory, ctx, query)
++    b = experiment_search(memory, ctx, query, improved_ranking=True)
++    assert a['hits'] == search(memory,ctx,query)['hits']
++    assert {h['memory_id'] for h in a['candidates']} == {h['memory_id'] for h in b['candidates']}
++    pool = {m.id:m for m in memory.records(ctx,as_of=query.as_of)}
++    assert 'LUMEN-72' in pool[b['hits'][0]['memory_id']].content
++    assert b['ranking_features'][b['hits'][0]['memory_id']]['specific_value'] > 0
++
++
++def test_neighbor_recall_keeps_raw_episode_and_original_sort_scores():
++    memory, ctx, info = setup([('assistant','What is your reference number?'),('user','LUMEN-72')])
++    query = Query(text='reference number', as_of=info['last_time'], top_k=1)
++    a = experiment_search(memory,ctx,query)
++    c = experiment_search(memory,ctx,query,improved_candidates=True)
++    d = experiment_search(memory,ctx,query,improved_candidates=True,improved_ranking=True)
++    pool = {m.id:m for m in memory.records(ctx,as_of=query.as_of)}
++    value = next(i for i,m in pool.items() if m.content.endswith('LUMEN-72'))
++    assert value not in {h['memory_id'] for h in a['candidates']}
++    assert value in {h['memory_id'] for h in c['candidates']}
++    assert {h['memory_id'] for h in c['candidates']} == {h['memory_id'] for h in d['candidates']}
++    assert next(h for h in c['candidates'] if h['memory_id']==value)['score'] == 0
++    assert d['hits'][0]['memory_id'] == value
++    assert memory.document(ctx).revision == 1  # 无写入、副作用或 usage 自增。
++
++
++def test_explicit_alias_path_is_active_and_deduplicated_without_cap_increase():
++    memory, ctx, info = setup([
++        ('assistant','Lumen Archive (LA) stores the document reference.'),
++        ('user','The reference is NOVA-31.')])
++    query = Query(text='LA reference', as_of=info['last_time'], max_candidates=2)
++    result = experiment_search(memory,ctx,query,improved_candidates=True,improved_ranking=True)
++    assert result['trace']['alias_bindings']
++    assert 'lumen' in result['trace']['expanded_terms']
++    assert len(result['candidates']) <= 2
++    assert len({h['memory_id'] for h in result['candidates']}) == len(result['candidates'])
++
++
++def test_expansion_and_reranking_respect_scene_future_deletion_and_foreign_owner():
++    from test_long_memory_store import setup_memory, commit
++    from uuid import uuid4
++    _, ctx, clock, memory = setup_memory()
++    visible = commit(memory,ctx,memory.propose(ctx,'Lumen Archive (LA) reference NOVA-31',source_indices=[0]))
++    scene = memory.register_scenario(ctx,'other')
++    hidden = commit(memory,ctx,memory.propose(ctx,'Lumen Archive (LA) reference SECRET-42',source_indices=[0],scenario_ids=[scene.id]))
++    future = commit(memory,ctx,memory.propose(ctx,'Lumen Archive (LA) reference FUTURE-99',source_indices=[0],effective_from=clock.now+timedelta(days=1)))
++    query = Query(text='LA reference', as_of=clock.now)
++    result = experiment_search(memory,ctx,query,improved_candidates=True,improved_ranking=True)
++    assert {h['memory_id'] for h in result['candidates']} == {visible.id}
++    assert not {hidden.id,future.id} & {h['memory_id'] for h in result['candidates']}
++    other = memory.sessions.create(uuid4())
++    assert not experiment_search(memory,other,query,improved_candidates=True,improved_ranking=True)['hits']
++    memory.delete(ctx,visible.id)
++    assert not experiment_search(memory,ctx,query,improved_candidates=True,improved_ranking=True)['hits']
