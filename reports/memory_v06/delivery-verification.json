@@ -1,0 +1,192 @@
+{
+  "base_commit": "a399c79a25326f0f83b9fb1fc72b35abb94de006",
+  "measured_commit": "864397c42dc115622ec6741944ef9e7a680016e2",
+  "old_tracked_files_byte_identical": 542,
+  "allowed_old_metadata_change": ".gitattributes only",
+  "frozen_policy_sources_verified": 74,
+  "prepared_source_hashes_verified": 77,
+  "original_authorized_pack_sha256": "928f30ec43c34455c1b5bb52f95f58900ecb311484853db2d67f4c1e8cd8f45c",
+  "repaired_execution_pack_sha256": "8c2e782b7cbdceff2107fad1f9de64a65778fdcef1e347c2f315320642eadc22",
+  "local_initialization_requests": 0,
+  "actual_requests": 90,
+  "authorized_request_ceiling": 105,
+  "comparison_cells": 75,
+  "schema_valid_final_answers": 52,
+  "format_invalid_final_answers": 7,
+  "schema_invalid_json_answers": 1,
+  "b2_final_answers": 0,
+  "b2_stop_codes": {
+    "context_limit": 15
+  },
+  "b2_provider_calls": 30,
+  "b2_tool_calls": 48,
+  "b2_actual_sent_body_entries": 0,
+  "b2_delivery": [
+    {
+      "case_id": "layer1_01_bank_account",
+      "request_number": 4,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "layer1_01_bank_account",
+      "request_number": 5,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "request_number": 9,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "request_number": 10,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "request_number": 14,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "request_number": 15,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "request_number": 19,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "request_number": 20,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "request_number": 29,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "request_number": 30,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "request_number": 34,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "request_number": 35,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "request_number": 39,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "request_number": 40,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "request_number": 44,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "request_number": 45,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "request_number": 49,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "request_number": 50,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_accounts",
+      "request_number": 59,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_accounts",
+      "request_number": 60,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_reservation",
+      "request_number": 64,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_reservation",
+      "request_number": 65,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_status",
+      "request_number": 69,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_status",
+      "request_number": 70,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_vehicles",
+      "request_number": 74,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_vehicles",
+      "request_number": 75,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_gate",
+      "request_number": 79,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_gate",
+      "request_number": 80,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_missing",
+      "request_number": 89,
+      "evidence_entries": 0
+    },
+    {
+      "case_id": "v06_holdout_missing",
+      "request_number": 90,
+      "evidence_entries": 0
+    }
+  ],
+  "input_tokens": 250279,
+  "output_tokens": 37204,
+  "reserved_peak_usd": 0.8976174,
+  "reported_usage_peak_estimate_usd": 0.1197285,
+  "invoice": "NOT_AVAILABLE",
+  "automatic_api_retries": 0,
+  "external_judge_calls": 0,
+  "private_imports": 0,
+  "production_default_changes": 0,
+  "policy_changed_after_holdout": false,
+  "syntax_compiled_files": 12,
+  "wheel_sha256": "fbc901120906059d51ff4407cfee299b87486f54d3bd5529444f3ef12af8ca3b",
+  "type_check": "NOT_RUN_NOT_CONFIGURED",
+  "lint": "NOT_RUN_NOT_CONFIGURED",
+  "source_audit_integrity": "answer hashes verified; not independent semantic correctness proof",
+  "provider_state_note": "native hidden state omitted from logs; request hash is not a replayable full wire payload"
+}

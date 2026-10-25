@@ -30,6 +30,7 @@ def main():
     parser.add_argument('--pack',type=Path,required=True)
     parser.add_argument('--offline',type=Path,required=True)
     parser.add_argument('--results',type=Path)
+    parser.add_argument('--audit',type=Path)
     parser.add_argument('--output-dir',type=Path,required=True)
     args=parser.parse_args()
     if args.output_dir.exists():raise FileExistsError('不覆盖原始报告')
@@ -38,6 +39,15 @@ def main():
     real=json.loads(args.results.read_text(encoding='utf-8')) if args.results else None
     if real and real['pack_sha256']!=sha256(args.pack.read_bytes()).hexdigest():raise ValueError('不对应此冻结包')
     cells={(r['case_id'],r['group']):r for r in (real or {}).get('cells',[])}
+    sent_references=defaultdict(list)
+    if args.results and args.results.with_suffix('.jsonl').exists():
+        for line in args.results.with_suffix('.jsonl').read_text(encoding='utf-8').splitlines():
+            event=json.loads(line)
+            if event['event']=='request':
+                tail=json.loads(event['messages'][-1]['content'])
+                sent_references[(event['case_id'],event['group'])].append(tail.get('untrusted_user_memory',{}))
+    audit=json.loads(args.audit.read_text(encoding='utf-8')) if args.audit else None
+    annotations={(r['case_id'],r['group']):r for r in (audit or {}).get('rows',[])}
     controls={r['case_id']:r for r in offline['b2_scripted_controls']}
     totals=defaultdict(lambda:dict(hit=0,total=0,reference_bytes=0,cases=0))
     diagnostics=[];timings=[];reviews=[]
@@ -66,7 +76,11 @@ def main():
         lines+=['## '+identity,'','分组：'+case['split']+'；任务时点：'+case['as_of'],'','问题：'+case['question'],'']
         for group in GROUPS:
             view=case['views'].get(group,{})
-            if group=='B2':view=(cells.get((identity,group)) or controls[identity]).get('final_reference',{})
+            pending_view={}
+            if group=='B2':
+                pending_view=(cells.get((identity,group)) or controls[identity]).get('final_reference',{})
+                sent=sent_references.get((identity,group),[])
+                view=sent[-1] if sent else pending_view
             body_text=text_of(view);matches=[surface(body_text,f) for f in facts]
             key=case['split']+' / '+group;total=totals[key]
             if group!='B2':
@@ -84,19 +98,26 @@ def main():
             if group=='B2' and not actual:
                 control=controls[identity]
                 lines+=['脚本控制（非真实模型）：`'+json.dumps({k:control[k] for k in ['runtime_status','error_code','model_calls','tool_calls','reserved_token_upper_units']},ensure_ascii=False)+'`；实际进入脚本模型的次数：'+str(len(control['requests']))+'。','']
-            lines+=['提供给模型的参考材料（B2未实测时展示脚本末轮投影）：','```json',json.dumps(view,ensure_ascii=False,indent=2),'```','',
-                '语义必要事实覆盖/回答支持率/无依据断言/消歧遗漏：NOT_RUN，需对真实回答逐条来源审查。','']
+            annotation=annotations.get((identity,group))
+            if annotation is not None and actual and actual.get('raw_answer'):
+                assert annotation['answer_sha256']==sha256(actual['raw_answer'].encode()).hexdigest()
+            lines+=['提供给模型的参考材料（B2未实测时展示脚本末轮投影）：','```json',json.dumps(view,ensure_ascii=False,indent=2),'```','']
+            if group=='B2' and actual and pending_view!=view:
+                lines+=['工具后已构建但未送达模型的投影（不能计作模型可见事实）：','```json',json.dumps(pending_view,ensure_ascii=False,indent=2),'```','']
+            if annotation is not None:
+                lines+=['来源审查与不足：','```json',json.dumps({k:v for k,v in annotation.items() if k!='cited_source_quotes'},ensure_ascii=False,indent=2),'```','']
+            else:lines+=['语义必要事实覆盖/回答支持率/无依据断言/消歧遗漏：NOT_RUN，需对真实回答逐条来源审查。','']
             reviews.append(dict(case_id=identity,group=group,answer_sha256=sha256(actual['raw_answer'].encode()).hexdigest() if actual and actual.get('raw_answer') else None,
                 status='SOURCE_REVIEW_REQUIRED' if actual and actual.get('raw_answer') else 'NOT_RUN',
                 reviewed_required_fact_matches='NOT_RUN',supported_assertions='NOT_RUN',audited_assertions='NOT_RUN',
                 unsupported_assertions='NOT_RUN',disambiguation_omissions='NOT_RUN',claim_source_checks=[]))
-    summary=dict(body_only_surface_proxy=dict(totals),source_audit='NOT_RUN',model_calls=(real or {}).get('model_calls',0),
+    summary=dict(body_only_surface_proxy=dict(totals),source_audit='EXECUTOR_SOURCE_REVIEWED' if audit else 'NOT_RUN',model_calls=(real or {}).get('model_calls',0),
         cost_peak_usd=(real or {}).get('cost_peak_usd','NOT_RUN'),invoice=(real or {}).get('invoice','NOT_RUN'),
         b2_scripted_completed=sum(r['runtime_status']=='completed' for r in controls.values()),b2_scripted_total=len(controls),
         frozen_pack_sha256=sha256(args.pack.read_bytes()).hexdigest(),timings=timings)
     for name,data in [('summary.json',summary),('fact-stage-proxies.json',diagnostics),('source-review-template.json',reviews)]:
         (args.output_dir/name).write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8',newline='\n')
-    (args.output_dir/'complete-comparison.md').write_text('\n'.join(lines)+'\n',encoding='utf-8',newline='\n')
+    (args.output_dir/'complete-comparison.md').write_text('\n'.join(lines).rstrip()+'\n',encoding='utf-8',newline='\n')
     print(json.dumps(summary,ensure_ascii=False))
 
 

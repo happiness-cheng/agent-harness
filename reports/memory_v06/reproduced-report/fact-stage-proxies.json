@@ -1,0 +1,477 @@
+[
+  {
+    "case_id": "layer1_01_bank_account",
+    "fact_index": 0,
+    "fact": "4429853327",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer1_01_bank_account",
+    "fact_index": 1,
+    "fact": "123006800",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer1_08_hotel_reservation",
+    "fact_index": 0,
+    "fact": {
+      "fact_id": "layer1_08_hotel_reservation:f1",
+      "label": "Hotel confirmation",
+      "sources": [
+        {
+          "conversation_id": "hotel_booking_001",
+          "end": 80,
+          "message_index": 69,
+          "message_sha256": "94dbc3f0f543a0ee7d7a68ee2b13af8fabf7c695d0502fb77b2b8e898598426d",
+          "quote": "HSD-445782",
+          "role": "assistant",
+          "start": 70,
+          "timestamp": "2024-11-09 19:30:00"
+        }
+      ],
+      "variants": [
+        "HSD-445782"
+      ]
+    },
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer1_08_hotel_reservation",
+    "fact_index": 1,
+    "fact": {
+      "fact_id": "layer1_08_hotel_reservation:f2",
+      "label": "Reserved room",
+      "sources": [
+        {
+          "conversation_id": "hotel_booking_001",
+          "end": 9,
+          "message_index": 41,
+          "message_sha256": "12f824812977d766eb35f7df71115a17736dd676cfd3fa486bdd53094ac57444",
+          "quote": "1912",
+          "role": "assistant",
+          "start": 5,
+          "timestamp": "2024-11-09 19:30:00"
+        }
+      ],
+      "variants": [
+        "1912"
+      ]
+    },
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "fact_index": 0,
+    "fact": "Honda Accord",
+    "candidate": true,
+    "top8": false,
+    "visible": false,
+    "label": "RANKING",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "fact_index": 1,
+    "fact": "Tesla Model 3",
+    "candidate": false,
+    "top8": false,
+    "visible": false,
+    "label": "RETRIEVAL_OR_LEXICAL_VARIANT",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "fact_index": 2,
+    "fact": "FS-447291",
+    "candidate": true,
+    "top8": false,
+    "visible": false,
+    "label": "RANKING",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "fact_index": 0,
+    "fact": [
+      "Chase Freedom",
+      "Freedom Unlimited"
+    ],
+    "candidate": true,
+    "top8": false,
+    "visible": false,
+    "label": "RANKING",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "fact_index": 1,
+    "fact": [
+      "Amex Gold",
+      "Amex Gold Card"
+    ],
+    "candidate": false,
+    "top8": false,
+    "visible": false,
+    "label": "RETRIEVAL_OR_LEXICAL_VARIANT",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "fact_index": 2,
+    "fact": "3x",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "fact_index": 0,
+    "fact": "passport",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "fact_index": 1,
+    "fact": [
+      "February 18",
+      "Feb 18"
+    ],
+    "candidate": false,
+    "top8": false,
+    "visible": false,
+    "label": "RETRIEVAL_OR_LEXICAL_VARIANT",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "fact_index": 2,
+    "fact": "DELTA-JMK892",
+    "candidate": true,
+    "top8": false,
+    "visible": false,
+    "label": "RANKING",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "fact_index": 3,
+    "fact": "Priority Pass",
+    "candidate": true,
+    "top8": false,
+    "visible": false,
+    "label": "RANKING",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "fact_index": 0,
+    "fact": {
+      "fact_id": "layer3_03_home_purchase_coordination:f1",
+      "label": "Preapproval expiry",
+      "sources": [
+        {
+          "conversation_id": "mortgage_preapproval_001",
+          "end": 34,
+          "message_index": 57,
+          "message_sha256": "c3bee8eb4451b3fb0a619e010686df158a6285b892959f53a90470cad24d03e1",
+          "quote": "November 20th, 2024",
+          "role": "assistant",
+          "start": 15,
+          "timestamp": "2024-08-20 11:00:00"
+        }
+      ],
+      "variants": [
+        "November 20th, 2024"
+      ]
+    },
+    "candidate": false,
+    "top8": false,
+    "visible": false,
+    "label": "RETRIEVAL_OR_LEXICAL_VARIANT",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "fact_index": 1,
+    "fact": {
+      "fact_id": "layer3_03_home_purchase_coordination:f2",
+      "label": "Gift documentation requirement",
+      "sources": [
+        {
+          "conversation_id": "mortgage_preapproval_001",
+          "end": 97,
+          "message_index": 9,
+          "message_sha256": "fdbce31ff4f064da671f5e8a15158407d9815e23c31c332ae6207c8ee5671b52",
+          "quote": "gift letter",
+          "role": "assistant",
+          "start": 86,
+          "timestamp": "2024-08-20 11:00:00"
+        }
+      ],
+      "variants": [
+        "gift letter"
+      ]
+    },
+    "candidate": true,
+    "top8": false,
+    "visible": false,
+    "label": "RANKING",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "fact_index": 2,
+    "fact": {
+      "fact_id": "layer3_03_home_purchase_coordination:f3",
+      "label": "Insurance proof deadline",
+      "sources": [
+        {
+          "conversation_id": "moving_company_quote_003",
+          "end": 50,
+          "message_index": 49,
+          "message_sha256": "34e0259200fcc7df8e4ac526f89ea0fd9122a464a40de218577b3b17d135a21f",
+          "quote": "December 13th",
+          "role": "assistant",
+          "start": 37,
+          "timestamp": "2024-11-18 10:00:00"
+        }
+      ],
+      "variants": [
+        "December 13th"
+      ]
+    },
+    "candidate": true,
+    "top8": false,
+    "visible": false,
+    "label": "RANKING",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "fact_index": 3,
+    "fact": {
+      "fact_id": "layer3_03_home_purchase_coordination:f4",
+      "label": "Mover confirmation",
+      "sources": [
+        {
+          "conversation_id": "moving_company_quote_003",
+          "end": 77,
+          "message_index": 87,
+          "message_sha256": "a558c77209636114e704cddc33ffe5132af06ab578f5f04d1320b473e2bdc686",
+          "quote": "ALV-122124",
+          "role": "assistant",
+          "start": 67,
+          "timestamp": "2024-11-18 10:00:00"
+        }
+      ],
+      "variants": [
+        "ALV-122124"
+      ]
+    },
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "layer3_03_home_purchase_coordination",
+    "fact_index": 4,
+    "fact": {
+      "fact_id": "layer3_03_home_purchase_coordination:f5",
+      "label": "Mover exception condition",
+      "sources": [
+        {
+          "conversation_id": "moving_company_quote_003",
+          "end": 44,
+          "message_index": 87,
+          "message_sha256": "a558c77209636114e704cddc33ffe5132af06ab578f5f04d1320b473e2bdc686",
+          "quote": "contingent on closing",
+          "role": "assistant",
+          "start": 23,
+          "timestamp": "2024-11-18 10:00:00"
+        }
+      ],
+      "variants": [
+        "contingent on closing"
+      ]
+    },
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v05_current_instruction",
+    "fact_index": 0,
+    "fact": "ORCHID-17",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v05_temporal_state",
+    "fact_index": 0,
+    "fact": "已取消",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_accounts",
+    "fact_index": 0,
+    "fact": "5184027601",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_accounts",
+    "fact_index": 1,
+    "fact": "061009517",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_reservation",
+    "fact_index": 0,
+    "fact": "CI-684219",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_reservation",
+    "fact_index": 1,
+    "fact": "612",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_reservation",
+    "fact_index": 2,
+    "fact": "pending payment",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_status",
+    "fact_index": 0,
+    "fact": "cancelled",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_vehicles",
+    "fact_index": 0,
+    "fact": "Subaru Outback",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_vehicles",
+    "fact_index": 1,
+    "fact": "SB-482170",
+    "candidate": true,
+    "top8": false,
+    "visible": false,
+    "label": "RANKING",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_vehicles",
+    "fact_index": 2,
+    "fact": "Volvo XC40",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_vehicles",
+    "fact_index": 3,
+    "fact": "no service booked",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_gate",
+    "fact_index": 0,
+    "fact": "MA-624831",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_gate",
+    "fact_index": 1,
+    "fact": "tentative",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  },
+  {
+    "case_id": "v06_holdout_gate",
+    "fact_index": 2,
+    "fact": "09:00",
+    "candidate": true,
+    "top8": true,
+    "visible": true,
+    "label": "VISIBLE_SURFACE_ONLY",
+    "caveat": "literal proxy; entity binding, equivalent expressions and unsupported rules require source audit"
+  }
+]

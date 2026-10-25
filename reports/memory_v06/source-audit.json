@@ -1,0 +1,3005 @@
+{
+  "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+  "definition": "required-fact mention coverage uses original fact slots and semantic equivalents; it is not task success, ownership correctness, or full-answer accuracy. Assertion support is limited to explicitly listed audited core assertions.",
+  "rows": [
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B1 gives both correct target values but brings in a funding/source-account number and labels the records conflicting. Correct mentions do not mean correct entity/use binding; B0 lacks target evidence, C is scoped to the new account.",
+      "answer_sha256": "ad3b591b11eb2b681042d4ddef59158d9f1e6231cd0573cd6a139f9ccc474f40",
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "FORMAT_ERROR"
+    },
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B1 gives both correct target values but brings in a funding/source-account number and labels the records conflicting. Correct mentions do not mean correct entity/use binding; B0 lacks target evidence, C is scoped to the new account.",
+      "answer_sha256": "1675c50fec5cfc9ab359dcf34b654d4da0e59ff3fb23b3b39a7e68bdaf9f187a",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        false,
+        false
+      ],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "24daf55f-0c0a-5bcc-b217-20448e98680a",
+          "source_position": {
+            "conversation_id": "bank_setup_001",
+            "message_index": 0
+          },
+          "observed_at": "2024-11-15T10:30:00Z",
+          "quote": "[user;session=bank_setup_001;range=0:51] Hi, I'd like to open a new checking account please."
+        },
+        {
+          "memory_id": "bade45c4-d3ca-538a-8bc2-e8635b3aaaf7",
+          "source_position": {
+            "conversation_id": "bank_setup_001",
+            "message_index": 30
+          },
+          "observed_at": "2024-11-15T10:30:00Z",
+          "quote": "[user;session=bank_setup_001;range=0:22] Yes, I'll need checks."
+        },
+        {
+          "memory_id": "61f31410-7cb9-5267-901f-8fea99905d52",
+          "source_position": {
+            "conversation_id": "bank_setup_001",
+            "message_index": 42
+          },
+          "observed_at": "2024-11-15T10:30:00Z",
+          "quote": "[user;session=bank_setup_001;range=0:35] I'll set it up now. Can I use 4827?"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B1 gives both correct target values but brings in a funding/source-account number and labels the records conflicting. Correct mentions do not mean correct entity/use binding; B0 lacks target evidence, C is scoped to the new account.",
+      "answer_sha256": "55b15d2a66967f77076b1b6b80b0a1d30014925ae3996b9fdf90cbed3efe19b0",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true
+      ],
+      "used_given_facts": 2,
+      "given_facts": 2,
+      "core_answer_support": "FAIL_FLAGGED_CORE_ASSERTION",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [
+        {
+          "case_id": "layer1_01_bank_account",
+          "group": "B1",
+          "needle": "the records conflict",
+          "supported": false,
+          "reason": "Different account numbers alone do not establish contradiction; original history uses one as a funding/source account. Missing contextual evidence contributes.",
+          "answer_quote": "the records conflict"
+        }
+      ],
+      "disambiguation_findings": [
+        {
+          "case_id": "layer1_01_bank_account",
+          "group": "B1",
+          "issue": "funding/source account versus new payroll checking account treated as a conflict",
+          "contributing_stage": "evidence_selection_and_context_binding"
+        }
+      ],
+      "cited_source_quotes": [
+        {
+          "memory_id": "42a568bd-704c-51af-97f1-7092527dc096",
+          "source_position": {
+            "conversation_id": "bank_setup_001",
+            "message_index": 54
+          },
+          "observed_at": "2024-11-15T10:30:00Z",
+          "quote": "[user;session=bank_setup_001;range=0:88] The account number is 8847293001 and the routing number is... let me check... 121000248."
+        },
+        {
+          "memory_id": "99960778-2ed0-54d9-ba39-abf8cf18019e",
+          "source_position": {
+            "conversation_id": "bank_setup_001",
+            "message_index": 61
+          },
+          "observed_at": "2024-11-15T10:30:00Z",
+          "quote": "[assistant;session=bank_setup_001;range=0:164] I can provide you with our routing number and your new account number for that. Our routing number is 123006800, and your new checking account number is 4429853327."
+        },
+        {
+          "memory_id": "69bd13cb-201c-540e-9d29-e3dd7c294d7b",
+          "source_position": {
+            "conversation_id": "bank_setup_001",
+            "message_index": 63
+          },
+          "observed_at": "2024-11-15T10:30:00Z",
+          "quote": "[assistant;session=bank_setup_001;range=0:55] Correct. And your savings account number is 4429853328."
+        },
+        {
+          "memory_id": "5fb88424-5314-5f1d-a8af-e2acb9481258",
+          "source_position": {
+            "conversation_id": "bank_setup_001",
+            "message_index": 87
+          },
+          "observed_at": "2024-11-15T10:30:00Z",
+          "quote": "[assistant;session=bank_setup_001;range=0:344] Wonderful! Just to confirm everything: You've opened a Premium Checking with account number 4429853327 and a Basic Savings with account number 4429853328. Your debit card with PIN 4827 will arrive in 7-10 business days. You've set up a $200 monthly transfer on the 15th, and your online banking username is MRobertson503. Is everything correct?"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B1 gives both correct target values but brings in a funding/source-account number and labels the records conflicting. Correct mentions do not mean correct entity/use binding; B0 lacks target evidence, C is scoped to the new account.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B1 gives both correct target values but brings in a funding/source-account number and labels the records conflicting. Correct mentions do not mean correct entity/use binding; B0 lacks target evidence, C is scoped to the new account.",
+      "answer_sha256": "80ef035243a857e2cefd4d01720286b204a9c5a971391f60385e082eba5dbb43",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true
+      ],
+      "used_given_facts": 2,
+      "given_facts": 2,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "99960778-2ed0-54d9-ba39-abf8cf18019e",
+          "source_position": {
+            "conversation_id": "bank_setup_001",
+            "message_index": 61
+          },
+          "observed_at": "2024-11-15T10:30:00Z",
+          "quote": "[assistant;session=bank_setup_001;range=0:164] I can provide you with our routing number and your new account number for that. Our routing number is 123006800, and your new checking account number is 4429853327."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C recall both identifiers. Historical date/weekday contradictions are qualified. Citation IDs valid in this batch.",
+      "answer_sha256": "800ed351e9ef66943bab8fc0df0ce1622dbf8285d91275802dd1a65ccc6449e2",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true
+      ],
+      "used_given_facts": 2,
+      "given_facts": 2,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "ca615f47-4e9d-5619-a9ae-16221edca9da",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 41
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[assistant;session=hotel_booking_001;range=0:82] Room 1912 is now reserved for you. Would you like to make any dinner reservations?"
+        },
+        {
+          "memory_id": "875118d6-d677-54c1-82e5-f6ff8c605845",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 69
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[assistant;session=hotel_booking_001;range=0:81] Thank you. Your reservation is confirmed! Your confirmation number is HSD-445782."
+        },
+        {
+          "memory_id": "a5350657-be2a-5bda-9756-fb93742c3ed2",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 81
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[assistant;session=hotel_booking_001;range=0:223] It's my pleasure, Mr. Thompson! To summarize: December 8-10, room 1912 Junior Suite with bay view on the 19th floor, Romance Package included, dinner at Vela on Saturday at 7:30 PM, confirmation HSD-445782. Total is $1,333."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C recall both identifiers. Historical date/weekday contradictions are qualified. Citation IDs valid in this batch.",
+      "answer_sha256": "09dc81c41a0942b9b3a1c655742b0da9d4416af433ad62527fbb4a5ad40037f4",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true
+      ],
+      "used_given_facts": 2,
+      "given_facts": 2,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "01dc2760-0b68-51b5-b038-acbd5a8be922",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 0
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[user;session=hotel_booking_001;range=0:75] Hi, I want to book a special weekend for our 10th anniversary in San Diego."
+        },
+        {
+          "memory_id": "34211699-73a0-542a-9870-57f6f0d5fe69",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 2
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[user;session=hotel_booking_001;range=0:53] We're looking at the weekend of December 8th and 9th."
+        },
+        {
+          "memory_id": "b4a0b5bf-1972-5d00-83be-b59b7e54aa1a",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 4
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[user;session=hotel_booking_001;range=0:58] Friday night, December 8th, and check out Sunday the 10th."
+        },
+        {
+          "memory_id": "7adffc33-a9c5-5d61-b996-c765762ed8a7",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 37
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[assistant;session=hotel_booking_001;range=0:129] I'll note a request for floor 18 or higher. I actually have room 1912 available - 19th floor, corner unit with exceptional views."
+        },
+        {
+          "memory_id": "ca615f47-4e9d-5619-a9ae-16221edca9da",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 41
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[assistant;session=hotel_booking_001;range=0:82] Room 1912 is now reserved for you. Would you like to make any dinner reservations?"
+        },
+        {
+          "memory_id": "875118d6-d677-54c1-82e5-f6ff8c605845",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 69
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[assistant;session=hotel_booking_001;range=0:81] Thank you. Your reservation is confirmed! Your confirmation number is HSD-445782."
+        },
+        {
+          "memory_id": "a5350657-be2a-5bda-9756-fb93742c3ed2",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 81
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[assistant;session=hotel_booking_001;range=0:223] It's my pleasure, Mr. Thompson! To summarize: December 8-10, room 1912 Junior Suite with bay view on the 19th floor, Romance Package included, dinner at Vela on Saturday at 7:30 PM, confirmation HSD-445782. Total is $1,333."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C recall both identifiers. Historical date/weekday contradictions are qualified. Citation IDs valid in this batch.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C recall both identifiers. Historical date/weekday contradictions are qualified. Citation IDs valid in this batch.",
+      "answer_sha256": "e11978f2056d228d0696297596003e83a351bde5e5a117a0457bbb8a3f065d17",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true
+      ],
+      "used_given_facts": 2,
+      "given_facts": 2,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "ca615f47-4e9d-5619-a9ae-16221edca9da",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 41
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[assistant;session=hotel_booking_001;range=0:82] Room 1912 is now reserved for you. Would you like to make any dinner reservations?"
+        },
+        {
+          "memory_id": "875118d6-d677-54c1-82e5-f6ff8c605845",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 69
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[assistant;session=hotel_booking_001;range=0:81] Thank you. Your reservation is confirmed! Your confirmation number is HSD-445782."
+        },
+        {
+          "memory_id": "a5350657-be2a-5bda-9756-fb93742c3ed2",
+          "source_position": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 81
+          },
+          "observed_at": "2024-11-09T19:30:00Z",
+          "quote": "[assistant;session=hotel_booking_001;range=0:223] It's my pleasure, Mr. Thompson! To summarize: December 8-10, room 1912 Junior Suite with bay view on the 19th floor, Romance Package included, dinner at Vela on Saturday at 7:30 PM, confirmation HSD-445782. Total is $1,333."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C recall both identifiers. Historical date/weekday contradictions are qualified. Citation IDs valid in this batch.",
+      "answer_sha256": "3e932e5ae913b1d27b40911b7d01947b8b796250f46a751cee363eca9fc0709e",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        false,
+        false
+      ],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "N/A_NO_MEMORY_FACT_ASSERTIONS",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B1 improves service-type/price snippets but loses Honda/Tesla/confirmation. C includes Tesla in the main answer this time; complete original service package evidence is still not in Oracle. B0 has a Honda statement available but fails to use it.",
+      "answer_sha256": "c3b1a79cbabeef478655b3dc70b094aaed4bcef2cf8bb86cc5002559486bca43",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false,
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        false,
+        false,
+        false
+      ],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "80bcc172-5027-52bd-b0f5-dabc8f713952",
+          "source_position": {
+            "conversation_id": "auto_service_001",
+            "message_index": 1
+          },
+          "observed_at": "2024-11-20T09:30:00Z",
+          "quote": "[assistant;session=auto_service_001;range=0:116] Good morning! This is Mike at Firestone Auto Care. I'll help you schedule service. What kind of service do you need?"
+        },
+        {
+          "memory_id": "714255cf-7114-5b41-8c51-e290bca59ab5",
+          "source_position": {
+            "conversation_id": "auto_service_001",
+            "message_index": 2
+          },
+          "observed_at": "2024-11-20T09:30:00Z",
+          "quote": "[user;session=auto_service_001;range=0:49] I need an oil change and the 30,000 mile service."
+        },
+        {
+          "memory_id": "766c2b86-96d8-5500-a8d6-6bf03e0c59aa",
+          "source_position": {
+            "conversation_id": "auto_service_001",
+            "message_index": 11
+          },
+          "observed_at": "2024-11-20T09:30:00Z",
+          "quote": "[assistant;session=auto_service_001;range=0:114] The complete 30K service package is $389.99. Oil change alone would be $44.99 if you wanted to do that separately."
+        },
+        {
+          "memory_id": "fce5778e-8503-5e17-bac7-8ddf5223ac51",
+          "source_position": {
+            "conversation_id": "auto_service_001",
+            "message_index": 73
+          },
+          "observed_at": "2024-11-20T09:30:00Z",
+          "quote": "[assistant;session=auto_service_001;range=0:80] We'll call you before doing any work beyond the scheduled service. No surprises."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B1 improves service-type/price snippets but loses Honda/Tesla/confirmation. C includes Tesla in the main answer this time; complete original service package evidence is still not in Oracle. B0 has a Honda statement available but fails to use it.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B1 improves service-type/price snippets but loses Honda/Tesla/confirmation. C includes Tesla in the main answer this time; complete original service package evidence is still not in Oracle. B0 has a Honda statement available but fails to use it.",
+      "answer_sha256": "501b42dacb1f2f3c6743cf560abd6b9b70eb27ead4f7e52b25b2d6fa850c0611",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 3,
+      "given_facts": 3,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "0d19063b-51cc-5c16-9b13-fb69073e6548",
+          "source_position": {
+            "conversation_id": "auto_service_001",
+            "message_index": 4
+          },
+          "observed_at": "2024-11-20T09:30:00Z",
+          "quote": "[user;session=auto_service_001;range=0:25] It's a 2019 Honda Accord."
+        },
+        {
+          "memory_id": "36f75375-a95c-55c0-ad3e-37f456ebdf88",
+          "source_position": {
+            "conversation_id": "auto_service_001",
+            "message_index": 65
+          },
+          "observed_at": "2024-11-20T09:30:00Z",
+          "quote": "[assistant;session=auto_service_001;range=0:55] No problem. So just the Honda Accord on Friday at 8 AM."
+        },
+        {
+          "memory_id": "85759dd7-5f31-5d0d-95a2-003397561739",
+          "source_position": {
+            "conversation_id": "auto_service_001",
+            "message_index": 83
+          },
+          "observed_at": "2024-11-20T09:30:00Z",
+          "quote": "[assistant;session=auto_service_001;range=0:96] Exactly. Plenty of parking too. Your appointment is confirmed for Friday, November 24th at 8 AM."
+        },
+        {
+          "memory_id": "e810426e-8eeb-507b-b0a3-6c797547b845",
+          "source_position": {
+            "conversation_id": "auto_service_001",
+            "message_index": 89
+          },
+          "observed_at": "2024-11-20T09:30:00Z",
+          "quote": "[assistant;session=auto_service_001;range=0:80] Target next door will definitely be busy! Your confirmation number is FS-447291."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B1 improves service-type/price snippets but loses Honda/Tesla/confirmation. C includes Tesla in the main answer this time; complete original service package evidence is still not in Oracle. B0 has a Honda statement available but fails to use it.",
+      "answer_sha256": "19a353684955ce76af88004d269653f5a644dc62c9bab3cd029ff2da1e804d17",
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "FORMAT_ERROR"
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B1 improves service-type/price snippets but loses Honda/Tesla/confirmation. C includes Tesla in the main answer this time; complete original service package evidence is still not in Oracle. B0 has a Honda statement available but fails to use it.",
+      "answer_sha256": "65676d6888ec5193af30eed0db3d6a447cbd53ddc3f5d0ba8cd2ce6a71ee2c4d",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false,
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        true,
+        false,
+        false
+      ],
+      "used_given_facts": 0,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "15d2f5e2-5d64-55e7-9e5d-465ba9005d96",
+          "source_position": {
+            "conversation_id": "auto_service_001",
+            "message_index": 0
+          },
+          "observed_at": "2024-11-20T09:30:00Z",
+          "quote": "[user;session=auto_service_001;range=0:42] Hi, I need to schedule service for my car."
+        },
+        {
+          "memory_id": "80bcc172-5027-52bd-b0f5-dabc8f713952",
+          "source_position": {
+            "conversation_id": "auto_service_001",
+            "message_index": 1
+          },
+          "observed_at": "2024-11-20T09:30:00Z",
+          "quote": "[assistant;session=auto_service_001;range=0:116] Good morning! This is Mike at Firestone Auto Care. I'll help you schedule service. What kind of service do you need?"
+        },
+        {
+          "memory_id": "2db2e0f7-2a7c-5bb2-8109-4223ff3da655",
+          "source_position": {
+            "conversation_id": "auto_service_001",
+            "message_index": 78
+          },
+          "observed_at": "2024-11-20T09:30:00Z",
+          "quote": "[user;session=auto_service_001;range=0:24] Can I drop it off early?"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 malformed JSON not scored. B1 recalls Gold and 3x as discussed product facts, but does not establish ownership; recommends comparison involving unheld Platinum/Sapphire and promotes a user question about $800 into coverage. These failures are separate from mention coverage. C avoids inventing the Gold foreign fee.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 malformed JSON not scored. B1 recalls Gold and 3x as discussed product facts, but does not establish ownership; recommends comparison involving unheld Platinum/Sapphire and promotes a user question about $800 into coverage. These failures are separate from mention coverage. C avoids inventing the Gold foreign fee.",
+      "answer_sha256": "c888d685ea7498e5318e5a56040b1f6b7455607b60e756541db99406ec90e796",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 3,
+      "given_facts": 3,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "50fb183c-e1f2-51cf-9159-29af484c25a3",
+          "source_position": {
+            "conversation_id": "chase_card_activation_001",
+            "message_index": 11
+          },
+          "observed_at": "2024-10-05T14:00:00Z",
+          "quote": "[assistant;session=chase_card_activation_001;range=0:76] Of course! You earn 1.5% cash back on all purchases, no categories to track."
+        },
+        {
+          "memory_id": "7077d438-ba1e-57b5-830a-9f7b3b79ca71",
+          "source_position": {
+            "conversation_id": "chase_card_activation_001",
+            "message_index": 21
+          },
+          "observed_at": "2024-10-05T14:00:00Z",
+          "quote": "[assistant;session=chase_card_activation_001;range=0:64] There's a 3% foreign transaction fee on international purchases."
+        },
+        {
+          "memory_id": "d72ea585-b5bd-5d5e-8f22-90a0edd5766a",
+          "source_position": {
+            "conversation_id": "amex_application_002",
+            "message_index": 7
+          },
+          "observed_at": "2024-11-10T10:30:00Z",
+          "quote": "[assistant;session=amex_application_002;range=0:103] The Gold Card might be perfect for you. It earns 4x points on restaurants and groceries, 3x on flights."
+        },
+        {
+          "memory_id": "3d478724-7ffe-583a-b346-393ef70912da",
+          "source_position": {
+            "conversation_id": "amex_application_002",
+            "message_index": 35
+          },
+          "observed_at": "2024-11-10T10:30:00Z",
+          "quote": "[assistant;session=amex_application_002;range=0:102] Let me process this... Congratulations! You're approved for the Gold Card with a $15,000 credit limit."
+        },
+        {
+          "memory_id": "2a1a6a03-cffc-5873-909f-48ab6894756b",
+          "source_position": {
+            "conversation_id": "fraud_alert_003",
+            "message_index": 8
+          },
+          "observed_at": "2024-11-18T09:15:00Z",
+          "quote": "[user;session=fraud_alert_003;range=0:28] That's my Freedom Unlimited."
+        },
+        {
+          "memory_id": "75e5d642-d917-55f6-be3e-b585e9723c68",
+          "source_position": {
+            "conversation_id": "fraud_alert_003",
+            "message_index": 17
+          },
+          "observed_at": "2024-11-18T09:15:00Z",
+          "quote": "[assistant;session=fraud_alert_003;range=0:88] Likely the number was compromised online. We'll cancel this card and send a replacement."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 malformed JSON not scored. B1 recalls Gold and 3x as discussed product facts, but does not establish ownership; recommends comparison involving unheld Platinum/Sapphire and promotes a user question about $800 into coverage. These failures are separate from mention coverage. C avoids inventing the Gold foreign fee.",
+      "answer_sha256": "fe0c41f5e9ad9c573ed1f06dce6a4f9b40fb7270c9dabd06e7f4fc0719498f07",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false,
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        false,
+        false,
+        false
+      ],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "N/A_NO_MEMORY_FACT_ASSERTIONS",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 malformed JSON not scored. B1 recalls Gold and 3x as discussed product facts, but does not establish ownership; recommends comparison involving unheld Platinum/Sapphire and promotes a user question about $800 into coverage. These failures are separate from mention coverage. C avoids inventing the Gold foreign fee.",
+      "answer_sha256": "66059315926accece7a3084e08f42baf65ca5c9a5fd05ac90a424a2b1b1a0a0d",
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "FORMAT_ERROR"
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 malformed JSON not scored. B1 recalls Gold and 3x as discussed product facts, but does not establish ownership; recommends comparison involving unheld Platinum/Sapphire and promotes a user question about $800 into coverage. These failures are separate from mention coverage. C avoids inventing the Gold foreign fee.",
+      "answer_sha256": "3f296cb71aa3754b7dcc27c1a47527c21dc12a067cb9b05c63a469ae709e9c42",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        false,
+        true,
+        true
+      ],
+      "used_given_facts": 2,
+      "given_facts": 2,
+      "core_answer_support": "FAIL_FLAGGED_CORE_ASSERTION",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [
+        {
+          "case_id": "layer2_03_multiple_credit_cards",
+          "group": "B1",
+          "needle": "it provides $800 coverage if you pay with the Chase card",
+          "supported": false,
+          "reason": "The selected user record is a question, not confirmed coverage; source role DIRECT is not an assertion classifier.",
+          "answer_quote": "it provides $800 coverage if you pay with the Chase card"
+        },
+        {
+          "case_id": "layer2_03_multiple_credit_cards",
+          "group": "B1",
+          "needle": "Amex Gold (3x) beats the Chase travel card",
+          "supported": false,
+          "reason": "Visible evidence has no comparable rewards rate or confirmed ownership of the Chase travel card.",
+          "answer_quote": "Amex Gold (3x) beats the Chase travel card"
+        }
+      ],
+      "disambiguation_findings": [
+        {
+          "case_id": "layer2_03_multiple_credit_cards",
+          "group": "B1",
+          "issue": "discussed product benefits versus owned and usable cards not resolved",
+          "contributing_stage": "evidence_selection_and_reasoning"
+        }
+      ],
+      "cited_source_quotes": [
+        {
+          "memory_id": "c39ce2e8-d223-5853-aeb9-8799af9c9036",
+          "source_position": {
+            "conversation_id": "chase_card_activation_001",
+            "message_index": 25
+          },
+          "observed_at": "2024-10-05T14:00:00Z",
+          "quote": "[assistant;session=chase_card_activation_001;range=0:78] Sapphire cards have no foreign fees and earn more points on travel and dining."
+        },
+        {
+          "memory_id": "d72ea585-b5bd-5d5e-8f22-90a0edd5766a",
+          "source_position": {
+            "conversation_id": "amex_application_002",
+            "message_index": 7
+          },
+          "observed_at": "2024-11-10T10:30:00Z",
+          "quote": "[assistant;session=amex_application_002;range=0:103] The Gold Card might be perfect for you. It earns 4x points on restaurants and groceries, 3x on flights."
+        },
+        {
+          "memory_id": "da60aa40-52f4-58cc-9774-da19ba86e082",
+          "source_position": {
+            "conversation_id": "amex_application_002",
+            "message_index": 13
+          },
+          "observed_at": "2024-11-10T10:30:00Z",
+          "quote": "[assistant;session=amex_application_002;range=0:143] Platinum is $695 annually but with even more benefits. 5x on flights and hotels, airport lounge access, $200 hotel credit, $200 airline credit."
+        },
+        {
+          "memory_id": "ce23415b-e77c-5767-b220-33d97b5135f0",
+          "source_position": {
+            "conversation_id": "fraud_alert_003",
+            "message_index": 74
+          },
+          "observed_at": "2024-11-18T09:15:00Z",
+          "quote": "[user;session=fraud_alert_003;range=0:50] Right! $800 coverage if I pay with the Chase card."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1 retain only coarse passport risk among the frozen slots; C covers all four but adds unprovided six-month policy/processing-time generalizations. Historical assistant statements are not authoritative entry-policy evidence. Oracle expiry excerpts do not literally say passport, but their visible scene is passport_renewal_001 and the question/date pair is verified against the original passport history; semantic availability uses that supplied scene, not unseen future content.",
+      "answer_sha256": "1cb4faa27007f1e89bbab73af00544fe8ca5370fc11fcc39192a65eac1dceb38",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 4,
+      "given_facts": 4,
+      "core_answer_support": "FAIL_FLAGGED_CORE_ASSERTION",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [
+        {
+          "case_id": "layer3_01_travel_coordination",
+          "group": "C",
+          "needle": "Many airlines and immigration authorities expect validity of around six months beyond travel dates",
+          "supported": false,
+          "reason": "Policy not in supplied evidence and not verified; this is unsupported-as-asserted, not a claim the real-world rule was proved false.",
+          "answer_quote": "Many airlines and immigration authorities expect validity of around six months beyond travel dates"
+        },
+        {
+          "case_id": "layer3_01_travel_coordination",
+          "group": "C",
+          "needle": "routine processing can take weeks to months",
+          "supported": false,
+          "reason": "No processing-time evidence in this Oracle; advice to verify is appropriate but does not support a definite time range.",
+          "answer_quote": "routine processing can take weeks to months"
+        }
+      ],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "f7ca19e6-6973-5027-8a1a-562bb84b3c1d",
+          "source_position": {
+            "conversation_id": "passport_renewal_001",
+            "message_index": 6
+          },
+          "observed_at": "2024-06-15T14:00:00Z",
+          "quote": "[user;session=passport_renewal_001;range=0:20] February 18th, 2025."
+        },
+        {
+          "memory_id": "8c27432c-e8a0-58be-9c4f-e1123412bd92",
+          "source_position": {
+            "conversation_id": "credit_card_003",
+            "message_index": 31
+          },
+          "observed_at": "2024-10-05T15:30:00Z",
+          "quote": "[assistant;session=credit_card_003;range=0:94] You can use the digital card in the Priority Pass app. Just download and link to your account."
+        },
+        {
+          "memory_id": "a4d8038a-a563-52dc-ba0d-f69c41b78a96",
+          "source_position": {
+            "conversation_id": "flight_booking_002",
+            "message_index": 9
+          },
+          "observed_at": "2024-11-22T10:00:00Z",
+          "quote": "[assistant;session=flight_booking_002;range=0:117] I have a non-stop flight, DL 7 departing LAX at 11:30 AM on January 15th, arriving Haneda at 4:45 PM on January 16th."
+        },
+        {
+          "memory_id": "89f90bb9-5e6a-5fc8-a919-b541c0c07492",
+          "source_position": {
+            "conversation_id": "flight_booking_002",
+            "message_index": 11
+          },
+          "observed_at": "2024-11-22T10:00:00Z",
+          "quote": "[assistant;session=flight_booking_002;range=0:86] DL 8 departs Haneda at 6:00 PM on January 22nd, arriving LAX at 10:15 AM the same day."
+        },
+        {
+          "memory_id": "9259442c-45ff-538b-8ad1-408ecc003dab",
+          "source_position": {
+            "conversation_id": "flight_booking_002",
+            "message_index": 51
+          },
+          "observed_at": "2024-11-22T10:00:00Z",
+          "quote": "[assistant;session=flight_booking_002;range=0:65] Processing... Approved! Your confirmation number is DELTA-JMK892."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1 retain only coarse passport risk among the frozen slots; C covers all four but adds unprovided six-month policy/processing-time generalizations. Historical assistant statements are not authoritative entry-policy evidence. Oracle expiry excerpts do not literally say passport, but their visible scene is passport_renewal_001 and the question/date pair is verified against the original passport history; semantic availability uses that supplied scene, not unseen future content.",
+      "answer_sha256": "0a28cc51c9f09e8647c7178f28a6606827621f4dd425aa7c7247f98facd131eb",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "N/A_NO_MEMORY_FACT_ASSERTIONS",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1 retain only coarse passport risk among the frozen slots; C covers all four but adds unprovided six-month policy/processing-time generalizations. Historical assistant statements are not authoritative entry-policy evidence. Oracle expiry excerpts do not literally say passport, but their visible scene is passport_renewal_001 and the question/date pair is verified against the original passport history; semantic availability uses that supplied scene, not unseen future content.",
+      "answer_sha256": "42f33d6152863b1a64b68461b186c8bd8197ab21a54e5993a87e5a3a45cb4f5e",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        false,
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        true,
+        false,
+        false,
+        false
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "80a3a2b8-184a-556c-9f4b-788ac30e9abc",
+          "source_position": {
+            "conversation_id": "passport_renewal_001",
+            "message_index": 2
+          },
+          "observed_at": "2024-06-15T14:00:00Z",
+          "quote": "[user;session=passport_renewal_001;range=0:56] It expires in February 2025, so about 8 months from now."
+        },
+        {
+          "memory_id": "ff7a733f-01d7-5b24-a5d7-45043e143af4",
+          "source_position": {
+            "conversation_id": "passport_renewal_001",
+            "message_index": 32
+          },
+          "observed_at": "2024-06-15T14:00:00Z",
+          "quote": "[user;session=passport_renewal_001;range=0:81] Good to know. I think I'll wait until my Japan trip is confirmed before renewing."
+        },
+        {
+          "memory_id": "355f9592-2029-5e9e-81f4-e0ffd51a1b3c",
+          "source_position": {
+            "conversation_id": "passport_renewal_001",
+            "message_index": 34
+          },
+          "observed_at": "2024-06-15T14:00:00Z",
+          "quote": "[user;session=passport_renewal_001;range=0:53] October deadline, got it. What about visas for Japan?"
+        },
+        {
+          "memory_id": "8fec16f0-3f44-5f9a-844d-2059fd924ba5",
+          "source_position": {
+            "conversation_id": "flight_booking_002",
+            "message_index": 2
+          },
+          "observed_at": "2024-11-22T10:00:00Z",
+          "quote": "[user;session=flight_booking_002;range=0:53] I need to leave January 15th and return January 22nd."
+        },
+        {
+          "memory_id": "a9597ecb-a141-55a7-a180-2a752ea2d989",
+          "source_position": {
+            "conversation_id": "flight_booking_002",
+            "message_index": 25
+          },
+          "observed_at": "2024-11-22T10:00:00Z",
+          "quote": "[assistant;session=flight_booking_002;range=0:142] I need to mention - Japan requires your passport to be valid for the duration of your stay. Yours expires less than a month after your return."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1 retain only coarse passport risk among the frozen slots; C covers all four but adds unprovided six-month policy/processing-time generalizations. Historical assistant statements are not authoritative entry-policy evidence. Oracle expiry excerpts do not literally say passport, but their visible scene is passport_renewal_001 and the question/date pair is verified against the original passport history; semantic availability uses that supplied scene, not unseen future content.",
+      "answer_sha256": "950e8123b5347663008b10e99becc072d8256c13653fc00d4dee6b1ca5e81e75",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        false,
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        true,
+        false,
+        false,
+        false
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "6408774c-c908-5d67-8877-0992ae53047e",
+          "source_position": {
+            "conversation_id": "passport_renewal_001",
+            "message_index": 10
+          },
+          "observed_at": "2024-06-15T14:00:00Z",
+          "quote": "[user;session=passport_renewal_001;range=0:58] Possibly in December or January for a conference in Tokyo."
+        },
+        {
+          "memory_id": "42abf14b-9c4b-50e3-9f5a-c87148d81222",
+          "source_position": {
+            "conversation_id": "passport_renewal_001",
+            "message_index": 11
+          },
+          "observed_at": "2024-06-15T14:00:00Z",
+          "quote": "[assistant;session=passport_renewal_001;range=0:158] For Japan in January, your passport would need to be valid for at least the duration of your stay. With a February expiration, you'd be cutting it very close."
+        },
+        {
+          "memory_id": "8fec16f0-3f44-5f9a-844d-2059fd924ba5",
+          "source_position": {
+            "conversation_id": "flight_booking_002",
+            "message_index": 2
+          },
+          "observed_at": "2024-11-22T10:00:00Z",
+          "quote": "[user;session=flight_booking_002;range=0:53] I need to leave January 15th and return January 22nd."
+        },
+        {
+          "memory_id": "85c57058-540f-558f-a68d-0ec884317f4e",
+          "source_position": {
+            "conversation_id": "flight_booking_002",
+            "message_index": 7
+          },
+          "observed_at": "2024-11-22T10:00:00Z",
+          "quote": "[assistant;session=flight_booking_002;range=0:85] Haneda is much closer, about 30 minutes to downtown versus 60-90 minutes from Narita."
+        },
+        {
+          "memory_id": "a4d8038a-a563-52dc-ba0d-f69c41b78a96",
+          "source_position": {
+            "conversation_id": "flight_booking_002",
+            "message_index": 9
+          },
+          "observed_at": "2024-11-22T10:00:00Z",
+          "quote": "[assistant;session=flight_booking_002;range=0:117] I have a non-stop flight, DL 7 departing LAX at 11:30 AM on January 15th, arriving Haneda at 4:45 PM on January 16th."
+        },
+        {
+          "memory_id": "89f90bb9-5e6a-5fc8-a919-b541c0c07492",
+          "source_position": {
+            "conversation_id": "flight_booking_002",
+            "message_index": 11
+          },
+          "observed_at": "2024-11-22T10:00:00Z",
+          "quote": "[assistant;session=flight_booking_002;range=0:86] DL 8 departs Haneda at 6:00 PM on January 22nd, arriving LAX at 10:15 AM the same day."
+        },
+        {
+          "memory_id": "8e19c20e-8c0d-5594-bd76-5919755cc53e",
+          "source_position": {
+            "conversation_id": "flight_booking_002",
+            "message_index": 87
+          },
+          "observed_at": "2024-11-22T10:00:00Z",
+          "quote": "[assistant;session=flight_booking_002;range=0:106] You're welcome Ms. Martinez! Have a wonderful trip to Tokyo, and don't forget about that passport renewal!"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1 retain only coarse passport risk among the frozen slots; C covers all four but adds unprovided six-month policy/processing-time generalizations. Historical assistant statements are not authoritative entry-policy evidence. Oracle expiry excerpts do not literally say passport, but their visible scene is passport_renewal_001 and the question/date pair is verified against the original passport history; semantic availability uses that supplied scene, not unseen future content.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 retains equivalent Core expiry evidence but misses mover status; B1 recovers mover confirmation/closing condition but loses mortgage expiry, insurance and gift letter. B1 labels offer acceptance Nov15 though the statement is dated Nov18. C covers all slots but asserts move dates are set although the Oracle gives no actual moving date. Nov20 has not passed at the Nov18 task time.",
+      "answer_sha256": "f15a4de70977ad88b07015884288956459255737e635dd821897184b967ce5ba",
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "FORMAT_ERROR"
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 retains equivalent Core expiry evidence but misses mover status; B1 recovers mover confirmation/closing condition but loses mortgage expiry, insurance and gift letter. B1 labels offer acceptance Nov15 though the statement is dated Nov18. C covers all slots but asserts move dates are set although the Oracle gives no actual moving date. Nov20 has not passed at the Nov18 task time.",
+      "answer_sha256": "ccf9589819f1060f85103257add3dafef759ef3968277e6ba5055c7bd326feeb",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "8d47bf3b-aad4-5bef-917b-ff0346418d59",
+          "source_position": {
+            "conversation_id": "mortgage_preapproval_001",
+            "message_index": 105
+          },
+          "observed_at": "2024-08-20T11:00:00Z",
+          "quote": "[assistant;session=mortgage_preapproval_001;range=0:123] You're welcome! Remember, this expires November 20th. Call me when you find a house or if you need an extension. Good luck!"
+        },
+        {
+          "memory_id": "c4df51f8-380d-5e05-81df-eb9d84a351f2",
+          "source_position": {
+            "conversation_id": "home_purchase_offer_002",
+            "message_index": 1
+          },
+          "observed_at": "2024-11-15T14:00:00Z",
+          "quote": "[assistant;session=home_purchase_offer_002;range=0:146] Hi Michael! This is Tom from Keller Williams. Yes, your agent Emma asked me to coordinate the paperwork. You're offering on 5522 Oak Valley Drive?"
+        },
+        {
+          "memory_id": "83725be9-94b0-5c23-af1e-aa7a03d405a0",
+          "source_position": {
+            "conversation_id": "home_purchase_offer_002",
+            "message_index": 87
+          },
+          "observed_at": "2024-11-15T14:00:00Z",
+          "quote": "[assistant;session=home_purchase_offer_002;range=0:56] Your Wells Fargo approval is solid. When does it expire?"
+        },
+        {
+          "memory_id": "c4e4b52f-57d6-597d-9ff1-559e3420abb1",
+          "source_position": {
+            "conversation_id": "home_purchase_offer_002",
+            "message_index": 89
+          },
+          "observed_at": "2024-11-15T14:00:00Z",
+          "quote": "[assistant;session=home_purchase_offer_002;range=0:81] That's only 5 days away! You'll need to extend it if we're closing December 20th."
+        },
+        {
+          "memory_id": "7e82c22e-decb-51f5-9422-822a1afd1eb0",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 0
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[user;session=moving_company_quote_003;range=0:70] Hi, I need to schedule a move. Our offer on a house was just accepted!"
+        },
+        {
+          "memory_id": "6f6b250b-e627-59c9-9ec9-950c46d14127",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 89
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[assistant;session=moving_company_quote_003;range=0:58] We'll call December 19th to confirm everything's on track."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 retains equivalent Core expiry evidence but misses mover status; B1 recovers mover confirmation/closing condition but loses mortgage expiry, insurance and gift letter. B1 labels offer acceptance Nov15 though the statement is dated Nov18. C covers all slots but asserts move dates are set although the Oracle gives no actual moving date. Nov20 has not passed at the Nov18 task time.",
+      "answer_sha256": "51caa1e4fe9ffffd4240fa045a3c612cf7080a143a60021f00621285ba876140",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "used_given_facts": 2,
+      "given_facts": 2,
+      "core_answer_support": "FAIL_FLAGGED_CORE_ASSERTION",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [
+        {
+          "case_id": "layer3_03_home_purchase_coordination",
+          "group": "B1",
+          "needle": "Offer accepted (Nov 15)",
+          "supported": false,
+          "reason": "The selected accepted-offer statement was recorded Nov18 and does not establish acceptance on Nov15.",
+          "answer_quote": "Offer accepted (Nov 15)"
+        }
+      ],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "e52baea5-b7d9-5b1a-ba97-3edf58bba64b",
+          "source_position": {
+            "conversation_id": "mortgage_preapproval_001",
+            "message_index": 93
+          },
+          "observed_at": "2024-08-20T11:00:00Z",
+          "quote": "[assistant;session=mortgage_preapproval_001;range=0:84] Right. So with 20% down, you're looking at $90,000 down plus $10,000-13,000 closing."
+        },
+        {
+          "memory_id": "9b5f4feb-b517-5322-8226-7f38baf13cac",
+          "source_position": {
+            "conversation_id": "home_purchase_offer_002",
+            "message_index": 51
+          },
+          "observed_at": "2024-11-15T14:00:00Z",
+          "quote": "[assistant;session=home_purchase_offer_002;range=0:80] Wait until the offer's accepted, but then move quickly. You need it for closing."
+        },
+        {
+          "memory_id": "7e82c22e-decb-51f5-9422-822a1afd1eb0",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 0
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[user;session=moving_company_quote_003;range=0:70] Hi, I need to schedule a move. Our offer on a house was just accepted!"
+        },
+        {
+          "memory_id": "1aef9889-fbaf-5a36-8d7d-9a2cdabd053a",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 83
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[assistant;session=moving_company_quote_003;range=0:74] We usually get 48-hour notice for weather delays. Less for closing delays."
+        },
+        {
+          "memory_id": "e84b87e4-afa6-5a36-b766-d5507b327fbf",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 87
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[assistant;session=moving_company_quote_003;range=0:78] I'll note your move is contingent on closing. Your confirmation is ALV-122124."
+        },
+        {
+          "memory_id": "1b83eb71-6c61-5c45-a88c-ccd912fe8e4c",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 88
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[user;session=moving_company_quote_003;range=0:19] ALV-122124, got it."
+        },
+        {
+          "memory_id": "6f6b250b-e627-59c9-9ec9-950c46d14127",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 89
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[assistant;session=moving_company_quote_003;range=0:58] We'll call December 19th to confirm everything's on track."
+        },
+        {
+          "memory_id": "352a6259-0657-59ac-b44f-b8bbbff1a3d3",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 90
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[user;session=moving_company_quote_003;range=0:39] Perfect. What time exactly on the 21st?"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 retains equivalent Core expiry evidence but misses mover status; B1 recovers mover confirmation/closing condition but loses mortgage expiry, insurance and gift letter. B1 labels offer acceptance Nov15 though the statement is dated Nov18. C covers all slots but asserts move dates are set although the Oracle gives no actual moving date. Nov20 has not passed at the Nov18 task time.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 retains equivalent Core expiry evidence but misses mover status; B1 recovers mover confirmation/closing condition but loses mortgage expiry, insurance and gift letter. B1 labels offer acceptance Nov15 though the statement is dated Nov18. C covers all slots but asserts move dates are set although the Oracle gives no actual moving date. Nov20 has not passed at the Nov18 task time.",
+      "answer_sha256": "3c9a288d01109ca302460f54462994606a994bc99effb9d5f49e210108fca4f7",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 5,
+      "given_facts": 5,
+      "core_answer_support": "FAIL_FLAGGED_CORE_ASSERTION",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [
+        {
+          "case_id": "layer3_03_home_purchase_coordination",
+          "group": "C",
+          "needle": "the closing and move dates are set",
+          "supported": false,
+          "reason": "Oracle supplies closing date but no actual moving date; could be true in full history, but not grounded in provided material.",
+          "answer_quote": "the closing and move dates are set"
+        }
+      ],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "49ca4d77-c40a-5998-bd19-3075d582f970",
+          "source_position": {
+            "conversation_id": "mortgage_preapproval_001",
+            "message_index": 57
+          },
+          "observed_at": "2024-08-20T11:00:00Z",
+          "quote": "[assistant;session=mortgage_preapproval_001;range=0:75] 90 days, until November 20th, 2024. If you need an extension, just call us."
+        },
+        {
+          "memory_id": "e86b36a7-7f3d-5e85-a486-856d39627ddc",
+          "source_position": {
+            "conversation_id": "home_purchase_offer_002",
+            "message_index": 15
+          },
+          "observed_at": "2024-11-15T14:00:00Z",
+          "quote": "[assistant;session=home_purchase_offer_002;range=0:81] Good. We'll include 21 days for financing contingency. When do you want to close?"
+        },
+        {
+          "memory_id": "c51f3106-41e9-51ea-b7b0-dea4b9e499ac",
+          "source_position": {
+            "conversation_id": "home_purchase_offer_002",
+            "message_index": 19
+          },
+          "observed_at": "2024-11-15T14:00:00Z",
+          "quote": "[assistant;session=home_purchase_offer_002;range=0:56] Let's put December 20th as closing date. That's 35 days."
+        },
+        {
+          "memory_id": "22a7c64b-3bfd-52dd-866d-95557b4fc67a",
+          "source_position": {
+            "conversation_id": "home_purchase_offer_002",
+            "message_index": 30
+          },
+          "observed_at": "2024-11-15T14:00:00Z",
+          "quote": "[user;session=home_purchase_offer_002;range=0:47] Yes. My parents are gifting us $30,000 to help."
+        },
+        {
+          "memory_id": "b931df9e-0a8d-5ac2-8640-490063bca36c",
+          "source_position": {
+            "conversation_id": "home_purchase_offer_002",
+            "message_index": 32
+          },
+          "observed_at": "2024-11-15T14:00:00Z",
+          "quote": "[user;session=home_purchase_offer_002;range=0:44] Wells Fargo mentioned we need a gift letter."
+        },
+        {
+          "memory_id": "173ad80a-e709-515b-b545-f760eed3750f",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 46
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[user;session=moving_company_quote_003;range=0:90] Oh, I should check that. Speaking of insurance, I need to get homeowner's insurance still."
+        },
+        {
+          "memory_id": "85d3546f-a5ca-5d40-8329-7fd0847b448a",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 47
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[assistant;session=moving_company_quote_003;range=0:60] Definitely do that before closing. The bank will require it."
+        },
+        {
+          "memory_id": "07c4e201-0bb9-5bb5-a8de-f64a164d56e2",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 49
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[assistant;session=moving_company_quote_003;range=0:51] Usually a week before closing, so by December 13th."
+        },
+        {
+          "memory_id": "e84b87e4-afa6-5a36-b766-d5507b327fbf",
+          "source_position": {
+            "conversation_id": "moving_company_quote_003",
+            "message_index": 87
+          },
+          "observed_at": "2024-11-18T10:00:00Z",
+          "quote": "[assistant;session=moving_company_quote_003;range=0:78] I'll note your move is contingent on closing. Your confirmation is ALV-122124."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use one Chinese sentence and current preference; A format failure. B2 budget stop.",
+      "answer_sha256": "7c9c66f2bb5474f985cc4dae9709c230be1fa5ce1ad59d264a6de66173e65498",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true
+      ],
+      "provided_fact_matches": [
+        true
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "c23bc9fd-ee7b-5f72-bbb1-9710b674c246",
+          "source_position": {
+            "conversation_id": "preferences",
+            "message_index": 1
+          },
+          "observed_at": "2024-10-01T00:00:00Z",
+          "quote": "[user;session=preferences;range=0:20] 项目代号已经确认是 ORCHID-17。"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use one Chinese sentence and current preference; A format failure. B2 budget stop.",
+      "answer_sha256": "81759de4b1a094dd0029ee0b4a365743587a7f343957e172162b5a58422f5a8e",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true
+      ],
+      "provided_fact_matches": [
+        true
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "c23bc9fd-ee7b-5f72-bbb1-9710b674c246",
+          "source_position": {
+            "conversation_id": "preferences",
+            "message_index": 1
+          },
+          "observed_at": "2024-10-01T00:00:00Z",
+          "quote": "[user;session=preferences;range=0:20] 项目代号已经确认是 ORCHID-17。"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use one Chinese sentence and current preference; A format failure. B2 budget stop.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use one Chinese sentence and current preference; A format failure. B2 budget stop.",
+      "answer_sha256": "3c96a73a2f3455126766c87f658b8eb15a48b5c51b0b0fed2fea77304cf79163",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true
+      ],
+      "provided_fact_matches": [
+        true
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "c23bc9fd-ee7b-5f72-bbb1-9710b674c246",
+          "source_position": {
+            "conversation_id": "preferences",
+            "message_index": 1
+          },
+          "observed_at": "2024-10-01T00:00:00Z",
+          "quote": "[user;session=preferences;range=0:20] 项目代号已经确认是 ORCHID-17。"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use one Chinese sentence and current preference; A format failure. B2 budget stop.",
+      "answer_sha256": "a073aec935794e3e0300b528f335d83727a24e664a6abcad575a8b5473f9ffbe",
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "FORMAT_ERROR"
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use cancellation and exclude future restoration; later uncertainty language is overly cautious but not a wrong status.",
+      "answer_sha256": "d04be6992b49f6cd671e7f1b30d64e10958eb699828827fd40db77b55382b0b6",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true
+      ],
+      "provided_fact_matches": [
+        true
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "5f621b2e-2eed-5dad-b367-0f1cea76adb9",
+          "source_position": {
+            "conversation_id": "old",
+            "message_index": 0
+          },
+          "observed_at": "2024-10-01T00:00:00Z",
+          "quote": "[user;session=old;range=0:14] 设备 D7 的状态是待审核。"
+        },
+        {
+          "memory_id": "e0b1d053-6b82-576c-8fba-bae920eb3034",
+          "source_position": {
+            "conversation_id": "cancel",
+            "message_index": 0
+          },
+          "observed_at": "2024-10-03T00:00:00Z",
+          "quote": "[user;session=cancel;range=0:20] 确认：设备D7已取消，不再是待审核状态。"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use cancellation and exclude future restoration; later uncertainty language is overly cautious but not a wrong status.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use cancellation and exclude future restoration; later uncertainty language is overly cautious but not a wrong status.",
+      "answer_sha256": "8b27f59d5d90dbb70d0212de1af0e94d0a481fdcf13bc8f9cabbea8bc277a21a",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true
+      ],
+      "provided_fact_matches": [
+        true
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "5f621b2e-2eed-5dad-b367-0f1cea76adb9",
+          "source_position": {
+            "conversation_id": "old",
+            "message_index": 0
+          },
+          "observed_at": "2024-10-01T00:00:00Z",
+          "quote": "[user;session=old;range=0:14] 设备 D7 的状态是待审核。"
+        },
+        {
+          "memory_id": "e0b1d053-6b82-576c-8fba-bae920eb3034",
+          "source_position": {
+            "conversation_id": "cancel",
+            "message_index": 0
+          },
+          "observed_at": "2024-10-03T00:00:00Z",
+          "quote": "[user;session=cancel;range=0:20] 确认：设备D7已取消，不再是待审核状态。"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use cancellation and exclude future restoration; later uncertainty language is overly cautious but not a wrong status.",
+      "answer_sha256": "4950a680c7b291dff56b6123b24d6b5d7888f619b53864dc635e99ba2beeb997",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false
+      ],
+      "provided_fact_matches": [
+        false
+      ],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "N/A_NO_MEMORY_FACT_ASSERTIONS",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use cancellation and exclude future restoration; later uncertainty language is overly cautious but not a wrong status.",
+      "answer_sha256": "c0b85e9e2e12d4051436b34730ad21cb8f2c905f4358716014d33ded6204bd71",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true
+      ],
+      "provided_fact_matches": [
+        true
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "5f621b2e-2eed-5dad-b367-0f1cea76adb9",
+          "source_position": {
+            "conversation_id": "old",
+            "message_index": 0
+          },
+          "observed_at": "2024-10-01T00:00:00Z",
+          "quote": "[user;session=old;range=0:14] 设备 D7 的状态是待审核。"
+        },
+        {
+          "memory_id": "e0b1d053-6b82-576c-8fba-bae920eb3034",
+          "source_position": {
+            "conversation_id": "cancel",
+            "message_index": 0
+          },
+          "observed_at": "2024-10-03T00:00:00Z",
+          "quote": "[user;session=cancel;range=0:20] 确认：设备D7已取消，不再是待审核状态。"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "Valid final answers decline to invent a password. B0's brief 'no record' sentence is qualified by current-view text and uncertainties; record as scope warning, not proof it made an absolute complete-history claim.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "Valid final answers decline to invent a password. B0's brief 'no record' sentence is qualified by current-view text and uncertainties; record as scope warning, not proof it made an absolute complete-history claim.",
+      "answer_sha256": "c01ca7e2410e9c3787acea74573cf74766562b7efc317180c529289f5fe12c69",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [],
+      "provided_fact_matches": [],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "Valid final answers decline to invent a password. B0's brief 'no record' sentence is qualified by current-view text and uncertainties; record as scope warning, not proof it made an absolute complete-history claim.",
+      "answer_sha256": "ca2535ef4268a038f2d211681d4fbf8649d6797104ad8eac59722aa13326fdb7",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [],
+      "provided_fact_matches": [],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "N/A_NO_MEMORY_FACT_ASSERTIONS",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "Valid final answers decline to invent a password. B0's brief 'no record' sentence is qualified by current-view text and uncertainties; record as scope warning, not proof it made an absolute complete-history claim.",
+      "answer_sha256": "0736466a832ac1eb1442ce88b41163b150f9e24c3195f4eb5f3f1d1ba52f53d3",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [],
+      "provided_fact_matches": [],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "225a95f7-1128-516c-9e44-2a4fe90a1190",
+          "source_position": {
+            "conversation_id": "project",
+            "message_index": 0
+          },
+          "observed_at": "2024-10-01T00:00:00Z",
+          "quote": "[user;session=project;range=0:16] 项目代号是 ORCHID-17。"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "Valid final answers decline to invent a password. B0's brief 'no record' sentence is qualified by current-view text and uncertainties; record as scope warning, not proof it made an absolute complete-history claim.",
+      "answer_sha256": "56cc921de88401ba460fd92b8fb1f829e583c75080e18e29c34c4d04b94a773c",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [],
+      "provided_fact_matches": [],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "225a95f7-1128-516c-9e44-2a4fe90a1190",
+          "source_position": {
+            "conversation_id": "project",
+            "message_index": 0
+          },
+          "observed_at": "2024-10-01T00:00:00Z",
+          "quote": "[user;session=project;range=0:16] 项目代号是 ORCHID-17。"
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_accounts",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C bind the payroll account correctly and do not promote assistant guessing. C answers in Chinese despite the English question; this is a communication-constraint defect, not a number error.",
+      "answer_sha256": "3fc8c2dd4808ae578ead083e97853177c68e15ce1ff5086f335ef7fd5a925689",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true
+      ],
+      "used_given_facts": 2,
+      "given_facts": 2,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "ceb9cb0b-4486-5a2d-a727-4c96c846281a",
+          "source_position": {
+            "conversation_id": "payroll_bank",
+            "message_index": 0
+          },
+          "observed_at": "2024-03-02T09:00:00Z",
+          "quote": "[user;session=payroll_bank;range=0:132] My payroll checking account number is 5184027601. The routing number is 061009517. These numbers were copied from my bank statement."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": [
+        {
+          "case_id": "v06_holdout_accounts",
+          "group": "C",
+          "issue": "Chinese answer to English question"
+        }
+      ]
+    },
+    {
+      "case_id": "v06_holdout_accounts",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C bind the payroll account correctly and do not promote assistant guessing. C answers in Chinese despite the English question; this is a communication-constraint defect, not a number error.",
+      "answer_sha256": "9bb50a1aa6c0aac16082790f42271a2d29cb49411be06f1810411e5d2423afd0",
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "FORMAT_ERROR"
+    },
+    {
+      "case_id": "v06_holdout_accounts",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C bind the payroll account correctly and do not promote assistant guessing. C answers in Chinese despite the English question; this is a communication-constraint defect, not a number error.",
+      "answer_sha256": "0603fdb8a424a4066b033cf0993dcf6419a6c087ae313766a8e90cd4b3334be5",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true
+      ],
+      "used_given_facts": 2,
+      "given_facts": 2,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "ceb9cb0b-4486-5a2d-a727-4c96c846281a",
+          "source_position": {
+            "conversation_id": "payroll_bank",
+            "message_index": 0
+          },
+          "observed_at": "2024-03-02T09:00:00Z",
+          "quote": "[user;session=payroll_bank;range=0:132] My payroll checking account number is 5184027601. The routing number is 061009517. These numbers were copied from my bank statement."
+        },
+        {
+          "memory_id": "0ccd6a5c-556a-51ec-b4ff-4a22643eb49a",
+          "source_position": {
+            "conversation_id": "payroll_bank",
+            "message_index": 1
+          },
+          "observed_at": "2024-03-02T09:00:00Z",
+          "quote": "[user;session=payroll_bank;range=0:68] The savings account number is 5184027602; do not use it for payroll."
+        },
+        {
+          "memory_id": "8f58bbf8-42ba-53f9-ad18-b51664b85ac2",
+          "source_position": {
+            "conversation_id": "payroll_bank",
+            "message_index": 2
+          },
+          "observed_at": "2024-03-02T09:00:00Z",
+          "quote": "[assistant;session=payroll_bank;range=0:74] I guess the payroll account ends in 7602, but that has not been confirmed."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_accounts",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C bind the payroll account correctly and do not promote assistant guessing. C answers in Chinese despite the English question; this is a communication-constraint defect, not a number error.",
+      "answer_sha256": "b0d95fcfafd1df156698446389cb6c773a2c3cb2f6787f58b6176c4c02a5014c",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true
+      ],
+      "used_given_facts": 2,
+      "given_facts": 2,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "ceb9cb0b-4486-5a2d-a727-4c96c846281a",
+          "source_position": {
+            "conversation_id": "payroll_bank",
+            "message_index": 0
+          },
+          "observed_at": "2024-03-02T09:00:00Z",
+          "quote": "[user;session=payroll_bank;range=0:132] My payroll checking account number is 5184027601. The routing number is 061009517. These numbers were copied from my bank statement."
+        },
+        {
+          "memory_id": "0ccd6a5c-556a-51ec-b4ff-4a22643eb49a",
+          "source_position": {
+            "conversation_id": "payroll_bank",
+            "message_index": 1
+          },
+          "observed_at": "2024-03-02T09:00:00Z",
+          "quote": "[user;session=payroll_bank;range=0:68] The savings account number is 5184027602; do not use it for payroll."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_accounts",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C bind the payroll account correctly and do not promote assistant guessing. C answers in Chinese despite the English question; this is a communication-constraint defect, not a number error.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "v06_holdout_reservation",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C separate membership and another hotel's confirmation and preserve pending payment/not confirmed.",
+      "answer_sha256": "1e5581bf863b0d6185c640d00176374e6407e8ce9ee9fcc8cca1bb50113c9234",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false,
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        false,
+        false,
+        false
+      ],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "N/A_NO_MEMORY_FACT_ASSERTIONS",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_reservation",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C separate membership and another hotel's confirmation and preserve pending payment/not confirmed.",
+      "answer_sha256": "f7b2c81a4b44232b6bb2ff371e7e2ab9ba443a787e4cd508727e888cfdcdcdbb",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 3,
+      "given_facts": 3,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "9ca33c5e-3e72-5df0-bbc7-dcfc8a5f98a4",
+          "source_position": {
+            "conversation_id": "cedar_booking",
+            "message_index": 0
+          },
+          "observed_at": "2024-04-10T10:00:00Z",
+          "quote": "[user;session=cedar_booking;range=0:74] Cedar Inn membership number is 835194. This is not a booking confirmation."
+        },
+        {
+          "memory_id": "844edeb6-b31c-5692-9363-52fcebce5464",
+          "source_position": {
+            "conversation_id": "cedar_booking",
+            "message_index": 1
+          },
+          "observed_at": "2024-04-10T10:00:00Z",
+          "quote": "[user;session=cedar_booking;range=0:144] My Cedar Inn booking confirmation number is CI-684219. Room number 612 is reserved, but the booking is pending payment and is not confirmed yet."
+        },
+        {
+          "memory_id": "921a146c-db48-5902-8b92-f0cfa787523b",
+          "source_position": {
+            "conversation_id": "cedar_booking",
+            "message_index": 2
+          },
+          "observed_at": "2024-04-10T10:00:00Z",
+          "quote": "[user;session=cedar_booking;range=0:97] The other hotel is Meadow Lodge, confirmation ML-391204, room 415; that reservation is confirmed."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_reservation",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C separate membership and another hotel's confirmation and preserve pending payment/not confirmed.",
+      "answer_sha256": "162e34654e00332c14f39fd818a63d048589c13ace8911d1b999a902c674d715",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 3,
+      "given_facts": 3,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "9ca33c5e-3e72-5df0-bbc7-dcfc8a5f98a4",
+          "source_position": {
+            "conversation_id": "cedar_booking",
+            "message_index": 0
+          },
+          "observed_at": "2024-04-10T10:00:00Z",
+          "quote": "[user;session=cedar_booking;range=0:74] Cedar Inn membership number is 835194. This is not a booking confirmation."
+        },
+        {
+          "memory_id": "844edeb6-b31c-5692-9363-52fcebce5464",
+          "source_position": {
+            "conversation_id": "cedar_booking",
+            "message_index": 1
+          },
+          "observed_at": "2024-04-10T10:00:00Z",
+          "quote": "[user;session=cedar_booking;range=0:144] My Cedar Inn booking confirmation number is CI-684219. Room number 612 is reserved, but the booking is pending payment and is not confirmed yet."
+        },
+        {
+          "memory_id": "921a146c-db48-5902-8b92-f0cfa787523b",
+          "source_position": {
+            "conversation_id": "cedar_booking",
+            "message_index": 2
+          },
+          "observed_at": "2024-04-10T10:00:00Z",
+          "quote": "[user;session=cedar_booking;range=0:97] The other hotel is Meadow Lodge, confirmation ML-391204, room 415; that reservation is confirmed."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_reservation",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C separate membership and another hotel's confirmation and preserve pending payment/not confirmed.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "v06_holdout_reservation",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C separate membership and another hotel's confirmation and preserve pending payment/not confirmed.",
+      "answer_sha256": "a5385612f607427cbde79350c8b8be853903d3059e7a3014cc447e7db6c06bae",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 3,
+      "given_facts": 3,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "844edeb6-b31c-5692-9363-52fcebce5464",
+          "source_position": {
+            "conversation_id": "cedar_booking",
+            "message_index": 1
+          },
+          "observed_at": "2024-04-10T10:00:00Z",
+          "quote": "[user;session=cedar_booking;range=0:144] My Cedar Inn booking confirmation number is CI-684219. Room number 612 is reserved, but the booking is pending payment and is not confirmed yet."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_status",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use cancelled as of May6; May9 future restoration excluded. C answers in Chinese; semantic translation counts as fact use but language constraint defect is separately recorded.",
+      "answer_sha256": "632f9429e820823606f32a42825b38172faf478789618f849388f6471e1f5f2c",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true
+      ],
+      "provided_fact_matches": [
+        true
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "e19a2507-e9e7-5cd7-9261-a2d47b392de4",
+          "source_position": {
+            "conversation_id": "request_initial",
+            "message_index": 0
+          },
+          "observed_at": "2024-05-01T00:00:00Z",
+          "quote": "[user;session=request_initial;range=0:29] Request W8 is pending review."
+        },
+        {
+          "memory_id": "ff6dc53e-ce1d-5e63-8129-9fe22eda60aa",
+          "source_position": {
+            "conversation_id": "request_cancelled",
+            "message_index": 0
+          },
+          "observed_at": "2024-05-05T00:00:00Z",
+          "quote": "[user;session=request_cancelled;range=0:62] Request W8 has been cancelled. It is no longer pending review."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_status",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use cancelled as of May6; May9 future restoration excluded. C answers in Chinese; semantic translation counts as fact use but language constraint defect is separately recorded.",
+      "answer_sha256": "f6c7f4a33795ad20e944917da5a857b4a4b2f57b02141b84f6336e4bae967276",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true
+      ],
+      "provided_fact_matches": [
+        true
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "e19a2507-e9e7-5cd7-9261-a2d47b392de4",
+          "source_position": {
+            "conversation_id": "request_initial",
+            "message_index": 0
+          },
+          "observed_at": "2024-05-01T00:00:00Z",
+          "quote": "[user;session=request_initial;range=0:29] Request W8 is pending review."
+        },
+        {
+          "memory_id": "ff6dc53e-ce1d-5e63-8129-9fe22eda60aa",
+          "source_position": {
+            "conversation_id": "request_cancelled",
+            "message_index": 0
+          },
+          "observed_at": "2024-05-05T00:00:00Z",
+          "quote": "[user;session=request_cancelled;range=0:62] Request W8 has been cancelled. It is no longer pending review."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_status",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use cancelled as of May6; May9 future restoration excluded. C answers in Chinese; semantic translation counts as fact use but language constraint defect is separately recorded.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "v06_holdout_status",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use cancelled as of May6; May9 future restoration excluded. C answers in Chinese; semantic translation counts as fact use but language constraint defect is separately recorded.",
+      "answer_sha256": "d2eee5dbf937e1ff6d574fe3fc022c9ed822457c0e5bf5475a55b31decdd981f",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true
+      ],
+      "provided_fact_matches": [
+        true
+      ],
+      "used_given_facts": 1,
+      "given_facts": 1,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "e19a2507-e9e7-5cd7-9261-a2d47b392de4",
+          "source_position": {
+            "conversation_id": "request_initial",
+            "message_index": 0
+          },
+          "observed_at": "2024-05-01T00:00:00Z",
+          "quote": "[user;session=request_initial;range=0:29] Request W8 is pending review."
+        },
+        {
+          "memory_id": "ff6dc53e-ce1d-5e63-8129-9fe22eda60aa",
+          "source_position": {
+            "conversation_id": "request_cancelled",
+            "message_index": 0
+          },
+          "observed_at": "2024-05-05T00:00:00Z",
+          "quote": "[user;session=request_cancelled;range=0:62] Request W8 has been cancelled. It is no longer pending review."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": [
+        {
+          "case_id": "v06_holdout_status",
+          "group": "C",
+          "issue": "Chinese answer to English question"
+        }
+      ]
+    },
+    {
+      "case_id": "v06_holdout_status",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C use cancelled as of May6; May9 future restoration excluded. C answers in Chinese; semantic translation counts as fact use but language constraint defect is separately recorded.",
+      "answer_sha256": "11c47ee7f40ca23a0351eb8cb0781348893b72042dce87f898b98b83bb574164",
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "SCHEMA_ERROR"
+    },
+    {
+      "case_id": "v06_holdout_vehicles",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/C 4/4; B1 correctly distinguishes cars but loses SB-482170 because the actual booking message is absent from its view. This is selection/packing loss, not failure to use visible confirmation.",
+      "answer_sha256": "ce656a2940a14f4b2918e2866b609bdd0bb6c99bce122d2d858b103c187eaf5b",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        false,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        false,
+        true,
+        true
+      ],
+      "used_given_facts": 3,
+      "given_facts": 3,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "354aa422-8b12-5670-a660-58d6d7a5478d",
+          "source_position": {
+            "conversation_id": "volvo_service",
+            "message_index": 0
+          },
+          "observed_at": "2024-06-04T10:00:00Z",
+          "quote": "[user;session=volvo_service;range=0:101] My 2021 Volvo XC40 has no service booked. The June 14 appointment belongs only to the Subaru Outback."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_vehicles",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/C 4/4; B1 correctly distinguishes cars but loses SB-482170 because the actual booking message is absent from its view. This is selection/packing loss, not failure to use visible confirmation.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "v06_holdout_vehicles",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/C 4/4; B1 correctly distinguishes cars but loses SB-482170 because the actual booking message is absent from its view. This is selection/packing loss, not failure to use visible confirmation.",
+      "answer_sha256": "24627e81ce8395f9703a45e7dc9d9d5d07a6827a8bbc530b56a195f255bcfa4d",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 4,
+      "given_facts": 4,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "c26f0218-38c6-57ac-a56a-b6fccf07b0ec",
+          "source_position": {
+            "conversation_id": "subaru_service",
+            "message_index": 0
+          },
+          "observed_at": "2024-06-03T09:00:00Z",
+          "quote": "[user;session=subaru_service;range=0:103] My 2018 Subaru Outback has an oil change booked for June 14 at 09:30. Confirmation number is SB-482170."
+        },
+        {
+          "memory_id": "354aa422-8b12-5670-a660-58d6d7a5478d",
+          "source_position": {
+            "conversation_id": "volvo_service",
+            "message_index": 0
+          },
+          "observed_at": "2024-06-04T10:00:00Z",
+          "quote": "[user;session=volvo_service;range=0:101] My 2021 Volvo XC40 has no service booked. The June 14 appointment belongs only to the Subaru Outback."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_vehicles",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/C 4/4; B1 correctly distinguishes cars but loses SB-482170 because the actual booking message is absent from its view. This is selection/packing loss, not failure to use visible confirmation.",
+      "answer_sha256": "7713ebc112ae0da59907fa2ee43ba4c4ddbf90c98818dda5d04c42601c0c0fe3",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "N/A_NO_MEMORY_FACT_ASSERTIONS",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_vehicles",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/C 4/4; B1 correctly distinguishes cars but loses SB-482170 because the actual booking message is absent from its view. This is selection/packing loss, not failure to use visible confirmation.",
+      "answer_sha256": "1e60e45fb96a8e0120a10b523d870f31af4a4a0c1a44d88a6331448be9e6af93",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 4,
+      "given_facts": 4,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "c26f0218-38c6-57ac-a56a-b6fccf07b0ec",
+          "source_position": {
+            "conversation_id": "subaru_service",
+            "message_index": 0
+          },
+          "observed_at": "2024-06-03T09:00:00Z",
+          "quote": "[user;session=subaru_service;range=0:103] My 2018 Subaru Outback has an oil change booked for June 14 at 09:30. Confirmation number is SB-482170."
+        },
+        {
+          "memory_id": "354aa422-8b12-5670-a660-58d6d7a5478d",
+          "source_position": {
+            "conversation_id": "volvo_service",
+            "message_index": 0
+          },
+          "observed_at": "2024-06-04T10:00:00Z",
+          "quote": "[user;session=volvo_service;range=0:101] My 2021 Volvo XC40 has no service booked. The June 14 appointment belongs only to the Subaru Outback."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_gate",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C preserve tentative gate, after09:00 verification and assistant provenance; none treats baggage tag as booking ID.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    },
+    {
+      "case_id": "v06_holdout_gate",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C preserve tentative gate, after09:00 verification and assistant provenance; none treats baggage tag as booking ID.",
+      "answer_sha256": "d4dbd04d8ac9df5ccb51d52fcc33929568c509824758496deda17ac7cd95753e",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 3,
+      "given_facts": 3,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "ea65527d-410f-5bd2-a95f-30661aea68f8",
+          "source_position": {
+            "conversation_id": "flight_note",
+            "message_index": 0
+          },
+          "observed_at": "2024-07-08T08:00:00Z",
+          "quote": "[assistant;session=flight_note;range=0:150] The Maple Air booking confirmation number is MA-624831. Gate F12 is tentative and must be verified after 09:00; it is not a confirmed gate assignment."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_gate",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C preserve tentative gate, after09:00 verification and assistant provenance; none treats baggage tag as booking ID.",
+      "answer_sha256": "4a21846b2bfc6c6f812a9b0b7623925942fa2f973032b8f5f14a0e8e71808803",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        false,
+        false,
+        false
+      ],
+      "provided_fact_matches": [
+        false,
+        false,
+        false
+      ],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "N/A_NO_MEMORY_FACT_ASSERTIONS",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_gate",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C preserve tentative gate, after09:00 verification and assistant provenance; none treats baggage tag as booking ID.",
+      "answer_sha256": "19a28bf7ce1b6c2b9cb4d61775a17772f0981744ac321c7d1b1843583ae82ff8",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 3,
+      "given_facts": 3,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "ea65527d-410f-5bd2-a95f-30661aea68f8",
+          "source_position": {
+            "conversation_id": "flight_note",
+            "message_index": 0
+          },
+          "observed_at": "2024-07-08T08:00:00Z",
+          "quote": "[assistant;session=flight_note;range=0:150] The Maple Air booking confirmation number is MA-624831. Gate F12 is tentative and must be verified after 09:00; it is not a confirmed gate assignment."
+        },
+        {
+          "memory_id": "8b999b1d-78d6-5806-985e-bed142f79167",
+          "source_position": {
+            "conversation_id": "flight_note",
+            "message_index": 1
+          },
+          "observed_at": "2024-07-08T08:00:00Z",
+          "quote": "[user;session=flight_note;range=0:78] The baggage tag number is 624832. It is unrelated to the booking confirmation."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_gate",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0/B1/C preserve tentative gate, after09:00 verification and assistant provenance; none treats baggage tag as booking ID.",
+      "answer_sha256": "19f81d68cc2af11b0e0c318a1b94bb3a1536792528ec78bd5a8ca98798931225",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "provided_fact_matches": [
+        true,
+        true,
+        true
+      ],
+      "used_given_facts": 3,
+      "given_facts": 3,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "ea65527d-410f-5bd2-a95f-30661aea68f8",
+          "source_position": {
+            "conversation_id": "flight_note",
+            "message_index": 0
+          },
+          "observed_at": "2024-07-08T08:00:00Z",
+          "quote": "[assistant;session=flight_note;range=0:150] The Maple Air booking confirmation number is MA-624831. Gate F12 is tentative and must be verified after 09:00; it is not a confirmed gate assignment."
+        },
+        {
+          "memory_id": "8b999b1d-78d6-5806-985e-bed142f79167",
+          "source_position": {
+            "conversation_id": "flight_note",
+            "message_index": 1
+          },
+          "observed_at": "2024-07-08T08:00:00Z",
+          "quote": "[user;session=flight_note;range=0:78] The baggage tag number is 624832. It is unrelated to the booking confirmation."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_missing",
+      "group": "C",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 format failure. A/B1/C abstain and do not use the rental order as access code. No fictitious password to score.",
+      "answer_sha256": "707d2497e48a6903d61385aa8abfee62744b31966956a8e36fdd9d1ec640c060",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [],
+      "provided_fact_matches": [],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "023be4f4-1ef2-5437-904e-cccef874a745",
+          "source_position": {
+            "conversation_id": "locker_note",
+            "message_index": 0
+          },
+          "observed_at": "2024-08-02T11:00:00Z",
+          "quote": "[user;session=locker_note;range=0:85] My locker rental order number is LK-306712. I did not write down an access code here."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_missing",
+      "group": "A",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 format failure. A/B1/C abstain and do not use the rental order as access code. No fictitious password to score.",
+      "answer_sha256": "70b16179702a526746c93d0157d52cbc6d9ca94e67db05e6c787702e21396f65",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [],
+      "provided_fact_matches": [],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "N/A_NO_MEMORY_FACT_ASSERTIONS",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_missing",
+      "group": "B0",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 format failure. A/B1/C abstain and do not use the rental order as access code. No fictitious password to score.",
+      "answer_sha256": "cec5f6eb0e117515227fe258d5a60d55a5b888f24d88b94909f3a6674efca105",
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "FORMAT_ERROR"
+    },
+    {
+      "case_id": "v06_holdout_missing",
+      "group": "B1",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 format failure. A/B1/C abstain and do not use the rental order as access code. No fictitious password to score.",
+      "answer_sha256": "4d5f4cf87faa2961faa466909e9015d88d058d94966175196f77130202accc2f",
+      "status": "SOURCE_REVIEWED",
+      "fact_matches": [],
+      "provided_fact_matches": [],
+      "used_given_facts": 0,
+      "given_facts": 0,
+      "core_answer_support": "NO_UNSUPPORTED_CORE_ASSERTION_FOUND",
+      "support_scope": "answer-level source review of decision-relevant core assertions; not exhaustive world fact checking or task success",
+      "unsupported_assertions": [],
+      "disambiguation_findings": [],
+      "cited_source_quotes": [
+        {
+          "memory_id": "023be4f4-1ef2-5437-904e-cccef874a745",
+          "source_position": {
+            "conversation_id": "locker_note",
+            "message_index": 0
+          },
+          "observed_at": "2024-08-02T11:00:00Z",
+          "quote": "[user;session=locker_note;range=0:85] My locker rental order number is LK-306712. I did not write down an access code here."
+        }
+      ],
+      "citation_validation": true,
+      "communication_findings": []
+    },
+    {
+      "case_id": "v06_holdout_missing",
+      "group": "B2",
+      "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+      "case_note": "B0 format failure. A/B1/C abstain and do not use the rental order as access code. No fictitious password to score.",
+      "answer_sha256": null,
+      "status": "NOT_RUN_NO_VALID_FINAL",
+      "fact_matches": "NOT_RUN",
+      "core_answer_support": "NOT_RUN",
+      "reason": "context_limit"
+    }
+  ],
+  "summary": {
+    "public_dev/A": {
+      "required_fact_hits": 0,
+      "scored_required_facts": 9,
+      "not_scored_facts": 10,
+      "provided_required_facts": 0,
+      "used_provided_facts": 0,
+      "valid_final_answers": 3,
+      "core_answers_audited": 0,
+      "core_answers_without_flagged_unsupported_claim": 0,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "public_dev/B0": {
+      "required_fact_hits": 4,
+      "scored_required_facts": 16,
+      "not_scored_facts": 3,
+      "provided_required_facts": 5,
+      "used_provided_facts": 4,
+      "valid_final_answers": 5,
+      "core_answers_audited": 5,
+      "core_answers_without_flagged_unsupported_claim": 5,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "public_dev/B1": {
+      "required_fact_hits": 9,
+      "scored_required_facts": 19,
+      "not_scored_facts": 0,
+      "provided_required_facts": 9,
+      "used_provided_facts": 9,
+      "valid_final_answers": 6,
+      "core_answers_audited": 6,
+      "core_answers_without_flagged_unsupported_claim": 3,
+      "flagged_unsupported_claims": 4,
+      "disambiguation_findings": 2
+    },
+    "public_dev/B2": {
+      "required_fact_hits": 0,
+      "scored_required_facts": 0,
+      "not_scored_facts": 19,
+      "provided_required_facts": 0,
+      "used_provided_facts": 0,
+      "valid_final_answers": 0,
+      "core_answers_audited": 0,
+      "core_answers_without_flagged_unsupported_claim": 0,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "public_dev/C": {
+      "required_fact_hits": 19,
+      "scored_required_facts": 19,
+      "not_scored_facts": 0,
+      "provided_required_facts": 19,
+      "used_provided_facts": 19,
+      "valid_final_answers": 6,
+      "core_answers_audited": 6,
+      "core_answers_without_flagged_unsupported_claim": 4,
+      "flagged_unsupported_claims": 3,
+      "disambiguation_findings": 0
+    },
+    "v05_seen_dev/B0": {
+      "required_fact_hits": 2,
+      "scored_required_facts": 2,
+      "not_scored_facts": 0,
+      "provided_required_facts": 2,
+      "used_provided_facts": 2,
+      "valid_final_answers": 3,
+      "core_answers_audited": 3,
+      "core_answers_without_flagged_unsupported_claim": 3,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "v05_seen_dev/B1": {
+      "required_fact_hits": 2,
+      "scored_required_facts": 2,
+      "not_scored_facts": 0,
+      "provided_required_facts": 2,
+      "used_provided_facts": 2,
+      "valid_final_answers": 3,
+      "core_answers_audited": 3,
+      "core_answers_without_flagged_unsupported_claim": 3,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "v05_seen_dev/B2": {
+      "required_fact_hits": 0,
+      "scored_required_facts": 0,
+      "not_scored_facts": 2,
+      "provided_required_facts": 0,
+      "used_provided_facts": 0,
+      "valid_final_answers": 0,
+      "core_answers_audited": 0,
+      "core_answers_without_flagged_unsupported_claim": 0,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "v05_seen_dev/C": {
+      "required_fact_hits": 2,
+      "scored_required_facts": 2,
+      "not_scored_facts": 0,
+      "provided_required_facts": 2,
+      "used_provided_facts": 2,
+      "valid_final_answers": 3,
+      "core_answers_audited": 3,
+      "core_answers_without_flagged_unsupported_claim": 3,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "v05_seen_dev/A": {
+      "required_fact_hits": 0,
+      "scored_required_facts": 1,
+      "not_scored_facts": 1,
+      "provided_required_facts": 0,
+      "used_provided_facts": 0,
+      "valid_final_answers": 2,
+      "core_answers_audited": 0,
+      "core_answers_without_flagged_unsupported_claim": 0,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "new_synthetic_holdout/C": {
+      "required_fact_hits": 13,
+      "scored_required_facts": 13,
+      "not_scored_facts": 0,
+      "provided_required_facts": 13,
+      "used_provided_facts": 13,
+      "valid_final_answers": 6,
+      "core_answers_audited": 6,
+      "core_answers_without_flagged_unsupported_claim": 6,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "new_synthetic_holdout/A": {
+      "required_fact_hits": 0,
+      "scored_required_facts": 10,
+      "not_scored_facts": 3,
+      "provided_required_facts": 0,
+      "used_provided_facts": 0,
+      "valid_final_answers": 4,
+      "core_answers_audited": 0,
+      "core_answers_without_flagged_unsupported_claim": 0,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "new_synthetic_holdout/B0": {
+      "required_fact_hits": 13,
+      "scored_required_facts": 13,
+      "not_scored_facts": 0,
+      "provided_required_facts": 13,
+      "used_provided_facts": 13,
+      "valid_final_answers": 5,
+      "core_answers_audited": 5,
+      "core_answers_without_flagged_unsupported_claim": 5,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "new_synthetic_holdout/B1": {
+      "required_fact_hits": 12,
+      "scored_required_facts": 13,
+      "not_scored_facts": 0,
+      "provided_required_facts": 12,
+      "used_provided_facts": 12,
+      "valid_final_answers": 6,
+      "core_answers_audited": 6,
+      "core_answers_without_flagged_unsupported_claim": 6,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    },
+    "new_synthetic_holdout/B2": {
+      "required_fact_hits": 0,
+      "scored_required_facts": 0,
+      "not_scored_facts": 13,
+      "provided_required_facts": 0,
+      "used_provided_facts": 0,
+      "valid_final_answers": 0,
+      "core_answers_audited": 0,
+      "core_answers_without_flagged_unsupported_claim": 0,
+      "flagged_unsupported_claims": 0,
+      "disambiguation_findings": 0
+    }
+  },
+  "limitation": "judgments are implementer source audit, not blind independent evaluation; no Gold/answer fed into decision algorithms",
+  "real_model_calls": 90,
+  "cost_peak_usd": 0.1197285
+}

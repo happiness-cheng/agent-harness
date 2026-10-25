@@ -1,0 +1,335 @@
+{
+  "reviewer": "executing Codex agent; unblinded source audit; no external Judge and no independent user verification",
+  "definition": "required-fact mention coverage uses original fact slots and semantic equivalents; it is not task success, ownership correctness, or full-answer accuracy. Assertion support is limited to explicitly listed audited core assertions.",
+  "used_fact_matches": {
+    "layer1_01_bank_account": {
+      "B0": [
+        0,
+        0
+      ],
+      "B1": [
+        1,
+        1
+      ],
+      "C": [
+        1,
+        1
+      ]
+    },
+    "layer1_08_hotel_reservation": {
+      "B0": [
+        1,
+        1
+      ],
+      "B1": [
+        1,
+        1
+      ],
+      "C": [
+        1,
+        1
+      ]
+    },
+    "layer2_01_multiple_vehicles": {
+      "B0": [
+        0,
+        0,
+        0
+      ],
+      "B1": [
+        0,
+        0,
+        0
+      ],
+      "C": [
+        1,
+        1,
+        1
+      ]
+    },
+    "layer2_03_multiple_credit_cards": {
+      "B1": [
+        0,
+        1,
+        1
+      ],
+      "C": [
+        1,
+        1,
+        1
+      ]
+    },
+    "layer3_01_travel_coordination": {
+      "B0": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "B1": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "C": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "layer3_03_home_purchase_coordination": {
+      "B0": [
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "B1": [
+        0,
+        0,
+        0,
+        1,
+        1
+      ],
+      "C": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "v05_current_instruction": {
+      "B0": [
+        1
+      ],
+      "B1": [
+        1
+      ],
+      "C": [
+        1
+      ]
+    },
+    "v05_temporal_state": {
+      "B0": [
+        1
+      ],
+      "B1": [
+        1
+      ],
+      "C": [
+        1
+      ]
+    },
+    "v05_missing_memory": {
+      "B0": [],
+      "B1": [],
+      "C": []
+    },
+    "v06_holdout_accounts": {
+      "B0": [
+        1,
+        1
+      ],
+      "B1": [
+        1,
+        1
+      ],
+      "C": [
+        1,
+        1
+      ]
+    },
+    "v06_holdout_reservation": {
+      "B0": [
+        1,
+        1,
+        1
+      ],
+      "B1": [
+        1,
+        1,
+        1
+      ],
+      "C": [
+        1,
+        1,
+        1
+      ]
+    },
+    "v06_holdout_status": {
+      "B0": [
+        1
+      ],
+      "B1": [
+        1
+      ],
+      "C": [
+        1
+      ]
+    },
+    "v06_holdout_vehicles": {
+      "B0": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "B1": [
+        1,
+        0,
+        1,
+        1
+      ],
+      "C": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "v06_holdout_gate": {
+      "B0": [
+        1,
+        1,
+        1
+      ],
+      "B1": [
+        1,
+        1,
+        1
+      ],
+      "C": [
+        1,
+        1,
+        1
+      ]
+    },
+    "v06_holdout_missing": {
+      "B1": [],
+      "C": []
+    }
+  },
+  "available_fact_overrides": {
+    "layer3_03_home_purchase_coordination/B0": [
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    "layer2_03_multiple_credit_cards/B1": [
+      0,
+      1,
+      1
+    ],
+    "layer2_03_multiple_credit_cards/C": [
+      1,
+      1,
+      1
+    ],
+    "layer3_01_travel_coordination/C": [
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "case_notes": {
+    "layer1_01_bank_account": "B1 gives both correct target values but brings in a funding/source-account number and labels the records conflicting. Correct mentions do not mean correct entity/use binding; B0 lacks target evidence, C is scoped to the new account.",
+    "layer1_08_hotel_reservation": "B0/B1/C recall both identifiers. Historical date/weekday contradictions are qualified. Citation IDs valid in this batch.",
+    "layer2_01_multiple_vehicles": "B1 improves service-type/price snippets but loses Honda/Tesla/confirmation. C includes Tesla in the main answer this time; complete original service package evidence is still not in Oracle. B0 has a Honda statement available but fails to use it.",
+    "layer2_03_multiple_credit_cards": "B0 malformed JSON not scored. B1 recalls Gold and 3x as discussed product facts, but does not establish ownership; recommends comparison involving unheld Platinum/Sapphire and promotes a user question about $800 into coverage. These failures are separate from mention coverage. C avoids inventing the Gold foreign fee.",
+    "layer3_01_travel_coordination": "B0/B1 retain only coarse passport risk among the frozen slots; C covers all four but adds unprovided six-month policy/processing-time generalizations. Historical assistant statements are not authoritative entry-policy evidence. Oracle expiry excerpts do not literally say passport, but their visible scene is passport_renewal_001 and the question/date pair is verified against the original passport history; semantic availability uses that supplied scene, not unseen future content.",
+    "layer3_03_home_purchase_coordination": "B0 retains equivalent Core expiry evidence but misses mover status; B1 recovers mover confirmation/closing condition but loses mortgage expiry, insurance and gift letter. B1 labels offer acceptance Nov15 though the statement is dated Nov18. C covers all slots but asserts move dates are set although the Oracle gives no actual moving date. Nov20 has not passed at the Nov18 task time.",
+    "v05_current_instruction": "B0/B1/C use one Chinese sentence and current preference; A format failure. B2 budget stop.",
+    "v05_temporal_state": "B0/B1/C use cancellation and exclude future restoration; later uncertainty language is overly cautious but not a wrong status.",
+    "v05_missing_memory": "Valid final answers decline to invent a password. B0's brief 'no record' sentence is qualified by current-view text and uncertainties; record as scope warning, not proof it made an absolute complete-history claim.",
+    "v06_holdout_accounts": "B0/B1/C bind the payroll account correctly and do not promote assistant guessing. C answers in Chinese despite the English question; this is a communication-constraint defect, not a number error.",
+    "v06_holdout_reservation": "B0/B1/C separate membership and another hotel's confirmation and preserve pending payment/not confirmed.",
+    "v06_holdout_status": "B0/B1/C use cancelled as of May6; May9 future restoration excluded. C answers in Chinese; semantic translation counts as fact use but language constraint defect is separately recorded.",
+    "v06_holdout_vehicles": "B0/C 4/4; B1 correctly distinguishes cars but loses SB-482170 because the actual booking message is absent from its view. This is selection/packing loss, not failure to use visible confirmation.",
+    "v06_holdout_gate": "B0/B1/C preserve tentative gate, after09:00 verification and assistant provenance; none treats baggage tag as booking ID.",
+    "v06_holdout_missing": "B0 format failure. A/B1/C abstain and do not use the rental order as access code. No fictitious password to score."
+  },
+  "extra_assertion_checks": [
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "B1",
+      "needle": "the records conflict",
+      "supported": false,
+      "reason": "Different account numbers alone do not establish contradiction; original history uses one as a funding/source account. Missing contextual evidence contributes."
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "B1",
+      "needle": "it provides $800 coverage if you pay with the Chase card",
+      "supported": false,
+      "reason": "The selected user record is a question, not confirmed coverage; source role DIRECT is not an assertion classifier."
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "B1",
+      "needle": "Amex Gold (3x) beats the Chase travel card",
+      "supported": false,
+      "reason": "Visible evidence has no comparable rewards rate or confirmed ownership of the Chase travel card."
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "C",
+      "needle": "Many airlines and immigration authorities expect validity of around six months beyond travel dates",
+      "supported": false,
+      "reason": "Policy not in supplied evidence and not verified; this is unsupported-as-asserted, not a claim the real-world rule was proved false."
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "group": "C",
+      "needle": "routine processing can take weeks to months",
+      "supported": false,
+      "reason": "No processing-time evidence in this Oracle; advice to verify is appropriate but does not support a definite time range."
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "B1",
+      "needle": "Offer accepted (Nov 15)",
+      "supported": false,
+      "reason": "The selected accepted-offer statement was recorded Nov18 and does not establish acceptance on Nov15."
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "group": "C",
+      "needle": "the closing and move dates are set",
+      "supported": false,
+      "reason": "Oracle supplies closing date but no actual moving date; could be true in full history, but not grounded in provided material."
+    }
+  ],
+  "disambiguation_findings": [
+    {
+      "case_id": "layer1_01_bank_account",
+      "group": "B1",
+      "issue": "funding/source account versus new payroll checking account treated as a conflict",
+      "contributing_stage": "evidence_selection_and_context_binding"
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "group": "B1",
+      "issue": "discussed product benefits versus owned and usable cards not resolved",
+      "contributing_stage": "evidence_selection_and_reasoning"
+    }
+  ],
+  "communication_constraint_findings": [
+    {
+      "case_id": "v06_holdout_accounts",
+      "group": "C",
+      "issue": "Chinese answer to English question"
+    },
+    {
+      "case_id": "v06_holdout_status",
+      "group": "C",
+      "issue": "Chinese answer to English question"
+    }
+  ]
+}

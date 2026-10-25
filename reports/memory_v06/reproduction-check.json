@@ -1,0 +1,6 @@
+{
+  "source_audit_byte_identical": true,
+  "complete_comparison_byte_identical": true,
+  "provider_calls": 0,
+  "note": "本地选择计时可变化，真实模型输出/评分/费用逐字节复现"
+}

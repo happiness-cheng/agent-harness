@@ -1,0 +1,163 @@
+{
+  "body_only_surface_proxy": {
+    "v05_seen_dev / A": {
+      "hit": 0,
+      "total": 21,
+      "reference_bytes": 0,
+      "cases": 9
+    },
+    "v05_seen_dev / B0": {
+      "hit": 6,
+      "total": 21,
+      "reference_bytes": 26805,
+      "cases": 9
+    },
+    "v05_seen_dev / B1": {
+      "hit": 10,
+      "total": 21,
+      "reference_bytes": 24631,
+      "cases": 9
+    },
+    "v05_seen_dev / B2": {
+      "hit": 0,
+      "total": 0,
+      "reference_bytes": 0,
+      "cases": 0
+    },
+    "v05_seen_dev / C": {
+      "hit": 19,
+      "total": 21,
+      "reference_bytes": 9900,
+      "cases": 9
+    },
+    "new_synthetic_holdout / A": {
+      "hit": 0,
+      "total": 13,
+      "reference_bytes": 0,
+      "cases": 6
+    },
+    "new_synthetic_holdout / B0": {
+      "hit": 13,
+      "total": 13,
+      "reference_bytes": 7579,
+      "cases": 6
+    },
+    "new_synthetic_holdout / B1": {
+      "hit": 12,
+      "total": 13,
+      "reference_bytes": 6565,
+      "cases": 6
+    },
+    "new_synthetic_holdout / B2": {
+      "hit": 0,
+      "total": 0,
+      "reference_bytes": 0,
+      "cases": 0
+    },
+    "new_synthetic_holdout / C": {
+      "hit": 13,
+      "total": 13,
+      "reference_bytes": 2410,
+      "cases": 6
+    }
+  },
+  "source_audit": "NOT_RUN",
+  "model_calls": 90,
+  "cost_peak_usd": 0.1197285,
+  "invoice": "NOT_AVAILABLE",
+  "b2_scripted_completed": 5,
+  "b2_scripted_total": 15,
+  "frozen_pack_sha256": "8c2e782b7cbdceff2107fad1f9de64a65778fdcef1e347c2f315320642eadc22",
+  "timings": [
+    {
+      "case_id": "layer1_01_bank_account",
+      "b0_selection_ms": 93.92249999655178,
+      "b1_selection_ms": 256.7020999995293,
+      "b1_candidate_count": 73
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "b0_selection_ms": 95.7979999948293,
+      "b1_selection_ms": 234.81989999709185,
+      "b1_candidate_count": 79
+    },
+    {
+      "case_id": "layer2_01_multiple_vehicles",
+      "b0_selection_ms": 203.75130000320496,
+      "b1_selection_ms": 457.5419000029797,
+      "b1_candidate_count": 100
+    },
+    {
+      "case_id": "layer2_03_multiple_credit_cards",
+      "b0_selection_ms": 278.8404000020819,
+      "b1_selection_ms": 661.1760000014328,
+      "b1_candidate_count": 100
+    },
+    {
+      "case_id": "layer3_01_travel_coordination",
+      "b0_selection_ms": 245.13059999299003,
+      "b1_selection_ms": 576.1734999978216,
+      "b1_candidate_count": 100
+    },
+    {
+      "case_id": "layer3_03_home_purchase_coordination",
+      "b0_selection_ms": 313.83980000100564,
+      "b1_selection_ms": 734.31239999627,
+      "b1_candidate_count": 100
+    },
+    {
+      "case_id": "v05_current_instruction",
+      "b0_selection_ms": 4.267000003892463,
+      "b1_selection_ms": 9.555700002238154,
+      "b1_candidate_count": 2
+    },
+    {
+      "case_id": "v05_temporal_state",
+      "b0_selection_ms": 5.629599996609613,
+      "b1_selection_ms": 9.760699998878408,
+      "b1_candidate_count": 2
+    },
+    {
+      "case_id": "v05_missing_memory",
+      "b0_selection_ms": 3.2036000047810376,
+      "b1_selection_ms": 5.9844999996130355,
+      "b1_candidate_count": 1
+    },
+    {
+      "case_id": "v06_holdout_accounts",
+      "b0_selection_ms": 6.0572999936994165,
+      "b1_selection_ms": 12.751800000842195,
+      "b1_candidate_count": 3
+    },
+    {
+      "case_id": "v06_holdout_reservation",
+      "b0_selection_ms": 5.668699996022042,
+      "b1_selection_ms": 13.727400000789203,
+      "b1_candidate_count": 3
+    },
+    {
+      "case_id": "v06_holdout_status",
+      "b0_selection_ms": 5.4352000006474555,
+      "b1_selection_ms": 9.442700000363402,
+      "b1_candidate_count": 2
+    },
+    {
+      "case_id": "v06_holdout_vehicles",
+      "b0_selection_ms": 3.405100003874395,
+      "b1_selection_ms": 9.36820000060834,
+      "b1_candidate_count": 2
+    },
+    {
+      "case_id": "v06_holdout_gate",
+      "b0_selection_ms": 4.9729999955161475,
+      "b1_selection_ms": 11.767399999371264,
+      "b1_candidate_count": 2
+    },
+    {
+      "case_id": "v06_holdout_missing",
+      "b0_selection_ms": 2.7251999999862164,
+      "b1_selection_ms": 8.097300000372343,
+      "b1_candidate_count": 1
+    }
+  ]
+}
