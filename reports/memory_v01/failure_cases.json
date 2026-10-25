@@ -1,0 +1,603 @@
+[
+  {
+    "case_id": "layer1_01_bank_account",
+    "category": "layer1",
+    "failure_type": "gold_fact_retrieval_incomplete_not_model_task_failure",
+    "fact_recall_at_k": 0.5,
+    "facts_annotated": 2,
+    "core_coverage": {
+      "NONE": 0.0,
+      "RECENCY": 0.0,
+      "FREQUENCY": 0.0,
+      "GOAL_VALUE": 0.0
+    },
+    "selected_ids": [
+      "fffa9582-26db-536f-99e6-2fb39372c3de",
+      "61f31410-7cb9-5267-901f-8fea99905d52",
+      "24daf55f-0c0a-5bcc-b217-20448e98680a",
+      "3b2fedaa-1a89-5470-ad4b-852a099de342",
+      "bade45c4-d3ca-538a-8bc2-e8635b3aaaf7"
+    ],
+    "selected_bytes_upper_bound": 2041,
+    "selected_importance_signals": {
+      "fffa9582-26db-536f-99e6-2fb39372c3de": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "61f31410-7cb9-5267-901f-8fea99905d52": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "24daf55f-0c0a-5bcc-b217-20448e98680a": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "3b2fedaa-1a89-5470-ad4b-852a099de342": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "bade45c4-d3ca-538a-8bc2-e8635b3aaaf7": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      }
+    },
+    "retrieval_trace": {
+      "document_revision": 1,
+      "backend": "fts5_bm25",
+      "filtered": {
+        "authority_time_lifecycle_scope": 0
+      },
+      "routed_topics": [],
+      "omitted_topic_count": 0,
+      "global_fallback": true,
+      "raw_hit_count": 69,
+      "unique_candidate_count": 69,
+      "duplicate_hit_count": 0,
+      "graph_expanded": 0,
+      "candidate_cap": 100,
+      "candidate_cap_reached": false,
+      "final_ids": [
+        "853a8c77-d936-501e-8ddf-13fb118f8467",
+        "662f7be4-5123-5d34-b41a-339fb8926af5",
+        "2153b369-d683-5274-a234-255423546196",
+        "eaa5075f-e543-5d08-9c6d-eb3106112eb3",
+        "5fb88424-5314-5f1d-a8af-e2acb9481258",
+        "73becb3e-3ce0-58d0-a306-3c6b8ab288cf",
+        "fffa9582-26db-536f-99e6-2fb39372c3de",
+        "61f31410-7cb9-5267-901f-8fea99905d52"
+      ],
+      "as_of": "2024-11-15T10:30:00.000001+00:00"
+    },
+    "quality": "NOT_RUN"
+  },
+  {
+    "case_id": "layer1_03_medical_appointment",
+    "category": "layer1",
+    "failure_type": "gold_fact_retrieval_incomplete_not_model_task_failure",
+    "fact_recall_at_k": 0.0,
+    "facts_annotated": 4,
+    "core_coverage": {
+      "NONE": 0.0,
+      "RECENCY": 0.5,
+      "FREQUENCY": 0.5,
+      "GOAL_VALUE": 0.0
+    },
+    "selected_ids": [
+      "421985bd-0540-58c8-963a-4f9bf18ccc87",
+      "d9686d32-b70a-5cea-9ae9-33a06ed67ce7",
+      "8715ac1e-310d-5342-bc6d-797410f8323b",
+      "ab9ec3ad-38bf-514b-a929-5c6300730de7"
+    ],
+    "selected_bytes_upper_bound": 1709,
+    "selected_importance_signals": {
+      "421985bd-0540-58c8-963a-4f9bf18ccc87": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "d9686d32-b70a-5cea-9ae9-33a06ed67ce7": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "8715ac1e-310d-5342-bc6d-797410f8323b": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "ab9ec3ad-38bf-514b-a929-5c6300730de7": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 0,
+        "stable": 0,
+        "disputed": 0
+      }
+    },
+    "retrieval_trace": {
+      "document_revision": 1,
+      "backend": "fts5_bm25",
+      "filtered": {
+        "authority_time_lifecycle_scope": 0
+      },
+      "routed_topics": [],
+      "omitted_topic_count": 0,
+      "global_fallback": true,
+      "raw_hit_count": 82,
+      "unique_candidate_count": 82,
+      "duplicate_hit_count": 0,
+      "graph_expanded": 0,
+      "candidate_cap": 100,
+      "candidate_cap_reached": false,
+      "final_ids": [
+        "d8577b1c-2b81-5755-930c-5c0adfbb9bcf",
+        "b1d5c903-3667-528c-9291-1ae6e4e8a118",
+        "8912731b-6e57-5dbc-b61c-6ef162117ad6",
+        "acb12f8b-ece8-5f9e-8a7e-adb5fcea06e3",
+        "3f369ba0-bbd7-595f-bdab-cf9be558d74b",
+        "c3040367-3fce-5840-903a-5b3b76d49c86",
+        "eb02d8ed-76f3-5900-9066-189bb55dcfcd",
+        "429782fe-fab3-50bc-b95a-78a37d5d447f"
+      ],
+      "as_of": "2024-11-12T09:00:00.000001+00:00"
+    },
+    "quality": "NOT_RUN"
+  },
+  {
+    "case_id": "layer1_04_airline_booking",
+    "category": "layer1",
+    "failure_type": "gold_fact_retrieval_incomplete_not_model_task_failure",
+    "fact_recall_at_k": 0.0,
+    "facts_annotated": 3,
+    "core_coverage": {
+      "NONE": 0.0,
+      "RECENCY": 0.0,
+      "FREQUENCY": 0.0,
+      "GOAL_VALUE": 0.0
+    },
+    "selected_ids": [
+      "f53107d5-9875-5c57-b5ba-2d4848e8e3c7",
+      "3af66e49-f239-5ad0-9812-804a5df1f496",
+      "2731a74f-8052-57ab-9b0a-8f001005a26f",
+      "cf34f6f1-6b3a-514f-88a9-d8a05bf79d83"
+    ],
+    "selected_bytes_upper_bound": 1722,
+    "selected_importance_signals": {
+      "f53107d5-9875-5c57-b5ba-2d4848e8e3c7": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "3af66e49-f239-5ad0-9812-804a5df1f496": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "2731a74f-8052-57ab-9b0a-8f001005a26f": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "cf34f6f1-6b3a-514f-88a9-d8a05bf79d83": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      }
+    },
+    "retrieval_trace": {
+      "document_revision": 1,
+      "backend": "fts5_bm25",
+      "filtered": {
+        "authority_time_lifecycle_scope": 0
+      },
+      "routed_topics": [],
+      "omitted_topic_count": 0,
+      "global_fallback": true,
+      "raw_hit_count": 88,
+      "unique_candidate_count": 88,
+      "duplicate_hit_count": 0,
+      "graph_expanded": 0,
+      "candidate_cap": 100,
+      "candidate_cap_reached": false,
+      "final_ids": [
+        "6ce48ad6-ff9f-5ab5-85e7-f27d559965cc",
+        "babab343-c97c-55b2-b91f-3e9b20ed368a",
+        "cf34f6f1-6b3a-514f-88a9-d8a05bf79d83",
+        "55c8cda5-9d3d-53d2-9238-9109b0581dd5",
+        "f53107d5-9875-5c57-b5ba-2d4848e8e3c7",
+        "0c63ba3e-00f3-50b6-98be-82dde9110b69",
+        "c00c61b2-cf60-58db-9959-d43bcd72b239",
+        "8ea1b12c-39f2-5ebf-9d34-ff62fc254cdc"
+      ],
+      "as_of": "2024-11-10T16:30:00.000001+00:00"
+    },
+    "quality": "NOT_RUN"
+  },
+  {
+    "case_id": "layer2_01_multiple_vehicles",
+    "category": "layer2",
+    "failure_type": "gold_fact_retrieval_incomplete_not_model_task_failure",
+    "fact_recall_at_k": 0.3333333333333333,
+    "facts_annotated": 3,
+    "core_coverage": {
+      "NONE": 0.0,
+      "RECENCY": 0.0,
+      "FREQUENCY": 0.3333333333333333,
+      "GOAL_VALUE": 0.0
+    },
+    "selected_ids": [
+      "d97b1af1-f074-5197-afc6-e69ac8322046",
+      "e06b2fe8-5dda-5c74-9657-64ddb987ab23",
+      "15d2f5e2-5d64-55e7-9e5d-465ba9005d96",
+      "778dba66-2486-5462-9086-fde24d518806",
+      "2db2e0f7-2a7c-5bb2-8109-4223ff3da655"
+    ],
+    "selected_bytes_upper_bound": 2042,
+    "selected_importance_signals": {
+      "d97b1af1-f074-5197-afc6-e69ac8322046": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "e06b2fe8-5dda-5c74-9657-64ddb987ab23": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "15d2f5e2-5d64-55e7-9e5d-465ba9005d96": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "778dba66-2486-5462-9086-fde24d518806": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "2db2e0f7-2a7c-5bb2-8109-4223ff3da655": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      }
+    },
+    "retrieval_trace": {
+      "document_revision": 2,
+      "backend": "fts5_bm25",
+      "filtered": {
+        "authority_time_lifecycle_scope": 0
+      },
+      "routed_topics": [],
+      "omitted_topic_count": 0,
+      "global_fallback": true,
+      "raw_hit_count": 150,
+      "unique_candidate_count": 100,
+      "duplicate_hit_count": 0,
+      "graph_expanded": 0,
+      "candidate_cap": 100,
+      "candidate_cap_reached": true,
+      "final_ids": [
+        "15d2f5e2-5d64-55e7-9e5d-465ba9005d96",
+        "80bcc172-5027-52bd-b0f5-dabc8f713952",
+        "778dba66-2486-5462-9086-fde24d518806",
+        "e90817a9-7ce8-5e6e-a97f-f6084e5d1f33",
+        "e3c48a5b-3302-507f-98a3-16c667b45a55",
+        "ff313927-58ea-50bb-93d6-4347adfb3d25",
+        "1f378191-2050-5ffb-8593-412553e84f12",
+        "ae670da2-ff16-5d18-aa65-55c96a9c1a3b"
+      ],
+      "as_of": "2024-11-20T09:30:00.000001+00:00"
+    },
+    "quality": "NOT_RUN"
+  },
+  {
+    "case_id": "layer2_03_multiple_credit_cards",
+    "category": "layer2",
+    "failure_type": "gold_fact_retrieval_incomplete_not_model_task_failure",
+    "fact_recall_at_k": 0.0,
+    "facts_annotated": 3,
+    "core_coverage": {
+      "NONE": 0.0,
+      "RECENCY": 0.0,
+      "FREQUENCY": 0.0,
+      "GOAL_VALUE": 0.0
+    },
+    "selected_ids": [
+      "e083158b-e94e-5a92-94e7-e1723f1d7b59",
+      "75e5d642-d917-55f6-be3e-b585e9723c68",
+      "752acdb8-ee65-5f39-82ef-797ab308b264",
+      "07e77c7f-f7ef-5eff-88b1-64f5a2f55c3e"
+    ],
+    "selected_bytes_upper_bound": 1733,
+    "selected_importance_signals": {
+      "e083158b-e94e-5a92-94e7-e1723f1d7b59": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "75e5d642-d917-55f6-be3e-b585e9723c68": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "752acdb8-ee65-5f39-82ef-797ab308b264": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "07e77c7f-f7ef-5eff-88b1-64f5a2f55c3e": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      }
+    },
+    "retrieval_trace": {
+      "document_revision": 3,
+      "backend": "fts5_bm25",
+      "filtered": {
+        "authority_time_lifecycle_scope": 0
+      },
+      "routed_topics": [],
+      "omitted_topic_count": 0,
+      "global_fallback": true,
+      "raw_hit_count": 194,
+      "unique_candidate_count": 100,
+      "duplicate_hit_count": 0,
+      "graph_expanded": 0,
+      "candidate_cap": 100,
+      "candidate_cap_reached": true,
+      "final_ids": [
+        "f2622a47-a662-5eef-9c42-41b273cb801e",
+        "6659bfc1-598d-50c0-9ae6-2634c392834d",
+        "66cd0ab5-7c72-58ae-9404-43ad38a27a68",
+        "41328c75-e564-52ec-94f9-07309cf872be",
+        "07e77c7f-f7ef-5eff-88b1-64f5a2f55c3e",
+        "b720041d-7cbf-5195-a080-20b5e410d180",
+        "f60a7e7c-b743-5475-b70f-3729d6327938",
+        "6e1d432c-cca4-5079-8f0f-652e564941c9"
+      ],
+      "as_of": "2024-11-18T09:15:00.000001+00:00"
+    },
+    "quality": "NOT_RUN"
+  },
+  {
+    "case_id": "layer3_01_travel_coordination",
+    "category": "layer3",
+    "failure_type": "gold_fact_retrieval_incomplete_not_model_task_failure",
+    "fact_recall_at_k": 0.25,
+    "facts_annotated": 4,
+    "core_coverage": {
+      "NONE": 0.0,
+      "RECENCY": 0.25,
+      "FREQUENCY": 0.25,
+      "GOAL_VALUE": 0.25
+    },
+    "selected_ids": [
+      "80a3a2b8-184a-556c-9f4b-788ac30e9abc",
+      "dd76913a-0457-5dc6-bb68-b6e52099576c",
+      "355f9592-2029-5e9e-81f4-e0ffd51a1b3c",
+      "a9597ecb-a141-55a7-a180-2a752ea2d989"
+    ],
+    "selected_bytes_upper_bound": 1775,
+    "selected_importance_signals": {
+      "80a3a2b8-184a-556c-9f4b-788ac30e9abc": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "dd76913a-0457-5dc6-bb68-b6e52099576c": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "355f9592-2029-5e9e-81f4-e0ffd51a1b3c": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "a9597ecb-a141-55a7-a180-2a752ea2d989": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 0,
+        "stable": 0,
+        "disputed": 0
+      }
+    },
+    "retrieval_trace": {
+      "document_revision": 3,
+      "backend": "fts5_bm25",
+      "filtered": {
+        "authority_time_lifecycle_scope": 0
+      },
+      "routed_topics": [],
+      "omitted_topic_count": 0,
+      "global_fallback": true,
+      "raw_hit_count": 142,
+      "unique_candidate_count": 100,
+      "duplicate_hit_count": 0,
+      "graph_expanded": 0,
+      "candidate_cap": 100,
+      "candidate_cap_reached": true,
+      "final_ids": [
+        "ff7a733f-01d7-5b24-a5d7-45043e143af4",
+        "42abf14b-9c4b-50e3-9f5a-c87148d81222",
+        "63ca7202-14e4-5efd-a2ac-874952b67435",
+        "8fec16f0-3f44-5f9a-844d-2059fd924ba5",
+        "5bfd425e-3eb2-58f6-b817-1b7f86e91681",
+        "544196af-396f-5d36-ae7a-d473f608374a",
+        "38ee5acc-ede9-5341-bae1-5c0d23d073b7",
+        "7eac3319-349f-5df8-b307-e92bbbc39017"
+      ],
+      "as_of": "2024-11-22T10:00:00.000001+00:00"
+    },
+    "quality": "NOT_RUN"
+  },
+  {
+    "case_id": "layer3_04_warranty_coordination",
+    "category": "layer3",
+    "failure_type": "gold_fact_retrieval_incomplete_not_model_task_failure",
+    "fact_recall_at_k": 0.0,
+    "facts_annotated": 4,
+    "core_coverage": {
+      "NONE": 0.0,
+      "RECENCY": 0.0,
+      "FREQUENCY": 0.0,
+      "GOAL_VALUE": 0.0
+    },
+    "selected_ids": [
+      "10a4cec5-be75-5271-a4cd-3e9677f418b5",
+      "5ad3df3d-dcea-5c7e-99c7-efe2b1196721",
+      "d0b4b426-d6ea-513a-aad6-6d57cad61def",
+      "7d6578a6-3284-5a66-bef6-70560070e2c6",
+      "701d3c35-2ed3-5641-8a98-d674a4f9818b"
+    ],
+    "selected_bytes_upper_bound": 2043,
+    "selected_importance_signals": {
+      "10a4cec5-be75-5271-a4cd-3e9677f418b5": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 60.0,
+        "broad_scope": 0,
+        "direct_evidence": 0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "5ad3df3d-dcea-5c7e-99c7-efe2b1196721": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "d0b4b426-d6ea-513a-aad6-6d57cad61def": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "7d6578a6-3284-5a66-bef6-70560070e2c6": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      },
+      "701d3c35-2ed3-5641-8a98-d674a4f9818b": {
+        "explicit_active_goal": 0.0,
+        "decision_cost": 20.0,
+        "broad_scope": 0,
+        "direct_evidence": 8.0,
+        "stable": 0,
+        "disputed": 0
+      }
+    },
+    "retrieval_trace": {
+      "document_revision": 4,
+      "backend": "fts5_bm25",
+      "filtered": {
+        "authority_time_lifecycle_scope": 0
+      },
+      "routed_topics": [],
+      "omitted_topic_count": 0,
+      "global_fallback": true,
+      "raw_hit_count": 174,
+      "unique_candidate_count": 100,
+      "duplicate_hit_count": 0,
+      "graph_expanded": 0,
+      "candidate_cap": 100,
+      "candidate_cap_reached": true,
+      "final_ids": [
+        "3e15684b-cc20-5b08-af36-b5733de5ee18",
+        "5ad3df3d-dcea-5c7e-99c7-efe2b1196721",
+        "a8ab464d-5ed3-5692-b1e1-eae9d89ae918",
+        "d0b4b426-d6ea-513a-aad6-6d57cad61def",
+        "2e39602a-532e-502d-9167-8c7275b15ce6",
+        "8809bfea-70c6-564a-946d-8b78d0980319",
+        "44de0a58-596a-5c3e-af4c-3b80ae902136",
+        "7bc68c48-2b9b-547a-acde-237a4964cf30"
+      ],
+      "as_of": "2024-11-20T10:00:00.000001+00:00"
+    },
+    "quality": "NOT_RUN"
+  }
+]

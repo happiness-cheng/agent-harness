@@ -23,6 +23,7 @@ primp==2.0.1
 pydantic==2.14.1
 pydantic-core==2.50.1
 python-dateutil==2.9.0.post0
+PyYAML==6.0.3
 pytz==2026.5
 regex==2026.9.29
 six==1.17.0

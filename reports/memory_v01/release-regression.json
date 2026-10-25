@@ -1,0 +1,14 @@
+{
+  "command": [
+    "C:\\Users\\陈独秀\\Documents\\agent-harness\\.venv\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short"
+  ],
+  "exit_code": 1,
+  "seconds": 110.784,
+  "output": "........................................................................ [  6%]\n........................................F............................... [ 12%]\n........................................................................ [ 18%]\n........................................................................ [ 24%]\n........................................................................ [ 30%]\n........................................................................ [ 36%]\n........................................................................ [ 42%]\n........................................................................ [ 48%]\n........................................................................ [ 55%]\n........................................................................ [ 61%]\n........................................................................ [ 67%]\n........................................................................ [ 73%]\n........................................................................ [ 79%]\n........................................................................ [ 85%]\n........................................................................ [ 91%]\n........................................................................ [ 97%]\n........................                                                 [100%]\n================================== FAILURES ===================================\n_ test_explicit_source_read_and_structured_recall_are_not_silently_head_truncated _\ntests\\integration\\test_memory_tools.py:60: in test_explicit_source_read_and_structured_recall_are_not_silently_head_truncated\n    assert harness.snapshot(identity)[\"task\"][\"status\"] == \"completed\"\nE   AssertionError: assert 'partial' == 'completed'\nE     \nE     - completed\nE     + partial\n============================== warnings summary ===============================\n..\\..\\..\\Documents\\agent-harness\\.venv\\Lib\\site-packages\\fastapi\\testclient.py:1\n  C:\\Users\\陈独秀\\Documents\\agent-harness\\.venv\\Lib\\site-packages\\fastapi\\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ===========================\nFAILED tests/integration/test_memory_tools.py::test_explicit_source_read_and_structured_recall_are_not_silently_head_truncated\n1 failed, 1175 passed, 3 deselected, 1 warning in 105.47s (0:01:45)\n"
+}

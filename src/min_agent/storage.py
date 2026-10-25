@@ -5,7 +5,7 @@ from pathlib import Path
 import sqlite3
 from threading import RLock
 from typing import Self
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -154,14 +154,25 @@ class SQLiteStorage:
             if self._closed:
                 raise RuntimeError("存储连接已关闭")
             connection = self._connection
-            connection.execute("BEGIN IMMEDIATE" if write else "BEGIN")
+            nested = connection.in_transaction
+            savepoint = 'memory_' + uuid4().hex if nested else None
+            connection.execute('SAVEPOINT '+savepoint if nested else "BEGIN IMMEDIATE" if write else "BEGIN")
             try:
                 yield connection
-                connection.execute("COMMIT")
+                connection.execute('RELEASE SAVEPOINT '+savepoint if nested else "COMMIT")
             except BaseException:
-                if connection.in_transaction:
+                if nested and connection.in_transaction:
+                    connection.execute('ROLLBACK TO SAVEPOINT '+savepoint)
+                    connection.execute('RELEASE SAVEPOINT '+savepoint)
+                elif connection.in_transaction:
                     connection.execute("ROLLBACK")
                 raise
+
+    def save_many(self, bundles):
+        """无schema迁移的多快照原子提交；复用每份快照原有的归属与预算校验。"""
+        with self._transaction(write=True):
+            for context,snapshot,todos in bundles:
+                self.save(context,snapshot,todos)
 
     @staticmethod
     def _read(connection: sqlite3.Connection, row: sqlite3.Row) -> StoredSession:

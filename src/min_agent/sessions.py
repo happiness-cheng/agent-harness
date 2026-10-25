@@ -3,7 +3,7 @@
 from typing import TYPE_CHECKING, Literal
 from threading import RLock
 from contextlib import contextmanager
-from uuid import UUID, uuid4
+from uuid import UUID, uuid4, uuid5
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
@@ -195,7 +195,7 @@ class SessionStore:
             raise TypeError("context 必须是 ExecutionContext")
         context = ExecutionContext.model_validate(context.model_dump(warnings=False))
         session = self._sessions.get(context.session_id)
-        if session is None or session.owner_id != context.owner_id:
+        if session is None or session.owner_id != context.owner_id or session.extensions.get('_internal_owner_document'):
             raise PermissionError("会话不存在或不属于当前用户")
         return session
 
@@ -238,7 +238,32 @@ class SessionStore:
     def contexts(self, owner_id=None):
         with self._lock:
             return [ExecutionContext(owner_id=value.owner_id, session_id=value.session_id)
-                    for value in self._sessions.values() if owner_id is None or value.owner_id == owner_id]
+                    for value in self._sessions.values()
+                    if not value.extensions.get('_internal_owner_document')
+                    and (owner_id is None or value.owner_id == owner_id)]
+
+    def owner_document(self, context, *, update=None):
+        """可信服务专用：同owner一份原子文档，不增加表、不暴露内部会话。"""
+        from copy import deepcopy
+        with self._lock:
+            self._session(context)
+            identity = uuid5(context.owner_id, 'adrian-confirmed-memory-v01')
+            current = self._sessions.get(identity)
+            if current is not None and (current.owner_id != context.owner_id
+                    or not current.extensions.get('_internal_owner_document')):
+                raise PermissionError('内部文档归属冲突')
+            value = deepcopy(current.extensions.get('long_memory', {})) if current else {}
+            if update is None:
+                return value
+            # 回调失败或SQLite事务失败，不发布内存中的半成品。
+            proposed = update(value)
+            if current is not None and proposed == value:
+                return deepcopy(proposed)
+            candidate = (current.model_copy(deep=True) if current else
+                         SessionSnapshot(owner_id=context.owner_id, session_id=identity))
+            candidate.extensions.update(_internal_owner_document=True, long_memory=proposed)
+            self._commit_session(SessionSnapshot.model_validate(candidate.model_dump()))
+            return deepcopy(proposed)
 
     def save_checkpoint(self, context, checkpoint):
         with self._lock:
@@ -305,7 +330,60 @@ class SessionStore:
             self._pending(session.messages + validated)
             candidate = session.model_copy(deep=True)
             candidate.messages.extend(validated)
+            self._tag_memory_dependencies(candidate,len(session.messages),task_id)
             self._commit_session(candidate)
+
+    @staticmethod
+    def _tag_memory_dependencies(candidate,start,task_id):
+        usage=candidate.extensions.get('long_memory_run_dependencies',{})
+        if usage.get('task_id')==str(task_id) and usage.get('memory_ids') and len(candidate.messages)>start:
+            candidate.extensions.setdefault('long_memory_dependencies',[]).append(
+                dict(start=start,end=len(candidate.messages),memory_ids=usage['memory_ids']))
+
+    def erase_memory_derivatives(self,context,memory_ids):
+        """删除本模块追踪的派生回答/归档/摘要；保留用户原话及业务对象。"""
+        import json
+        with self._lock:
+            self._session(context)
+            ids=set(memory_ids);candidates=[]
+            owned=[s for s in self._sessions.values() if s.owner_id==context.owner_id
+                   and not s.extensions.get('_internal_owner_document')]
+            if any(s.task is not None and s.task.status=='running' for s in owned):
+                raise RuntimeError('请先停止该用户运行中的会话，再清除派生输出')
+            for session in owned:
+                dependencies=session.extensions.get('long_memory_dependencies',[])
+                affected=[d for d in dependencies if ids & set(d['memory_ids'])]
+                if not affected: continue
+                candidate=session.model_copy(deep=True);positions=set()
+                for dep in affected:
+                    for i in range(dep['start'],min(dep['end'],len(candidate.messages))):
+                        message=candidate.messages[i]
+                        if message.role=='user': continue
+                        positions.add(i)
+                        if message.role=='assistant':
+                            candidate.messages[i]=message.model_copy(update=dict(
+                                content='[用户已删除相关Memory，派生输出已清除]',provider_state=None,
+                                tool_calls=[call.model_copy(update={'arguments':{}}) for call in message.tool_calls]))
+                        else:
+                            candidate.messages[i]=message.model_copy(update=dict(
+                                content=json.dumps({'memory_derived_redacted':True}),provider_state=None))
+                # 不保留可能带有同一内容的冻结投影、摘要及旧的有损派生归档。
+                for key in ('context','tool_summary_failures','long_memory_last_selection','long_memory_run_dependencies'):
+                    candidate.extensions.pop(key,None)
+                records=candidate.extensions.get('memory_journal',{})
+                for identity,record in list(records.items()):
+                    if any(record['start']<=i<record['end'] for i in positions): del records[identity]
+                candidate.extensions['long_memory_dependencies']=[d for d in dependencies if d not in affected]
+                if candidate.checkpoint is not None:
+                    candidate.checkpoint=None
+                    if candidate.task is not None:
+                        candidate.task=candidate.task.model_copy(update=dict(status='failed',error_code='memory_privacy_redaction'))
+                candidates.append(SessionSnapshot.model_validate(candidate.model_dump()))
+            if self._storage is not None and candidates:
+                self._storage.save_many([(ExecutionContext(owner_id=s.owner_id,session_id=s.session_id),s,
+                    list(self._todo_items.get(s.session_id,{}).values())) for s in candidates])
+            for candidate in candidates: self._sessions[candidate.session_id]=candidate
+            return len(candidates)
 
     def finish(
         self, context: ExecutionContext, task_id: UUID, *, status: str,
@@ -322,7 +400,9 @@ class SessionStore:
                 raise ValueError("工具结果尚未配齐，不能标记完成")
             candidate = session.model_copy(deep=True)
             if messages is not None:
+                start=len(candidate.messages)
                 candidate.messages.extend(Message.model_validate(message.model_dump()) for message in messages)
+                self._tag_memory_dependencies(candidate,start,task_id)
                 self._pending(candidate.messages)
             if checkpoint is not None and checkpoint.budget_id is not None:
                 record = candidate.budgets[checkpoint.budget_id]

@@ -86,10 +86,17 @@ class DemoModel:
 
 class HarnessApplication:
     def __init__(self, database, *, model=None, model_factory=None, proxy=None, desktop=None,
-                 total_models=40, segment_models=6, window=32768, owner_id=None):
+                 total_models=40, segment_models=6, window=32768, owner_id=None,
+                 memory_strategy='GOAL_VALUE', memory_budget=4096, memory_policy=None):
+        if memory_strategy not in {'NONE','RECENCY','FREQUENCY','GOAL_VALUE'}:
+            raise ValueError('无效Memory策略')
+        if type(memory_budget) is not int or memory_budget<0: raise ValueError('无效Memory预算')
+        self.memory_strategy,self.memory_budget,self.memory_policy=memory_strategy,memory_budget,memory_policy
         path = Path(database).resolve(); path.parent.mkdir(parents=True, exist_ok=True)
         self.storage = SQLiteStorage.open(path) if path.exists() else SQLiteStorage.create_new(path)
         self.sessions = SessionStore(storage=self.storage)
+        from min_agent.long_memory import LongMemory
+        self.memory = LongMemory(self.sessions)
         self.owner_id = owner_id or uuid5(NAMESPACE_URL, "agent-harness-local:" + str(path))
         self.model = model or DemoModel(); self.model_factory = model_factory
         self.demo = isinstance(self.model, DemoModel) and model_factory is None
@@ -220,6 +227,10 @@ class HarnessApplication:
         todos = TodoService(self.sessions)
         registry = todo_registry(todos, controller, context)
         registry.register(CALCULATOR_TOOL)
+        if self.memory_strategy != 'NONE' and (self.memory.document(context).memories or self.memory.document(context).pending_erasure_ids):
+            from min_agent.long_memory.integration import bind_runtime_memory
+            bind_runtime_memory(registry,self.memory,context,budget=self.memory_budget,
+                strategy=self.memory_strategy,policy=self.memory_policy)
         register_reminders(registry, ReminderService(self.sessions), controller, context)
         def propose(**kwargs): return self.propose(context, kwargs).model_dump_json()
         registry.register(ToolDefinition("propose_goal", "记录候选目标/约束/完成标准和精确动作清单供用户确认；不授权业务写入，不切换Build。普通聊天不必调用。", GoalParameters, propose))
@@ -270,6 +281,7 @@ class HarnessApplication:
         identity = str(context.session_id)
         try:
             while not self._closing.is_set():
+                self.memory.reconcile_deletions(context)
                 events = SessionEvents(self.sessions, context)
                 new_input = text is None
                 if new_input: text = events.next_input()

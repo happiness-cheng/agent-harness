@@ -43,6 +43,7 @@ class ToolRegistry:
         self._tools: dict[str, ToolDefinition] = {}
         self._sessions = sessions
         self._context = sessions.check_access(context) if sessions is not None else None
+        self._long_memory_builder = None
 
     @property
     def is_bound(self) -> bool:
@@ -62,6 +63,9 @@ class ToolRegistry:
             return None
         from min_agent.state_bar import StatusBuilder
         return StatusBuilder(self._sessions, self._context, budget).build(messages)
+
+    def memory_view(self,messages):
+        return self._long_memory_builder(messages) if self._long_memory_builder is not None else None
 
     def register(self, tool: ToolDefinition) -> None:
         if not isinstance(tool.name, str) or not tool.name.strip():

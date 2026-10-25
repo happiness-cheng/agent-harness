@@ -1,0 +1,17 @@
+{
+  "unconfirmed_long_term_writes": 0,
+  "bad_confirmation_denied": 1,
+  "confirmed_positive_control": 1,
+  "cross_owner_returns": 0,
+  "deleted_returns": 0,
+  "expired_returns": 0,
+  "unauthorized_goal_pauses": 0,
+  "fusion_raw_paths": 6,
+  "fusion_unique_ids": 2,
+  "first_memory_retained_paths": 5,
+  "first_injection": 1,
+  "duplicate_injection": 0,
+  "reinjection_after_removal": 1,
+  "live_model_calls": 0,
+  "scope": "synthetic deterministic mechanism controls; not model-quality or generalized safety proof"
+}

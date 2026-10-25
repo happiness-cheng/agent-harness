@@ -1,0 +1,18 @@
+{
+  "experiment_archive_sha256": "cd8f9b6152b8d2822decf76e40063ab9f42da543da33804bc22020786eec5bfa",
+  "experiment_code_base_commit": "e1fa7b76488672591cd47806067e5b86a48e00fb",
+  "post_experiment_changed_functions": {
+    "src/min_agent/long_memory/integration.py": [
+      "search",
+      "build",
+      "bind_runtime_memory"
+    ],
+    "src/min_agent/long_memory/selection.py": [
+      "assemble_context"
+    ],
+    "src/min_agent/long_memory/store.py": [
+      "delete"
+    ]
+  },
+  "note": "后续仅删除闭包、动态索引依赖及工具返回压缩；主实验使用的构建事实池、records、goals、importance、rank_for_core、retrieval.search和评分函数未改。以归档精确复现实验。"
+}

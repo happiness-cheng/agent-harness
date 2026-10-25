@@ -64,6 +64,8 @@ def create_app(harness):
         yield
         harness.close()
     app = FastAPI(title="Agent Harness", docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
+    from min_agent.long_memory.integration import install_routes
+    install_routes(app,harness)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"])
 
     @app.middleware("http")
