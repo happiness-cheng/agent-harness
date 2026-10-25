@@ -1,0 +1,14 @@
+F...                                                                     [100%]
+================================== FAILURES ===================================
+___ test_current_task_evidence_has_roles_qualifiers_and_no_irrelevant_core ____
+
+    def test_current_task_evidence_has_roles_qualifiers_and_no_irrelevant_core():
+        memory,ctx,q=fixture(); result=select_task_evidence(memory,ctx,q,budget=4096)
+        text=json.dumps(result['view']);assert '792015' in text and '825010' in text
+>       assert 'not the savings account' in text and 'verify it with the bank' in text
+E       assert ('not the savings account' in '{"reference_only": true, "current_request_takes_precedence": true, "coverage": "partial_view_not_exhaustive_history",..., "role": "assistant", "confirmation_status": "confirmed", "truth_status": "historical_statement_not_live_verified"}]}' and 'verify it with the bank' in '{"reference_only": true, "current_request_takes_precedence": true, "coverage": "partial_view_not_exhaustive_history",..., "role": "assistant", "confirmation_status": "confirmed", "truth_status": "historical_statement_not_live_verified"}]}')
+
+tests\unit\test_task_evidence_v06.py:23: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/test_task_evidence_v06.py::test_current_task_evidence_has_roles_qualifiers_and_no_irrelevant_core
+1 failed, 3 passed in 1.25s

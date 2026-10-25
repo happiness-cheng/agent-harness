@@ -1,0 +1,16 @@
+
+=================================== ERRORS ====================================
+___________ ERROR collecting tests/unit/test_active_evidence_v06.py ___________
+ImportError while importing test module 'C:\Users\陈独秀\.codex\tmp\adrian-memory-v06\tests\unit\test_active_evidence_v06.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_active_evidence_v06.py:5: in <module>
+    from min_agent.long_memory.active_evidence import active_registry,run_active,validate_answer
+E   ModuleNotFoundError: No module named 'min_agent.long_memory.active_evidence'
+=========================== short test summary info ===========================
+ERROR tests/unit/test_active_evidence_v06.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.96s
