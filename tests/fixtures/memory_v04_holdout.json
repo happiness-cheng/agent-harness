@@ -1,0 +1,205 @@
+{
+  "protocol": "v04 frozen source anchors; original old Gold unchanged",
+  "annotator": "executing agent source review; no external human blind review",
+  "frozen_before_algorithm_evaluation": true,
+  "cases": {
+    "layer1_09_home_security": {
+      "required_facts": [
+        {
+          "fact_id": "layer1_09_home_security:f1",
+          "label": "ADT account identifier",
+          "variants": [
+            "ADT-7789234"
+          ],
+          "sources": [
+            {
+              "conversation_id": "security_install_001",
+              "message_index": 50,
+              "role": "assistant",
+              "timestamp": "2024-11-11 14:45:00",
+              "start": 32,
+              "end": 43,
+              "quote": "ADT-7789234",
+              "message_sha256": "98243aa5a48420738679e7d53ee1a33892201c6d39800482fa46b5350c061b64",
+              "field": "value"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer1_09_home_security:f2",
+          "label": "Installation service code",
+          "variants": [
+            "SVC-44821"
+          ],
+          "sources": [
+            {
+              "conversation_id": "security_install_001",
+              "message_index": 52,
+              "role": "assistant",
+              "timestamp": "2024-11-11 14:45:00",
+              "start": 34,
+              "end": 43,
+              "quote": "SVC-44821",
+              "message_sha256": "08e817cd7a9b387af0e9cc1bca8a1044a272915c5e1cf08449bf29a92a1b16ed",
+              "field": "value"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer1/09_home_security.yaml",
+      "source_sha256": "be8746c14fa822fe8e730707f19339da5bb9ff1d3b61cbc82ff427290fd6bdf8"
+    },
+    "layer2_07_multiple_medications": {
+      "required_facts": [
+        {
+          "fact_id": "layer2_07_multiple_medications:f1",
+          "label": "James current recorded Lisinopril dose",
+          "variants": [
+            "Lisinopril 20mg"
+          ],
+          "sources": [
+            {
+              "conversation_id": "pharmacy_dad_001",
+              "message_index": 5,
+              "role": "assistant",
+              "timestamp": "2024-09-20 10:00:00",
+              "start": 14,
+              "end": 29,
+              "quote": "Lisinopril 20mg",
+              "message_sha256": "d0f2be7f4e82392ceda066ba99629fb95c9b01c4cdecc9b14a51ae5c934687d4",
+              "field": "value"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_07_multiple_medications:f2",
+          "label": "James Amlodipine dose with grapefruit warning",
+          "variants": [
+            "Amlodipine 5mg"
+          ],
+          "sources": [
+            {
+              "conversation_id": "pharmacy_dad_001",
+              "message_index": 9,
+              "role": "assistant",
+              "timestamp": "2024-09-20 10:00:00",
+              "start": 73,
+              "end": 87,
+              "quote": "Amlodipine 5mg",
+              "message_sha256": "7bdb618294e9c1fce3d04be77548605a573911b7775b5ba916c9b54fbd8e0b17",
+              "field": "value"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer2_07_multiple_medications:f3",
+          "label": "Susan Losartan dose and reported fatigue",
+          "variants": [
+            "Losartan 50mg"
+          ],
+          "sources": [
+            {
+              "conversation_id": "pharmacy_mom_001",
+              "message_index": 17,
+              "role": "assistant",
+              "timestamp": "2024-10-15 14:30:00",
+              "start": 0,
+              "end": 13,
+              "quote": "Losartan 50mg",
+              "message_sha256": "23a9b35cc3303424aa37f43d57d30979935dbfd6e17dd9d9b0a833f00b8032f6",
+              "field": "value"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer2/07_multiple_medications.yaml",
+      "source_sha256": "9311b646c8af7f626a16f1189c83da26232fec10664199d16fad01046818a6f4"
+    },
+    "layer3_07_eldercare_coordination": {
+      "required_facts": [
+        {
+          "fact_id": "layer3_07_eldercare_coordination:f1",
+          "label": "Modification benefit without elimination period",
+          "variants": [
+            "$5,000"
+          ],
+          "sources": [
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 117,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 25,
+              "end": 31,
+              "quote": "$5,000",
+              "message_sha256": "df2d71fd378d8ac9b9e8c55400c95747531c823744352f77fe43c50218d75a33",
+              "field": "value"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_07_eldercare_coordination:f2",
+          "label": "Yearly equipment benefit",
+          "variants": [
+            "$2,000"
+          ],
+          "sources": [
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 23,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 48,
+              "end": 54,
+              "quote": "$2,000",
+              "message_sha256": "4b5f03f77f54ecd77a9dd690780fcb1ae723cb98688fe62dc4b498beec7299e4",
+              "field": "value"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_07_eldercare_coordination:f3",
+          "label": "Updated daily benefit, not old $150",
+          "variants": [
+            "$168"
+          ],
+          "sources": [
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 107,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 59,
+              "end": 63,
+              "quote": "$168",
+              "message_sha256": "f99d3ef040f1cee0da223fa9fedac31cb4773a4f714192d8bbcd14d788da461f",
+              "field": "value"
+            }
+          ]
+        },
+        {
+          "fact_id": "layer3_07_eldercare_coordination:f4",
+          "label": "Care assessment scheduling interval",
+          "variants": [
+            "5-7 business days"
+          ],
+          "sources": [
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 43,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 23,
+              "end": 40,
+              "quote": "5-7 business days",
+              "message_sha256": "6690fc29b8eb290961fdc2a194f24bb33364fba26ece83a056dda577e18a0a70",
+              "field": "value"
+            }
+          ]
+        }
+      ],
+      "source_path": "test_cases/layer3/07_eldercare_coordination.yaml",
+      "source_sha256": "0508c27c37f8e0e6df53551da7d5b41d7e1b2301044587f7be31e0bda758b1b0"
+    }
+  }
+}

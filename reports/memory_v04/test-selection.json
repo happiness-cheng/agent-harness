@@ -1,0 +1,42 @@
+{
+  "selection": "first remaining file per layer before algorithm outputs",
+  "seen_ids": [
+    "layer1_01_bank_account",
+    "layer1_02_insurance_claim",
+    "layer1_03_medical_appointment",
+    "layer1_04_airline_booking",
+    "layer1_05_internet_service",
+    "layer1_06_credit_card_app",
+    "layer1_07_car_rental",
+    "layer1_08_hotel_reservation",
+    "layer2_01_multiple_vehicles",
+    "layer2_02_multiple_properties",
+    "layer2_03_multiple_credit_cards",
+    "layer2_04_multiple_subscriptions",
+    "layer2_05_multiple_bank_accounts",
+    "layer2_06_multiple_insurance_policies",
+    "layer3_01_travel_coordination",
+    "layer3_02_medical_insurance_coordination",
+    "layer3_03_home_purchase_coordination",
+    "layer3_04_warranty_coordination",
+    "layer3_05_tax_preparation_synthesis",
+    "layer3_06_business_expansion_coordination"
+  ],
+  "cases": [
+    {
+      "path": "test_cases/layer1/09_home_security.yaml",
+      "case_id": "layer1_09_home_security",
+      "sha256": "be8746c14fa822fe8e730707f19339da5bb9ff1d3b61cbc82ff427290fd6bdf8"
+    },
+    {
+      "path": "test_cases/layer2/07_multiple_medications.yaml",
+      "case_id": "layer2_07_multiple_medications",
+      "sha256": "9311b646c8af7f626a16f1189c83da26232fec10664199d16fad01046818a6f4"
+    },
+    {
+      "path": "test_cases/layer3/07_eldercare_coordination.yaml",
+      "case_id": "layer3_07_eldercare_coordination",
+      "sha256": "0508c27c37f8e0e6df53551da7d5b41d7e1b2301044587f7be31e0bda758b1b0"
+    }
+  ]
+}

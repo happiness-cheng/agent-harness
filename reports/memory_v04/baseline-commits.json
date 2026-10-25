@@ -1,0 +1,10 @@
+{
+  "legacy_fix": "cd3f17b",
+  "v03_snapshot": "5a962bd46835a21048f4568e84372f849c1cefcf",
+  "inherited_paths": 75,
+  "verified_tests": "1200 passed, 3 deselected, 1 warning",
+  "raw_bytes_in_commit_verified": true,
+  "attribute_reason": "scoped -text and index renormalization preserve historical hashes",
+  "whitespace_exception": "historical .patch context blank lines only; original artifacts unchanged",
+  "note": "local isolated branch; no push; original v02 workspace preserved"
+}

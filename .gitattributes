@@ -76,3 +76,26 @@
 /tests/unit/test_memory_retrieval_diagnostics.py -text
 /tests/unit/test_memory_retrieval_experiment.py -text
 /tests/unit/test_memory_retrieval_quality.py -text
+
+# v0.4冻结输入与实现也按原始字节保存。
+/docs/steps/ADRIAN_MEMORY_V04_PLAN.md -text
+/reports/memory_v04/baseline-audit.md -text
+/reports/memory_v04/baseline-commits.json -text
+/reports/memory_v04/baseline-tests.txt -text
+/reports/memory_v04/components-green.txt -text
+/reports/memory_v04/core-green.txt -text
+/reports/memory_v04/core-red.txt -text
+/reports/memory_v04/evaluation-red.txt -text
+/reports/memory_v04/focused-tests.txt -text
+/reports/memory_v04/inherited-manifest.json -text
+/reports/memory_v04/test-selection.json -text
+/scripts/eval_memory_context_v04.py -text
+/scripts/prepare_memory_context_v04_fixtures.py -text
+/src/min_agent/long_memory/context_evaluation.py -text
+/src/min_agent/long_memory/evidence_context.py -text
+/src/min_agent/long_memory/fact_binding.py -text
+/tests/fixtures/memory_v04_evidence_review.json -text
+/tests/fixtures/memory_v04_holdout.json -text
+/tests/unit/test_context_evaluation_v04.py -text
+/tests/unit/test_evidence_context_v04.py -text
+/tests/unit/test_fact_binding_v04.py -text

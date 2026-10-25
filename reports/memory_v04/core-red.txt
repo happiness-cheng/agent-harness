@@ -1,0 +1,27 @@
+
+=================================== ERRORS ====================================
+____________ ERROR collecting tests/unit/test_fact_binding_v04.py _____________
+ImportError while importing test module 'C:\Users\陈独秀\.codex\tmp\adrian-memory-v04\tests\unit\test_fact_binding_v04.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_fact_binding_v04.py:1: in <module>
+    from min_agent.long_memory.fact_binding import local_bindings,binding_rerank
+E   ModuleNotFoundError: No module named 'min_agent.long_memory.fact_binding'
+__________ ERROR collecting tests/unit/test_evidence_context_v04.py ___________
+ImportError while importing test module 'C:\Users\陈独秀\.codex\tmp\adrian-memory-v04\tests\unit\test_evidence_context_v04.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_evidence_context_v04.py:1: in <module>
+    from min_agent.long_memory.evidence_context import assemble_evidence
+E   ModuleNotFoundError: No module named 'min_agent.long_memory.evidence_context'
+=========================== short test summary info ===========================
+ERROR tests/unit/test_fact_binding_v04.py
+ERROR tests/unit/test_evidence_context_v04.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!
+2 errors in 0.94s

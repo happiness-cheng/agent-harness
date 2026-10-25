@@ -1,0 +1,1117 @@
+{
+  "protocol": "independent post-source-reading adjudication; no retrieval outputs used",
+  "reviewer": "executing agent, not user confirmation",
+  "scope": "new three cases plus old rental/hotel; complete fields for this small batch only",
+  "facts": [
+    {
+      "case_id": "layer1_07_car_rental",
+      "fact_id": "layer1_07_car_rental:f1",
+      "entity": "Enterprise rental in car_rental_001",
+      "attribute": "reservation_id",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "car_rental_001",
+            "message_index": 67,
+            "role": "assistant",
+            "timestamp": "2024-11-14 10:15:00",
+            "start": 68,
+            "end": 77,
+            "quote": "E7739482M",
+            "message_sha256": "ca30f78de7c00d238f2a02d24f2a307a061f3df2650f2332e5d31475d9a8ed81",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "car_rental_001",
+              "message_index": 67,
+              "role": "assistant",
+              "timestamp": "2024-11-14 10:15:00",
+              "start": 0,
+              "end": 78,
+              "quote": "Perfect. Your reservation is confirmed. Your confirmation number is E7739482M.",
+              "message_sha256": "ca30f78de7c00d238f2a02d24f2a307a061f3df2650f2332e5d31475d9a8ed81",
+              "field": "entity_attribute_value"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Enterprise rental in car_rental_001",
+            "attribute": "reservation_id",
+            "value": "E7739482M",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        },
+        {
+          "anchor": {
+            "conversation_id": "car_rental_001",
+            "message_index": 95,
+            "role": "assistant",
+            "timestamp": "2024-11-14 10:15:00",
+            "start": 211,
+            "end": 220,
+            "quote": "E7739482M",
+            "message_sha256": "6d5b2e43d5bd8df82b073b52383e2987d3fef0a823aab7657d9ba9178fc03d81",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "car_rental_001",
+              "message_index": 95,
+              "role": "assistant",
+              "timestamp": "2024-11-14 10:15:00",
+              "start": 0,
+              "end": 276,
+              "quote": "Wonderful! Just to confirm: Gregory Mitchell, Enterprise Plus member EP-9982734, picking up a midsize car at Phoenix Sky Harbor on November 21st around 10:30 AM, returning November 24th at 4:30 PM. Confirmation E7739482M, total $258.68 with corporate discount. You're all set!",
+              "message_sha256": "6d5b2e43d5bd8df82b073b52383e2987d3fef0a823aab7657d9ba9178fc03d81",
+              "field": "entity_attribute_value_time"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Enterprise rental in car_rental_001",
+            "attribute": "reservation_id",
+            "value": "E7739482M",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer1_07_car_rental",
+      "fact_id": "layer1_07_car_rental:f2",
+      "entity": "TechCorp discount for Enterprise rental",
+      "attribute": "discount_code",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "car_rental_001",
+            "message_index": 87,
+            "role": "assistant",
+            "timestamp": "2024-11-14 10:15:00",
+            "start": 145,
+            "end": 152,
+            "quote": "TC-8847",
+            "message_sha256": "f392aa93755f6136d0fc6c69771a75a81f6c50c832a44d7807e28a57c1a8be21",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "car_rental_001",
+              "message_index": 87,
+              "role": "assistant",
+              "timestamp": "2024-11-14 10:15:00",
+              "start": 0,
+              "end": 163,
+              "quote": "Let me check if TechCorp has a corporate account with us... Yes! TechCorp employees get free additional drivers. Just mention the corporate code TC-8847 at pickup.",
+              "message_sha256": "f392aa93755f6136d0fc6c69771a75a81f6c50c832a44d7807e28a57c1a8be21",
+              "field": "entity_attribute_value"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "TechCorp discount for Enterprise rental",
+            "attribute": "discount_code",
+            "value": "TC-8847",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "fact_id": "layer1_08_hotel_reservation:f1",
+      "entity": "Hilton booked anniversary stay",
+      "attribute": "reservation_id",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 69,
+            "role": "assistant",
+            "timestamp": "2024-11-09 19:30:00",
+            "start": 70,
+            "end": 80,
+            "quote": "HSD-445782",
+            "message_sha256": "94dbc3f0f543a0ee7d7a68ee2b13af8fabf7c695d0502fb77b2b8e898598426d",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "hotel_booking_001",
+              "message_index": 69,
+              "role": "assistant",
+              "timestamp": "2024-11-09 19:30:00",
+              "start": 0,
+              "end": 81,
+              "quote": "Thank you. Your reservation is confirmed! Your confirmation number is HSD-445782.",
+              "message_sha256": "94dbc3f0f543a0ee7d7a68ee2b13af8fabf7c695d0502fb77b2b8e898598426d",
+              "field": "entity_attribute_value"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Hilton booked anniversary stay",
+            "attribute": "reservation_id",
+            "value": "HSD-445782",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        },
+        {
+          "anchor": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 81,
+            "role": "assistant",
+            "timestamp": "2024-11-09 19:30:00",
+            "start": 195,
+            "end": 205,
+            "quote": "HSD-445782",
+            "message_sha256": "a0175ed7b52858c4113a31a1f159538f33b0a73ce83e43309696ee5c347c34ba",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "hotel_booking_001",
+              "message_index": 81,
+              "role": "assistant",
+              "timestamp": "2024-11-09 19:30:00",
+              "start": 0,
+              "end": 223,
+              "quote": "It's my pleasure, Mr. Thompson! To summarize: December 8-10, room 1912 Junior Suite with bay view on the 19th floor, Romance Package included, dinner at Vela on Saturday at 7:30 PM, confirmation HSD-445782. Total is $1,333.",
+              "message_sha256": "a0175ed7b52858c4113a31a1f159538f33b0a73ce83e43309696ee5c347c34ba",
+              "field": "entity_attribute_value_time"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Hilton booked anniversary stay",
+            "attribute": "reservation_id",
+            "value": "HSD-445782",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "fact_id": "layer1_08_hotel_reservation:f2",
+      "entity": "Hilton reserved room, not an availability offer",
+      "attribute": "room_number",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 41,
+            "role": "assistant",
+            "timestamp": "2024-11-09 19:30:00",
+            "start": 5,
+            "end": 9,
+            "quote": "1912",
+            "message_sha256": "12f824812977d766eb35f7df71115a17736dd676cfd3fa486bdd53094ac57444",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "hotel_booking_001",
+              "message_index": 41,
+              "role": "assistant",
+              "timestamp": "2024-11-09 19:30:00",
+              "start": 0,
+              "end": 34,
+              "quote": "Room 1912 is now reserved for you.",
+              "message_sha256": "12f824812977d766eb35f7df71115a17736dd676cfd3fa486bdd53094ac57444",
+              "field": "entity_attribute_value"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Hilton reserved room, not an availability offer",
+            "attribute": "room_number",
+            "value": "1912",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        },
+        {
+          "anchor": {
+            "conversation_id": "hotel_booking_001",
+            "message_index": 81,
+            "role": "assistant",
+            "timestamp": "2024-11-09 19:30:00",
+            "start": 66,
+            "end": 70,
+            "quote": "1912",
+            "message_sha256": "a0175ed7b52858c4113a31a1f159538f33b0a73ce83e43309696ee5c347c34ba",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "hotel_booking_001",
+              "message_index": 81,
+              "role": "assistant",
+              "timestamp": "2024-11-09 19:30:00",
+              "start": 0,
+              "end": 223,
+              "quote": "It's my pleasure, Mr. Thompson! To summarize: December 8-10, room 1912 Junior Suite with bay view on the 19th floor, Romance Package included, dinner at Vela on Saturday at 7:30 PM, confirmation HSD-445782. Total is $1,333.",
+              "message_sha256": "a0175ed7b52858c4113a31a1f159538f33b0a73ce83e43309696ee5c347c34ba",
+              "field": "entity_attribute_value_time"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Hilton reserved room, not an availability offer",
+            "attribute": "room_number",
+            "value": "1912",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer1_09_home_security",
+      "fact_id": "layer1_09_home_security:f1",
+      "entity": "ADT account in security_install_001",
+      "attribute": "account_id",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "security_install_001",
+            "message_index": 50,
+            "role": "assistant",
+            "timestamp": "2024-11-11 14:45:00",
+            "start": 32,
+            "end": 43,
+            "quote": "ADT-7789234",
+            "message_sha256": "98243aa5a48420738679e7d53ee1a33892201c6d39800482fa46b5350c061b64",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "security_install_001",
+              "message_index": 50,
+              "role": "assistant",
+              "timestamp": "2024-11-11 14:45:00",
+              "start": 0,
+              "end": 44,
+              "quote": "Your ADT account number will be ADT-7789234.",
+              "message_sha256": "98243aa5a48420738679e7d53ee1a33892201c6d39800482fa46b5350c061b64",
+              "field": "entity_attribute_value"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "ADT account in security_install_001",
+            "attribute": "account_id",
+            "value": "ADT-7789234",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        },
+        {
+          "anchor": {
+            "conversation_id": "security_install_001",
+            "message_index": 92,
+            "role": "assistant",
+            "timestamp": "2024-11-11 14:45:00",
+            "start": 34,
+            "end": 45,
+            "quote": "ADT-7789234",
+            "message_sha256": "5fc8f90bea59d18f58213dc95a8995e65a48a884206f8185b71d204462ec8751",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "security_install_001",
+              "message_index": 92,
+              "role": "assistant",
+              "timestamp": "2024-11-11 14:45:00",
+              "start": 0,
+              "end": 154,
+              "quote": "Just remember your account number ADT-7789234 for any future service needs, and have your service code SVC-44821 ready for the installer Thursday morning.",
+              "message_sha256": "5fc8f90bea59d18f58213dc95a8995e65a48a884206f8185b71d204462ec8751",
+              "field": "entity_attribute_value_time"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "ADT account in security_install_001",
+            "attribute": "account_id",
+            "value": "ADT-7789234",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer1_09_home_security",
+      "fact_id": "layer1_09_home_security:f2",
+      "entity": "ADT installation, not ordinary account reference",
+      "attribute": "installation_service_code",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "security_install_001",
+            "message_index": 52,
+            "role": "assistant",
+            "timestamp": "2024-11-11 14:45:00",
+            "start": 34,
+            "end": 43,
+            "quote": "SVC-44821",
+            "message_sha256": "08e817cd7a9b387af0e9cc1bca8a1044a272915c5e1cf08449bf29a92a1b16ed",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "security_install_001",
+              "message_index": 50,
+              "role": "assistant",
+              "timestamp": "2024-11-11 14:45:00",
+              "start": 0,
+              "end": 100,
+              "quote": "Your ADT account number will be ADT-7789234. I'll also give you a service code for the installation.",
+              "message_sha256": "98243aa5a48420738679e7d53ee1a33892201c6d39800482fa46b5350c061b64",
+              "field": "entity"
+            },
+            {
+              "conversation_id": "security_install_001",
+              "message_index": 52,
+              "role": "assistant",
+              "timestamp": "2024-11-11 14:45:00",
+              "start": 0,
+              "end": 78,
+              "quote": "Your installation service code is SVC-44821. The technician will ask for this.",
+              "message_sha256": "08e817cd7a9b387af0e9cc1bca8a1044a272915c5e1cf08449bf29a92a1b16ed",
+              "field": "attribute_value_purpose"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "ADT installation, not ordinary account reference",
+            "attribute": "installation_service_code",
+            "value": "SVC-44821",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        },
+        {
+          "anchor": {
+            "conversation_id": "security_install_001",
+            "message_index": 92,
+            "role": "assistant",
+            "timestamp": "2024-11-11 14:45:00",
+            "start": 103,
+            "end": 112,
+            "quote": "SVC-44821",
+            "message_sha256": "5fc8f90bea59d18f58213dc95a8995e65a48a884206f8185b71d204462ec8751",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "security_install_001",
+              "message_index": 92,
+              "role": "assistant",
+              "timestamp": "2024-11-11 14:45:00",
+              "start": 0,
+              "end": 154,
+              "quote": "Just remember your account number ADT-7789234 for any future service needs, and have your service code SVC-44821 ready for the installer Thursday morning.",
+              "message_sha256": "5fc8f90bea59d18f58213dc95a8995e65a48a884206f8185b71d204462ec8751",
+              "field": "entity_attribute_value_time"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "ADT installation, not ordinary account reference",
+            "attribute": "installation_service_code",
+            "value": "SVC-44821",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer2_07_multiple_medications",
+      "fact_id": "layer2_07_multiple_medications:f1",
+      "entity": "James Wilson, historical pharmacy record, not medical advice",
+      "attribute": "medication_dose",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "pharmacy_dad_001",
+            "message_index": 5,
+            "role": "assistant",
+            "timestamp": "2024-09-20 10:00:00",
+            "start": 14,
+            "end": 29,
+            "quote": "Lisinopril 20mg",
+            "message_sha256": "d0f2be7f4e82392ceda066ba99629fb95c9b01c4cdecc9b14a51ae5c934687d4",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "pharmacy_dad_001",
+              "message_index": 3,
+              "role": "assistant",
+              "timestamp": "2024-09-20 10:00:00",
+              "start": 0,
+              "end": 27,
+              "quote": "Thank you Mr. James Wilson.",
+              "message_sha256": "605a89621bc6ef50a321a21115dc9dea01c5daf8cb77925d898f22cc4d06f376",
+              "field": "entity"
+            },
+            {
+              "conversation_id": "pharmacy_dad_001",
+              "message_index": 5,
+              "role": "assistant",
+              "timestamp": "2024-09-20 10:00:00",
+              "start": 0,
+              "end": 72,
+              "quote": "That would be Lisinopril 20mg, once daily. You have 2 refills remaining.",
+              "message_sha256": "d0f2be7f4e82392ceda066ba99629fb95c9b01c4cdecc9b14a51ae5c934687d4",
+              "field": "attribute_value_frequency"
+            },
+            {
+              "conversation_id": "pharmacy_dad_001",
+              "message_index": 34,
+              "role": "user",
+              "timestamp": "2024-09-20 10:00:00",
+              "start": 0,
+              "end": 104,
+              "quote": "No, I just remembered, he said to stay on the current dose. We discussed changing it but decided not to.",
+              "message_sha256": "b9af447bc1d4b04498c9bf2c9cb3dee61e8081a447ce1865837d7e083b85915a",
+              "field": "negation_current_dose"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "James Wilson, historical pharmacy record, not medical advice",
+            "attribute": "medication_dose",
+            "value": "Lisinopril 20mg",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        },
+        {
+          "anchor": {
+            "conversation_id": "pharmacy_dad_001",
+            "message_index": 73,
+            "role": "assistant",
+            "timestamp": "2024-09-20 10:00:00",
+            "start": 21,
+            "end": 36,
+            "quote": "Lisinopril 20mg",
+            "message_sha256": "0b66f631792b22af121d280958cb042a8ab2372605f7d5fdc1e3ab0201665491",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "pharmacy_dad_001",
+              "message_index": 3,
+              "role": "assistant",
+              "timestamp": "2024-09-20 10:00:00",
+              "start": 0,
+              "end": 27,
+              "quote": "Thank you Mr. James Wilson.",
+              "message_sha256": "605a89621bc6ef50a321a21115dc9dea01c5daf8cb77925d898f22cc4d06f376",
+              "field": "entity"
+            },
+            {
+              "conversation_id": "pharmacy_dad_001",
+              "message_index": 73,
+              "role": "assistant",
+              "timestamp": "2024-09-20 10:00:00",
+              "start": 0,
+              "end": 103,
+              "quote": "Good. So to confirm: Lisinopril 20mg, Metformin 1000mg, and Vitamin D for Thursday delivery, total $28.",
+              "message_sha256": "0b66f631792b22af121d280958cb042a8ab2372605f7d5fdc1e3ab0201665491",
+              "field": "attribute_value"
+            },
+            {
+              "conversation_id": "pharmacy_dad_001",
+              "message_index": 34,
+              "role": "user",
+              "timestamp": "2024-09-20 10:00:00",
+              "start": 0,
+              "end": 104,
+              "quote": "No, I just remembered, he said to stay on the current dose. We discussed changing it but decided not to.",
+              "message_sha256": "b9af447bc1d4b04498c9bf2c9cb3dee61e8081a447ce1865837d7e083b85915a",
+              "field": "negation_current_dose"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "James Wilson, historical pharmacy record, not medical advice",
+            "attribute": "medication_dose",
+            "value": "Lisinopril 20mg",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer2_07_multiple_medications",
+      "fact_id": "layer2_07_multiple_medications:f2",
+      "entity": "James Wilson, with explicit Amlodipine warning",
+      "attribute": "medication_dose",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "pharmacy_dad_001",
+            "message_index": 9,
+            "role": "assistant",
+            "timestamp": "2024-09-20 10:00:00",
+            "start": 73,
+            "end": 87,
+            "quote": "Amlodipine 5mg",
+            "message_sha256": "7bdb618294e9c1fce3d04be77548605a573911b7775b5ba916c9b54fbd8e0b17",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "pharmacy_dad_001",
+              "message_index": 3,
+              "role": "assistant",
+              "timestamp": "2024-09-20 10:00:00",
+              "start": 0,
+              "end": 27,
+              "quote": "Thank you Mr. James Wilson.",
+              "message_sha256": "605a89621bc6ef50a321a21115dc9dea01c5daf8cb77925d898f22cc4d06f376",
+              "field": "entity"
+            },
+            {
+              "conversation_id": "pharmacy_dad_001",
+              "message_index": 9,
+              "role": "assistant",
+              "timestamp": "2024-09-20 10:00:00",
+              "start": 59,
+              "end": 125,
+              "quote": "You also take Amlodipine 5mg for blood pressure, do you need that?",
+              "message_sha256": "7bdb618294e9c1fce3d04be77548605a573911b7775b5ba916c9b54fbd8e0b17",
+              "field": "attribute_value"
+            },
+            {
+              "conversation_id": "pharmacy_dad_001",
+              "message_index": 43,
+              "role": "assistant",
+              "timestamp": "2024-09-20 10:00:00",
+              "start": 0,
+              "end": 107,
+              "quote": "Avoid grapefruit and grapefruit juice with Amlodipine. It can increase the medication levels in your blood.",
+              "message_sha256": "5d36aa70cdbd43b1af08bd3eedb73e62861e148ab19ec930a1734cfa0ba984b7",
+              "field": "negative_constraint"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "James Wilson, with explicit Amlodipine warning",
+            "attribute": "medication_dose",
+            "value": "Amlodipine 5mg",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer2_07_multiple_medications",
+      "fact_id": "layer2_07_multiple_medications:f3",
+      "entity": "Susan Wilson, not James or Emma",
+      "attribute": "medication_dose",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "pharmacy_mom_001",
+            "message_index": 17,
+            "role": "assistant",
+            "timestamp": "2024-10-15 14:30:00",
+            "start": 0,
+            "end": 13,
+            "quote": "Losartan 50mg",
+            "message_sha256": "23a9b35cc3303424aa37f43d57d30979935dbfd6e17dd9d9b0a833f00b8032f6",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "pharmacy_mom_001",
+              "message_index": 0,
+              "role": "user",
+              "timestamp": "2024-10-15 14:30:00",
+              "start": 0,
+              "end": 62,
+              "quote": "Hi, this is Susan Wilson. I need to check on my prescriptions.",
+              "message_sha256": "f7f6eb3f59f5b4db008c71f7fbee1e5c9d87d19fee21216e1cd50fa823a21fbb",
+              "field": "entity"
+            },
+            {
+              "conversation_id": "pharmacy_mom_001",
+              "message_index": 17,
+              "role": "assistant",
+              "timestamp": "2024-10-15 14:30:00",
+              "start": 0,
+              "end": 69,
+              "quote": "Losartan 50mg daily, last filled September 28th, 5 refills remaining.",
+              "message_sha256": "23a9b35cc3303424aa37f43d57d30979935dbfd6e17dd9d9b0a833f00b8032f6",
+              "field": "attribute_value_frequency_time"
+            },
+            {
+              "conversation_id": "pharmacy_mom_001",
+              "message_index": 26,
+              "role": "user",
+              "timestamp": "2024-10-15 14:30:00",
+              "start": 0,
+              "end": 89,
+              "quote": "Actually, I wanted to ask about the Losartan. I've been feeling tired since I started it.",
+              "message_sha256": "186537f1997951baab2282829cf37bbf3d53a02fcf0ceefc1246ca21cdbba19f",
+              "field": "reported_effect"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Susan Wilson, not James or Emma",
+            "attribute": "medication_dose",
+            "value": "Losartan 50mg",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer3_07_eldercare_coordination",
+      "fact_id": "layer3_07_eldercare_coordination:f1",
+      "entity": "Margaret Thompson long-term care policy",
+      "attribute": "modification_benefit",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "insurance_care_coordinator",
+            "message_index": 117,
+            "role": "assistant",
+            "timestamp": "2024-09-30",
+            "start": 25,
+            "end": 31,
+            "quote": "$5,000",
+            "message_sha256": "df2d71fd378d8ac9b9e8c55400c95747531c823744352f77fe43c50218d75a33",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 0,
+              "role": "user",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 68,
+              "quote": "Hello, I'm calling about my mother's long-term care insurance policy",
+              "message_sha256": "f550d0075b4985561964b04b7d2f1b219d21fde9110a493e52f817cc840b8bc4",
+              "field": "entity_relation"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 3,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 80,
+              "quote": "Thank you. I see this is Margaret Thompson's policy. How can I assist you today?",
+              "message_sha256": "501869f0036ecd6530faeef213b091e6556bdcb6d4bff0d7480d0381021f805a",
+              "field": "entity_policy"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 117,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 87,
+              "quote": "No, start those now. The $5,000 modification benefit doesn't have an elimination period",
+              "message_sha256": "df2d71fd378d8ac9b9e8c55400c95747531c823744352f77fe43c50218d75a33",
+              "field": "attribute_value_no_elimination"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Margaret Thompson long-term care policy",
+            "attribute": "modification_benefit",
+            "value": "$5,000",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        },
+        {
+          "anchor": {
+            "conversation_id": "insurance_care_coordinator",
+            "message_index": 31,
+            "role": "assistant",
+            "timestamp": "2024-09-30",
+            "start": 19,
+            "end": 25,
+            "quote": "$5,000",
+            "message_sha256": "3195a420af84bdb8ca2c3ceb298d3da1e06c2bb9cb75ceb8958f2fdd409a4d23",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 0,
+              "role": "user",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 68,
+              "quote": "Hello, I'm calling about my mother's long-term care insurance policy",
+              "message_sha256": "f550d0075b4985561964b04b7d2f1b219d21fde9110a493e52f817cc840b8bc4",
+              "field": "entity_relation"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 3,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 80,
+              "quote": "Thank you. I see this is Margaret Thompson's policy. How can I assist you today?",
+              "message_sha256": "501869f0036ecd6530faeef213b091e6556bdcb6d4bff0d7480d0381021f805a",
+              "field": "entity_policy"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 31,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 51,
+              "quote": "There's a one-time $5,000 home modification benefit",
+              "message_sha256": "3195a420af84bdb8ca2c3ceb298d3da1e06c2bb9cb75ceb8958f2fdd409a4d23",
+              "field": "attribute_value_one_time"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 117,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 87,
+              "quote": "No, start those now. The $5,000 modification benefit doesn't have an elimination period",
+              "message_sha256": "df2d71fd378d8ac9b9e8c55400c95747531c823744352f77fe43c50218d75a33",
+              "field": "no_elimination"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Margaret Thompson long-term care policy",
+            "attribute": "modification_benefit",
+            "value": "$5,000",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer3_07_eldercare_coordination",
+      "fact_id": "layer3_07_eldercare_coordination:f2",
+      "entity": "Margaret Thompson long-term care policy",
+      "attribute": "equipment_yearly_limit",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "insurance_care_coordinator",
+            "message_index": 23,
+            "role": "assistant",
+            "timestamp": "2024-09-30",
+            "start": 48,
+            "end": 54,
+            "quote": "$2,000",
+            "message_sha256": "4b5f03f77f54ecd77a9dd690780fcb1ae723cb98688fe62dc4b498beec7299e4",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 0,
+              "role": "user",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 68,
+              "quote": "Hello, I'm calling about my mother's long-term care insurance policy",
+              "message_sha256": "f550d0075b4985561964b04b7d2f1b219d21fde9110a493e52f817cc840b8bc4",
+              "field": "entity_relation"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 3,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 80,
+              "quote": "Thank you. I see this is Margaret Thompson's policy. How can I assist you today?",
+              "message_sha256": "501869f0036ecd6530faeef213b091e6556bdcb6d4bff0d7480d0381021f805a",
+              "field": "entity_policy"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 23,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 63,
+              "quote": "Medical equipment is a separate benefit - up to $2,000 per year",
+              "message_sha256": "4b5f03f77f54ecd77a9dd690780fcb1ae723cb98688fe62dc4b498beec7299e4",
+              "field": "attribute_value_yearly"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Margaret Thompson long-term care policy",
+            "attribute": "equipment_yearly_limit",
+            "value": "$2,000",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer3_07_eldercare_coordination",
+      "fact_id": "layer3_07_eldercare_coordination:f3",
+      "entity": "Margaret Thompson in-home care, updated quote",
+      "attribute": "daily_benefit",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "insurance_care_coordinator",
+            "message_index": 107,
+            "role": "assistant",
+            "timestamp": "2024-09-30",
+            "start": 59,
+            "end": 63,
+            "quote": "$168",
+            "message_sha256": "f99d3ef040f1cee0da223fa9fedac31cb4773a4f714192d8bbcd14d788da461f",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 0,
+              "role": "user",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 68,
+              "quote": "Hello, I'm calling about my mother's long-term care insurance policy",
+              "message_sha256": "f550d0075b4985561964b04b7d2f1b219d21fde9110a493e52f817cc840b8bc4",
+              "field": "entity_relation"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 3,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 80,
+              "quote": "Thank you. I see this is Margaret Thompson's policy. How can I assist you today?",
+              "message_sha256": "501869f0036ecd6530faeef213b091e6556bdcb6d4bff0d7480d0381021f805a",
+              "field": "entity_policy"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 107,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 81,
+              "quote": "The daily benefit increases 3% annually. It's now actually $168 per day, not $150",
+              "message_sha256": "f99d3ef040f1cee0da223fa9fedac31cb4773a4f714192d8bbcd14d788da461f",
+              "field": "attribute_value_time_negation"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Margaret Thompson in-home care, updated quote",
+            "attribute": "daily_benefit",
+            "value": "$168",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    },
+    {
+      "case_id": "layer3_07_eldercare_coordination",
+      "fact_id": "layer3_07_eldercare_coordination:f4",
+      "entity": "Margaret Thompson care assessment",
+      "attribute": "assessment_schedule",
+      "alternatives": [
+        {
+          "anchor": {
+            "conversation_id": "insurance_care_coordinator",
+            "message_index": 43,
+            "role": "assistant",
+            "timestamp": "2024-09-30",
+            "start": 23,
+            "end": 40,
+            "quote": "5-7 business days",
+            "message_sha256": "6690fc29b8eb290961fdc2a194f24bb33364fba26ece83a056dda577e18a0a70",
+            "field": "value"
+          },
+          "required": [
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 0,
+              "role": "user",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 68,
+              "quote": "Hello, I'm calling about my mother's long-term care insurance policy",
+              "message_sha256": "f550d0075b4985561964b04b7d2f1b219d21fde9110a493e52f817cc840b8bc4",
+              "field": "entity_relation"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 3,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 80,
+              "quote": "Thank you. I see this is Margaret Thompson's policy. How can I assist you today?",
+              "message_sha256": "501869f0036ecd6530faeef213b091e6556bdcb6d4bff0d7480d0381021f805a",
+              "field": "entity_policy"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 41,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 67,
+              "quote": "First, she needs a care assessment. We can send a nurse to evaluate",
+              "message_sha256": "683c9451859806b296ddf57de355c4bc87fee421a3c5875b824c2692b99b50d4",
+              "field": "attribute"
+            },
+            {
+              "conversation_id": "insurance_care_coordinator",
+              "message_index": 43,
+              "role": "assistant",
+              "timestamp": "2024-09-30",
+              "start": 0,
+              "end": 41,
+              "quote": "We can schedule within 5-7 business days.",
+              "message_sha256": "6690fc29b8eb290961fdc2a194f24bb33364fba26ece83a056dda577e18a0a70",
+              "field": "value_time"
+            }
+          ],
+          "decision": "approved_source_equivalence",
+          "checks": {
+            "entity": "Margaret Thompson care assessment",
+            "attribute": "assessment_schedule",
+            "value": "5-7 business days",
+            "time": "same source event timestamp; no later replacement used",
+            "qualifiers": "all listed required spans must accompany the value for complete evidence"
+          }
+        }
+      ],
+      "require_scene_and_time": true
+    }
+  ],
+  "rejected": [
+    {
+      "case_id": "layer1_07_car_rental",
+      "source": {
+        "conversation_id": "car_rental_001",
+        "message_index": 68,
+        "role": "user",
+        "timestamp": "2024-11-14 10:15:00",
+        "start": 0,
+        "end": 36,
+        "quote": "Let me write that down... E7739482M?",
+        "message_sha256": "f00b7e7633adc077c6e86b7c0df2605b846fcced9daa9c136ee6c2098654f9bd",
+        "field": "value"
+      },
+      "decision": "rejected",
+      "reason": "echo question does not independently confirm booking"
+    },
+    {
+      "case_id": "layer1_08_hotel_reservation",
+      "source": {
+        "conversation_id": "hotel_booking_001",
+        "message_index": 37,
+        "role": "assistant",
+        "timestamp": "2024-11-09 19:30:00",
+        "start": 0,
+        "end": 129,
+        "quote": "I'll note a request for floor 18 or higher. I actually have room 1912 available - 19th floor, corner unit with exceptional views.",
+        "message_sha256": "1a628927a1b04f72ca8a064c6f8bdcd7900ba905ac8878206621b0c8f4bbcafb",
+        "field": "value"
+      },
+      "decision": "rejected",
+      "reason": "room available is not yet room reserved"
+    },
+    {
+      "case_id": "layer1_09_home_security",
+      "source": {
+        "conversation_id": "security_install_001",
+        "message_index": 53,
+        "role": "user",
+        "timestamp": "2024-11-11 14:45:00",
+        "start": 0,
+        "end": 52,
+        "quote": "Let me write both down... ADT-7789234 and SVC-44821?",
+        "message_sha256": "076bf509ba055d83f89a32074d242e24c58e7aa92a212bf3d2c520496da59474",
+        "field": "value"
+      },
+      "decision": "rejected",
+      "reason": "echo question does not independently confirm account/code roles"
+    },
+    {
+      "case_id": "layer3_07_eldercare_coordination",
+      "source": {
+        "conversation_id": "insurance_care_coordinator",
+        "message_index": 15,
+        "role": "assistant",
+        "timestamp": "2024-09-30",
+        "start": 0,
+        "end": 75,
+        "quote": "That would qualify. The policy provides up to $150 per day for in-home care",
+        "message_sha256": "c5a512fb318171f687eee32b23e406a312217a0359f4c5efaf46fc57a3206d74",
+        "field": "value"
+      },
+      "decision": "rejected",
+      "reason": "old $150 daily quote superseded by later $168"
+    },
+    {
+      "case_id": "layer3_07_eldercare_coordination",
+      "source": {
+        "conversation_id": "insurance_care_coordinator",
+        "message_index": 28,
+        "role": "user",
+        "timestamp": "2024-09-30",
+        "start": 0,
+        "end": 52,
+        "quote": "So if we're renting a hospital bed for $150 a month?",
+        "message_sha256": "f3ee641e2515df5c1bdc673df7a395c1bd2ed0d8998dcc6c1e15b080d6c4ed5f",
+        "field": "value"
+      },
+      "decision": "rejected",
+      "reason": "$150 monthly hospital bed is a different attribute/time unit"
+    }
+  ]
+}
