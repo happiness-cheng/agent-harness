@@ -1,0 +1,281 @@
+{
+  "$defs": {
+    "CheckSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "layer": {
+          "default": "outcome",
+          "enum": [
+            "outcome",
+            "process",
+            "evidence",
+            "semantic"
+          ],
+          "title": "Layer",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "todo_count",
+            "todo_title",
+            "todo_status",
+            "final_contains",
+            "final_excludes",
+            "runtime_status",
+            "checkpoint",
+            "tool_error",
+            "tool_count",
+            "memory_delivery",
+            "citation_valid",
+            "artifact_quotes",
+            "research_conflict",
+            "semantic_support",
+            "effect_known",
+            "recovered_same_budget",
+            "calculator_value",
+            "test_exit"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "expected": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null
+        },
+        "hard_safety": {
+          "default": false,
+          "title": "Hard Safety",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "kind"
+      ],
+      "title": "CheckSpec",
+      "type": "object"
+    },
+    "JsonValue": {}
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.-]+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "category": {
+      "enum": [
+        "research",
+        "memory",
+        "tools",
+        "runtime",
+        "security"
+      ],
+      "title": "Category",
+      "type": "string"
+    },
+    "prompt": {
+      "maxLength": 20000,
+      "minLength": 1,
+      "title": "Prompt",
+      "type": "string"
+    },
+    "evaluation": {
+      "default": "deterministic",
+      "enum": [
+        "deterministic",
+        "semantic",
+        "human"
+      ],
+      "title": "Evaluation",
+      "type": "string"
+    },
+    "data_classification": {
+      "default": "synthetic",
+      "enum": [
+        "synthetic",
+        "public",
+        "private"
+      ],
+      "title": "Data Classification",
+      "type": "string"
+    },
+    "profile": {
+      "default": "plain",
+      "enum": [
+        "plain",
+        "calculator",
+        "add",
+        "update",
+        "false_success",
+        "memory",
+        "research",
+        "bad_quote",
+        "denied",
+        "injection",
+        "cross_session",
+        "invalid_arguments",
+        "budget",
+        "recover",
+        "unknown",
+        "delay"
+      ],
+      "title": "Profile",
+      "type": "string"
+    },
+    "parameters": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "title": "Parameters",
+      "type": "object"
+    },
+    "mode": {
+      "default": "plan",
+      "enum": [
+        "plan",
+        "build"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "actions": {
+      "items": {
+        "additionalProperties": {
+          "$ref": "#/$defs/JsonValue"
+        },
+        "type": "object"
+      },
+      "maxItems": 12,
+      "title": "Actions",
+      "type": "array"
+    },
+    "tools": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 30,
+      "title": "Tools",
+      "type": "array"
+    },
+    "fixture": {
+      "default": "empty",
+      "enum": [
+        "empty",
+        "todo",
+        "memory",
+        "revoked",
+        "foreign",
+        "research",
+        "cross_session"
+      ],
+      "title": "Fixture",
+      "type": "string"
+    },
+    "max_model_calls": {
+      "default": 8,
+      "maximum": 40,
+      "minimum": 1,
+      "title": "Max Model Calls",
+      "type": "integer"
+    },
+    "segment_model_calls": {
+      "default": 8,
+      "maximum": 40,
+      "minimum": 1,
+      "title": "Segment Model Calls",
+      "type": "integer"
+    },
+    "max_tool_calls": {
+      "default": 12,
+      "maximum": 60,
+      "minimum": 0,
+      "title": "Max Tool Calls",
+      "type": "integer"
+    },
+    "max_rounds": {
+      "default": 8,
+      "maximum": 40,
+      "minimum": 1,
+      "title": "Max Rounds",
+      "type": "integer"
+    },
+    "timeout_seconds": {
+      "default": 40,
+      "exclusiveMinimum": 0,
+      "maximum": 240,
+      "title": "Timeout Seconds",
+      "type": "number"
+    },
+    "recovery": {
+      "default": false,
+      "title": "Recovery",
+      "type": "boolean"
+    },
+    "live_eligible": {
+      "default": false,
+      "title": "Live Eligible",
+      "type": "boolean"
+    },
+    "model": {
+      "const": "deepseek-flash",
+      "default": "deepseek-flash",
+      "title": "Model",
+      "type": "string"
+    },
+    "reasoning_effort": {
+      "const": "high",
+      "default": "high",
+      "title": "Reasoning Effort",
+      "type": "string"
+    },
+    "output_tokens": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Tokens"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/CheckSpec"
+      },
+      "maxItems": 30,
+      "minItems": 1,
+      "title": "Checks",
+      "type": "array"
+    },
+    "expected_verdict": {
+      "default": "PASS",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "UNKNOWN"
+      ],
+      "title": "Expected Verdict",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "category",
+    "prompt",
+    "checks"
+  ],
+  "title": "TaskSpec",
+  "type": "object"
+}

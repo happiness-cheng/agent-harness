@@ -1,0 +1,28 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+__ test_provider_quota_failure_stops_same_provider_but_program_jobs_continue __
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-11/test_provider_quota_failure_st0')
+
+    def test_provider_quota_failure_stops_same_provider_but_program_jobs_continue(tmp_path):
+        from min_agent.evaluation.night import NightJob,run_night,NightOutcome
+        q,task=setup(tmp_path,deepseek_usd=5)
+        for identity,kind in [('A','analysis'),('B','analysis'),('C','program')]:
+            q.add(NightJob(id=identity,goal=identity,kind=kind,task=task('runtime.calc')))
+        called=[]
+        def execute(job,route,out):
+            called.append(job.id)
+            if route=='deepseek':return NightOutcome(verdict='UNKNOWN',reason='配额不足',provider_blocked=True,cost_known=False)
+            return NightOutcome(verdict='PASS',evidence_refs=['fixture:verified'])
+        result=run_night(q,executor=execute,clock=Clock(),wait=False)
+>       assert called==['A','C']
+E       AssertionError: assert ['A', 'B', 'C'] == ['A', 'C']
+E         
+E         At index 1 diff: 'B' != 'C'
+E         Left contains one more item: 'C'
+E         Use -v to get more diff
+
+tests\unit\test_night_mode.py:106: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/test_night_mode.py::test_provider_quota_failure_stops_same_provider_but_program_jobs_continue
+1 failed in 1.69s

@@ -1,0 +1,58 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_________ test_job_query_failure_still_initiates_owned_tree_shutdown __________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-37/test_job_query_failure_still_i0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000248CD7282B0>
+
+    @pytest.mark.skipif(os.name != 'nt', reason='Windows Job 清理异常路径')
+    def test_job_query_failure_still_initiates_owned_tree_shutdown(tmp_path, monkeypatch):
+        from min_agent.evaluation._windows_job import WindowsJob
+        from min_agent.evaluation.processes import start_owned, stop_owned
+        command, options = parent_command(tmp_path)
+        process = start_owned(command, **options)
+        try:
+            end = time.monotonic()+12
+            while not (tmp_path/'ready').exists() and time.monotonic()<end:
+                time.sleep(.05)
+            assert (tmp_path/'ready').exists()
+    
+            def unavailable(self, deadline):
+                raise OSError('synthetic-job-query-failure')
+    
+            monkeypatch.setattr(WindowsJob, '_process_handles', unavailable)
+            with pytest.raises(OSError, match='synthetic-job-query-failure'):
+                stop_owned(process)
+            # 确认失败仍发起终止，不能等 Python 对象何时被回收。
+>           process.wait(timeout=5)
+
+tests\unit\test_evaluation_processes.py:208: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\subprocess.py:1281: in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Popen: returncode: 0 args: ['C:\\Users\\陈独秀\\Documents\\agent-harness\\.ven...>
+timeout = 5
+
+    def _wait(self, timeout):
+        """Internal implementation of wait() on Windows."""
+        if timeout is None:
+            timeout_millis = _winapi.INFINITE
+        elif timeout <= 0:
+            timeout_millis = 0
+        else:
+            timeout_millis = int(timeout * 1000)
+        if self.returncode is None:
+            # API note: Returns immediately if timeout_millis == 0.
+            result = _winapi.WaitForSingleObject(self._handle,
+                                                 timeout_millis)
+            if result == _winapi.WAIT_TIMEOUT:
+>               raise TimeoutExpired(self.args, timeout)
+E               subprocess.TimeoutExpired: Command '['C:\\Users\\陈独秀\\Documents\\agent-harness\\.venv\\Scripts\\python.exe', '-X', 'utf8', '-c', "import subprocess,sys,time\nsubprocess.Popen([sys.executable,'-X','utf8',sys.argv[1],sys.argv[2],sys.argv[3]])\ntime.sleep(30)\n", 'C:\\Users\\陈独秀\\AppData\\Local\\Temp\\pytest-of-陈独秀\\pytest-37\\test_job_query_failure_still_i0\\child.py', 'C:\\Users\\陈独秀\\AppData\\Local\\Temp\\pytest-of-陈独秀\\pytest-37\\test_job_query_failure_still_i0\\resource', 'C:\\Users\\陈独秀\\AppData\\Local\\Temp\\pytest-of-陈独秀\\pytest-37\\test_job_query_failure_still_i0\\ready']' timed out after 5 seconds
+
+..\..\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\subprocess.py:1610: TimeoutExpired
+=========================== short test summary info ===========================
+FAILED tests/unit/test_evaluation_processes.py::test_job_query_failure_still_initiates_owned_tree_shutdown
+1 failed in 18.99s

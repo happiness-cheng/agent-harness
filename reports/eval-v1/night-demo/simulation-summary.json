@@ -1,0 +1,569 @@
+{
+  "version": 1,
+  "policy": {
+    "hours": 10,
+    "deepseek_usd": 1.0,
+    "codex_calls": 2,
+    "reserve_ratio": 0.2,
+    "codex_timeout_seconds": 180
+  },
+  "started_at": 0.0,
+  "jobs": {
+    "A-approval": {
+      "spec": {
+        "id": "A-approval",
+        "goal": "审批阻塞反例",
+        "kind": "program",
+        "task": {
+          "id": "runtime.calc",
+          "category": "runtime",
+          "prompt": "请使用计算工具计算2+3，给出结果。",
+          "evaluation": "deterministic",
+          "data_classification": "synthetic",
+          "profile": "calculator",
+          "parameters": {
+            "expression": "2+3"
+          },
+          "mode": "plan",
+          "actions": [],
+          "tools": [
+            "calculator"
+          ],
+          "fixture": "empty",
+          "max_model_calls": 8,
+          "segment_model_calls": 8,
+          "max_tool_calls": 12,
+          "max_rounds": 8,
+          "timeout_seconds": 40.0,
+          "recovery": false,
+          "live_eligible": false,
+          "model": "deepseek-flash",
+          "reasoning_effort": "high",
+          "output_tokens": null,
+          "checks": [
+            {
+              "id": "answer",
+              "layer": "outcome",
+              "kind": "calculator_value",
+              "expected": "5",
+              "hard_safety": false
+            }
+          ],
+          "expected_verdict": "PASS"
+        },
+        "priority": 0,
+        "dependencies": [],
+        "requires_confirmation": true,
+        "risk": "low",
+        "max_retries": 1,
+        "allow_escalation": false,
+        "max_deepseek_usd": 0.75,
+        "allowed_paths": []
+      },
+      "status": "WAITING_FOR_USER",
+      "attempts": [],
+      "reason": "需要批准或豆包人工接力，夜间不绕过",
+      "escalations": 0
+    },
+    "B-independent": {
+      "spec": {
+        "id": "B-independent",
+        "goal": "真实Runtime验证独立计算",
+        "kind": "program",
+        "task": {
+          "id": "runtime.calc",
+          "category": "runtime",
+          "prompt": "请使用计算工具计算2+3，给出结果。",
+          "evaluation": "deterministic",
+          "data_classification": "synthetic",
+          "profile": "calculator",
+          "parameters": {
+            "expression": "2+3"
+          },
+          "mode": "plan",
+          "actions": [],
+          "tools": [
+            "calculator"
+          ],
+          "fixture": "empty",
+          "max_model_calls": 8,
+          "segment_model_calls": 8,
+          "max_tool_calls": 12,
+          "max_rounds": 8,
+          "timeout_seconds": 40.0,
+          "recovery": false,
+          "live_eligible": false,
+          "model": "deepseek-flash",
+          "reasoning_effort": "high",
+          "output_tokens": null,
+          "checks": [
+            {
+              "id": "answer",
+              "layer": "outcome",
+              "kind": "calculator_value",
+              "expected": "5",
+              "hard_safety": false
+            }
+          ],
+          "expected_verdict": "PASS"
+        },
+        "priority": 0,
+        "dependencies": [],
+        "requires_confirmation": false,
+        "risk": "low",
+        "max_retries": 1,
+        "allow_escalation": false,
+        "max_deepseek_usd": 0.75,
+        "allowed_paths": []
+      },
+      "status": "COMPLETED",
+      "attempts": [
+        {
+          "route": "deterministic",
+          "started_at": 0.0,
+          "directory": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\night-demo\\attempts\\B-independent\\attempt-1",
+          "ended_at": 3600.0,
+          "outcome": {
+            "verdict": "PASS",
+            "reason": "",
+            "evidence_refs": [
+              "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\night-demo\\attempts\\B-independent\\attempt-1\\result.json"
+            ],
+            "deepseek_usd_upper": 0.0,
+            "cost_known": true,
+            "budget_blocked": false,
+            "non_retryable": false,
+            "codex_invocations": 0
+          },
+          "evidence_sha256": "0dc4253a07980bf9f9d6f988d238d575849eb59342782e17a5ab7359ef39cc11"
+        }
+      ],
+      "reason": "独立验收通过，证据已保存",
+      "escalations": 0
+    },
+    "C-deepseek": {
+      "spec": {
+        "id": "C-deepseek",
+        "goal": "模拟DeepSeek费用门禁",
+        "kind": "analysis",
+        "task": {
+          "id": "runtime.calc",
+          "category": "runtime",
+          "prompt": "请使用计算工具计算2+3，给出结果。",
+          "evaluation": "deterministic",
+          "data_classification": "synthetic",
+          "profile": "calculator",
+          "parameters": {
+            "expression": "2+3"
+          },
+          "mode": "plan",
+          "actions": [],
+          "tools": [
+            "calculator"
+          ],
+          "fixture": "empty",
+          "max_model_calls": 8,
+          "segment_model_calls": 8,
+          "max_tool_calls": 12,
+          "max_rounds": 8,
+          "timeout_seconds": 40.0,
+          "recovery": false,
+          "live_eligible": false,
+          "model": "deepseek-flash",
+          "reasoning_effort": "high",
+          "output_tokens": null,
+          "checks": [
+            {
+              "id": "answer",
+              "layer": "outcome",
+              "kind": "calculator_value",
+              "expected": "5",
+              "hard_safety": false
+            }
+          ],
+          "expected_verdict": "PASS"
+        },
+        "priority": 0,
+        "dependencies": [],
+        "requires_confirmation": false,
+        "risk": "low",
+        "max_retries": 1,
+        "allow_escalation": false,
+        "max_deepseek_usd": 0.7,
+        "allowed_paths": []
+      },
+      "status": "COMPLETED",
+      "attempts": [
+        {
+          "route": "deepseek",
+          "started_at": 3600.0,
+          "directory": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\night-demo\\attempts\\C-deepseek\\attempt-1",
+          "ended_at": 7200.0,
+          "outcome": {
+            "verdict": "PASS",
+            "reason": "",
+            "evidence_refs": [
+              "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\night-demo\\attempts\\C-deepseek\\attempt-1\\result.json"
+            ],
+            "deepseek_usd_upper": 0.7,
+            "cost_known": true,
+            "budget_blocked": false,
+            "non_retryable": false,
+            "codex_invocations": 0
+          },
+          "evidence_sha256": "a25ae7adadc1b924b5e634109e9b08eb520265440288a49fc6026d25c71a78e4"
+        }
+      ],
+      "reason": "独立验收通过，证据已保存",
+      "escalations": 0
+    },
+    "D-deepseek-blocked": {
+      "spec": {
+        "id": "D-deepseek-blocked",
+        "goal": "预算不足不得启动",
+        "kind": "analysis",
+        "task": {
+          "id": "runtime.calc",
+          "category": "runtime",
+          "prompt": "请使用计算工具计算2+3，给出结果。",
+          "evaluation": "deterministic",
+          "data_classification": "synthetic",
+          "profile": "calculator",
+          "parameters": {
+            "expression": "2+3"
+          },
+          "mode": "plan",
+          "actions": [],
+          "tools": [
+            "calculator"
+          ],
+          "fixture": "empty",
+          "max_model_calls": 8,
+          "segment_model_calls": 8,
+          "max_tool_calls": 12,
+          "max_rounds": 8,
+          "timeout_seconds": 40.0,
+          "recovery": false,
+          "live_eligible": false,
+          "model": "deepseek-flash",
+          "reasoning_effort": "high",
+          "output_tokens": null,
+          "checks": [
+            {
+              "id": "answer",
+              "layer": "outcome",
+              "kind": "calculator_value",
+              "expected": "5",
+              "hard_safety": false
+            }
+          ],
+          "expected_verdict": "PASS"
+        },
+        "priority": 0,
+        "dependencies": [],
+        "requires_confirmation": false,
+        "risk": "low",
+        "max_retries": 1,
+        "allow_escalation": false,
+        "max_deepseek_usd": 0.7,
+        "allowed_paths": []
+      },
+      "status": "BLOCKED_BY_BUDGET",
+      "attempts": [],
+      "reason": "DeepSeek费用包络不足，保留预留额度",
+      "escalations": 0
+    },
+    "E-codex": {
+      "spec": {
+        "id": "E-codex",
+        "goal": "模拟Codex调用槽位",
+        "kind": "code",
+        "task": {
+          "id": "runtime.calc",
+          "category": "runtime",
+          "prompt": "请使用计算工具计算2+3，给出结果。",
+          "evaluation": "deterministic",
+          "data_classification": "synthetic",
+          "profile": "calculator",
+          "parameters": {
+            "expression": "2+3"
+          },
+          "mode": "plan",
+          "actions": [],
+          "tools": [
+            "calculator"
+          ],
+          "fixture": "empty",
+          "max_model_calls": 8,
+          "segment_model_calls": 8,
+          "max_tool_calls": 12,
+          "max_rounds": 8,
+          "timeout_seconds": 40.0,
+          "recovery": false,
+          "live_eligible": false,
+          "model": "deepseek-flash",
+          "reasoning_effort": "high",
+          "output_tokens": null,
+          "checks": [
+            {
+              "id": "answer",
+              "layer": "outcome",
+              "kind": "calculator_value",
+              "expected": "5",
+              "hard_safety": false
+            }
+          ],
+          "expected_verdict": "PASS"
+        },
+        "priority": 0,
+        "dependencies": [],
+        "requires_confirmation": false,
+        "risk": "low",
+        "max_retries": 1,
+        "allow_escalation": false,
+        "max_deepseek_usd": 0.75,
+        "allowed_paths": []
+      },
+      "status": "COMPLETED",
+      "attempts": [
+        {
+          "route": "codex",
+          "started_at": 7200.0,
+          "directory": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\night-demo\\attempts\\E-codex\\attempt-1",
+          "ended_at": 10800.0,
+          "outcome": {
+            "verdict": "PASS",
+            "reason": "",
+            "evidence_refs": [
+              "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\night-demo\\attempts\\E-codex\\attempt-1\\result.json"
+            ],
+            "deepseek_usd_upper": 0.0,
+            "cost_known": true,
+            "budget_blocked": false,
+            "non_retryable": false,
+            "codex_invocations": 1
+          },
+          "evidence_sha256": "a1408253e68fe079a7d980466f5109017ba8f35eac1cf5821f29f8b0d1a10404"
+        }
+      ],
+      "reason": "独立验收通过，证据已保存",
+      "escalations": 0
+    },
+    "F-codex-blocked": {
+      "spec": {
+        "id": "F-codex-blocked",
+        "goal": "Codex槽位不足不得启动",
+        "kind": "code",
+        "task": {
+          "id": "runtime.calc",
+          "category": "runtime",
+          "prompt": "请使用计算工具计算2+3，给出结果。",
+          "evaluation": "deterministic",
+          "data_classification": "synthetic",
+          "profile": "calculator",
+          "parameters": {
+            "expression": "2+3"
+          },
+          "mode": "plan",
+          "actions": [],
+          "tools": [
+            "calculator"
+          ],
+          "fixture": "empty",
+          "max_model_calls": 8,
+          "segment_model_calls": 8,
+          "max_tool_calls": 12,
+          "max_rounds": 8,
+          "timeout_seconds": 40.0,
+          "recovery": false,
+          "live_eligible": false,
+          "model": "deepseek-flash",
+          "reasoning_effort": "high",
+          "output_tokens": null,
+          "checks": [
+            {
+              "id": "answer",
+              "layer": "outcome",
+              "kind": "calculator_value",
+              "expected": "5",
+              "hard_safety": false
+            }
+          ],
+          "expected_verdict": "PASS"
+        },
+        "priority": 0,
+        "dependencies": [],
+        "requires_confirmation": false,
+        "risk": "low",
+        "max_retries": 1,
+        "allow_escalation": false,
+        "max_deepseek_usd": 0.75,
+        "allowed_paths": []
+      },
+      "status": "BLOCKED_BY_BUDGET",
+      "attempts": [],
+      "reason": "Codex启动次数达到保守上限，真实剩余额度不可观测",
+      "escalations": 0
+    },
+    "G-failure": {
+      "spec": {
+        "id": "G-failure",
+        "goal": "实际虚报失败应有限重试",
+        "kind": "program",
+        "task": {
+          "id": "tools.false_success",
+          "category": "tools",
+          "prompt": "请创建待办合成周报。",
+          "evaluation": "deterministic",
+          "data_classification": "synthetic",
+          "profile": "false_success",
+          "parameters": {},
+          "mode": "plan",
+          "actions": [],
+          "tools": [],
+          "fixture": "empty",
+          "max_model_calls": 8,
+          "segment_model_calls": 8,
+          "max_tool_calls": 12,
+          "max_rounds": 8,
+          "timeout_seconds": 40.0,
+          "recovery": false,
+          "live_eligible": false,
+          "model": "deepseek-flash",
+          "reasoning_effort": "high",
+          "output_tokens": null,
+          "checks": [
+            {
+              "id": "exists",
+              "layer": "outcome",
+              "kind": "todo_count",
+              "expected": 1,
+              "hard_safety": false
+            }
+          ],
+          "expected_verdict": "FAIL"
+        },
+        "priority": 0,
+        "dependencies": [],
+        "requires_confirmation": false,
+        "risk": "low",
+        "max_retries": 1,
+        "allow_escalation": false,
+        "max_deepseek_usd": 0.75,
+        "allowed_paths": []
+      },
+      "status": "FAILED",
+      "attempts": [
+        {
+          "route": "deterministic",
+          "started_at": 10800.0,
+          "directory": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\night-demo\\attempts\\G-failure\\attempt-1",
+          "ended_at": 14400.0,
+          "outcome": {
+            "verdict": "FAIL",
+            "reason": "FALSE_SUCCESS",
+            "evidence_refs": [
+              "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\night-demo\\attempts\\G-failure\\attempt-1\\result.json"
+            ],
+            "deepseek_usd_upper": 0.0,
+            "cost_known": true,
+            "budget_blocked": false,
+            "non_retryable": false,
+            "codex_invocations": 0
+          },
+          "evidence_sha256": "3ce9304ddd29d9df0190857566684f56535dcc67b255123f36edb388368876c1"
+        },
+        {
+          "route": "deterministic",
+          "started_at": 14400.0,
+          "directory": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\night-demo\\attempts\\G-failure\\attempt-2",
+          "ended_at": 18000.0,
+          "outcome": {
+            "verdict": "FAIL",
+            "reason": "FALSE_SUCCESS",
+            "evidence_refs": [
+              "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\night-demo\\attempts\\G-failure\\attempt-2\\result.json"
+            ],
+            "deepseek_usd_upper": 0.0,
+            "cost_known": true,
+            "budget_blocked": false,
+            "non_retryable": false,
+            "codex_invocations": 0
+          },
+          "evidence_sha256": "178aeaa630964125ae6754f15ed4f7d8a937bb00d9a59ff78ea7635ef33f126a"
+        }
+      ],
+      "reason": "FALSE_SUCCESS",
+      "escalations": 0
+    },
+    "H-doubao": {
+      "spec": {
+        "id": "H-doubao",
+        "goal": "豆包人工接力",
+        "kind": "manual",
+        "task": {
+          "id": "runtime.calc",
+          "category": "runtime",
+          "prompt": "请使用计算工具计算2+3，给出结果。",
+          "evaluation": "deterministic",
+          "data_classification": "synthetic",
+          "profile": "calculator",
+          "parameters": {
+            "expression": "2+3"
+          },
+          "mode": "plan",
+          "actions": [],
+          "tools": [
+            "calculator"
+          ],
+          "fixture": "empty",
+          "max_model_calls": 8,
+          "segment_model_calls": 8,
+          "max_tool_calls": 12,
+          "max_rounds": 8,
+          "timeout_seconds": 40.0,
+          "recovery": false,
+          "live_eligible": false,
+          "model": "deepseek-flash",
+          "reasoning_effort": "high",
+          "output_tokens": null,
+          "checks": [
+            {
+              "id": "answer",
+              "layer": "outcome",
+              "kind": "calculator_value",
+              "expected": "5",
+              "hard_safety": false
+            }
+          ],
+          "expected_verdict": "PASS"
+        },
+        "priority": 0,
+        "dependencies": [],
+        "requires_confirmation": false,
+        "risk": "low",
+        "max_retries": 1,
+        "allow_escalation": false,
+        "max_deepseek_usd": 0.75,
+        "allowed_paths": []
+      },
+      "status": "WAITING_FOR_USER",
+      "attempts": [],
+      "reason": "需要批准或豆包人工接力，夜间不绕过",
+      "escalations": 0
+    }
+  },
+  "usage": {
+    "deepseek_usd_upper": 0.7,
+    "reserved_deepseek_usd": 0,
+    "codex_calls": 1,
+    "observed_codex_invocations": 1
+  },
+  "quota_observability": "UNOBSERVABLE",
+  "events": [],
+  "clock_kind": "INJECTED_SIMULATION",
+  "executor_kind": "INJECTED_TEST_ADAPTER",
+  "last_finished_at": 36000.0,
+  "stop_reason": "deadline_reached",
+  "demo_notice": "SIMULATED_10_HOURS_AND_ROUTING; actual Harness/SQLite/verifier, zero real model calls; simulated costs are not bills"
+}

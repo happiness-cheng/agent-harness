@@ -1,0 +1,58 @@
+FFF...                                                                   [100%]
+================================== FAILURES ===================================
+_ test_last_available_tool_can_read_source_before_final_evidence[psf-archived-excerpt] _
+
+tmp_path = WindowsPath('C:/Users/陈独秀/Documents/agent-harness/reports/eval-v1.1-20261027-001/red-cases/test_last_available_tool_can_r0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022D48A5F5C0>
+case = {'id': 'psf-archived-excerpt', 'goal': '核对归档片段中的PSF使命短句；引用实际读到的文字，不补全未保存的全文。', 'query': 'Python Software Foundation mission statement official', 'url': 'https://www.python.org/', ...}
+
+    @pytest.mark.parametrize('case', CASES, ids=lambda case:case['id'])
+    def test_last_available_tool_can_read_source_before_final_evidence(tmp_path, monkeypatch, case):
+        result = run_case(tmp_path/'run', case, monkeypatch)
+>       assert result['verdict']=='PASS', result['checks']
+E       AssertionError: {'task_completed': True, 'actual_read_and_artifact': False, 'citation_matches_frozen_original': False, 'same_owner': True, ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+tests\integration\test_research_last_read.py:172: AssertionError
+_ test_last_available_tool_can_read_source_before_final_evidence[warranty-exclusion] _
+
+tmp_path = WindowsPath('C:/Users/陈独秀/Documents/agent-harness/reports/eval-v1.1-20261027-001/red-cases/test_last_available_tool_can_r1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022D48D02D50>
+case = {'id': 'warranty-exclusion', 'goal': '核对合成保修期与进水损坏例外，并引用原文。', 'query': '合成产品 保修政策 进水例外', 'url': 'https://fixtures.example/warranty', ...}
+
+    @pytest.mark.parametrize('case', CASES, ids=lambda case:case['id'])
+    def test_last_available_tool_can_read_source_before_final_evidence(tmp_path, monkeypatch, case):
+        result = run_case(tmp_path/'run', case, monkeypatch)
+>       assert result['verdict']=='PASS', result['checks']
+E       AssertionError: {'task_completed': True, 'actual_read_and_artifact': False, 'citation_matches_frozen_original': False, 'same_owner': True, ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+tests\integration\test_research_last_read.py:172: AssertionError
+_ test_last_available_tool_can_read_source_before_final_evidence[api-timeout] _
+
+tmp_path = WindowsPath('C:/Users/陈独秀/Documents/agent-harness/reports/eval-v1.1-20261027-001/red-cases/test_last_available_tool_can_r2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022D48CF6250>
+case = {'id': 'api-timeout', 'goal': '核对合成API的超时和重试限制，保留副作用不确定性并引用原文。', 'query': '合成API 超时 重试 规则', 'url': 'https://fixtures.example/api', ...}
+
+    @pytest.mark.parametrize('case', CASES, ids=lambda case:case['id'])
+    def test_last_available_tool_can_read_source_before_final_evidence(tmp_path, monkeypatch, case):
+        result = run_case(tmp_path/'run', case, monkeypatch)
+>       assert result['verdict']=='PASS', result['checks']
+E       AssertionError: {'task_completed': True, 'actual_read_and_artifact': False, 'citation_matches_frozen_original': False, 'same_owner': True, ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+tests\integration\test_research_last_read.py:172: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_research_last_read.py::test_last_available_tool_can_read_source_before_final_evidence[psf-archived-excerpt]
+FAILED tests/integration/test_research_last_read.py::test_last_available_tool_can_read_source_before_final_evidence[warranty-exclusion]
+FAILED tests/integration/test_research_last_read.py::test_last_available_tool_can_read_source_before_final_evidence[api-timeout]
+3 failed, 3 passed in 8.61s

@@ -1,0 +1,20 @@
+[
+  {
+    "function": "output_within_context",
+    "line": 19,
+    "error_type": "ValueError",
+    "message": "\u6a21\u578b\u8f93\u51fa\u4e0a\u9650\u8d85\u8fc7\u4e0a\u4e0b\u6587\u5bb9\u91cf"
+  },
+  {
+    "function": "context_window",
+    "line": 39,
+    "error_type": "ValidationError",
+    "message": "1 validation error for ModelContextLimits\n  Value error, \u6a21\u578b\u8f93\u51fa\u4e0a\u9650\u8d85\u8fc7\u4e0a\u4e0b\u6587\u5bb9\u91cf [type=value_error, input_value=ModelContextLimits(model=...pi.deepseek.com/models'), inpu"
+  },
+  {
+    "function": "_worker",
+    "line": 346,
+    "error_type": "ValidationError",
+    "message": "1 validation error for ModelContextLimits\n  Value error, \u6a21\u578b\u8f93\u51fa\u4e0a\u9650\u8d85\u8fc7\u4e0a\u4e0b\u6587\u5bb9\u91cf [type=value_error, input_value=ModelContextLimits(model=...pi.deepseek.com/models'), inpu"
+  }
+]

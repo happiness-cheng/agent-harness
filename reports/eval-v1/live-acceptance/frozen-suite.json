@@ -1,0 +1,145 @@
+[
+  {
+    "id": "tools.add",
+    "category": "tools",
+    "prompt": "请创建待办“合成周报”，不设置截止日期。已通过应用确认操作。",
+    "evaluation": "deterministic",
+    "data_classification": "synthetic",
+    "profile": "add",
+    "parameters": {},
+    "mode": "build",
+    "actions": [
+      {
+        "operation": "todo.add",
+        "parameters": {
+          "title": "合成周报",
+          "due_date": null
+        }
+      }
+    ],
+    "tools": [
+      "todo_add",
+      "todo_list"
+    ],
+    "fixture": "empty",
+    "max_model_calls": 3,
+    "segment_model_calls": 3,
+    "max_tool_calls": 12,
+    "max_rounds": 3,
+    "timeout_seconds": 180.0,
+    "recovery": false,
+    "live_eligible": true,
+    "model": "deepseek-flash",
+    "reasoning_effort": "high",
+    "output_tokens": null,
+    "checks": [
+      {
+        "id": "count",
+        "layer": "outcome",
+        "kind": "todo_count",
+        "expected": 1,
+        "hard_safety": false
+      },
+      {
+        "id": "title",
+        "layer": "outcome",
+        "kind": "todo_title",
+        "expected": "合成周报",
+        "hard_safety": false
+      }
+    ],
+    "expected_verdict": "PASS"
+  },
+  {
+    "id": "memory.recall",
+    "category": "memory",
+    "prompt": "请回忆我确认过的讲解偏好，逐字引用对应记忆原句，用[memory:ID]标出实际读取的来源。",
+    "evaluation": "deterministic",
+    "data_classification": "synthetic",
+    "profile": "memory",
+    "parameters": {},
+    "mode": "plan",
+    "actions": [],
+    "tools": [
+      "search_long_memory",
+      "read_long_memory_evidence"
+    ],
+    "fixture": "memory",
+    "max_model_calls": 4,
+    "segment_model_calls": 4,
+    "max_tool_calls": 12,
+    "max_rounds": 4,
+    "timeout_seconds": 180.0,
+    "recovery": false,
+    "live_eligible": true,
+    "model": "deepseek-flash",
+    "reasoning_effort": "high",
+    "output_tokens": null,
+    "checks": [
+      {
+        "id": "fact",
+        "layer": "outcome",
+        "kind": "final_contains",
+        "expected": "先给Python短例子",
+        "hard_safety": false
+      },
+      {
+        "id": "delivered",
+        "layer": "evidence",
+        "kind": "memory_delivery",
+        "expected": true,
+        "hard_safety": false
+      },
+      {
+        "id": "cite",
+        "layer": "evidence",
+        "kind": "citation_valid",
+        "expected": true,
+        "hard_safety": false
+      }
+    ],
+    "expected_verdict": "PASS"
+  },
+  {
+    "id": "research.conflict",
+    "category": "research",
+    "prompt": "核对两份合成退货规则，指出冲突并引用实际读到的来源；不要编造统一规则。",
+    "evaluation": "deterministic",
+    "data_classification": "synthetic",
+    "profile": "research",
+    "parameters": {},
+    "mode": "plan",
+    "actions": [],
+    "tools": [
+      "research"
+    ],
+    "fixture": "research",
+    "max_model_calls": 7,
+    "segment_model_calls": 7,
+    "max_tool_calls": 12,
+    "max_rounds": 7,
+    "timeout_seconds": 180.0,
+    "recovery": false,
+    "live_eligible": true,
+    "model": "deepseek-flash",
+    "reasoning_effort": "high",
+    "output_tokens": null,
+    "checks": [
+      {
+        "id": "quotes",
+        "layer": "evidence",
+        "kind": "artifact_quotes",
+        "expected": true,
+        "hard_safety": false
+      },
+      {
+        "id": "conflict",
+        "layer": "evidence",
+        "kind": "research_conflict",
+        "expected": true,
+        "hard_safety": false
+      }
+    ],
+    "expected_verdict": "PASS"
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "id": "runtime.timeout",
+  "category": "runtime",
+  "prompt": "合成阻塞案例。",
+  "evaluation": "deterministic",
+  "data_classification": "synthetic",
+  "profile": "delay",
+  "parameters": {
+    "delay_seconds": 5
+  },
+  "mode": "plan",
+  "actions": [],
+  "tools": [],
+  "fixture": "empty",
+  "max_model_calls": 8,
+  "segment_model_calls": 8,
+  "max_tool_calls": 12,
+  "max_rounds": 8,
+  "timeout_seconds": 0.2,
+  "recovery": false,
+  "live_eligible": false,
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "output_tokens": null,
+  "checks": [
+    {
+      "id": "observable",
+      "layer": "outcome",
+      "kind": "effect_known",
+      "expected": null,
+      "hard_safety": false
+    }
+  ],
+  "expected_verdict": "UNKNOWN"
+}

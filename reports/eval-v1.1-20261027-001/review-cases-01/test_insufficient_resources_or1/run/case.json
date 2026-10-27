@@ -1,0 +1,8 @@
+{
+  "id": "warranty-exclusion",
+  "goal": "核对合成保修期与进水损坏例外，并引用原文。",
+  "query": "合成产品 保修政策 进水例外",
+  "url": "https://fixtures.example/warranty",
+  "text": "合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。",
+  "classification": "synthetic"
+}

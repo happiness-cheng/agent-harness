@@ -1,0 +1,8 @@
+{
+  "id": "api-timeout",
+  "goal": "核对合成API的超时和重试限制，保留副作用不确定性并引用原文。",
+  "query": "合成API 超时 重试 规则",
+  "url": "https://fixtures.example/api",
+  "text": "合成API规则：单次请求超时为12秒；仅允许重试一次，超时不代表服务端操作已撤销。",
+  "classification": "synthetic"
+}

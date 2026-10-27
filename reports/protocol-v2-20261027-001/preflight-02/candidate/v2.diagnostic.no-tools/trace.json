@@ -1,0 +1,62 @@
+[
+  {
+    "sequence": 1,
+    "run_id": "9d1cb9e7-a77d-4ef1-93eb-a70f67d672d2",
+    "call_id": "a30500fd-8e8d-4ed4-8487-8d7911c83338",
+    "parent_call_id": "7ef331fa-35ec-4d08-9966-2a464fa9f755",
+    "session_id": "83e6d82b-c9d3-490f-9a75-c07291124aca",
+    "task_id": "92c3c258-1dbc-458e-977f-6210f8efd9a7",
+    "operation": "model",
+    "status": "completed",
+    "duration_ms": 38.9691999880597,
+    "error_code": null,
+    "execution_state": null,
+    "source_call_ref": null,
+    "tool_ref": null
+  },
+  {
+    "sequence": 2,
+    "run_id": "9d1cb9e7-a77d-4ef1-93eb-a70f67d672d2",
+    "call_id": "293c9104-3461-41fd-9850-b8a63ac879e5",
+    "parent_call_id": "7ef331fa-35ec-4d08-9966-2a464fa9f755",
+    "session_id": "83e6d82b-c9d3-490f-9a75-c07291124aca",
+    "task_id": "92c3c258-1dbc-458e-977f-6210f8efd9a7",
+    "operation": "model",
+    "status": "partial",
+    "duration_ms": 16.895300010219216,
+    "error_code": "checkpoint_invalid_response",
+    "execution_state": null,
+    "source_call_ref": null,
+    "tool_ref": null
+  },
+  {
+    "sequence": 3,
+    "run_id": "9d1cb9e7-a77d-4ef1-93eb-a70f67d672d2",
+    "call_id": "2e7e2aed-580f-43c7-adc3-ad1991463d14",
+    "parent_call_id": "a30500fd-8e8d-4ed4-8487-8d7911c83338",
+    "session_id": "83e6d82b-c9d3-490f-9a75-c07291124aca",
+    "task_id": "92c3c258-1dbc-458e-977f-6210f8efd9a7",
+    "operation": "tool",
+    "status": "partial",
+    "duration_ms": 17.491000005975366,
+    "error_code": "budget_checkpoint",
+    "execution_state": "not_started",
+    "source_call_ref": "6f216e33c5cf9add9d70e7cd8c28e3dafe27e7723ea93918b27c60f118532154",
+    "tool_ref": "66f62d1807d3821a3865f2573b69c74be033f1341240ac861fefc6d430bff5e0"
+  },
+  {
+    "sequence": 4,
+    "run_id": "9d1cb9e7-a77d-4ef1-93eb-a70f67d672d2",
+    "call_id": "7ef331fa-35ec-4d08-9966-2a464fa9f755",
+    "parent_call_id": null,
+    "session_id": "83e6d82b-c9d3-490f-9a75-c07291124aca",
+    "task_id": "92c3c258-1dbc-458e-977f-6210f8efd9a7",
+    "operation": "run",
+    "status": "partial",
+    "duration_ms": 57.05679999664426,
+    "error_code": "budget_checkpoint",
+    "execution_state": null,
+    "source_call_ref": null,
+    "tool_ref": null
+  }
+]

@@ -1,0 +1,32 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+______________ test_stopping_owned_tree_releases_descendant_lock ______________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-18/test_stopping_owned_tree_relea0')
+
+    def test_stopping_owned_tree_releases_descendant_lock(tmp_path):
+>       from min_agent.evaluation.processes import start_owned, stop_owned
+E       ModuleNotFoundError: No module named 'min_agent.evaluation.processes'
+
+tests\unit\test_evaluation_processes.py:35: ModuleNotFoundError
+____________ test_timeout_stops_owned_descendants_before_returning ____________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-18/test_timeout_stops_owned_desce0')
+
+    def test_timeout_stops_owned_descendants_before_returning(tmp_path):
+>       from min_agent.evaluation.processes import run_owned
+E       ModuleNotFoundError: No module named 'min_agent.evaluation.processes'
+
+tests\unit\test_evaluation_processes.py:54: ModuleNotFoundError
+________ test_successful_owned_command_retains_output_and_exit_status _________
+
+    def test_successful_owned_command_retains_output_and_exit_status():
+>       from min_agent.evaluation.processes import run_owned
+E       ModuleNotFoundError: No module named 'min_agent.evaluation.processes'
+
+tests\unit\test_evaluation_processes.py:64: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/unit/test_evaluation_processes.py::test_stopping_owned_tree_releases_descendant_lock
+FAILED tests/unit/test_evaluation_processes.py::test_timeout_stops_owned_descendants_before_returning
+FAILED tests/unit/test_evaluation_processes.py::test_successful_owned_command_retains_output_and_exit_status
+3 failed in 1.03s

@@ -1,0 +1,12 @@
+--- a/src/min_agent/research.py
++++ b/src/min_agent/research.py
+@@ -89,7 +89,8 @@
+                     # 网页读取本身有显式分页和位置；不能再静默截掉所读片段尾部。
+                     projected.append(candidate)
+                 visible = [Message(role="system", content=prompt)] + projected
+-                closing = budget.remaining.model_calls <= 1 or budget.remaining.tool_calls <= 1
++                # 最终文字不消耗工具额度；保留最后一次可读机会，硬门仍由 Runtime.consume 检查。
++                closing = budget.remaining.model_calls <= 1 or budget.remaining.tool_calls == 0
+                 if closing:
+                     kwargs["tools"] = None
+                     visible.append(Message(role="user", content="已到研究收尾预留，不再搜索或读网页。仅依据实际已读原文返回最终Evidence JSON；证据不够必须写limitations，不捏造引用。"))

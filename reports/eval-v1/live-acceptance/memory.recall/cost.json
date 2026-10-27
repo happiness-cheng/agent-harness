@@ -1,0 +1,11 @@
+{
+  "status": "ESTIMATED_NOT_INVOICE",
+  "input_tokens": 8099,
+  "output_tokens": 552,
+  "cached_input_tokens": 6272,
+  "usd_min": 0.000624066,
+  "usd_max": 0.001248132,
+  "source": "https://api-docs.deepseek.com/quick_start/pricing/",
+  "pricing_date": "2026-10-26",
+  "invoice_usd": null
+}

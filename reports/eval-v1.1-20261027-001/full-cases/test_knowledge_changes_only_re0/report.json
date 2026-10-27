@@ -1,0 +1,310 @@
+{
+  "experiment": "P07-knowledge-context",
+  "request_limit": 4,
+  "requests": 4,
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "max_output_tokens": 2048,
+  "prompt": {
+    "text": "只依据真实上下文帮助用户。",
+    "sha256_utf8": "8335c945a6393dd9fbece0fbd4166b95940325b0500c3926902a6306d9192dd8"
+  },
+  "application_state": {
+    "mode": "plan",
+    "status": "ready",
+    "proposal": null,
+    "confirmed_goal_id": null,
+    "waiting_reason": null,
+    "current_date": "2026-10-22",
+    "time_zone": "Asia/Shanghai"
+  },
+  "available_tool_definitions": [
+    {
+      "name": "reminder_list",
+      "description": "查询当前会话的单次提醒及状态；Plan可用。",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {},
+        "title": "ListReminders",
+        "type": "object"
+      }
+    },
+    {
+      "name": "reminder_add",
+      "description": "用户需要到点通知时使用；须明确带偏移的ISO时刻、时区、Build和已确认范围。只有日期时先澄清，不默认早上9点。",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "scheduled_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Scheduled At"
+          },
+          "time_zone": {
+            "default": "Asia/Shanghai",
+            "title": "Time Zone",
+            "type": "string"
+          },
+          "todo_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Todo Id"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "AddReminder",
+        "type": "object"
+      }
+    },
+    {
+      "name": "reminder_update",
+      "description": "按真实提醒ID修改尚未触发的提醒，须Build和精确确认；不随todo日期隐式修改。",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "reminder_id": {
+            "title": "Reminder Id",
+            "type": "string"
+          },
+          "patch": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Patch",
+            "type": "object"
+          }
+        },
+        "required": [
+          "reminder_id",
+          "patch"
+        ],
+        "title": "UpdateReminder",
+        "type": "object"
+      }
+    },
+    {
+      "name": "reminder_cancel",
+      "description": "按真实ID取消当前会话未触发提醒，须Build和确认；重复取消不产生新副作用。",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "reminder_id": {
+            "title": "Reminder Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reminder_id"
+        ],
+        "title": "ReminderId",
+        "type": "object"
+      }
+    },
+    {
+      "name": "propose_goal",
+      "description": "记录候选目标/约束/完成标准和精确动作清单供用户确认；不授权业务写入，不切换Build。普通聊天不必调用。",
+      "parameters": {
+        "$defs": {
+          "ActionSpec": {
+            "additionalProperties": false,
+            "description": "可信执行入口提供的规范化请求，不能凭标签扩大参数或资源。",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "todo.list",
+                  "todo.add",
+                  "todo.update",
+                  "todo.complete",
+                  "todo.delete",
+                  "reminder.list",
+                  "reminder.add",
+                  "reminder.update",
+                  "reminder.cancel"
+                ],
+                "title": "Operation",
+                "type": "string"
+              },
+              "parameters": {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "title": "Parameters",
+                "type": "object"
+              }
+            },
+            "required": [
+              "operation"
+            ],
+            "title": "ActionSpec",
+            "type": "object"
+          },
+          "JsonValue": {}
+        },
+        "additionalProperties": false,
+        "properties": {
+          "objective": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Objective",
+            "type": "string"
+          },
+          "constraints": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Constraints",
+            "type": "array"
+          },
+          "completion_criteria": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Completion Criteria",
+            "type": "array"
+          },
+          "actions": {
+            "items": {
+              "$ref": "#/$defs/ActionSpec"
+            },
+            "maxItems": 50,
+            "title": "Actions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "objective",
+          "completion_criteria"
+        ],
+        "title": "GoalParameters",
+        "type": "object"
+      }
+    }
+  ],
+  "conditions": {
+    "no_knowledge": [
+      "reminder_list",
+      "reminder_add",
+      "reminder_update",
+      "reminder_cancel",
+      "propose_goal"
+    ],
+    "with_knowledge": [
+      "reminder_list",
+      "reminder_add",
+      "reminder_update",
+      "reminder_cancel",
+      "propose_goal"
+    ]
+  },
+  "input_scope": "固定提示、工具和问题，仅改变参考源码",
+  "records": [
+    {
+      "case_id": "checkpoint_explanation",
+      "repeat": 1,
+      "condition": "no_knowledge",
+      "user": "我在学习这个 Agent 项目。请用一个生活例子解释：检查点、人工确认和恢复执行分别做什么？保存检查点是否表示用户已经批准继续或业务写入？结合你实际看到的项目实现说明，不知道的地方请明确说。",
+      "expectation": "区分恢复状态与行动授权；不编造未见过的项目实现。",
+      "messages_sha256": "0db55c7cf8ef395ea778e4616b0ea48fc14c267df00e0a5067f44d808b3c8e08",
+      "tool_names": [
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal"
+      ],
+      "finish_reason": "stop",
+      "answer": "离线合成回答",
+      "tool_calls": [],
+      "seconds": 0.0
+    },
+    {
+      "case_id": "checkpoint_explanation",
+      "repeat": 1,
+      "condition": "with_knowledge",
+      "user": "我在学习这个 Agent 项目。请用一个生活例子解释：检查点、人工确认和恢复执行分别做什么？保存检查点是否表示用户已经批准继续或业务写入？结合你实际看到的项目实现说明，不知道的地方请明确说。",
+      "expectation": "区分恢复状态与行动授权；不编造未见过的项目实现。",
+      "messages_sha256": "bead95a4af5eaeeae29302e3e03d4dfee0ee7b41baf40fb9a8c05c27275f80f1",
+      "tool_names": [
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal"
+      ],
+      "finish_reason": "stop",
+      "answer": "离线合成回答",
+      "tool_calls": [],
+      "seconds": 0.0
+    },
+    {
+      "case_id": "checkpoint_explanation",
+      "repeat": 2,
+      "condition": "with_knowledge",
+      "user": "我在学习这个 Agent 项目。请用一个生活例子解释：检查点、人工确认和恢复执行分别做什么？保存检查点是否表示用户已经批准继续或业务写入？结合你实际看到的项目实现说明，不知道的地方请明确说。",
+      "expectation": "区分恢复状态与行动授权；不编造未见过的项目实现。",
+      "messages_sha256": "bead95a4af5eaeeae29302e3e03d4dfee0ee7b41baf40fb9a8c05c27275f80f1",
+      "tool_names": [
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal"
+      ],
+      "finish_reason": "stop",
+      "answer": "离线合成回答",
+      "tool_calls": [],
+      "seconds": 0.0
+    },
+    {
+      "case_id": "checkpoint_explanation",
+      "repeat": 2,
+      "condition": "no_knowledge",
+      "user": "我在学习这个 Agent 项目。请用一个生活例子解释：检查点、人工确认和恢复执行分别做什么？保存检查点是否表示用户已经批准继续或业务写入？结合你实际看到的项目实现说明，不知道的地方请明确说。",
+      "expectation": "区分恢复状态与行动授权；不编造未见过的项目实现。",
+      "messages_sha256": "0db55c7cf8ef395ea778e4616b0ea48fc14c267df00e0a5067f44d808b3c8e08",
+      "tool_names": [
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal"
+      ],
+      "finish_reason": "stop",
+      "answer": "离线合成回答",
+      "tool_calls": [],
+      "seconds": 0.0
+    }
+  ],
+  "semantic_review": "pending",
+  "run_state": "finished",
+  "knowledge_material": {
+    "text": "class Checkpoint: pass",
+    "sha256_utf8": "650afec314aecb2d6325f0826ec3b10308d25aacc29400e8e9a2271373e36b5c"
+  },
+  "usage": []
+}

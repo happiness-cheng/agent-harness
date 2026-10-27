@@ -1,0 +1,33 @@
+[
+  {
+    "all_bound": 30663,
+    "current_only_bound": 28008,
+    "max_input_bound": 27648,
+    "per_role": [
+      [
+        "system",
+        8900
+      ],
+      [
+        "user",
+        110
+      ],
+      [
+        "assistant",
+        463
+      ],
+      [
+        "tool",
+        2998
+      ],
+      [
+        "tool",
+        4295
+      ],
+      [
+        "user",
+        161
+      ]
+    ]
+  }
+]

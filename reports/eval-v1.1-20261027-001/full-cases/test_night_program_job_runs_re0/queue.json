@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "policy": {
+    "hours": 10,
+    "deepseek_usd": 0,
+    "codex_calls": 0,
+    "reserve_ratio": 0.2,
+    "codex_timeout_seconds": 180
+  },
+  "started_at": 1793077526.6733286,
+  "jobs": {
+    "regression": {
+      "spec": {
+        "id": "regression",
+        "goal": "运行现有计算器回归",
+        "kind": "program",
+        "task": {
+          "id": "project-regression",
+          "category": "runtime",
+          "prompt": "运行现有计算器回归",
+          "evaluation": "deterministic",
+          "data_classification": "synthetic",
+          "profile": "plain",
+          "parameters": {},
+          "mode": "plan",
+          "actions": [],
+          "tools": [],
+          "fixture": "empty",
+          "max_model_calls": 8,
+          "segment_model_calls": 8,
+          "max_tool_calls": 12,
+          "max_rounds": 8,
+          "timeout_seconds": 120.0,
+          "recovery": false,
+          "live_eligible": false,
+          "model": "deepseek-flash",
+          "reasoning_effort": "high",
+          "output_tokens": null,
+          "checks": [
+            {
+              "id": "pytest",
+              "layer": "outcome",
+              "kind": "test_exit",
+              "expected": 0,
+              "hard_safety": false
+            }
+          ],
+          "expected_verdict": "PASS"
+        },
+        "priority": 0,
+        "dependencies": [],
+        "requires_confirmation": false,
+        "risk": "low",
+        "max_retries": 1,
+        "allow_escalation": false,
+        "max_deepseek_usd": 0.75,
+        "allowed_paths": [],
+        "operation": "regression",
+        "test_paths": [
+          "tests/unit/test_calculator.py"
+        ]
+      },
+      "status": "COMPLETED",
+      "attempts": [
+        {
+          "route": "deterministic",
+          "started_at": 1793077526.6809142,
+          "directory": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1.1-20261027-001\\full-cases\\test_night_program_job_runs_re0\\attempts\\regression\\attempt-1",
+          "effective_spec_sha256": "ef33c88f4ac38c1e2ab25d55b53e9dcccdc6a1c99c18f7a4a3b97e63a58845e9",
+          "ended_at": 1793077534.7053442,
+          "outcome": {
+            "verdict": "PASS",
+            "reason": "隔离项目测试退出码：0",
+            "evidence_refs": [
+              "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1.1-20261027-001\\full-cases\\test_night_program_job_runs_re0\\attempts\\regression\\attempt-1\\result.json"
+            ],
+            "deepseek_usd_upper": 0.0,
+            "cost_known": true,
+            "budget_blocked": false,
+            "non_retryable": false,
+            "codex_invocations": 0,
+            "provider_blocked": false
+          },
+          "evidence_sha256": "89719420f282db6509bc8a40a2a45417322398cf6509ff2087d5afcc64b6dc0d"
+        }
+      ],
+      "reason": "独立验收通过，证据已保存",
+      "escalations": 0
+    }
+  },
+  "usage": {
+    "deepseek_usd_upper": 0,
+    "reserved_deepseek_usd": 0,
+    "codex_calls": 0,
+    "observed_codex_invocations": 0
+  },
+  "quota_observability": "UNOBSERVABLE",
+  "provider_blocks": {},
+  "events": [],
+  "clock_kind": "WALL_CLOCK",
+  "executor_kind": "EXISTING_HARNESS_AND_CODEX_ADAPTER",
+  "last_finished_at": 1793077534.7214434,
+  "stop_reason": "no_eligible_jobs"
+}

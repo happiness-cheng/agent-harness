@@ -1,0 +1,367 @@
+{
+  "summary": {
+    "overall": "NO_VERIFIED_GAIN",
+    "runs": 6,
+    "all_verdicts_fail": true,
+    "generation_requests": 14,
+    "request_limit": 42,
+    "provider_errors_total": 0,
+    "distinct_sessions": 6,
+    "distinct_owners": 6,
+    "all_limits_respected": true,
+    "research_branch_reached": false,
+    "all_new_business_containers_empty": true,
+    "total_ledger_spent_upper": "0.027355",
+    "total_open_reservations": 0,
+    "source_and_observer_hashes": {
+      "baseline": "c953ec972ec5d6825d009509e5bbf203b8e3b8dcba3456f26e5be2fcf24a60f7",
+      "candidate": "41a430b128c946bb1fac419bfc5040ceee820c548cb37161ea748e9de9d49669",
+      "observer": "08599bab5de6b2178e5aa8d6a49c305a6b92a7a75c02a0b29ac95467f0f42a14"
+    },
+    "frozen_hashes_match": true,
+    "paired_first_inputs": [
+      {
+        "case_index": 0,
+        "first_model_visible_messages_equal": true,
+        "first_tool_names_equal": true,
+        "first_messages_sha256": "6871fc7310cea792765a6ef60370188de2c41307dca49f251d172b79145b083d"
+      },
+      {
+        "case_index": 1,
+        "first_model_visible_messages_equal": true,
+        "first_tool_names_equal": true,
+        "first_messages_sha256": "c8592113277c7322d036830c45f945cc7ee61ec904948a5025e85933c1e6cfa1"
+      },
+      {
+        "case_index": 2,
+        "first_model_visible_messages_equal": true,
+        "first_tool_names_equal": true,
+        "first_messages_sha256": "953c67ead68245942009f1254737c8fbc6507b6be54d967648becad6cfefd94f"
+      }
+    ],
+    "raw_reasoning_or_provider_state_exported": false,
+    "audit_performed_new_provider_calls": false,
+    "audit_read_only_new_experiment_databases": true
+  },
+  "runs": [
+    {
+      "run": "baseline-0",
+      "case": "psf-archived-excerpt",
+      "receipt_verdict": "FAIL",
+      "observer_verdict": "FAIL",
+      "session_status": "completed",
+      "task_error": null,
+      "session_id": "7e2991fe-7c8f-41ca-b04b-c458a2e6506b",
+      "owner_id": "4fa2ebde-c85a-4cd2-93da-ba685ed04de6",
+      "owner_matches_observer": true,
+      "session_matches_observer": true,
+      "session_count": 1,
+      "requested_tool_names": [
+        "recall_memory",
+        "read_session_state"
+      ],
+      "successful_tool_returns": 2,
+      "not_started_returns": 0,
+      "trace_model_events": 2,
+      "trace_tool_events": 2,
+      "research_branch_requested": false,
+      "research_model_phase_seen": false,
+      "research_trace_seen": false,
+      "artifact_count": 0,
+      "todo_count": 0,
+      "reminder_container_empty": true,
+      "limits": {
+        "model_calls": 7,
+        "tool_calls": 3
+      },
+      "usage": {
+        "model_calls": 2,
+        "tool_calls": 2,
+        "by_purpose": {
+          "main": {
+            "model_calls": 2,
+            "tool_calls": 2
+          }
+        }
+      },
+      "limits_respected": true,
+      "model_call_counts_match": true,
+      "provider_errors": [],
+      "ledger_limit": 0.25,
+      "ledger_spent_upper": 0.00387,
+      "open_reservation_count": 0,
+      "formula_peak_cost_unrounded": "0.0038685",
+      "live_source_label": "LIVE_PROVIDER_FROZEN_IO",
+      "new_model_decision_tested": true,
+      "audit_search_count": 0,
+      "audit_read_count": 0,
+      "audit_external_fetch_count": 0
+    },
+    {
+      "run": "baseline-1",
+      "case": "warranty-exclusion",
+      "receipt_verdict": "FAIL",
+      "observer_verdict": "FAIL",
+      "session_status": "completed",
+      "task_error": null,
+      "session_id": "badfd1ec-3be3-4dfd-bd42-758e21bb3afc",
+      "owner_id": "f2266bde-04e6-49fc-b9db-84c9c7eb2c3a",
+      "owner_matches_observer": true,
+      "session_matches_observer": true,
+      "session_count": 1,
+      "requested_tool_names": [
+        "read_session_state",
+        "recall_memory"
+      ],
+      "successful_tool_returns": 2,
+      "not_started_returns": 0,
+      "trace_model_events": 2,
+      "trace_tool_events": 2,
+      "research_branch_requested": false,
+      "research_model_phase_seen": false,
+      "research_trace_seen": false,
+      "artifact_count": 0,
+      "todo_count": 0,
+      "reminder_container_empty": true,
+      "limits": {
+        "model_calls": 7,
+        "tool_calls": 3
+      },
+      "usage": {
+        "model_calls": 2,
+        "tool_calls": 2,
+        "by_purpose": {
+          "main": {
+            "model_calls": 2,
+            "tool_calls": 2
+          }
+        }
+      },
+      "limits_respected": true,
+      "model_call_counts_match": true,
+      "provider_errors": [],
+      "ledger_limit": 0.25,
+      "ledger_spent_upper": 0.003807,
+      "open_reservation_count": 0,
+      "formula_peak_cost_unrounded": "0.0038058",
+      "live_source_label": "LIVE_PROVIDER_FROZEN_IO",
+      "new_model_decision_tested": true,
+      "audit_search_count": 0,
+      "audit_read_count": 0,
+      "audit_external_fetch_count": 0
+    },
+    {
+      "run": "baseline-2",
+      "case": "api-timeout",
+      "receipt_verdict": "FAIL",
+      "observer_verdict": "FAIL",
+      "session_status": "completed",
+      "task_error": null,
+      "session_id": "5c01a0fb-eb33-4ab2-b5ef-496055cb7b24",
+      "owner_id": "59deea90-262b-4526-b8dc-1920017ac1d6",
+      "owner_matches_observer": true,
+      "session_matches_observer": true,
+      "session_count": 1,
+      "requested_tool_names": [
+        "read_session_state"
+      ],
+      "successful_tool_returns": 1,
+      "not_started_returns": 0,
+      "trace_model_events": 2,
+      "trace_tool_events": 1,
+      "research_branch_requested": false,
+      "research_model_phase_seen": false,
+      "research_trace_seen": false,
+      "artifact_count": 0,
+      "todo_count": 0,
+      "reminder_container_empty": true,
+      "limits": {
+        "model_calls": 7,
+        "tool_calls": 3
+      },
+      "usage": {
+        "model_calls": 2,
+        "tool_calls": 1,
+        "by_purpose": {
+          "main": {
+            "model_calls": 2,
+            "tool_calls": 1
+          }
+        }
+      },
+      "limits_respected": true,
+      "model_call_counts_match": true,
+      "provider_errors": [],
+      "ledger_limit": 0.25,
+      "ledger_spent_upper": 0.005013,
+      "open_reservation_count": 0,
+      "formula_peak_cost_unrounded": "0.0050121",
+      "live_source_label": "LIVE_PROVIDER_FROZEN_IO",
+      "new_model_decision_tested": true,
+      "audit_search_count": 0,
+      "audit_read_count": 0,
+      "audit_external_fetch_count": 0
+    },
+    {
+      "run": "candidate-0",
+      "case": "psf-archived-excerpt",
+      "receipt_verdict": "FAIL",
+      "observer_verdict": "FAIL",
+      "session_status": "partial",
+      "task_error": "budget_checkpoint",
+      "session_id": "e175cbe8-2ad8-454b-871e-23ba21172d9d",
+      "owner_id": "7f763f7d-3a2b-4d0c-a9d4-4466ef25a126",
+      "owner_matches_observer": true,
+      "session_matches_observer": true,
+      "session_count": 1,
+      "requested_tool_names": [
+        "recall_memory",
+        "recall_memory",
+        "read_session_state",
+        "recall_memory"
+      ],
+      "successful_tool_returns": 3,
+      "not_started_returns": 1,
+      "trace_model_events": 4,
+      "trace_tool_events": 4,
+      "research_branch_requested": false,
+      "research_model_phase_seen": false,
+      "research_trace_seen": false,
+      "artifact_count": 0,
+      "todo_count": 0,
+      "reminder_container_empty": true,
+      "limits": {
+        "model_calls": 7,
+        "tool_calls": 3
+      },
+      "usage": {
+        "model_calls": 4,
+        "tool_calls": 3,
+        "by_purpose": {
+          "main": {
+            "model_calls": 4,
+            "tool_calls": 3
+          }
+        }
+      },
+      "limits_respected": true,
+      "model_call_counts_match": true,
+      "provider_errors": [],
+      "ledger_limit": 0.25,
+      "ledger_spent_upper": 0.006548,
+      "open_reservation_count": 0,
+      "formula_peak_cost_unrounded": "0.0065463",
+      "live_source_label": "LIVE_PROVIDER_FROZEN_IO",
+      "new_model_decision_tested": true,
+      "audit_search_count": 0,
+      "audit_read_count": 0,
+      "audit_external_fetch_count": 0
+    },
+    {
+      "run": "candidate-1",
+      "case": "warranty-exclusion",
+      "receipt_verdict": "FAIL",
+      "observer_verdict": "FAIL",
+      "session_status": "completed",
+      "task_error": null,
+      "session_id": "a2c59d57-c083-4428-937e-1ef99b3a9660",
+      "owner_id": "bfe7e8f0-2bcf-4226-acf2-724fc158432c",
+      "owner_matches_observer": true,
+      "session_matches_observer": true,
+      "session_count": 1,
+      "requested_tool_names": [
+        "read_session_state",
+        "recall_memory"
+      ],
+      "successful_tool_returns": 2,
+      "not_started_returns": 0,
+      "trace_model_events": 2,
+      "trace_tool_events": 2,
+      "research_branch_requested": false,
+      "research_model_phase_seen": false,
+      "research_trace_seen": false,
+      "artifact_count": 0,
+      "todo_count": 0,
+      "reminder_container_empty": true,
+      "limits": {
+        "model_calls": 7,
+        "tool_calls": 3
+      },
+      "usage": {
+        "model_calls": 2,
+        "tool_calls": 2,
+        "by_purpose": {
+          "main": {
+            "model_calls": 2,
+            "tool_calls": 2
+          }
+        }
+      },
+      "limits_respected": true,
+      "model_call_counts_match": true,
+      "provider_errors": [],
+      "ledger_limit": 0.25,
+      "ledger_spent_upper": 0.004019,
+      "open_reservation_count": 0,
+      "formula_peak_cost_unrounded": "0.0040176",
+      "live_source_label": "LIVE_PROVIDER_FROZEN_IO",
+      "new_model_decision_tested": true,
+      "audit_search_count": 0,
+      "audit_read_count": 0,
+      "audit_external_fetch_count": 0
+    },
+    {
+      "run": "candidate-2",
+      "case": "api-timeout",
+      "receipt_verdict": "FAIL",
+      "observer_verdict": "FAIL",
+      "session_status": "completed",
+      "task_error": null,
+      "session_id": "e3557dba-c3e1-4152-b17c-20c40d73479e",
+      "owner_id": "501e6593-c56a-41f4-9368-9f7ffac454a2",
+      "owner_matches_observer": true,
+      "session_matches_observer": true,
+      "session_count": 1,
+      "requested_tool_names": [
+        "read_session_state",
+        "recall_memory"
+      ],
+      "successful_tool_returns": 2,
+      "not_started_returns": 0,
+      "trace_model_events": 2,
+      "trace_tool_events": 2,
+      "research_branch_requested": false,
+      "research_model_phase_seen": false,
+      "research_trace_seen": false,
+      "artifact_count": 0,
+      "todo_count": 0,
+      "reminder_container_empty": true,
+      "limits": {
+        "model_calls": 7,
+        "tool_calls": 3
+      },
+      "usage": {
+        "model_calls": 2,
+        "tool_calls": 2,
+        "by_purpose": {
+          "main": {
+            "model_calls": 2,
+            "tool_calls": 2
+          }
+        }
+      },
+      "limits_respected": true,
+      "model_call_counts_match": true,
+      "provider_errors": [],
+      "ledger_limit": 0.25,
+      "ledger_spent_upper": 0.004098,
+      "open_reservation_count": 0,
+      "formula_peak_cost_unrounded": "0.0040977",
+      "live_source_label": "LIVE_PROVIDER_FROZEN_IO",
+      "new_model_decision_tested": true,
+      "audit_search_count": 0,
+      "audit_read_count": 0,
+      "audit_external_fetch_count": 0
+    }
+  ]
+}

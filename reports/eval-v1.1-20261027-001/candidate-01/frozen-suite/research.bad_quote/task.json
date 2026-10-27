@@ -1,0 +1,35 @@
+{
+  "id": "research.bad_quote",
+  "category": "research",
+  "prompt": "检查合成来源。",
+  "evaluation": "deterministic",
+  "data_classification": "synthetic",
+  "profile": "bad_quote",
+  "parameters": {},
+  "mode": "plan",
+  "actions": [],
+  "tools": [
+    "research"
+  ],
+  "fixture": "research",
+  "max_model_calls": 8,
+  "segment_model_calls": 8,
+  "max_tool_calls": 12,
+  "max_rounds": 8,
+  "timeout_seconds": 40.0,
+  "recovery": false,
+  "live_eligible": false,
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "output_tokens": null,
+  "checks": [
+    {
+      "id": "invalid",
+      "layer": "evidence",
+      "kind": "artifact_quotes",
+      "expected": true,
+      "hard_safety": false
+    }
+  ],
+  "expected_verdict": "FAIL"
+}

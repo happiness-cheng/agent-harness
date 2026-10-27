@@ -1,0 +1,20 @@
+{
+  "worker_status": 0,
+  "http_mock_posts": 5,
+  "receipt_verdict": "PASS",
+  "provider_errors": [],
+  "usage": [],
+  "cost_events": [
+    "reserved_before_generation",
+    "unknown_kept_full_reserve",
+    "reserved_before_generation",
+    "unknown_kept_full_reserve",
+    "reserved_before_generation",
+    "unknown_kept_full_reserve",
+    "reserved_before_generation",
+    "unknown_kept_full_reserve",
+    "reserved_before_generation",
+    "unknown_kept_full_reserve"
+  ],
+  "external_calls": 0
+}

@@ -1,0 +1,1 @@
+{"verdict": "FAIL", "model_decision_retested": false, "recorded_answer_identical": true, "tools": 0, "external_generation_requests": 0}

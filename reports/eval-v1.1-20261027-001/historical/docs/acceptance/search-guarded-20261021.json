@@ -1,0 +1,36 @@
+{
+  "endpoint": "https://www.bing.com/search",
+  "query": "Python sqlite3 documentation",
+  "query_cap": 1,
+  "llm_requests": 0,
+  "result": {
+    "status": "ok",
+    "results": [
+      {
+        "title": "Welcome to  Python .org",
+        "url": "https://www.python.org/",
+        "source": "www.python.org",
+        "summary": "The mission of the Python Software Foundation is to promote, protect, and advance the Python programming language, and to … 深入閱讀",
+        "published_at": null,
+        "retrieved_at": "2026-10-20T17:06:24.787482+00:00"
+      },
+      {
+        "title": "Download  Python  |  Python .org",
+        "url": "https://www.python.org/downloads/",
+        "source": "www.python.org",
+        "summary": "Starting with the Python 3.11.0, Python 3.10.7, and Python 3.9.14 releases, CPython release artifacts are signed with Sigstore. See …",
+        "published_at": null,
+        "retrieved_at": "2026-10-20T17:06:24.787503+00:00"
+      },
+      {
+        "title": "Python  基础教程 | 菜鸟教程",
+        "url": "https://www.runoob.com/python/python-tutorial.html",
+        "source": "www.runoob.com",
+        "summary": "Python 基础教程 Python 是一种解释型、面向对象、动态数据类型的高级程序设计语言。 Python 由 Guido van Rossum 于 1989 年底 …",
+        "published_at": null,
+        "retrieved_at": "2026-10-20T17:06:24.787514+00:00"
+      }
+    ]
+  },
+  "requests": 1
+}

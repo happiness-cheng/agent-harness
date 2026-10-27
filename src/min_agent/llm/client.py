@@ -169,6 +169,10 @@ class OpenAIResponsesModel:
                           if key in {"input_tokens", "output_tokens", "total_tokens"}
                           and type(value) is int and 0 <= value <= 1_000_000_000}
                 if record:
+                    details=usage.get('input_tokens_details',{})
+                    cached=details.get('cached_tokens') if isinstance(details,dict) else None
+                    if type(cached) is int and 0<=cached<=record.get('input_tokens',0):
+                        record['cached_input_tokens']=cached
                     with self._lock: self._usage.append({"request": self._requests, **record})
             return result
         except httpx.HTTPError:

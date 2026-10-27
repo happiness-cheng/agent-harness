@@ -1,0 +1,8 @@
+{
+  "id": "psf-archived-excerpt",
+  "goal": "核对归档片段中的PSF使命短句；引用实际读到的文字，不补全未保存的全文。",
+  "query": "Python Software Foundation mission statement official",
+  "url": "https://www.python.org/",
+  "text": "The mission of the Python Software Foundation is to promote, protect",
+  "classification": "historical_public_excerpt"
+}

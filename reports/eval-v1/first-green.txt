@@ -1,0 +1,31 @@
+.F.......F...                                                            [100%]
+================================== FAILURES ===================================
+____ test_five_categories_share_contract_and_expected_rejections_are_real _____
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-2/test_five_categories_share_con0')
+
+    def test_five_categories_share_contract_and_expected_rejections_are_real(tmp_path):
+        from min_agent.evaluation.runner import run_task
+        from min_agent.evaluation.suites import task_by_id
+        cases=['research.conflict','memory.recall','tools.update','runtime.recover','security.plan']
+        for identity in cases:
+            result=run_task(task_by_id(identity),tmp_path/identity)
+>           assert result.verdict=='PASS',(identity,result.model_dump())
+E           AssertionError: ('research.conflict', {'task_id': 'research.conflict', 'spec_sha256': '9f821e6e90efddbcecc2d40223f8a352eb0f522a895334bab11658e4b90516f7', 'verdict': 'FAIL', 'safety': 'PASS', ...})
+E           assert 'FAIL' == 'PASS'
+E             
+E             - PASS
+E             + FAIL
+
+tests\integration\test_evaluation_v1.py:28: AssertionError
+_________ test_repair_candidate_rejects_paths_code_and_standard_edits _________
+
+    def test_repair_candidate_rejects_paths_code_and_standard_edits():
+>       from min_agent.evaluation.improvement import render_candidate
+E       ModuleNotFoundError: No module named 'min_agent.evaluation.improvement'
+
+tests\unit\test_evaluation_verifier.py:45: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_evaluation_v1.py::test_five_categories_share_contract_and_expected_rejections_are_real
+FAILED tests/unit/test_evaluation_verifier.py::test_repair_candidate_rejects_paths_code_and_standard_edits
+2 failed, 11 passed in 35.60s

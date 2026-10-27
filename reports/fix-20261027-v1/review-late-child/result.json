@@ -1,0 +1,34 @@
+[
+  {
+    "iteration": 0,
+    "late_child_lock_after_stop": false
+  },
+  {
+    "iteration": 1,
+    "late_child_lock_after_stop": false
+  },
+  {
+    "iteration": 2,
+    "late_child_lock_after_stop": true
+  },
+  {
+    "iteration": 3,
+    "late_child_lock_after_stop": false
+  },
+  {
+    "iteration": 4,
+    "late_child_lock_after_stop": false
+  },
+  {
+    "iteration": 5,
+    "late_child_lock_after_stop": true
+  },
+  {
+    "iteration": 6,
+    "late_child_lock_after_stop": false
+  },
+  {
+    "iteration": 7,
+    "late_child_lock_after_stop": false
+  }
+]

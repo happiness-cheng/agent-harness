@@ -1,0 +1,4 @@
+# 固定源码/实验记录的原始字节，避免Windows换行转换使冻结hash失效。
+/src/** -text
+/reports/** -text
+/docs/acceptance/** -text

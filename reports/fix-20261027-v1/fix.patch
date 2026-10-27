@@ -1,0 +1,748 @@
+--- a/src/min_agent/evaluation/processes.py
++++ b/src/min_agent/evaluation/processes.py
+@@ -1,6 +1,5 @@
+ """仅管理本模块创建的进程树；不按名称结束进程、不绕过Runtime预算。"""
+ import os
+-from pathlib import Path
+ import signal
+ import subprocess
+ 
+@@ -9,29 +8,44 @@
+     if options.get('shell'):
+         raise ValueError('受控任务不使用隐式Shell')
+     if os.name == 'nt':
+-        options['creationflags'] = options.get('creationflags', 0) | subprocess.CREATE_NO_WINDOW
++        from min_agent.evaluation._windows_job import WindowsJob
++        job = WindowsJob()
++        # 先纳入 Job，再恢复主线程，关闭启动器与后代之间的登记竞态。
++        options['creationflags'] = options.get('creationflags', 0) | subprocess.CREATE_NO_WINDOW | 0x4
++        process = None
++        try:
++            process = subprocess.Popen(command, **options)
++            job.assign(process.pid)
++            process._owned_job = job
++            job.resume(process.pid)
++        except BaseException:
++            try:
++                if process is not None:
++                    process.kill()
++                    process.communicate(timeout=10)
++            finally:
++                job.close()
++            raise
+     else:
+         options['start_new_session'] = True
+-    return subprocess.Popen(command, **options)
++        process = subprocess.Popen(command, **options)
++    process._owned_scope = True
++    return process
+ 
+ 
+ def stop_owned(process):
+-    """先终止仍活动的自有进程树，再排空管道；不能证明退出时直接报错。"""
+-    if process.poll() is None:
++    """父进程退出后仍清理后代；只有本模块创建的进程可以被清理。"""
++    if not hasattr(process, '_owned_scope'):
++        raise ValueError('只能停止 start_owned 创建的进程')
++    if process._owned_scope:
+         if os.name == 'nt':
+-            # Windows venv的Popen PID可能只是启动器，必须包括其后代。
+-            taskkill = Path(os.environ['SystemRoot'])/'System32'/'taskkill.exe'
+-            stopped = subprocess.run([str(taskkill), '/PID', str(process.pid), '/T', '/F'],
+-                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+-                                     timeout=10, creationflags=subprocess.CREATE_NO_WINDOW)
+-            if stopped.returncode and process.poll() is None:
+-                raise RuntimeError('无法确认本次子进程树已停止，保留未知结果')
++            process._owned_job.stop()
+         else:
+             try:
+                 os.killpg(process.pid, signal.SIGKILL)
+             except ProcessLookupError:
+                 pass
+-    # 后代继承的输出管道也必须关闭，不能只等待启动器的句柄。
++        process._owned_scope = False
+     return process.communicate(timeout=10)
+ 
+ 
+@@ -50,4 +64,6 @@
+     except BaseException:
+         stop_owned(process)
+         raise
++    # 根进程正常退出也可能留下重定向输出的后代。
++    stop_owned(process)
+     return subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
+--- a/src/min_agent/evaluation/runner.py
++++ b/src/min_agent/evaluation/runner.py
+@@ -51,23 +51,35 @@
+         if cost_limit is not None:command+=['--cost-limit',str(cost_limit)]
+     options=dict(cwd=source_root,env=dict(os.environ,PYTHONPATH=str(source_root/'src')),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+     if os.name=='nt':options['creationflags']=subprocess.CREATE_NO_WINDOW
+-    start=monotonic();process=start_owned(command,**options);transport='ok'
+-    try:output,_=process.communicate(timeout=min(task.timeout_seconds,wall_timeout) if wall_timeout is not None else task.timeout_seconds)
+-    except subprocess.TimeoutExpired:
+-        # 仅终止本次创建的隔离worker；无法证明外部副作用撤销，必须保留UNKNOWN。
+-        output,_=stop_owned(process);transport='timeout'
+-    except BaseException:
+-        stop_owned(process)
+-        raise
++    start=monotonic();process=None;transport='ok';output=b'';process_failure=None
++    try:process=start_owned(command,**options)
++    except Exception as error:
++        transport='worker_error';process_failure={'stage':'start','error_type':type(error).__name__}
++    if process is not None:
++        try:output,_=process.communicate(timeout=min(task.timeout_seconds,wall_timeout) if wall_timeout is not None else task.timeout_seconds)
++        except subprocess.TimeoutExpired as error:
++            output=error.output or b'';transport='timeout'
++        except BaseException:
++            stop_owned(process)
++            raise
++        try:
++            # 正常退出也清理后代；管道 EOF 不能证明本次进程树已退出。
++            cleaned,_=stop_owned(process)
++            if transport=='timeout':output=cleaned
++        except Exception as error:
++            transport='worker_error';process_failure={'stage':'cleanup','error_type':type(error).__name__}
+     (out/'worker.log').write_bytes(output)
+     observation_file=out/'observation.json'
+-    if transport=='ok' and process.returncode==0 and observation_file.is_file():
++    if transport=='ok' and process is not None and process.returncode==0 and observation_file.is_file():
+         try:observation=Observation.model_validate_json(observation_file.read_text(encoding='utf-8'))
+         except ValueError:transport='worker_error'
+     else:transport='timeout' if transport=='timeout' else 'worker_error'
+     if transport!='ok':
+         observation=Observation(run_id=str(uuid4()),task_id=task.id,version_id=source_version(source_root),
+-            transport_status=transport,elapsed_seconds=monotonic()-start,extra={'worker_exit':process.returncode,'data_classification':task.data_classification})
++            transport_status=transport,elapsed_seconds=monotonic()-start,
++            extra={'worker_exit':process.returncode if process is not None else None,
++                   'data_classification':task.data_classification,
++                   **({'process_failure':process_failure} if process_failure else {})})
+         save_json(observation_file,observation)
+     else:
+         # 父进程重新只读打开真实DB，不能只信worker摘要或模型返回的“已创建”。
+--- a/tests/integration/test_memory_tools.py
++++ b/tests/integration/test_memory_tools.py
+@@ -1,9 +1,25 @@
+ import json
+ 
++import pytest
++
+ from min_agent.application import HarnessApplication
++from min_agent.context import request_bound
+ from min_agent.memory import MemoryJournal
++from min_agent.model_context import ModelContextLimits
+ from min_agent.models import Message, ModelResponse, ToolCall
+ from tests.fakes.model import ScriptedModel
++
++
++class SourceReadModel(ScriptedModel):
++    """合成容量只用于区分来源完整性与超窗暂停，不代表真实Provider。"""
++
++    def __init__(self, script, *, window):
++        super().__init__(script)
++        self.window = window
++
++    def context_limits(self):
++        return ModelContextLimits(model="synthetic-source-read", context_window=self.window,
++                                  max_output_tokens=4096, source="test-fixture:source-read")
+ 
+ 
+ def test_main_runtime_reads_current_state_and_verifiable_archived_source(tmp_path):
+@@ -37,7 +53,13 @@
+         harness.close()
+ 
+ 
+-def test_explicit_source_read_and_structured_recall_are_not_silently_head_truncated(tmp_path):
++@pytest.mark.parametrize(("window", "expected_status"), [
++    pytest.param(65536, "completed", id="sufficient-synthetic-capacity"),
++    pytest.param(32768, "partial", id="original-small-capacity-stops-safely"),
++])
++def test_explicit_source_read_and_structured_recall_are_not_silently_head_truncated(
++    tmp_path, window, expected_status,
++):
+     model = None
+     harness = HarnessApplication(tmp_path / "long-source.sqlite3", model_factory=lambda context: model)
+     try:
+@@ -49,15 +71,33 @@
+         ])
+         harness.sessions.finish(context, task.task_id, status="completed")
+         source = MemoryJournal(harness.sessions, context).select("周报")[0]["events"][0]["source"]
+-        model = ScriptedModel([
++        model = SourceReadModel([
+             ModelResponse(finish_reason="tool_calls", tool_calls=[
+                 ToolCall(id="source-long", name="read_memory_source", arguments={"reference": source}),
+                 ToolCall(id="past", name="recall_memory", arguments={"question": "周报"}),
+             ]),
+             ModelResponse(finish_reason="stop", content="已核对原文中的否定要求"),
+-        ])
++        ], window=window)
+         harness.submit(identity, "请补读完整原要求"); harness.wait(identity)
+-        assert harness.snapshot(identity)["task"]["status"] == "completed"
++        saved = harness.snapshot(identity)
++        assert saved["task"]["status"] == expected_status
++        # 每次真正派发都满足相同的输出预留与安全余量，不能靠截断绕过容量门。
++        for messages, tools in zip(model.calls, model.tool_schemas):
++            assert request_bound(messages, tools, model=model) + 4096 + 1024 <= window
++        if expected_status == "partial":
++            assert saved["task"]["error_code"] == "context_limit"
++            assert len(model.calls) == 1
++            assert not any(message["role"] == "assistant" and
++                           message["content"] == "已核对原文中的否定要求"
++                           for message in saved["messages"])
++            # 原 32K 配置继续安全暂停，但完整结果已保留，不能把暂停说成截断。
++            outcomes = {message["tool_call_id"]: json.loads(message["content"])
++                        for message in saved["messages"] if message["role"] == "tool"}
++            assert json.loads(outcomes["source-long"]["result"])["text"] == text
++            records = json.loads(outcomes["past"]["result"])
++            assert records[0]["events"][0]["truncated"] is True
++            assert records[0]["events"][0]["source"] == source
++            return
+         outcomes = {message.tool_call_id: json.loads(message.content)
+                     for message in model.calls[-1] if message.role == "tool"}
+         assert json.loads(outcomes["source-long"]["result"])["text"] == text
+--- a/tests/unit/test_evaluation_processes.py
++++ b/tests/unit/test_evaluation_processes.py
+@@ -49,11 +49,25 @@
+     assert process.poll() is not None
+ 
+ 
+-def test_timeout_stops_owned_descendants_before_returning(tmp_path):
+-    from min_agent.evaluation.processes import run_owned
++def test_timeout_stops_owned_descendants_before_returning(tmp_path, monkeypatch):
++    from min_agent.evaluation import processes
+     command, options = parent_command(tmp_path)
++    original = processes.start_owned
++
++    def prepared(*args, **kwargs):
++        process = original(*args, **kwargs)
++        end = time.monotonic()+15
++        while not (tmp_path/'ready').exists() and time.monotonic()<end:
++            time.sleep(.05)
++        if not (tmp_path/'ready').exists():
++            processes.stop_owned(process)
++            raise AssertionError('超时测试的持锁环境未准备完成')
++        return process
++
++    # 等持锁环境准备好再启动 communicate 超时，避免把机器启动速度当判据。
++    monkeypatch.setattr(processes, 'start_owned', prepared)
+     with pytest.raises(subprocess.TimeoutExpired):
+-        run_owned(command, timeout=5, **options)
++        processes.run_owned(command, timeout=.2, **options)
+     assert (tmp_path/'ready').exists(), '必须在持锁后触发超时，避免空验收'
+     with DatabaseLease(tmp_path/'resource', {'product':'after-timeout'}):
+         pass
+@@ -64,3 +78,206 @@
+     result = run_owned([sys.executable, '-c', 'print("ok"); raise SystemExit(3)'],
+                        timeout=10, capture_output=True, text=True)
+     assert result.returncode == 3 and result.stdout.strip() == 'ok'
++
++
++def exited_parent_command(tmp_path):
++    """父进程自然退出；后代不继承输出管道，继续持有合成资源锁。"""
++    child = tmp_path/'orphan.py'
++    child.write_text('''from pathlib import Path
++import os,sys,time
++from min_agent.web.launcher import DatabaseLease
++out=Path(sys.argv[1])
++with DatabaseLease(out/'resource', {'product':'owned-orphan-test'}):
++ (out/'ready').write_text(str(os.getpid()),encoding='utf-8')
++ end=time.monotonic()+45
++ while time.monotonic()<end and not (out/'release').exists(): time.sleep(.05)
++''', encoding='utf-8')
++    code = '''import os,subprocess,sys,time
++from pathlib import Path
++out=Path(sys.argv[2])
++flags={'creationflags':subprocess.CREATE_NO_WINDOW} if os.name=='nt' else {}
++subprocess.Popen([sys.executable,'-X','utf8',sys.argv[1],str(out)],
++ stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,**flags)
++end=time.monotonic()+15
++while not (out/'ready').exists() and time.monotonic()<end: time.sleep(.05)
++if not (out/'ready').exists(): raise SystemExit(2)
++print('root-finished')
++'''
++    root = Path(__file__).resolve().parents[2]
++    return ([sys.executable, '-X', 'utf8', '-c', code, str(child), str(tmp_path)],
++            dict(cwd=root, env=dict(os.environ, PYTHONPATH=str(root/'src'))))
++
++
++def release_probe(tmp_path):
++    # RED 时也让探测后代自行结束，保留失败证据但不留下持锁进程。
++    (tmp_path/'release').write_text('release', encoding='utf-8')
++    end = time.monotonic()+12
++    while True:
++        try:
++            with DatabaseLease(tmp_path/'resource', {'product':'probe-cleanup'}):
++                return
++        except DatabaseInUse:
++            if time.monotonic()>=end:
++                raise
++            time.sleep(.05)
++
++
++def test_stop_owned_cleans_descendant_after_root_already_exited(tmp_path):
++    from min_agent.evaluation.processes import start_owned, stop_owned
++    command, options = exited_parent_command(tmp_path)
++    process = start_owned(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **options)
++    try:
++        assert process.wait(timeout=20) == 0
++        with pytest.raises(DatabaseInUse):
++            with DatabaseLease(tmp_path/'resource', {'product':'before-orphan-stop'}):
++                pass
++        stop_owned(process)
++        with DatabaseLease(tmp_path/'resource', {'product':'after-orphan-stop'}):
++            pass
++    finally:
++        release_probe(tmp_path)
++        stop_owned(process)
++
++
++def test_run_owned_cleans_descendants_even_on_success(tmp_path):
++    from min_agent.evaluation.processes import run_owned
++    command, options = exited_parent_command(tmp_path)
++    try:
++        result = run_owned(command, timeout=20, capture_output=True, text=True, **options)
++        assert result.returncode == 0 and result.stdout.strip() == 'root-finished'
++        assert (tmp_path/'ready').exists()
++        with DatabaseLease(tmp_path/'resource', {'product':'after-success'}):
++            pass
++    finally:
++        release_probe(tmp_path)
++
++
++def test_stopping_one_owned_job_does_not_stop_its_sibling(tmp_path):
++    from min_agent.evaluation.processes import start_owned, stop_owned
++    processes = []
++    try:
++        for name in ('first', 'second'):
++            out = tmp_path/name
++            out.mkdir()
++            command, options = exited_parent_command(out)
++            process = start_owned(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **options)
++            processes.append((process, out))
++            assert process.wait(timeout=20) == 0
++        stop_owned(processes[0][0])
++        with DatabaseLease(processes[0][1]/'resource', {'product':'first-stopped'}):
++            pass
++        with pytest.raises(DatabaseInUse):
++            with DatabaseLease(processes[1][1]/'resource', {'product':'second-still-alive'}):
++                pass
++    finally:
++        for process, out in processes:
++            stop_owned(process)
++            release_probe(out)
++
++
++@pytest.mark.skipif(os.name != 'nt', reason='Windows Job 的启动前归属门')
++def test_failed_job_assignment_never_executes_command(tmp_path, monkeypatch):
++    from min_agent.evaluation._windows_job import WindowsJob
++    from min_agent.evaluation.processes import start_owned
++
++    def denied(self, pid):
++        raise OSError('synthetic-assignment-denied')
++
++    monkeypatch.setattr(WindowsJob, 'assign', denied)
++    marker = tmp_path/'must-not-exist'
++    with pytest.raises(OSError, match='synthetic-assignment-denied'):
++        start_owned([sys.executable, '-c',
++                     'from pathlib import Path; import sys; Path(sys.argv[1]).write_text("executed")',
++                     str(marker)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++    assert not marker.exists()
++
++
++def test_owned_command_keeps_input_and_nonzero_status():
++    from min_agent.evaluation.processes import run_owned
++    result = run_owned([sys.executable, '-X', 'utf8', '-c',
++                        'import sys; print(sys.stdin.read()); raise SystemExit(7)'],
++                       input='合成输入', capture_output=True, text=True, encoding='utf-8', timeout=10)
++    assert result.returncode == 7 and result.stdout.strip() == '合成输入'
++
++
++@pytest.mark.skipif(os.name != 'nt', reason='Windows Job 清理异常路径')
++def test_job_query_failure_still_initiates_owned_tree_shutdown(tmp_path, monkeypatch):
++    from min_agent.evaluation._windows_job import WindowsJob
++    from min_agent.evaluation.processes import start_owned, stop_owned
++    command, options = parent_command(tmp_path)
++    process = start_owned(command, **options)
++    try:
++        end = time.monotonic()+12
++        while not (tmp_path/'ready').exists() and time.monotonic()<end:
++            time.sleep(.05)
++        assert (tmp_path/'ready').exists()
++
++        def unavailable(self, deadline):
++            raise OSError('synthetic-job-query-failure')
++
++        monkeypatch.setattr(WindowsJob, '_process_handles', unavailable)
++        with pytest.raises(OSError, match='synthetic-job-query-failure'):
++            stop_owned(process)
++        # 确认失败仍发起终止，不能等 Python 对象何时被回收。
++        process.wait(timeout=5)
++    finally:
++        process._owned_job.close()
++        process.communicate(timeout=10)
++    with DatabaseLease(tmp_path/'resource', {'product':'after-query-failure'}):
++        pass
++
++
++@pytest.mark.skipif(os.name != 'nt', reason='Windows Job 停止阶段的新后代竞态')
++def test_shutdown_blocks_children_created_after_handle_snapshot(tmp_path, monkeypatch):
++    from min_agent.evaluation._windows_job import WindowsJob
++    from min_agent.evaluation.processes import start_owned, stop_owned
++    child = tmp_path/'late-child.py'
++    child.write_text('''from pathlib import Path
++import sys,time
++from min_agent.web.launcher import DatabaseLease
++out=Path(sys.argv[1])
++with DatabaseLease(out/'resource', {'product':'late-child'}):
++ (out/'child-ready').write_text('locked')
++ time.sleep(30)
++''', encoding='utf-8')
++    code = '''from pathlib import Path
++import subprocess,sys,time
++out=Path(sys.argv[1])
++(out/'parent-ready').write_text('waiting')
++end=time.monotonic()+20
++while not (out/'spawn').exists() and time.monotonic()<end: time.sleep(.01)
++try:
++ subprocess.Popen([sys.executable,'-X','utf8',sys.argv[2],str(out)],
++  stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,creationflags=subprocess.CREATE_NO_WINDOW)
++except OSError:
++ (out/'spawn-blocked').write_text('blocked')
++'''
++    root = Path(__file__).resolve().parents[2]
++    process = start_owned([sys.executable, '-X', 'utf8', '-c', code, str(tmp_path), str(child)],
++                          cwd=root, env=dict(os.environ, PYTHONPATH=str(root/'src')),
++                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++    original = WindowsJob._process_handles
++
++    def concurrent_spawn(job, deadline):
++        handles = original(job, deadline)
++        (tmp_path/'spawn').write_text('spawn-now')
++        end = time.monotonic()+12
++        while not any((tmp_path/name).exists() for name in ('child-ready', 'spawn-blocked')):
++            if time.monotonic()>=end:
++                raise AssertionError('受控竞态未得到子进程创建结果')
++            time.sleep(.01)
++        return handles
++
++    try:
++        end = time.monotonic()+12
++        while not (tmp_path/'parent-ready').exists() and time.monotonic()<end:
++            time.sleep(.05)
++        assert (tmp_path/'parent-ready').exists()
++        monkeypatch.setattr(WindowsJob, '_process_handles', concurrent_spawn)
++        stop_owned(process)
++        assert (tmp_path/'spawn-blocked').exists(), '停止阶段仍生成了不在等待清单的新后代'
++        with DatabaseLease(tmp_path/'resource', {'product':'after-late-spawn-stop'}):
++            pass
++    finally:
++        process._owned_job.close()
++        process.communicate(timeout=10)
+--- a/docs/EVALUATION_V1.md
++++ b/docs/EVALUATION_V1.md
+@@ -115,3 +115,15 @@
+ ```
+ 
+ 所有候选/测试工作树保留；不能用main的HEAD代替包含本地修改的源码快照。测试样本是工程开发/诊断集，不据此声称泛化提升或通用自主编程成功率。完整真实结果和版本边界见 `../reports/eval-v1/REPORT.md`。
++
++## 2026-10-27：进程生命周期修复
++
++当前 Windows 隔离任务使用独立 Job Object。`start_owned` 先以 CREATE_SUSPENDED 创建进程，成功加入不允许 breakaway 的 Job 后恢复主线程；登记失败则命令不开始执行。正常结束和超时都调用 `stop_owned`，不能把启动器退出或输出管道 EOF 当成所有后代退出。
++
++停止时先仅对本 Job 关闭新增进程的门，再取得成员同步句柄，调用 TerminateJobObject、等待成员退出并核对活动进程数。停止门只在终止阶段设置，不改变任务执行中的 Runtime 预算。查询或等待失败时显式关闭 Job 发起清理，仍保留 UNKNOWN；不能将发起终止说成已经确认退出。执行器为启动/清理失败保存阶段与异常类型，不导出原始异常中的环境或认证信息。
++
++官方依据：[Job Objects §Managing Processes in Jobs / Terminating Jobs](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects)、[Process Creation Flags §CREATE_SUSPENDED](https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags)、[JOBOBJECT_BASIC_LIMIT_INFORMATION §ActiveProcessLimit](https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-jobobject_basic_limit_information)、[TerminateProcess §Remarks](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminateprocess)。本机还以合成持锁进程验证了停止门不会终止既有成员、会拒绝新建进程。它管理可信任务的生命周期，不是恶意代码沙箱，不能撤销远端已收到的操作。非 Windows 分支本轮未实机验证。
++
++长原文回归的旧失败经调查属于工程测试的容量假设：默认 32K Mock 在工具返回后连当前完整轮都无法容纳。生产上下文实现未改；测试分别声明足够的合成容量验证完整送达，以及保留原 32K 配置验证 context_limit 暂停和原文留存。64K 是测试模型显式能力，不是对真实 Provider 窗口的猜测，也不是同输入下 Memory 能力提升。冻结的 Evaluation TaskSpec、Gold 和旧失败报告保留。
++
++本轮执行结果、RED/GREEN、独立审查、源码快照及复现命令见[修复报告](../reports/fix-20261027-v1/REPORT.md)。此前真实生成和研究失败仍以旧报告为证；本轮默认离线，没有新真实模型质量或长时间值守结论。
+--- a/src/min_agent/evaluation/_windows_job.py
++++ b/src/min_agent/evaluation/_windows_job.py
+@@ -0,0 +1,237 @@
++"""Windows 自有进程容器：挂起创建后纳入 Job，退出与输出管道无关。"""
++import ctypes
++from ctypes import wintypes
++import time
++
++
++class _BasicLimits(ctypes.Structure):
++    _fields_ = [
++        ('PerProcessUserTimeLimit', ctypes.c_longlong),
++        ('PerJobUserTimeLimit', ctypes.c_longlong),
++        ('LimitFlags', wintypes.DWORD),
++        ('MinimumWorkingSetSize', ctypes.c_size_t),
++        ('MaximumWorkingSetSize', ctypes.c_size_t),
++        ('ActiveProcessLimit', wintypes.DWORD),
++        ('Affinity', ctypes.c_size_t),
++        ('PriorityClass', wintypes.DWORD),
++        ('SchedulingClass', wintypes.DWORD),
++    ]
++
++
++class _ExtendedLimits(ctypes.Structure):
++    _fields_ = [
++        ('BasicLimitInformation', _BasicLimits),
++        ('IoInfo', ctypes.c_ulonglong * 6),
++        ('ProcessMemoryLimit', ctypes.c_size_t),
++        ('JobMemoryLimit', ctypes.c_size_t),
++        ('PeakProcessMemoryUsed', ctypes.c_size_t),
++        ('PeakJobMemoryUsed', ctypes.c_size_t),
++    ]
++
++
++class _Accounting(ctypes.Structure):
++    _fields_ = [
++        ('TotalUserTime', ctypes.c_longlong),
++        ('TotalKernelTime', ctypes.c_longlong),
++        ('ThisPeriodTotalUserTime', ctypes.c_longlong),
++        ('ThisPeriodTotalKernelTime', ctypes.c_longlong),
++        ('TotalPageFaultCount', wintypes.DWORD),
++        ('TotalProcesses', wintypes.DWORD),
++        ('ActiveProcesses', wintypes.DWORD),
++        ('TotalTerminatedProcesses', wintypes.DWORD),
++    ]
++
++
++class _ThreadEntry(ctypes.Structure):
++    _fields_ = [
++        ('dwSize', wintypes.DWORD), ('cntUsage', wintypes.DWORD),
++        ('th32ThreadID', wintypes.DWORD), ('th32OwnerProcessID', wintypes.DWORD),
++        ('tpBasePri', wintypes.LONG), ('tpDeltaPri', wintypes.LONG),
++        ('dwFlags', wintypes.DWORD),
++    ]
++
++
++def _kernel_api():
++    # 明确指针宽度，避免 64 位 HANDLE 被默认 ctypes int 截断。
++    api = ctypes.WinDLL('kernel32', use_last_error=True)
++    signatures = {
++        'CreateJobObjectW': ([ctypes.c_void_p, wintypes.LPCWSTR], wintypes.HANDLE),
++        'SetInformationJobObject': ([wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD], wintypes.BOOL),
++        'QueryInformationJobObject': ([wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD, ctypes.c_void_p], wintypes.BOOL),
++        'AssignProcessToJobObject': ([wintypes.HANDLE, wintypes.HANDLE], wintypes.BOOL),
++        'TerminateJobObject': ([wintypes.HANDLE, wintypes.UINT], wintypes.BOOL),
++        'OpenProcess': ([wintypes.DWORD, wintypes.BOOL, wintypes.DWORD], wintypes.HANDLE),
++        'OpenThread': ([wintypes.DWORD, wintypes.BOOL, wintypes.DWORD], wintypes.HANDLE),
++        'IsProcessInJob': ([wintypes.HANDLE, wintypes.HANDLE, ctypes.POINTER(wintypes.BOOL)], wintypes.BOOL),
++        'WaitForSingleObject': ([wintypes.HANDLE, wintypes.DWORD], wintypes.DWORD),
++        'ResumeThread': ([wintypes.HANDLE], wintypes.DWORD),
++        'CreateToolhelp32Snapshot': ([wintypes.DWORD, wintypes.DWORD], wintypes.HANDLE),
++        'Thread32First': ([wintypes.HANDLE, ctypes.POINTER(_ThreadEntry)], wintypes.BOOL),
++        'Thread32Next': ([wintypes.HANDLE, ctypes.POINTER(_ThreadEntry)], wintypes.BOOL),
++        'CloseHandle': ([wintypes.HANDLE], wintypes.BOOL),
++    }
++    for name, (arguments, result) in signatures.items():
++        function = getattr(api, name)
++        function.argtypes = arguments
++        function.restype = result
++    return api
++
++
++def _checked(value):
++    if not value:
++        raise ctypes.WinError(ctypes.get_last_error())
++    return value
++
++
++class WindowsJob:
++    """仅持有本次 Job 的内核句柄；不按进程名或过期 PID 杀进程。"""
++
++    def __init__(self):
++        self.api = _kernel_api()
++        self.handle = _checked(self.api.CreateJobObjectW(None, None))
++        self.drained = False
++        try:
++            limits = _ExtendedLimits()
++            # 不设置 BREAKAWAY_OK，后代默认留在同一个生命周期容器。
++            limits.BasicLimitInformation.LimitFlags = 0x2000  # KILL_ON_JOB_CLOSE
++            _checked(self.api.SetInformationJobObject(self.handle, 9, ctypes.byref(limits), ctypes.sizeof(limits)))
++        except BaseException:
++            self.close()
++            raise
++
++    def assign(self, pid):
++        # 此时进程仍为 CREATE_SUSPENDED，尚不能生成未经登记的后代。
++        process = _checked(self.api.OpenProcess(0x0101, False, pid))  # SET_QUOTA | TERMINATE
++        try:
++            _checked(self.api.AssignProcessToJobObject(self.handle, process))
++        finally:
++            self.api.CloseHandle(process)
++
++    def resume(self, pid):
++        # Popen 关闭了创建时的线程句柄；枚举仍挂起的自有进程主线程。
++        snapshot = self.api.CreateToolhelp32Snapshot(0x00000004, 0)  # SNAPTHREAD
++        if snapshot == ctypes.c_void_p(-1).value:
++            raise ctypes.WinError(ctypes.get_last_error())
++        try:
++            entry = _ThreadEntry()
++            entry.dwSize = ctypes.sizeof(entry)
++            found = []
++            more = self.api.Thread32First(snapshot, ctypes.byref(entry))
++            while more:
++                if entry.th32OwnerProcessID == pid:
++                    found.append(entry.th32ThreadID)
++                entry.dwSize = ctypes.sizeof(entry)
++                more = self.api.Thread32Next(snapshot, ctypes.byref(entry))
++            if ctypes.get_last_error() != 18:  # ERROR_NO_MORE_FILES
++                raise ctypes.WinError(ctypes.get_last_error())
++            if len(found) != 1:
++                raise RuntimeError('无法唯一确认挂起进程的主线程，不开始执行')
++            thread = _checked(self.api.OpenThread(0x0002, False, found[0]))
++            try:
++                previous = self.api.ResumeThread(thread)
++                if previous == 0xFFFFFFFF:
++                    raise ctypes.WinError(ctypes.get_last_error())
++                if previous != 1:
++                    raise RuntimeError('主线程挂起计数异常，不继续执行')
++            finally:
++                self.api.CloseHandle(thread)
++        finally:
++            self.api.CloseHandle(snapshot)
++
++    def stop(self, timeout=10):
++        if self.drained:
++            return
++        if self.handle is None:
++            raise RuntimeError('Job 已关闭但未确认所有进程退出，结果未知')
++        deadline = time.monotonic()+timeout
++        handles = []
++        try:
++            self._prevent_new_processes()
++            handles = self._process_handles(deadline)
++            _checked(self.api.TerminateJobObject(self.handle, 1))
++            # TerminateProcess/Job 只发起异步终止；活动计数不能代替句柄终态。
++            for handle in handles:
++                milliseconds = max(0, int((deadline-time.monotonic())*1000))
++                status = self.api.WaitForSingleObject(handle, milliseconds)
++                if status == 0xFFFFFFFF:
++                    raise ctypes.WinError(ctypes.get_last_error())
++                if status != 0:
++                    raise RuntimeError('本次后代进程尚未完成退出，结果未知')
++            while True:
++                info = _Accounting()
++                _checked(self.api.QueryInformationJobObject(self.handle, 1, ctypes.byref(info), ctypes.sizeof(info), None))
++                if info.ActiveProcesses == 0:
++                    self.drained = True
++                    self.close()
++                    return
++                if time.monotonic() >= deadline:
++                    raise RuntimeError('无法确认本次 Job 全部进程退出，结果未知')
++                time.sleep(.01)
++        except BaseException:
++            # 查询/等待失败也要发起关闭，不能依赖调用方何时回收 Popen。
++            # 未完成退出确认，drained 仍为 False，上层必须保存 UNKNOWN。
++            self.close()
++            raise
++        finally:
++            for handle in handles:
++                self.api.CloseHandle(handle)
++
++    def _prevent_new_processes(self):
++        # 仅停止阶段关门：已有进程不受缩限终止，但任一存活成员再建后代会越限。
++        # 当成员数已为零时也没有继续创建后代的执行者。
++        limits = _ExtendedLimits()
++        _checked(self.api.QueryInformationJobObject(self.handle, 9, ctypes.byref(limits), ctypes.sizeof(limits), None))
++        limits.BasicLimitInformation.LimitFlags |= 0x00000008  # ACTIVE_PROCESS
++        limits.BasicLimitInformation.ActiveProcessLimit = 1
++        _checked(self.api.SetInformationJobObject(self.handle, 9, ctypes.byref(limits), ctypes.sizeof(limits)))
++
++    def _process_handles(self, deadline):
++        """只保留属于本 Job 的同步句柄，绝不向枚举得到的 PID 发终止。"""
++        capacity = 64
++        while True:
++            class ProcessIds(ctypes.Structure):
++                _fields_ = [('assigned', wintypes.DWORD), ('listed', wintypes.DWORD),
++                            ('ids', ctypes.c_size_t * capacity)]
++            info = ProcessIds()
++            if self.api.QueryInformationJobObject(self.handle, 3, ctypes.byref(info), ctypes.sizeof(info), None):
++                break
++            error = ctypes.get_last_error()
++            if error != 234:  # ERROR_MORE_DATA
++                raise ctypes.WinError(error)
++            if time.monotonic() >= deadline:
++                raise RuntimeError('无法在期限内读取本次 Job 进程，结果未知')
++            capacity = max(capacity*2, info.assigned)
++        handles = []
++        try:
++            for pid in info.ids[:info.listed]:
++                handle = self.api.OpenProcess(0x101000, False, pid)  # SYNCHRONIZE | QUERY_LIMITED_INFORMATION
++                if not handle:
++                    error = ctypes.get_last_error()
++                    if error == 87:  # 枚举后已退出，且 PID 已不存在。
++                        continue
++                    raise ctypes.WinError(error)
++                member = wintypes.BOOL()
++                try:
++                    _checked(self.api.IsProcessInJob(handle, self.handle, ctypes.byref(member)))
++                    if member.value:
++                        handles.append(handle)
++                        handle = None
++                finally:
++                    if handle is not None:
++                        self.api.CloseHandle(handle)
++            return handles
++        except BaseException:
++            for handle in handles:
++                self.api.CloseHandle(handle)
++            raise
++
++    def close(self):
++        if self.handle is not None:
++            _checked(self.api.CloseHandle(self.handle))
++            self.handle = None
++
++    def __del__(self):
++        # 正常路径显式 stop；异常销毁仍以 KILL_ON_JOB_CLOSE 防止孤儿进程。
++        if getattr(self, 'handle', None) is not None:
++            self.api.CloseHandle(self.handle)
++
+--- a/tests/integration/test_evaluation_cleanup.py
++++ b/tests/integration/test_evaluation_cleanup.py
+@@ -0,0 +1,48 @@
++"""执行器必须完成自有进程清理，再读取结果；无法确认时留下 UNKNOWN。"""
++import json
++
++from min_agent.evaluation import runner
++from min_agent.evaluation.suites import task_by_id
++
++
++def test_runner_cleans_owned_process_after_normal_worker_exit(tmp_path, monkeypatch):
++    original = runner.stop_owned
++    stopped = []
++
++    def stop(process):
++        stopped.append(process.pid)
++        return original(process)
++
++    monkeypatch.setattr(runner, 'stop_owned', stop)
++    result = runner.run_task(task_by_id('runtime.calc'), tmp_path/'normal')
++    assert result.verdict == 'PASS'
++    assert len(stopped) == 1
++
++
++def test_runner_keeps_unknown_if_cleanup_cannot_be_confirmed(tmp_path, monkeypatch):
++    original = runner.stop_owned
++
++    def uncertain(process):
++        original(process)  # 实际探测进程不遗留，模拟的是确认失败。
++        raise RuntimeError('synthetic-cleanup-unknown')
++
++    monkeypatch.setattr(runner, 'stop_owned', uncertain)
++    out = tmp_path/'uncertain'
++    result = runner.run_task(task_by_id('runtime.calc'), out)
++    assert result.verdict == 'UNKNOWN'
++    assert result.observation.transport_status == 'worker_error'
++    assert result.observation.extra['process_failure'] == {'stage': 'cleanup', 'error_type': 'RuntimeError'}
++    assert json.loads((out/'result.json').read_text(encoding='utf-8'))['verdict'] == 'UNKNOWN'
++
++
++def test_runner_records_start_failure_without_claiming_execution(tmp_path, monkeypatch):
++    def unavailable(*args, **kwargs):
++        raise OSError('synthetic-job-assignment-failure')
++
++    monkeypatch.setattr(runner, 'start_owned', unavailable)
++    out = tmp_path/'startup'
++    result = runner.run_task(task_by_id('runtime.calc'), out)
++    assert result.verdict == 'UNKNOWN'
++    assert result.observation.model_requests == 0
++    assert result.observation.extra['process_failure'] == {'stage': 'start', 'error_type': 'OSError'}
++    assert (out/'result.json').exists()

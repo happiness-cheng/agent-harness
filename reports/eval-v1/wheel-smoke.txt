@@ -1,0 +1,16 @@
+INSTALL EXIT: 0
+Processing .\reports\eval-v1\wheel-delivery\agent_harness-0.1.0-py3-none-any.whl
+Installing collected packages: agent-harness
+Successfully installed agent-harness-0.1.0
+
+SMOKE EXIT: 0
+independently installed wheel imports: PASS; missing evidence UNKNOWN: PASS; no external calls
+usage: adrian-night [-h] {init,add,run,report,demo} ...
+
+夜间CLI；不设开机启动，未指定live不调用真实模型。
+
+positional arguments:
+  {init,add,run,report,demo}
+
+options:
+  -h, --help            show this help message and exit

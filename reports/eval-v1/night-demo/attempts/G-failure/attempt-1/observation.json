@@ -1,0 +1,79 @@
+{
+  "run_id": "62fcb67d-01c8-4fc0-be5c-e9fdf25debc1",
+  "task_id": "tools.false_success",
+  "version_id": "e6e90483b3ff7bd0000bc40eb8c933ea6bdb85fda3044e80c40316594c8cbd47",
+  "session_id": "7530b3f2-ffca-4ba6-afa6-0367eb442945",
+  "transport_status": "ok",
+  "execution_status": "completed",
+  "answer": "{\"claimed_done\":true,\"answer\":\"已创建合成周报\"}",
+  "todos": [],
+  "initial_todos": [],
+  "tools": [],
+  "trace": [
+    {
+      "sequence": 1,
+      "run_id": "e491aa93-df38-409d-babb-33e927928f2d",
+      "call_id": "adac7a9a-0567-4852-b66f-45083997050e",
+      "parent_call_id": "195bfe1b-e624-439d-9021-9669c1f1adc4",
+      "session_id": "7530b3f2-ffca-4ba6-afa6-0367eb442945",
+      "task_id": "c6277fcf-cf69-4726-9056-70870f376790",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 17.797400010749698,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 2,
+      "run_id": "e491aa93-df38-409d-babb-33e927928f2d",
+      "call_id": "195bfe1b-e624-439d-9021-9669c1f1adc4",
+      "parent_call_id": null,
+      "session_id": "7530b3f2-ffca-4ba6-afa6-0367eb442945",
+      "task_id": "c6277fcf-cf69-4726-9056-70870f376790",
+      "operation": "run",
+      "status": "completed",
+      "duration_ms": 18.05210000020452,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    }
+  ],
+  "artifacts": {},
+  "budget": {
+    "id": "3c1ea77e-8d58-48bd-b6ac-e650784aaf34",
+    "limits": {
+      "model_calls": 8,
+      "tool_calls": 12
+    },
+    "usage": {
+      "model_calls": 1,
+      "tool_calls": 0,
+      "by_purpose": {
+        "main": {
+          "model_calls": 1,
+          "tool_calls": 0
+        }
+      }
+    }
+  },
+  "checkpoint": null,
+  "memory_delivery": {},
+  "citation": {},
+  "model_requests": 1,
+  "usage": [],
+  "elapsed_seconds": 0.24397189999581315,
+  "extra": {
+    "recovery": {},
+    "provider_errors": [],
+    "task_error": null,
+    "backend": "SCRIPTED_ACTUAL_HARNESS",
+    "last_visible_memory_refs": [],
+    "database": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\night-demo\\attempts\\G-failure\\attempt-1\\workspace.sqlite3",
+    "data_classification": "synthetic",
+    "database_reopened_read_only": true,
+    "scope_mismatch": false
+  }
+}

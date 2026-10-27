@@ -1,0 +1,14 @@
+{
+  "candidate": 1,
+  "generator": "CURRENT_CODING_AGENT_LOCAL_EDIT_NOT_PROVIDER_OR_CODEX_CLI",
+  "baseline_source": "c953ec972ec5d6825d009509e5bbf203b8e3b8dcba3456f26e5be2fcf24a60f7",
+  "candidate_source": "41a430b128c946bb1fac419bfc5040ceee820c548cb37161ea748e9de9d49669",
+  "production_files_changed": [
+    "src/min_agent/research.py"
+  ],
+  "frozen_test_sha256": "08599bab5de6b2178e5aa8d6a49c305a6b92a7a75c02a0b29ac95467f0f42a14",
+  "hypothesis": "最后1次工具额度仍可用于真实读取，最终文字不需要工具额度；不变更硬预算或模型预留。",
+  "expected_falsification": "若最后1次读取仍不可见、无实际Artifact/引文，或越过原预算，拒绝候选。",
+  "source_merged": false,
+  "external_generation_requests": 0
+}

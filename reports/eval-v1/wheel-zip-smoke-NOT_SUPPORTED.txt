@@ -1,0 +1,44 @@
+Wheel: agent_harness-0.1.0-py3-none-any.whl
+EXIT: 1
+Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+    m=importlib.import_module(name)
+  File "C:\Users\陈独秀\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1404, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1369, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1340, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1027, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\eval-v1\wheel-delivery\agent_harness-0.1.0-py3-none-any.whl\min_agent\evaluation\codex_adapter.py", line 9, in <module>
+    from min_agent.evaluation.improvement import CANDIDATE_SCHEMA
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\eval-v1\wheel-delivery\agent_harness-0.1.0-py3-none-any.whl\min_agent\evaluation\improvement.py", line 13, in <module>
+    from min_agent.evaluation.runner import ROOT,run_task,compare_results,save_json
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\eval-v1\wheel-delivery\agent_harness-0.1.0-py3-none-any.whl\min_agent\evaluation\runner.py", line 15, in <module>
+    from min_agent.evaluation.worker import source_version,tool_records
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\eval-v1\wheel-delivery\agent_harness-0.1.0-py3-none-any.whl\min_agent\evaluation\worker.py", line 12, in <module>
+    from min_agent.application import HarnessApplication
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\eval-v1\wheel-delivery\agent_harness-0.1.0-py3-none-any.whl\min_agent\application.py", line 17, in <module>
+    from min_agent.compaction import Compactor
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\eval-v1\wheel-delivery\agent_harness-0.1.0-py3-none-any.whl\min_agent\compaction.py", line 14, in <module>
+    from min_agent.compression_selector import GroundedSelector
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\eval-v1\wheel-delivery\agent_harness-0.1.0-py3-none-any.whl\min_agent\compression_selector.py", line 43, in <module>
+    PROMPT = files("min_agent.prompts").joinpath("compact_history.md").read_text(encoding="utf-8")
+             ~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\陈独秀\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\importlib\resources\_common.py", line 46, in wrapper
+    return func(anchor)
+  File "C:\Users\陈独秀\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\importlib\resources\_common.py", line 56, in files
+    return from_package(resolve(anchor))
+                        ~~~~~~~^^^^^^^^
+  File "C:\Users\陈独秀\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\functools.py", line 934, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\陈独秀\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\importlib\resources\_common.py", line 82, in _
+    return importlib.import_module(cand)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\陈独秀\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'min_agent.prompts'

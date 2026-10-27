@@ -1,0 +1,270 @@
+--- a/src/min_agent/evaluation/codex_adapter.py
++++ b/src/min_agent/evaluation/codex_adapter.py
+@@ -8,6 +8,7 @@
+ from min_agent.models import ModelResponse
+ from min_agent.evaluation.improvement import CANDIDATE_SCHEMA
+ from min_agent.evaluation.runner import save_json
++from min_agent.evaluation.processes import run_owned
+ 
+ 
+ class CodexCandidateModel:
+@@ -34,10 +35,11 @@
+         options=dict(cwd=self.workspace,env=environment,input=prompt,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=self.timeout)
+         if os.name=='nt':options['creationflags']=subprocess.CREATE_NO_WINDOW
+         start=monotonic()
+-        try:result=subprocess.run(command,**options)
+-        except subprocess.TimeoutExpired:
++        try:result=run_owned(command,**options)
++        except Exception as error:
+             self.execution_failed=True
+-            save_json(directory/'receipt.json',dict(status='timeout',quota_remaining='UNOBSERVABLE',elapsed_seconds=monotonic()-start));raise
++            status='timeout' if isinstance(error,subprocess.TimeoutExpired) else 'execution_error'
++            save_json(directory/'receipt.json',dict(status=status,error_type=type(error).__name__,quota_remaining='UNOBSERVABLE',elapsed_seconds=monotonic()-start));raise
+         events=[]
+         for line in result.stdout.splitlines():
+             try:record=json.loads(line)
+--- a/src/min_agent/evaluation/improvement.py
++++ b/src/min_agent/evaluation/improvement.py
+@@ -13,6 +13,7 @@
+ from min_agent.evaluation.runner import ROOT,run_task,compare_results,save_json
+ from min_agent.evaluation.suites import task_by_id
+ from min_agent.runtime import Runtime
++from min_agent.evaluation.processes import run_owned
+ 
+ TARGET='src/min_agent/tools/calculator.py'
+ OPERATORS={'Add','Sub','Mult','Div'}
+@@ -92,7 +93,7 @@
+     after={t.id:run_task(t,out/('after-'+t.id),source_root=workspace,wall_timeout=remaining()) for t in standards}
+     comparisons=[compare_results(before[t.id],after[t.id]) for t in standards]
+     env=dict(os.environ,PYTHONPATH=str(workspace/'src'))
+-    regression=subprocess.run([sys.executable,'-X','utf8','-m','pytest','-q',str(ROOT/'tests/unit/test_calculator.py')],
++    regression=run_owned([sys.executable,'-X','utf8','-m','pytest','-q',str(ROOT/'tests/unit/test_calculator.py')],
+         cwd=workspace,env=env,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=min(90,remaining()) if deadline is not None else 90)
+     (out/'calculator-regression.txt').write_text(regression.stdout+regression.stderr,encoding='utf-8')
+     verified=all(r.verdict=='PASS' for r in after.values()) and regression.returncode==0
+--- a/src/min_agent/evaluation/night_executor.py
++++ b/src/min_agent/evaluation/night_executor.py
+@@ -27,7 +27,8 @@
+         options=dict(cwd=workspace,env=environment,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=job.task.timeout_seconds)
+         if os.name=='nt':options['creationflags']=subprocess.CREATE_NO_WINDOW
+         try:
+-            process=subprocess.run([sys.executable,'-X','utf8','-m','pytest','-q',*paths],**options)
++            from min_agent.evaluation.processes import run_owned
++            process=run_owned([sys.executable,'-X','utf8','-m','pytest','-q',*paths],**options)
+         except subprocess.TimeoutExpired:
+             return NightOutcome(verdict='UNKNOWN',reason='隔离项目回归超时，未判为通过')
+         (out/'pytest.txt').write_text(process.stdout+process.stderr,encoding='utf-8')
+--- /dev/null
++++ b/src/min_agent/evaluation/processes.py
+@@ -0,0 +1,53 @@
++"""仅管理本模块创建的进程树；不按名称结束进程、不绕过Runtime预算。"""
++import os
++from pathlib import Path
++import signal
++import subprocess
++
++
++def start_owned(command, **options):
++    if options.get('shell'):
++        raise ValueError('受控任务不使用隐式Shell')
++    if os.name == 'nt':
++        options['creationflags'] = options.get('creationflags', 0) | subprocess.CREATE_NO_WINDOW
++    else:
++        options['start_new_session'] = True
++    return subprocess.Popen(command, **options)
++
++
++def stop_owned(process):
++    """先终止仍活动的自有进程树，再排空管道；不能证明退出时直接报错。"""
++    if process.poll() is None:
++        if os.name == 'nt':
++            # Windows venv的Popen PID可能只是启动器，必须包括其后代。
++            taskkill = Path(os.environ['SystemRoot'])/'System32'/'taskkill.exe'
++            stopped = subprocess.run([str(taskkill), '/PID', str(process.pid), '/T', '/F'],
++                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE,
++                                     timeout=10, creationflags=subprocess.CREATE_NO_WINDOW)
++            if stopped.returncode and process.poll() is None:
++                raise RuntimeError('无法确认本次子进程树已停止，保留未知结果')
++        else:
++            try:
++                os.killpg(process.pid, signal.SIGKILL)
++            except ProcessLookupError:
++                pass
++    # 后代继承的输出管道也必须关闭，不能只等待启动器的句柄。
++    return process.communicate(timeout=10)
++
++
++def run_owned(command, *, input=None, capture_output=False, timeout=None, **options):
++    if capture_output:
++        if 'stdout' in options or 'stderr' in options:
++            raise ValueError('capture_output不能同时指定stdout/stderr')
++        options.update(stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++    if input is not None:
++        if 'stdin' in options:
++            raise ValueError('input不能同时指定stdin')
++        options['stdin'] = subprocess.PIPE
++    process = start_owned(command, **options)
++    try:
++        stdout, stderr = process.communicate(input=input, timeout=timeout)
++    except BaseException:
++        stop_owned(process)
++        raise
++    return subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
+--- a/src/min_agent/evaluation/runner.py
++++ b/src/min_agent/evaluation/runner.py
+@@ -13,6 +13,7 @@
+ from min_agent.evaluation.contracts import Observation,TaskSpec,digest
+ from min_agent.evaluation.verifier import verify
+ from min_agent.evaluation.worker import source_version,tool_records
++from min_agent.evaluation.processes import start_owned,stop_owned
+ from min_agent.models import Message
+ 
+ ROOT=Path(__file__).resolve().parents[3]
+@@ -50,11 +51,14 @@
+         if cost_limit is not None:command+=['--cost-limit',str(cost_limit)]
+     options=dict(cwd=source_root,env=dict(os.environ,PYTHONPATH=str(source_root/'src')),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+     if os.name=='nt':options['creationflags']=subprocess.CREATE_NO_WINDOW
+-    start=monotonic();process=subprocess.Popen(command,**options);transport='ok'
++    start=monotonic();process=start_owned(command,**options);transport='ok'
+     try:output,_=process.communicate(timeout=min(task.timeout_seconds,wall_timeout) if wall_timeout is not None else task.timeout_seconds)
+     except subprocess.TimeoutExpired:
+         # 仅终止本次创建的隔离worker；无法证明外部副作用撤销，必须保留UNKNOWN。
+-        process.kill();output,_=process.communicate(timeout=10);transport='timeout'
++        output,_=stop_owned(process);transport='timeout'
++    except BaseException:
++        stop_owned(process)
++        raise
+     (out/'worker.log').write_bytes(output)
+     observation_file=out/'observation.json'
+     if transport=='ok' and process.returncode==0 and observation_file.is_file():
+--- a/tests/integration/test_evaluation_v1.py
++++ b/tests/integration/test_evaluation_v1.py
+@@ -76,6 +76,7 @@
+     import os,subprocess,sys,time
+     from min_agent.evaluation.night import NightQueue,NightPolicy,NightJob,run_night
+     from min_agent.evaluation.suites import task_by_id
++    from min_agent.evaluation.processes import start_owned,stop_owned
+     queue=NightQueue(tmp_path/'queue.json');queue.initialize(NightPolicy())
+     for identity in ['A','B']:queue.add(NightJob(id=identity,goal=identity,task=task_by_id('runtime.calc')))
+     marker=tmp_path/'started.txt'
+@@ -90,13 +91,13 @@
+     root=Path(__file__).resolve().parents[2]
+     options=dict(cwd=root,env=dict(os.environ,PYTHONPATH=str(root/'src')),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+     if os.name=='nt':options['creationflags']=subprocess.CREATE_NO_WINDOW
+-    process=subprocess.Popen([sys.executable,'-X','utf8','-c',code,str(queue.path),str(marker)],**options)
++    process=start_owned([sys.executable,'-X','utf8','-c',code,str(queue.path),str(marker)],**options)
+     try:
+         end=time.monotonic()+15
+         while not marker.exists() and time.monotonic()<end:time.sleep(.1)
+         assert marker.exists()
+     finally:
+-        process.terminate();process.wait(timeout=10)
++        stop_owned(process)
+     recovered=run_night(NightQueue(queue.path))
+     assert recovered['jobs']['A']['status']=='WAITING_FOR_USER'
+     assert recovered['jobs']['B']['status']=='COMPLETED'
+--- a/tests/unit/test_codex_night_adapter.py
++++ b/tests/unit/test_codex_night_adapter.py
+@@ -16,7 +16,7 @@
+         Path(command[command.index('--output-last-message')+1]).write_text(json.dumps({'bindings':{
+             'Add':'add','Sub':'subtract','Mult':'multiply','Div':'divide'}}),encoding='utf-8')
+         return SimpleNamespace(returncode=0,stdout=json.dumps({'type':'turn.completed','usage':{'input_tokens':10,'output_tokens':5}}),stderr='')
+-    monkeypatch.setattr(module.subprocess,'run',fake)
++    monkeypatch.setattr(module,'run_owned',fake)
+     model=CodexCandidateModel(tmp_path/'receipts',tmp_path,executable='synthetic-codex',max_calls=1)
+     response=model.generate([Message(role='user',content='公开合成任务')])
+     assert response.finish_reason=='stop' and model.request_count==1
+@@ -35,3 +35,24 @@
+         def generate(self,*a,**k):pytest.fail('预算不足不得生成')
+     model=CostBoundedModel(Fake(),CostLedger(tmp_path/'cost.json',limit=.00001))
+     with pytest.raises(PermissionError):model.generate([])
++
++
++@pytest.mark.parametrize('timeout_error',[True,False])
++def test_codex_timeout_keeps_attempt_and_receipt_without_retry(tmp_path,monkeypatch,timeout_error):
++    from min_agent.evaluation.codex_adapter import CodexCandidateModel
++    from min_agent.models import Message
++    import min_agent.evaluation.codex_adapter as module
++    calls=[]
++    def timeout(command,**options):
++        calls.append(command)
++        if timeout_error:raise module.subprocess.TimeoutExpired(command,options['timeout'])
++        raise RuntimeError('synthetic-stop-unconfirmed')
++    monkeypatch.setattr(module,'run_owned',timeout)
++    model=CodexCandidateModel(tmp_path/'receipts',tmp_path,executable='synthetic-codex',max_calls=1)
++    with pytest.raises(module.subprocess.TimeoutExpired if timeout_error else RuntimeError):
++        model.generate([Message(role='user',content='合成超时')])
++    receipt=json.loads((tmp_path/'receipts/call-1/receipt.json').read_text(encoding='utf-8'))
++    assert receipt['status']==('timeout' if timeout_error else 'execution_error') and receipt['quota_remaining']=='UNOBSERVABLE'
++    assert model.execution_failed and model.request_count==1 and len(calls)==1
++    with pytest.raises(PermissionError):
++        model.generate([Message(role='user',content='禁止自动再试')])
+--- /dev/null
++++ b/tests/unit/test_evaluation_processes.py
+@@ -0,0 +1,66 @@
++"""终止自己创建的进程树，不能留下继续持锁/工作的解释器。"""
++import os
++from pathlib import Path
++import subprocess
++import sys
++import time
++
++import pytest
++
++from min_agent.web.launcher import DatabaseLease, DatabaseInUse
++
++
++def parent_command(tmp_path):
++    child = tmp_path/'child.py'
++    child.write_text('''from pathlib import Path
++import os,sys,time
++from min_agent.web.launcher import DatabaseLease
++with DatabaseLease(sys.argv[1], {'product':'owned-process-test'}):
++ Path(sys.argv[2]).write_text(str(os.getpid()),encoding='utf-8')
++ time.sleep(30)
++''', encoding='utf-8')
++    code = '''import subprocess,sys,time
++subprocess.Popen([sys.executable,'-X','utf8',sys.argv[1],sys.argv[2],sys.argv[3]])
++time.sleep(30)
++'''
++    root = Path(__file__).resolve().parents[2]
++    command = [sys.executable, '-X', 'utf8', '-c', code, str(child), str(tmp_path/'resource'), str(tmp_path/'ready')]
++    options = dict(cwd=root, env=dict(os.environ, PYTHONPATH=str(root/'src')),
++                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++    return command, options
++
++
++def test_stopping_owned_tree_releases_descendant_lock(tmp_path):
++    from min_agent.evaluation.processes import start_owned, stop_owned
++    command, options = parent_command(tmp_path)
++    process = start_owned(command, **options)
++    try:
++        end = time.monotonic()+12
++        while not (tmp_path/'ready').exists() and time.monotonic()<end:
++            time.sleep(.05)
++        assert (tmp_path/'ready').exists(), '后代进程未进入持锁状态'
++        with pytest.raises(DatabaseInUse):
++            with DatabaseLease(tmp_path/'resource', {'product':'before-stop'}):
++                pass
++    finally:
++        stop_owned(process)
++    with DatabaseLease(tmp_path/'resource', {'product':'after-stop'}):
++        pass
++    assert process.poll() is not None
++
++
++def test_timeout_stops_owned_descendants_before_returning(tmp_path):
++    from min_agent.evaluation.processes import run_owned
++    command, options = parent_command(tmp_path)
++    with pytest.raises(subprocess.TimeoutExpired):
++        run_owned(command, timeout=5, **options)
++    assert (tmp_path/'ready').exists(), '必须在持锁后触发超时，避免空验收'
++    with DatabaseLease(tmp_path/'resource', {'product':'after-timeout'}):
++        pass
++
++
++def test_successful_owned_command_retains_output_and_exit_status():
++    from min_agent.evaluation.processes import run_owned
++    result = run_owned([sys.executable, '-c', 'print("ok"); raise SystemExit(3)'],
++                       timeout=10, capture_output=True, text=True)
++    assert result.returncode == 3 and result.stdout.strip() == 'ok'

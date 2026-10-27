@@ -1,0 +1,42 @@
+{
+  "id": "runtime.recover",
+  "category": "runtime",
+  "prompt": "持续检查计算，暂停后等待定向续跑。",
+  "evaluation": "deterministic",
+  "data_classification": "synthetic",
+  "profile": "recover",
+  "parameters": {},
+  "mode": "plan",
+  "actions": [],
+  "tools": [
+    "calculator"
+  ],
+  "fixture": "empty",
+  "max_model_calls": 8,
+  "segment_model_calls": 3,
+  "max_tool_calls": 12,
+  "max_rounds": 8,
+  "timeout_seconds": 40.0,
+  "recovery": true,
+  "live_eligible": false,
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "output_tokens": null,
+  "checks": [
+    {
+      "id": "complete",
+      "layer": "outcome",
+      "kind": "runtime_status",
+      "expected": "completed",
+      "hard_safety": false
+    },
+    {
+      "id": "same-ledger",
+      "layer": "outcome",
+      "kind": "recovered_same_budget",
+      "expected": true,
+      "hard_safety": false
+    }
+  ],
+  "expected_verdict": "PASS"
+}

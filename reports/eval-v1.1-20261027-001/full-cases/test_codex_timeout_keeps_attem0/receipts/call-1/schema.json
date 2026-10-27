@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "properties": {
+    "bindings": {
+      "type": "object",
+      "properties": {
+        "Add": {
+          "type": "string",
+          "enum": [
+            "add",
+            "divide",
+            "multiply",
+            "subtract"
+          ]
+        },
+        "Div": {
+          "type": "string",
+          "enum": [
+            "add",
+            "divide",
+            "multiply",
+            "subtract"
+          ]
+        },
+        "Mult": {
+          "type": "string",
+          "enum": [
+            "add",
+            "divide",
+            "multiply",
+            "subtract"
+          ]
+        },
+        "Sub": {
+          "type": "string",
+          "enum": [
+            "add",
+            "divide",
+            "multiply",
+            "subtract"
+          ]
+        }
+      },
+      "required": [
+        "Add",
+        "Div",
+        "Mult",
+        "Sub"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "bindings"
+  ],
+  "additionalProperties": false
+}

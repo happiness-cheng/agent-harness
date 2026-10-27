@@ -1,0 +1,12 @@
+[
+  {
+    "file": "requirements.lock",
+    "crlf_lines_normalized": 44,
+    "dependency_lines_unchanged": true
+  },
+  {
+    "file": "requirements-dev.lock",
+    "crlf_lines_normalized": 53,
+    "dependency_lines_unchanged": true
+  }
+]

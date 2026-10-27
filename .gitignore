@@ -25,3 +25,11 @@ agent-harness-credentials.json
 .idea/
 .vscode/
 .DS_Store
+
+# 实验快照由协议脚本重建，不上传嵌套Git工作树和重复源码。
+/reports/**/workspace/
+/reports/**/before-src/
+/reports/**/baseline-source/
+/reports/**/source/
+/reports/**/__pycache__/
+/reports/memory_v01/

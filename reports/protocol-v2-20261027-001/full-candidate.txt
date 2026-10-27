@@ -1,0 +1,51 @@
+
+=================================== ERRORS ====================================
+_____________ ERROR collecting tests/live/test_deepseek_smoke.py ______________
+import file mismatch:
+imported module 'tests.live.test_deepseek_smoke' has this __file__ attribute:
+  C:\Users\陈独秀\Documents\agent-harness\tests\live\test_deepseek_smoke.py
+which is not the same as the test file we want to collect:
+  C:\Users\陈独秀\Documents\agent-harness\reports\protocol-v2-20261027-001\candidate\workspace\tests\live\test_deepseek_smoke.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+_____________ ERROR collecting tests/live/test_intent_contract.py _____________
+import file mismatch:
+imported module 'tests.live.test_intent_contract' has this __file__ attribute:
+  C:\Users\陈独秀\Documents\agent-harness\tests\live\test_intent_contract.py
+which is not the same as the test file we want to collect:
+  C:\Users\陈独秀\Documents\agent-harness\reports\protocol-v2-20261027-001\candidate\workspace\tests\live\test_intent_contract.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+______________ ERROR collecting tests/live/test_openai_smoke.py _______________
+import file mismatch:
+imported module 'tests.live.test_openai_smoke' has this __file__ attribute:
+  C:\Users\陈独秀\Documents\agent-harness\tests\live\test_openai_smoke.py
+which is not the same as the test file we want to collect:
+  C:\Users\陈独秀\Documents\agent-harness\reports\protocol-v2-20261027-001\candidate\workspace\tests\live\test_openai_smoke.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+__________ ERROR collecting tests/scenarios/test_intent_contract.py ___________
+import file mismatch:
+imported module 'tests.scenarios.test_intent_contract' has this __file__ attribute:
+  C:\Users\陈独秀\Documents\agent-harness\tests\scenarios\test_intent_contract.py
+which is not the same as the test file we want to collect:
+  C:\Users\陈独秀\Documents\agent-harness\reports\protocol-v2-20261027-001\candidate\workspace\tests\scenarios\test_intent_contract.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+_________ ERROR collecting tests/scenarios/test_research_evidence.py __________
+import file mismatch:
+imported module 'tests.scenarios.test_research_evidence' has this __file__ attribute:
+  C:\Users\陈独秀\Documents\agent-harness\tests\scenarios\test_research_evidence.py
+which is not the same as the test file we want to collect:
+  C:\Users\陈独秀\Documents\agent-harness\reports\protocol-v2-20261027-001\candidate\workspace\tests\scenarios\test_research_evidence.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\陈独秀\Documents\agent-harness\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR reports\protocol-v2-20261027-001\candidate\workspace\tests\live\test_deepseek_smoke.py
+ERROR reports\protocol-v2-20261027-001\candidate\workspace\tests\live\test_intent_contract.py
+ERROR reports\protocol-v2-20261027-001\candidate\workspace\tests\live\test_openai_smoke.py
+ERROR reports\protocol-v2-20261027-001\candidate\workspace\tests\scenarios\test_intent_contract.py
+ERROR reports\protocol-v2-20261027-001\candidate\workspace\tests\scenarios\test_research_evidence.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!
+1 warning, 5 errors in 8.70s

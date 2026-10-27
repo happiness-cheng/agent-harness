@@ -1,0 +1,140 @@
+{
+  "run_id": "af7849c3-b5f5-47d5-bbe1-a28b94d0a9a7",
+  "task_id": "memory.retracted",
+  "version_id": "9a587f175269d951e8dfa9a4c22072884c1b72766bd977b4a155fa27f5885466",
+  "session_id": "4c0f0a4d-8d55-4a8f-88a9-d674cecf28ae",
+  "transport_status": "ok",
+  "execution_status": "completed",
+  "answer": "当前没有找到可用证据，不能断言完整历史不存在。",
+  "todos": [],
+  "initial_todos": [],
+  "tools": [
+    {
+      "id": "eval-1-search_long_memory",
+      "name": "search_long_memory",
+      "arguments": {
+        "question": "讲解Python偏好"
+      },
+      "result": {
+        "ok": true,
+        "result": "{\"memory_ids\": []}"
+      },
+      "message_index": 2
+    }
+  ],
+  "trace": [
+    {
+      "sequence": 1,
+      "run_id": "a8cff9cd-443e-40ee-842f-0d4e7ac696f5",
+      "call_id": "2e3a3dc8-4aa7-4f15-8c29-65f3b8f0249b",
+      "parent_call_id": "85d6a000-c001-4190-acc8-a553d4ec76da",
+      "session_id": "4c0f0a4d-8d55-4a8f-88a9-d674cecf28ae",
+      "task_id": "c024439b-6085-42a7-8927-5ca9f2ba0e9c",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 61.586600000737235,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 2,
+      "run_id": "a8cff9cd-443e-40ee-842f-0d4e7ac696f5",
+      "call_id": "1014db6b-5c3b-4409-8c0e-505b6f4d6ee1",
+      "parent_call_id": "2e3a3dc8-4aa7-4f15-8c29-65f3b8f0249b",
+      "session_id": "4c0f0a4d-8d55-4a8f-88a9-d674cecf28ae",
+      "task_id": "c024439b-6085-42a7-8927-5ca9f2ba0e9c",
+      "operation": "tool",
+      "status": "completed",
+      "duration_ms": 24.095000000670552,
+      "error_code": null,
+      "execution_state": "returned",
+      "source_call_ref": "f33950a668868e5dcb51a33e9fa75065dcfe35c23080e6ea273d573acb49d49e",
+      "tool_ref": "bc380efae0620bf154b4a6e828263b88d188f7779e71a856029e8fa89a718e11"
+    },
+    {
+      "sequence": 3,
+      "run_id": "a8cff9cd-443e-40ee-842f-0d4e7ac696f5",
+      "call_id": "6cee90e4-50f7-4ee1-a67c-921a3e98a0c5",
+      "parent_call_id": "85d6a000-c001-4190-acc8-a553d4ec76da",
+      "session_id": "4c0f0a4d-8d55-4a8f-88a9-d674cecf28ae",
+      "task_id": "c024439b-6085-42a7-8927-5ca9f2ba0e9c",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 58.181100001093,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 4,
+      "run_id": "a8cff9cd-443e-40ee-842f-0d4e7ac696f5",
+      "call_id": "85d6a000-c001-4190-acc8-a553d4ec76da",
+      "parent_call_id": null,
+      "session_id": "4c0f0a4d-8d55-4a8f-88a9-d674cecf28ae",
+      "task_id": "c024439b-6085-42a7-8927-5ca9f2ba0e9c",
+      "operation": "run",
+      "status": "completed",
+      "duration_ms": 153.59559998614714,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    }
+  ],
+  "artifacts": {},
+  "budget": {
+    "id": "cb09e7bb-1b59-4c46-a22a-4763a53019e4",
+    "limits": {
+      "model_calls": 8,
+      "tool_calls": 12
+    },
+    "usage": {
+      "model_calls": 2,
+      "tool_calls": 1,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        }
+      }
+    }
+  },
+  "checkpoint": null,
+  "memory_delivery": {
+    "number": 2,
+    "status": "delivered",
+    "requested": [],
+    "loaded": [],
+    "selected": [],
+    "delivered": [],
+    "omitted": [],
+    "reference_sha256": "1ae504abcb1bfb8583c18c995464d1e0fbff32cc13083a2000cd8102b4e354b1",
+    "bytes": 333,
+    "budget": 4096,
+    "metadata_support_ids": [],
+    "task_id": "c024439b-6085-42a7-8927-5ca9f2ba0e9c"
+  },
+  "citation": {
+    "status": "not_provided",
+    "cited_ids": [],
+    "unsupported_ids": [],
+    "semantic_support": "not_proven_by_id_check"
+  },
+  "model_requests": 2,
+  "usage": [],
+  "elapsed_seconds": 0.61491920001572,
+  "extra": {
+    "recovery": {},
+    "provider_errors": [],
+    "task_error": null,
+    "backend": "SCRIPTED_ACTUAL_HARNESS",
+    "last_visible_memory_refs": [],
+    "database": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\protocol-v2-20261027-001\\frozen-suite\\memory.retracted\\workspace.sqlite3",
+    "data_classification": "synthetic",
+    "database_reopened_read_only": true,
+    "scope_mismatch": false
+  }
+}

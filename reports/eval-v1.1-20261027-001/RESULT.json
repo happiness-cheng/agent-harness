@@ -1,0 +1,30 @@
+{
+  "outcome": "NO_VERIFIED_GAIN",
+  "mechanism_fix_verified": true,
+  "new_candidate_count": 1,
+  "historical_refusal_replay": "FAIL->FAIL; no new decision tested",
+  "mechanism_pairs": "3 FAIL->PASS; same limits; fixed policy only",
+  "full_pytest": "1265 passed / 3 deselected / 1 warning",
+  "frozen_suite": {
+    "PASS": 15,
+    "FAIL": 2,
+    "UNKNOWN": 3
+  },
+  "same_contract_verdict_changes": 0,
+  "main_worktree_changed": [],
+  "main_worktree_checked_files": 418,
+  "frozen_test_unchanged": true,
+  "baseline_sha256": "c953ec972ec5d6825d009509e5bbf203b8e3b8dcba3456f26e5be2fcf24a60f7",
+  "candidate_sha256": "41a430b128c946bb1fac419bfc5040ceee820c548cb37161ea748e9de9d49669",
+  "wheel_files_matched": 89,
+  "wheel_sha256": "3eec28f5d5cc94983382c7e801628420424b126feb58c90ab4b47882e2681a20",
+  "independent_code_review": "PASS",
+  "live_adapter_review": "PASS_AFTER_USAGE_UNKNOWN_FIX",
+  "external_provider_generations": 0,
+  "codex_cli_invocations": 0,
+  "live_authorization": "PENDING_USER_APPROVAL",
+  "type": "SKIP_NOT_CONFIGURED",
+  "lint": "SKIP_NOT_CONFIGURED",
+  "broken_links": [],
+  "sensitive_environment_value_matches": []
+}

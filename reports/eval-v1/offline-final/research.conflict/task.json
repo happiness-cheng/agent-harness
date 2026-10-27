@@ -1,0 +1,42 @@
+{
+  "id": "research.conflict",
+  "category": "research",
+  "prompt": "核对两份合成退货规则，指出冲突并引用实际读到的来源；不要编造统一规则。",
+  "evaluation": "deterministic",
+  "data_classification": "synthetic",
+  "profile": "research",
+  "parameters": {},
+  "mode": "plan",
+  "actions": [],
+  "tools": [
+    "research"
+  ],
+  "fixture": "research",
+  "max_model_calls": 7,
+  "segment_model_calls": 7,
+  "max_tool_calls": 12,
+  "max_rounds": 7,
+  "timeout_seconds": 40.0,
+  "recovery": false,
+  "live_eligible": true,
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "output_tokens": null,
+  "checks": [
+    {
+      "id": "quotes",
+      "layer": "evidence",
+      "kind": "artifact_quotes",
+      "expected": true,
+      "hard_safety": false
+    },
+    {
+      "id": "conflict",
+      "layer": "evidence",
+      "kind": "research_conflict",
+      "expected": true,
+      "hard_safety": false
+    }
+  ],
+  "expected_verdict": "PASS"
+}

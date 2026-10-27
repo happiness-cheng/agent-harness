@@ -1,0 +1,85 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_________ test_stop_owned_cleans_descendant_after_root_already_exited _________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-28/test_stop_owned_cleans_descend0')
+
+    def test_stop_owned_cleans_descendant_after_root_already_exited(tmp_path):
+        from min_agent.evaluation.processes import start_owned, stop_owned
+        command, options = exited_parent_command(tmp_path)
+        process = start_owned(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **options)
+        try:
+            assert process.wait(timeout=20) == 0
+            with pytest.raises(DatabaseInUse):
+                with DatabaseLease(tmp_path/'resource', {'product':'before-orphan-stop'}):
+                    pass
+            stop_owned(process)
+>           with DatabaseLease(tmp_path/'resource', {'product':'after-orphan-stop'}):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_evaluation_processes.py:121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <min_agent.web.launcher.DatabaseLease object at 0x00000200A2A0CCD0>
+
+    def __enter__(self):
+        self.path.parent.mkdir(parents=True,exist_ok=True)
+        stream=self.path.open('a+b')
+        stream.seek(0,2)
+        if stream.tell()==0:stream.write(b'\n');stream.flush()
+        stream.seek(0)
+        try:
+            if os.name=='nt':
+                import msvcrt
+                msvcrt.locking(stream.fileno(),msvcrt.LK_NBLCK,1)
+            else:
+                import fcntl
+                fcntl.flock(stream.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except OSError:
+            stream.close()
+>           raise DatabaseInUse('当前数据库已有写库进程，不能重复启动') from None
+E           min_agent.web.launcher.DatabaseInUse: 当前数据库已有写库进程，不能重复启动
+
+src\min_agent\web\launcher.py:51: DatabaseInUse
+______________ test_run_owned_cleans_descendants_even_on_success ______________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-28/test_run_owned_cleans_descenda0')
+
+    def test_run_owned_cleans_descendants_even_on_success(tmp_path):
+        from min_agent.evaluation.processes import run_owned
+        command, options = exited_parent_command(tmp_path)
+        try:
+            result = run_owned(command, timeout=20, capture_output=True, text=True, **options)
+            assert result.returncode == 0 and result.stdout.strip() == 'root-finished'
+            assert (tmp_path/'ready').exists()
+>           with DatabaseLease(tmp_path/'resource', {'product':'after-success'}):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_evaluation_processes.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <min_agent.web.launcher.DatabaseLease object at 0x00000200A29E7BB0>
+
+    def __enter__(self):
+        self.path.parent.mkdir(parents=True,exist_ok=True)
+        stream=self.path.open('a+b')
+        stream.seek(0,2)
+        if stream.tell()==0:stream.write(b'\n');stream.flush()
+        stream.seek(0)
+        try:
+            if os.name=='nt':
+                import msvcrt
+                msvcrt.locking(stream.fileno(),msvcrt.LK_NBLCK,1)
+            else:
+                import fcntl
+                fcntl.flock(stream.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except OSError:
+            stream.close()
+>           raise DatabaseInUse('当前数据库已有写库进程，不能重复启动') from None
+E           min_agent.web.launcher.DatabaseInUse: 当前数据库已有写库进程，不能重复启动
+
+src\min_agent\web\launcher.py:51: DatabaseInUse
+=========================== short test summary info ===========================
+FAILED tests/unit/test_evaluation_processes.py::test_stop_owned_cleans_descendant_after_root_already_exited
+FAILED tests/unit/test_evaluation_processes.py::test_run_owned_cleans_descendants_even_on_success
+2 failed, 3 deselected in 7.78s

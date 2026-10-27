@@ -1,0 +1,23 @@
+[
+  {
+    "case": "access-denied",
+    "stop_returned": false,
+    "winerror": 5,
+    "intercepted_errors": [
+      5
+    ],
+    "job_closed": true,
+    "drained": false,
+    "cleanup_lock_reacquired": true
+  },
+  {
+    "case": "naturally-gone",
+    "stop_returned": true,
+    "intercepted_errors": [
+      87
+    ],
+    "job_closed": true,
+    "drained": true,
+    "cleanup_lock_reacquired": true
+  }
+]

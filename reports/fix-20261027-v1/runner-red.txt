@@ -1,0 +1,79 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+__________ test_runner_cleans_owned_process_after_normal_worker_exit __________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-33/test_runner_cleans_owned_proce0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026FD37388A0>
+
+    def test_runner_cleans_owned_process_after_normal_worker_exit(tmp_path, monkeypatch):
+        original = runner.stop_owned
+        stopped = []
+    
+        def stop(process):
+            stopped.append(process.pid)
+            return original(process)
+    
+        monkeypatch.setattr(runner, 'stop_owned', stop)
+        result = runner.run_task(task_by_id('runtime.calc'), tmp_path/'normal')
+        assert result.verdict == 'PASS'
+>       assert len(stopped) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests\integration\test_evaluation_cleanup.py:19: AssertionError
+__________ test_runner_keeps_unknown_if_cleanup_cannot_be_confirmed ___________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-33/test_runner_keeps_unknown_if_c0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026FD3738C30>
+
+    def test_runner_keeps_unknown_if_cleanup_cannot_be_confirmed(tmp_path, monkeypatch):
+        original = runner.stop_owned
+    
+        def uncertain(process):
+            original(process)  # 实际探测进程不遗留，模拟的是确认失败。
+            raise RuntimeError('synthetic-cleanup-unknown')
+    
+        monkeypatch.setattr(runner, 'stop_owned', uncertain)
+        out = tmp_path/'uncertain'
+        result = runner.run_task(task_by_id('runtime.calc'), out)
+>       assert result.verdict == 'UNKNOWN'
+E       AssertionError: assert 'PASS' == 'UNKNOWN'
+E         
+E         - UNKNOWN
+E         + PASS
+
+tests\integration\test_evaluation_cleanup.py:32: AssertionError
+________ test_runner_records_start_failure_without_claiming_execution _________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-33/test_runner_records_start_fail0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026FD380CEF0>
+
+    def test_runner_records_start_failure_without_claiming_execution(tmp_path, monkeypatch):
+        def unavailable(*args, **kwargs):
+            raise OSError('synthetic-job-assignment-failure')
+    
+        monkeypatch.setattr(runner, 'start_owned', unavailable)
+        out = tmp_path/'startup'
+>       result = runner.run_task(task_by_id('runtime.calc'), out)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_evaluation_cleanup.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\min_agent\evaluation\runner.py:54: in run_task
+    start=monotonic();process=start_owned(command,**options);transport='ok'
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (['C:\\Users\\陈独秀\\Documents\\agent-harness\\.venv\\Scripts\\python.exe', '-X', 'utf8', '-m', 'min_agent.evaluation.worker', '--spec', ...],)
+kwargs = {'cwd': WindowsPath('C:/Users/陈独秀/Documents/agent-harness'), 'env': {'ALLUSERSPROFILE': 'C:\\ProgramData', 'ANTHROPIC_...FYING_IDENTITY': 'MCowBQYDK2VwAyEAtHRci4QYL1JSypPtzYlJSf7s6sdhlQhu0uFBdZhsR8g=', ...}, 'stdout': -1, 'stderr': -2, ...}
+
+    def unavailable(*args, **kwargs):
+>       raise OSError('synthetic-job-assignment-failure')
+E       OSError: synthetic-job-assignment-failure
+
+tests\integration\test_evaluation_cleanup.py:40: OSError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_evaluation_cleanup.py::test_runner_cleans_owned_process_after_normal_worker_exit
+FAILED tests/integration/test_evaluation_cleanup.py::test_runner_keeps_unknown_if_cleanup_cannot_be_confirmed
+FAILED tests/integration/test_evaluation_cleanup.py::test_runner_records_start_failure_without_claiming_execution
+3 failed in 14.72s

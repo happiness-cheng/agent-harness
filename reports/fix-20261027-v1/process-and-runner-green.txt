@@ -1,0 +1,21 @@
+.F............                                                           [100%]
+================================== FAILURES ===================================
+____________ test_timeout_stops_owned_descendants_before_returning ____________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-40/test_timeout_stops_owned_desce0')
+
+    def test_timeout_stops_owned_descendants_before_returning(tmp_path):
+        from min_agent.evaluation.processes import run_owned
+        command, options = parent_command(tmp_path)
+        with pytest.raises(subprocess.TimeoutExpired):
+            run_owned(command, timeout=5, **options)
+>       assert (tmp_path/'ready').exists(), '必须在持锁后触发超时，避免空验收'
+E       AssertionError: 必须在持锁后触发超时，避免空验收
+E       assert False
+E        +  where False = exists()
+E        +    where exists = (WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-40/test_timeout_stops_owned_desce0') / 'ready').exists
+
+tests\unit\test_evaluation_processes.py:57: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/unit/test_evaluation_processes.py::test_timeout_stops_owned_descendants_before_returning
+1 failed, 13 passed in 117.76s (0:01:57)

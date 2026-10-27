@@ -1,0 +1,16 @@
+[
+  {
+    "stage": "before",
+    "root": 30120,
+    "child": 29276,
+    "member": 1,
+    "ok": 1,
+    "active": 4,
+    "total": 6
+  },
+  {
+    "stage": "after",
+    "delay": 0.0,
+    "locked": false
+  }
+]

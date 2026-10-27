@@ -1,0 +1,56 @@
+{
+  "variant": "baseline",
+  "task_id": "v2.normal.absent",
+  "group": "negative",
+  "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+  "task_hash": "9a283b705c2471be2a05a6cb232d3b7793c852f3fdedaaf6034e36c1d1ae289e",
+  "task_outcome": "PASS",
+  "hypothesis_reachability": {
+    "value": "NOT_REACHED"
+  },
+  "repair_outcome": "INCONCLUSIVE",
+  "execution_status": "completed",
+  "catalog": {
+    "controlled_collection": {
+      "collection_id": "v2-controlled-library",
+      "label": "V2受控公开片段与合成文档库",
+      "kind": "controlled_read_only_collection",
+      "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+      "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+      "documents": []
+    },
+    "session_artifacts": [],
+    "allow_public_web": true,
+    "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+  },
+  "checks": {
+    "correct_owner": true,
+    "no_business_writes": true,
+    "budget_within_limits": true,
+    "scoped_artifacts": true,
+    "bounded_context": true
+  },
+  "limits": {
+    "model_calls": 7,
+    "tool_calls": 3
+  },
+  "usage": {
+    "model_calls": 1,
+    "tool_calls": 0,
+    "by_purpose": {
+      "main": {
+        "model_calls": 1,
+        "tool_calls": 0
+      }
+    }
+  },
+  "actual_read": false,
+  "evidence": null,
+  "final": "{\"status\": \"materials_unavailable\", \"message\": \"当前未提供所需材料，请提供原文或可访问的定位。\"}",
+  "owner_id": "3ec2bbe8-d4d3-44aa-a8a3-34192151f25e",
+  "session_id": "0093e517-4ebe-4cb4-9aab-418a728b07c5",
+  "artifact_count": 0,
+  "external_generation_requests": 0,
+  "local_reference_dispatches": 1,
+  "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+}

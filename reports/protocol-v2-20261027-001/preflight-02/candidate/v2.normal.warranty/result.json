@@ -1,0 +1,94 @@
+{
+  "variant": "candidate",
+  "task_id": "v2.normal.warranty",
+  "group": "normal",
+  "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+  "task_hash": "e0e4ca778ff025d2db946f98736d752be125e61bbf7e05f38987626c5092f926",
+  "task_outcome": "PASS",
+  "hypothesis_reachability": {
+    "value": "REACHED",
+    "dispatch": 2,
+    "remaining": {
+      "tool_calls": 1,
+      "model_calls": 4
+    },
+    "read_tool_exposed": true,
+    "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+  },
+  "repair_outcome": "INCONCLUSIVE",
+  "execution_status": "completed",
+  "catalog": {
+    "controlled_collection": {
+      "collection_id": "v2-controlled-library",
+      "label": "V2受控公开片段与合成文档库",
+      "kind": "controlled_read_only_collection",
+      "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+      "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+      "documents": [
+        {
+          "document_id": "warranty",
+          "title": "合成产品保修政策",
+          "locator": "https://fixtures.example/warranty",
+          "nature": "synthetic_document",
+          "coverage": "完整合成测试条款，不代表真实产品政策",
+          "origin_url": ""
+        }
+      ]
+    },
+    "session_artifacts": [],
+    "allow_public_web": true,
+    "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+  },
+  "checks": {
+    "correct_owner": true,
+    "no_business_writes": true,
+    "budget_within_limits": true,
+    "scoped_artifacts": true,
+    "bounded_context": true
+  },
+  "limits": {
+    "model_calls": 7,
+    "tool_calls": 3
+  },
+  "usage": {
+    "model_calls": 5,
+    "tool_calls": 3,
+    "by_purpose": {
+      "main": {
+        "model_calls": 2,
+        "tool_calls": 1
+      },
+      "research": {
+        "model_calls": 3,
+        "tool_calls": 2
+      }
+    }
+  },
+  "actual_read": true,
+  "evidence": {
+    "conclusion": "合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。",
+    "citations": [
+      {
+        "url": "https://fixtures.example/warranty",
+        "artifact_id": "f484f7ea-650c-4d5d-911e-f690133c370d",
+        "start": 0,
+        "end": 30,
+        "quote": "合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。",
+        "offset_normalized": false
+      }
+    ],
+    "limitations": [
+      "仅依据受控资料，历史片段不代表全文或最新版本。"
+    ],
+    "conflicts": [],
+    "uncertainties": [],
+    "next_queries": []
+  },
+  "final": "{\"status\": \"completed\", \"evidence\": {\"conclusion\": \"合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。\", \"citations\": [{\"url\": \"https://fixtures.example/warranty\", \"artifact_id\": \"f484f7ea-650c-4d5d-911e-f690133c370d\", \"start\": 0, \"end\": 30, \"quote\": \"合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。\", \"offset_normalized\": false}], \"limitations\": [\"仅依据受控资料，历史片段不代表全文或最新版本。\"], \"conflicts\": [], \"uncertainties\": [], \"next_queries\": []}, \"error\": null}",
+  "owner_id": "6f6a03a8-d4ab-4118-9c49-78711a01b2e6",
+  "session_id": "0f2c5b4a-b08f-4c2b-936c-cc6c64a2e442",
+  "artifact_count": 1,
+  "external_generation_requests": 0,
+  "local_reference_dispatches": 5,
+  "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+}

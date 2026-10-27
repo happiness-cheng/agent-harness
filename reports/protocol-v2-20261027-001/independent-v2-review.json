@@ -1,0 +1,23 @@
+{
+  "verdict": "PASS",
+  "findings": [],
+  "severity_counts": {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0},
+  "reviewer_external_generation_requests": 0,
+  "reviewer_network_requests": 0,
+  "executed_test": {"file": "test_resource_entry.py", "python": ".venv/Scripts/python.exe", "pythonpath": "candidate/workspace/src", "passed": 3, "seconds": 1.56},
+  "independent_evidence_checks": {
+    "sqlite_trace_artifact_owner_cases": 26,
+    "reach_recomputed_cases": 26,
+    "first_input_pairs_equal": 13,
+    "first_input_body_leak": false,
+    "contract_and_task_hashes_match": true,
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "baseline_candidate_source_differences": ["min_agent/research.py"],
+    "historical_files_checked": 1212,
+    "historical_files_changed": [],
+    "main_protected_files_changed": []
+  },
+  "closed_findings": [{"severity": "MEDIUM", "issue": "Publication extension whitelist omitted reproduce.ps1", "status": "FIXED_AND_RECHECKED", "verified": [".ps1 accepted by prepare_publication.py", "published reproduce.ps1 exists", "published bytes equal current script", "manifest hash matches"]}],
+  "limitations": ["Full 1268/1259 test suites were not rerun by this reviewer", "Empty-catalog negative case does not cover nonempty irrelevant catalog with missing target", "ReferencePolicy selects first catalog document and does not implement natural-language target matching", "Offline fixed-policy results cannot establish real-model repair gains", "Publication security result is bounded by its explicit scan patterns and manifest scope"],
+  "repair_outcome": "INCONCLUSIVE"
+}

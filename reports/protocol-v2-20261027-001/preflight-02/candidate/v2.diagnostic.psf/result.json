@@ -1,0 +1,94 @@
+{
+  "variant": "candidate",
+  "task_id": "v2.diagnostic.psf",
+  "group": "diagnostic",
+  "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+  "task_hash": "2e996551b2541a9bde521b80ed517690d94996e28bb49038d5a5440babc50cc6",
+  "task_outcome": "PASS",
+  "hypothesis_reachability": {
+    "value": "REACHED",
+    "dispatch": 2,
+    "remaining": {
+      "tool_calls": 1,
+      "model_calls": 4
+    },
+    "read_tool_exposed": true,
+    "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+  },
+  "repair_outcome": "INCONCLUSIVE",
+  "execution_status": "completed",
+  "catalog": {
+    "controlled_collection": {
+      "collection_id": "v2-controlled-library",
+      "label": "V2受控公开片段与合成文档库",
+      "kind": "controlled_read_only_collection",
+      "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+      "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+      "documents": [
+        {
+          "document_id": "psf",
+          "title": "PSF使命公开历史片段",
+          "locator": "https://fixtures.example/archive/psf",
+          "nature": "public_archive_excerpt",
+          "coverage": "仅保存公开网页的历史短片段，非全文，未实时更新",
+          "origin_url": "https://www.python.org/"
+        }
+      ]
+    },
+    "session_artifacts": [],
+    "allow_public_web": true,
+    "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+  },
+  "checks": {
+    "correct_owner": true,
+    "no_business_writes": true,
+    "budget_within_limits": true,
+    "scoped_artifacts": true,
+    "bounded_context": true
+  },
+  "limits": {
+    "model_calls": 7,
+    "tool_calls": 3
+  },
+  "usage": {
+    "model_calls": 5,
+    "tool_calls": 3,
+    "by_purpose": {
+      "main": {
+        "model_calls": 2,
+        "tool_calls": 1
+      },
+      "research": {
+        "model_calls": 3,
+        "tool_calls": 2
+      }
+    }
+  },
+  "actual_read": true,
+  "evidence": {
+    "conclusion": "The mission of the Python Software Foundation is to promote, protect",
+    "citations": [
+      {
+        "url": "https://fixtures.example/archive/psf",
+        "artifact_id": "73fab3ef-0591-4482-ba64-5f0383a858ed",
+        "start": 0,
+        "end": 68,
+        "quote": "The mission of the Python Software Foundation is to promote, protect",
+        "offset_normalized": false
+      }
+    ],
+    "limitations": [
+      "仅依据受控资料，历史片段不代表全文或最新版本。"
+    ],
+    "conflicts": [],
+    "uncertainties": [],
+    "next_queries": []
+  },
+  "final": "{\"status\": \"completed\", \"evidence\": {\"conclusion\": \"The mission of the Python Software Foundation is to promote, protect\", \"citations\": [{\"url\": \"https://fixtures.example/archive/psf\", \"artifact_id\": \"73fab3ef-0591-4482-ba64-5f0383a858ed\", \"start\": 0, \"end\": 68, \"quote\": \"The mission of the Python Software Foundation is to promote, protect\", \"offset_normalized\": false}], \"limitations\": [\"仅依据受控资料，历史片段不代表全文或最新版本。\"], \"conflicts\": [], \"uncertainties\": [], \"next_queries\": []}, \"error\": null}",
+  "owner_id": "07560989-84da-476f-9569-8da1b13a474a",
+  "session_id": "48be5255-8d64-43ee-8c7f-8474e8734abe",
+  "artifact_count": 1,
+  "external_generation_requests": 0,
+  "local_reference_dispatches": 5,
+  "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+}

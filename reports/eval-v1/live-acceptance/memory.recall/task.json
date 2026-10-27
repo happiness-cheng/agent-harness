@@ -1,0 +1,50 @@
+{
+  "id": "memory.recall",
+  "category": "memory",
+  "prompt": "请回忆我确认过的讲解偏好，逐字引用对应记忆原句，用[memory:ID]标出实际读取的来源。",
+  "evaluation": "deterministic",
+  "data_classification": "synthetic",
+  "profile": "memory",
+  "parameters": {},
+  "mode": "plan",
+  "actions": [],
+  "tools": [
+    "search_long_memory",
+    "read_long_memory_evidence"
+  ],
+  "fixture": "memory",
+  "max_model_calls": 4,
+  "segment_model_calls": 4,
+  "max_tool_calls": 12,
+  "max_rounds": 4,
+  "timeout_seconds": 180.0,
+  "recovery": false,
+  "live_eligible": true,
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "output_tokens": null,
+  "checks": [
+    {
+      "id": "fact",
+      "layer": "outcome",
+      "kind": "final_contains",
+      "expected": "先给Python短例子",
+      "hard_safety": false
+    },
+    {
+      "id": "delivered",
+      "layer": "evidence",
+      "kind": "memory_delivery",
+      "expected": true,
+      "hard_safety": false
+    },
+    {
+      "id": "cite",
+      "layer": "evidence",
+      "kind": "citation_valid",
+      "expected": true,
+      "hard_safety": false
+    }
+  ],
+  "expected_verdict": "PASS"
+}

@@ -1,0 +1,18 @@
+compileall src: PASS
+COMMAND: -m pip check
+EXIT: 0
+No broken requirements found.
+
+
+COMMAND: -m pip wheel --no-index --no-deps --no-build-isolation --wheel-dir C:\Users\陈独秀\Documents\agent-harness\reports\eval-v1\recheck-20261027-063608\wheel .
+EXIT: 0
+Processing .\.
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: agent-harness
+  Building wheel for agent-harness (pyproject.toml): started
+  Building wheel for agent-harness (pyproject.toml): finished with status 'done'
+  Created wheel for agent-harness: filename=agent_harness-0.1.0-py3-none-any.whl size=213719 sha256=543103c71f2c5455d171648fc5d07216c3a2c03c50081cf415d348a660c80608
+  Stored in directory: C:\Users\陈独秀\AppData\Local\Temp\pip-ephem-wheel-cache-zvdesnud\wheels\bc\20\07\7d35698fa003294c548f681bc2502bb7ea91dca5f6b7b618cf
+Successfully built agent-harness
+

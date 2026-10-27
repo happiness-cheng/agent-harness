@@ -1,0 +1,8 @@
+{
+  "index_source_version": "c953ec972ec5d6825d009509e5bbf203b8e3b8dcba3456f26e5be2fcf24a60f7",
+  "expected_root_source_version": "c953ec972ec5d6825d009509e5bbf203b8e3b8dcba3456f26e5be2fcf24a60f7",
+  "protected_blob_files_checked": 2711,
+  "byte_mismatches": [],
+  "reproduce_script_blob_matches": true,
+  "index_files": 2948
+}

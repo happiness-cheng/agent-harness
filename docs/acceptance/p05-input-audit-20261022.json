@@ -1,0 +1,253 @@
+{
+  "audit": "P05-offline-input-reconstruction",
+  "date": "2026-10-22",
+  "live_requests": 0,
+  "historical_packet_capture": false,
+  "scope": "基于报告快照与当前适配器重建JSON；不是历史HTTP抓包，不能证明提供商实际内部处理。",
+  "rows": [
+    {
+      "case_id": "direct_rewrite",
+      "variant": "before",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 11275,
+      "request_json_sha256": "0b9b18c3fd93802617babc76546cff366d77f6915897f17965de5ace7da2bc0e"
+    },
+    {
+      "case_id": "direct_rewrite",
+      "variant": "after",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 12138,
+      "request_json_sha256": "e810cb36e12bbf86894ac11b1519ba6e2c03e8e60dc8e3c4d9058a417cc35488"
+    },
+    {
+      "case_id": "grounded_learning",
+      "variant": "after",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 12195,
+      "request_json_sha256": "a218c77e26708782e3d55f1af45df1049e902776ea0ca629b918e8e9f4a94f63"
+    },
+    {
+      "case_id": "grounded_learning",
+      "variant": "before",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 11332,
+      "request_json_sha256": "f613ea034543ca1f818738cc16a5c46792bb3c93e25847cee84da3daacf18198"
+    },
+    {
+      "case_id": "conflicting_goals",
+      "variant": "before",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 11277,
+      "request_json_sha256": "f6ce16346e6dbe81114d22fb19463de0f6f70235149fc14c53819467534b2648"
+    },
+    {
+      "case_id": "conflicting_goals",
+      "variant": "after",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 12140,
+      "request_json_sha256": "4cab160d210eb9a11a1a8d77f21da2454627f1f2c4133f1eb93def4eb57a2d2b"
+    },
+    {
+      "case_id": "travel_ambiguity",
+      "variant": "after",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 12096,
+      "request_json_sha256": "12eb8ab85fb9ea837f32bccdeee8445c9d0b1c6301a7f29481b8e35efb89b487"
+    },
+    {
+      "case_id": "travel_ambiguity",
+      "variant": "before",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 11233,
+      "request_json_sha256": "e5a59da5ddf801df788277a8ac7ab41c9cd32b2d498b1a5da71a2a6bb1c339fb"
+    },
+    {
+      "case_id": "review_missing_input",
+      "variant": "before",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 11269,
+      "request_json_sha256": "1d5004de7a7e03529b6fab87bd0d093442c685242fa73040a2b4105f79110eaa"
+    },
+    {
+      "case_id": "review_missing_input",
+      "variant": "after",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 12132,
+      "request_json_sha256": "ee6726f18341347e8da7069a950d45fdc8901e2596f78479ccb3ac222caee988"
+    },
+    {
+      "case_id": "no_extra_guidance",
+      "variant": "after",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 12147,
+      "request_json_sha256": "f457e0cfd66a92205dc3df0cc25a9d5dffcf5001c393c0d25524721493f8e118"
+    },
+    {
+      "case_id": "no_extra_guidance",
+      "variant": "before",
+      "message_count": 3,
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "system_exact": true,
+      "question_exact": true,
+      "tool_count": 5,
+      "grading_expectation_sent": false,
+      "request_json_bytes": 11284,
+      "request_json_sha256": "e2c6e5cc5641d5433942273b2aa1fbc5621222e5127edc7d3cb6498f596bb819"
+    }
+  ],
+  "evaluation_tool_names": [
+    "propose_goal",
+    "reminder_add",
+    "reminder_cancel",
+    "reminder_list",
+    "reminder_update"
+  ],
+  "statically_confirmed_application_tool_names": [
+    "calculator",
+    "propose_goal",
+    "read_artifact",
+    "read_memory_source",
+    "read_session_state",
+    "read_skill",
+    "recall_memory",
+    "reminder_add",
+    "reminder_cancel",
+    "reminder_list",
+    "reminder_update",
+    "research",
+    "todo_add",
+    "todo_complete",
+    "todo_delete",
+    "todo_list",
+    "todo_update"
+  ],
+  "application_tools_absent_from_evaluation": [
+    "calculator",
+    "read_artifact",
+    "read_memory_source",
+    "read_session_state",
+    "read_skill",
+    "recall_memory",
+    "research",
+    "todo_add",
+    "todo_complete",
+    "todo_delete",
+    "todo_list",
+    "todo_update"
+  ],
+  "knowledge_material_in_messages": false,
+  "history_in_messages": false,
+  "grading_expectations_sent": false,
+  "source_sha256": {
+    "src/min_agent/application.py": "aa14ebe5699c2223092f7443e9056d9d72ed423a80cd6a61a48ba8053d25fee4",
+    "src/min_agent/tools/todo_tools.py": "4a80c75df77777d4b57e547e1fb95f4896e822103468299474c1e740239b5dee",
+    "src/min_agent/tools/reminder_tools.py": "d0505faf1b906c86ef458bc2b6843aa45715c11cff90c290213c6a94d01ff230",
+    "src/min_agent/tools/calculator.py": "c6ac97a0ec82d40376e9e4e3d5be2f21b56460431bdaddc74968243b1c7c4e1c",
+    "scripts/eval_secretary_prompt.py": "f39d86d87360532739d1aae2bd328f116a5412d2fec72a3e1f88ea77e19a0476",
+    "src/min_agent/llm/deepseek.py": "8acdb8fa98077743e51147e5843d48300f78dfdcb639a799a95ff69a87e10449",
+    "src/min_agent/llm/openai_protocol.py": "b77d8b19e0b1cca7eeb6ca49092d22c8eb1b6478f8de3b9b7f4157fd32446ded"
+  }
+}

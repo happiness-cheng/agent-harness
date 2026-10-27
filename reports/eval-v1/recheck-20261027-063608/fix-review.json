@@ -1,0 +1,33 @@
+{
+  "source_sha256": "f135af28a876b9c1d6660c1b87a2d1ed1dd3ebbcb00c3436176b112fda6cb4d7",
+  "modified": [
+    "src/min_agent/evaluation/codex_adapter.py",
+    "src/min_agent/evaluation/improvement.py",
+    "src/min_agent/evaluation/night_executor.py",
+    "src/min_agent/evaluation/runner.py",
+    "tests/integration/test_evaluation_v1.py",
+    "tests/unit/test_codex_night_adapter.py"
+  ],
+  "added": [
+    "src/min_agent/evaluation/processes.py",
+    "tests/unit/test_evaluation_processes.py"
+  ],
+  "git_head": "220f6ec18d50e08316a54c3b34b81b0d00c6744d",
+  "protected_source_files": 204,
+  "protected_unchanged": true,
+  "prior_artifacts_unchanged": true,
+  "evaluation_standards_unchanged": true,
+  "full_test_failures": [
+    "tests/integration/test_memory_tools.py::test_explicit_source_read_and_structured_recall_are_not_silently_head_truncated"
+  ],
+  "full_test_summary": "1 failed, 1247 passed, 3 deselected, 1 warning in 154.17s (0:02:34)",
+  "whitespace": "PASS",
+  "type_checker": "NOT_RUN: not configured",
+  "linter": "NOT_RUN: not configured",
+  "self_review": "PASS: owned PID tree only, original UNKNOWN and budget boundaries retained; no independent agent claimed",
+  "external_model_calls": 0,
+  "production_database_migrated": false,
+  "remote_push": false,
+  "live_model_retest": "NOT_RUN: existing raw generations retained; process fix verified offline",
+  "code_quality_rule": "code-quality.md unavailable; applied AGENTS and verification checklist equivalents"
+}

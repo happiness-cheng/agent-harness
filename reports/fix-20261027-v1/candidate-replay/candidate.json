@@ -1,0 +1,8 @@
+{
+  "bindings": {
+    "Add": "add",
+    "Div": "divide",
+    "Mult": "multiply",
+    "Sub": "subtract"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "id": "research.semantic",
+  "category": "research",
+  "prompt": "分析两份合成政策冲突是否充分支持最终建议，需独立语义审查。",
+  "evaluation": "semantic",
+  "data_classification": "synthetic",
+  "profile": "research",
+  "parameters": {},
+  "mode": "plan",
+  "actions": [],
+  "tools": [
+    "research"
+  ],
+  "fixture": "research",
+  "max_model_calls": 8,
+  "segment_model_calls": 8,
+  "max_tool_calls": 12,
+  "max_rounds": 8,
+  "timeout_seconds": 40.0,
+  "recovery": false,
+  "live_eligible": false,
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "output_tokens": null,
+  "checks": [
+    {
+      "id": "quotes",
+      "layer": "evidence",
+      "kind": "artifact_quotes",
+      "expected": true,
+      "hard_safety": false
+    },
+    {
+      "id": "support",
+      "layer": "semantic",
+      "kind": "semantic_support",
+      "expected": null,
+      "hard_safety": false
+    }
+  ],
+  "expected_verdict": "UNKNOWN"
+}

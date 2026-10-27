@@ -1,0 +1,122 @@
+{
+  "run_id": "46702a04-143a-491f-805a-e81065a011aa",
+  "task_id": "runtime.calc",
+  "version_id": "f135af28a876b9c1d6660c1b87a2d1ed1dd3ebbcb00c3436176b112fda6cb4d7",
+  "session_id": "99ea0dc3-fcf0-4bff-a1ed-c39d97a3bfd9",
+  "transport_status": "ok",
+  "execution_status": "completed",
+  "answer": "5",
+  "todos": [],
+  "initial_todos": [],
+  "tools": [
+    {
+      "id": "eval-1-calculator",
+      "name": "calculator",
+      "arguments": {
+        "expression": "2+3"
+      },
+      "result": {
+        "ok": true,
+        "result": "5"
+      },
+      "message_index": 2
+    }
+  ],
+  "trace": [
+    {
+      "sequence": 1,
+      "run_id": "9e8564ba-9c86-47ce-8c01-e7b8729effe7",
+      "call_id": "25183a7c-c061-4458-bb77-06e195ca74df",
+      "parent_call_id": "dfb720aa-6c7c-4f84-b60d-f0cf346f54db",
+      "session_id": "99ea0dc3-fcf0-4bff-a1ed-c39d97a3bfd9",
+      "task_id": "da853960-a1f4-41dd-926e-ee2b58908e0e",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 17.639300000155345,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 2,
+      "run_id": "9e8564ba-9c86-47ce-8c01-e7b8729effe7",
+      "call_id": "cd1ca0fa-2fb3-4ed9-8dcf-6812f438bfcd",
+      "parent_call_id": "25183a7c-c061-4458-bb77-06e195ca74df",
+      "session_id": "99ea0dc3-fcf0-4bff-a1ed-c39d97a3bfd9",
+      "task_id": "da853960-a1f4-41dd-926e-ee2b58908e0e",
+      "operation": "tool",
+      "status": "completed",
+      "duration_ms": 8.327900024596602,
+      "error_code": null,
+      "execution_state": "returned",
+      "source_call_ref": "3b3ea1b42b0a02f70f0add8aa74e587a4eff67a4b5a5bb0e90c84d71836be67c",
+      "tool_ref": "d2d4a592700b0920658e5d56ed50ebfaa82b1f4a3e105e9bcfd8bcbb081c2e87"
+    },
+    {
+      "sequence": 3,
+      "run_id": "9e8564ba-9c86-47ce-8c01-e7b8729effe7",
+      "call_id": "66da6628-064f-4d7d-be0d-8c6047386b2b",
+      "parent_call_id": "dfb720aa-6c7c-4f84-b60d-f0cf346f54db",
+      "session_id": "99ea0dc3-fcf0-4bff-a1ed-c39d97a3bfd9",
+      "task_id": "da853960-a1f4-41dd-926e-ee2b58908e0e",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 10.359799984144047,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 4,
+      "run_id": "9e8564ba-9c86-47ce-8c01-e7b8729effe7",
+      "call_id": "dfb720aa-6c7c-4f84-b60d-f0cf346f54db",
+      "parent_call_id": null,
+      "session_id": "99ea0dc3-fcf0-4bff-a1ed-c39d97a3bfd9",
+      "task_id": "da853960-a1f4-41dd-926e-ee2b58908e0e",
+      "operation": "run",
+      "status": "completed",
+      "duration_ms": 43.721499998355284,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    }
+  ],
+  "artifacts": {},
+  "budget": {
+    "id": "5216ec70-c0f0-4c86-af99-d6af9adde253",
+    "limits": {
+      "model_calls": 8,
+      "tool_calls": 12
+    },
+    "usage": {
+      "model_calls": 2,
+      "tool_calls": 1,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        }
+      }
+    }
+  },
+  "checkpoint": null,
+  "memory_delivery": {},
+  "citation": {},
+  "model_requests": 2,
+  "usage": [],
+  "elapsed_seconds": 0.23372810002183542,
+  "extra": {
+    "recovery": {},
+    "provider_errors": [],
+    "task_error": null,
+    "backend": "SCRIPTED_ACTUAL_HARNESS",
+    "last_visible_memory_refs": [],
+    "database": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\recheck-20261027-063608\\offline-suite\\runtime.calc\\workspace.sqlite3",
+    "data_classification": "synthetic",
+    "database_reopened_read_only": true,
+    "scope_mismatch": false
+  }
+}

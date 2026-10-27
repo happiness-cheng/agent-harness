@@ -32,6 +32,7 @@ pyee==14.0.0
 pygments==2.21.0
 pytest==9.1.1
 python-dateutil==2.9.0.post0
+PyYAML==6.0.3
 pytz==2026.5
 regex==2026.9.29
 six==1.17.0

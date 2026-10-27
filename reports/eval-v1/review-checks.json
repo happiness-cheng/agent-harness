@@ -1,0 +1,26 @@
+{
+  "baseline_archive": "PASS",
+  "protected_files": "PASS",
+  "source_snapshot": "PASS",
+  "whitespace_diff": "PASS",
+  "secret_literal_pattern": "PASS",
+  "secret_scan_scope": "incremental source/docs and selected synthetic receipts; pattern scan is not comprehensive DLP",
+  "baseline_files": 185,
+  "protected_unchanged": 177,
+  "delivery_source_sha256": "5705d3e66d442d4dc7973b15e8a16e4d62753ebc8ace34678f31cbf482a74280",
+  "offline_acceptance_source_sha256": "604b6d4572ec5e122fbf1c91f7e64820da4481f5307b7a193b95a57b86573fab",
+  "acceptance_to_delivery_changes": [
+    "src/min_agent/evaluation/journal.py"
+  ],
+  "acceptance_to_delivery_logic_unchanged": true,
+  "head": "220f6ec18d50e08316a54c3b34b81b0d00c6744d",
+  "head_alone_reproduces": false,
+  "private_data_imported": false,
+  "database_migration": false,
+  "remote_push": false,
+  "candidate_auto_merge": false,
+  "real_ten_hour_run": "NOT_RUN",
+  "type_checker": "NOT_RUN: no configured checker",
+  "linter": "NOT_RUN: no configured linter",
+  "complete_regression": "1 failed, 1242 passed, 3 deselected; existing long-source-read failure"
+}

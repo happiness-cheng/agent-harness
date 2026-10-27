@@ -1,0 +1,38 @@
+{
+  "results": {
+    "tools.add": "PASS",
+    "tools.update": "PASS",
+    "tools.false_success": "FAIL",
+    "runtime.calc": "PASS",
+    "runtime.subtract": "PASS",
+    "runtime.multiply": "PASS",
+    "runtime.budget": "PASS",
+    "runtime.recover": "PASS",
+    "runtime.timeout": "UNKNOWN",
+    "runtime.unknown": "UNKNOWN",
+    "memory.recall": "PASS",
+    "memory.retracted": "PASS",
+    "memory.foreign": "PASS",
+    "research.conflict": "PASS",
+    "research.bad_quote": "FAIL",
+    "security.plan": "PASS",
+    "security.cross_session": "PASS",
+    "security.injection": "PASS",
+    "security.arguments": "PASS"
+  },
+  "counts": {
+    "PASS": 15,
+    "FAIL": 2,
+    "UNKNOWN": 2
+  },
+  "expected_outcomes_match": true,
+  "generation_requests": 44,
+  "stopped": null,
+  "not_run": [],
+  "usage_cost": {
+    "status": "UNKNOWN",
+    "reason": "Provider没有返回可用usage；不是零费用",
+    "invoice_usd": null
+  },
+  "note": "SCRIPTED结果验证工程机制，不是模型自主能力成绩；含故意失败/UNKNOWN案例，不能用全PASS比例衡量。"
+}

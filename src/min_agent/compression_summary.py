@@ -22,9 +22,11 @@ class SummaryResponse(BaseModel):
 
 
 class SemanticCompressor:
-    def __init__(self, model, budget, *, input_window=32768, control=None,
+    def __init__(self, model, budget, *, input_window=None, control=None,
                  reserve_model_calls=1, max_calls=4):
-        self.model, self.budget, self.input_window = model, budget, input_window
+        from min_agent.model_context import context_window, output_reserve
+        self.model, self.budget = model, budget
+        self.input_window, self.output_reserve = context_window(model, override=input_window), output_reserve(model)
         self.control, self.reserve_model_calls, self.max_calls = control, reserve_model_calls, max_calls
         self.prompt = files("min_agent.prompts").joinpath("compress_selection.md").read_text(encoding="utf-8")
 
@@ -38,7 +40,7 @@ class SemanticCompressor:
 
     def _fits(self, messages, max_bytes):
         from min_agent.context import request_bound
-        return request_bound(messages) + max(4096, max_bytes + 1024) + 1024 <= self.input_window
+        return request_bound(messages, model=self.model) + max(self.output_reserve, max_bytes + 1024) + 1024 <= self.input_window
 
     def _check_stop(self):
         if self.control is not None and self.control.snapshot()["stop"]:

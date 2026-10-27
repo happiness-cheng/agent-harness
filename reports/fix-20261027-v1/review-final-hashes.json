@@ -1,0 +1,8 @@
+{
+  "src/min_agent/evaluation/_windows_job.py": "d236a17aa678324f6f38141f63bb350be3242238825c592350a96cb4520904ce",
+  "src/min_agent/evaluation/processes.py": "159b964843264be274dad1ad17f62b9952b748ed1777f6cfd70195bc3b61b272",
+  "src/min_agent/evaluation/runner.py": "a7fd7f4926b3b52a5870ea1b9d447650b1fb4d5c10333f99ca957bb26ed9dd84",
+  "tests/unit/test_evaluation_processes.py": "e3fe0118cc0986006c0dd0bf5371ba197a97ac6516dd6d1dbcfa1530d9a7ca93",
+  "tests/integration/test_evaluation_cleanup.py": "c18fc4dcd03c351115dd90ac7d34b3bca1a0db28b9e35fe3df867eeeb5faedc3",
+  "tests/integration/test_memory_tools.py": "a828370f505797757be0476e092403bdf7bd0093511cd414fc21dab4538b3817"
+}

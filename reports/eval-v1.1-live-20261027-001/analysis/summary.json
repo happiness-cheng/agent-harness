@@ -1,0 +1,183 @@
+{
+  "outcome": "NO_VERIFIED_GAIN",
+  "reason": "TREATMENT_NOT_REACHED_SOURCE_DISCOVERY_MISSING",
+  "runs": [
+    {
+      "run": "baseline-0",
+      "case": "psf-archived-excerpt",
+      "verdict": "FAIL",
+      "execution_status": "completed",
+      "task_error": null,
+      "generation_requests": 2,
+      "tool_usage": 2,
+      "requested_actions": {
+        "recall_memory": 1,
+        "read_session_state": 1
+      },
+      "research_invocations": 0,
+      "reads": 0,
+      "artifacts": 0,
+      "spent_upper_usd": "0.00387",
+      "reserved_usd": 0,
+      "final_answer_present": true,
+      "checkpoint": {
+        "reason": null,
+        "closing_status": null,
+        "closing_error": null,
+        "model_note": null
+      }
+    },
+    {
+      "run": "baseline-1",
+      "case": "warranty-exclusion",
+      "verdict": "FAIL",
+      "execution_status": "completed",
+      "task_error": null,
+      "generation_requests": 2,
+      "tool_usage": 2,
+      "requested_actions": {
+        "read_session_state": 1,
+        "recall_memory": 1
+      },
+      "research_invocations": 0,
+      "reads": 0,
+      "artifacts": 0,
+      "spent_upper_usd": "0.003807",
+      "reserved_usd": 0,
+      "final_answer_present": true,
+      "checkpoint": {
+        "reason": null,
+        "closing_status": null,
+        "closing_error": null,
+        "model_note": null
+      }
+    },
+    {
+      "run": "baseline-2",
+      "case": "api-timeout",
+      "verdict": "FAIL",
+      "execution_status": "completed",
+      "task_error": null,
+      "generation_requests": 2,
+      "tool_usage": 1,
+      "requested_actions": {
+        "read_session_state": 1
+      },
+      "research_invocations": 0,
+      "reads": 0,
+      "artifacts": 0,
+      "spent_upper_usd": "0.005013",
+      "reserved_usd": 0,
+      "final_answer_present": true,
+      "checkpoint": {
+        "reason": null,
+        "closing_status": null,
+        "closing_error": null,
+        "model_note": null
+      }
+    },
+    {
+      "run": "candidate-0",
+      "case": "psf-archived-excerpt",
+      "verdict": "FAIL",
+      "execution_status": "partial",
+      "task_error": "budget_checkpoint",
+      "generation_requests": 4,
+      "tool_usage": 3,
+      "requested_actions": {
+        "recall_memory": 3,
+        "read_session_state": 1
+      },
+      "research_invocations": 0,
+      "reads": 0,
+      "artifacts": 0,
+      "spent_upper_usd": "0.006548",
+      "reserved_usd": 0,
+      "final_answer_present": false,
+      "checkpoint": {
+        "reason": null,
+        "closing_status": null,
+        "closing_error": null,
+        "model_note": null
+      }
+    },
+    {
+      "run": "candidate-1",
+      "case": "warranty-exclusion",
+      "verdict": "FAIL",
+      "execution_status": "completed",
+      "task_error": null,
+      "generation_requests": 2,
+      "tool_usage": 2,
+      "requested_actions": {
+        "read_session_state": 1,
+        "recall_memory": 1
+      },
+      "research_invocations": 0,
+      "reads": 0,
+      "artifacts": 0,
+      "spent_upper_usd": "0.004019",
+      "reserved_usd": 0,
+      "final_answer_present": true,
+      "checkpoint": {
+        "reason": null,
+        "closing_status": null,
+        "closing_error": null,
+        "model_note": null
+      }
+    },
+    {
+      "run": "candidate-2",
+      "case": "api-timeout",
+      "verdict": "FAIL",
+      "execution_status": "completed",
+      "task_error": null,
+      "generation_requests": 2,
+      "tool_usage": 2,
+      "requested_actions": {
+        "read_session_state": 1,
+        "recall_memory": 1
+      },
+      "research_invocations": 0,
+      "reads": 0,
+      "artifacts": 0,
+      "spent_upper_usd": "0.004098",
+      "reserved_usd": 0,
+      "final_answer_present": true,
+      "checkpoint": {
+        "reason": null,
+        "closing_status": null,
+        "closing_error": null,
+        "model_note": null
+      }
+    }
+  ],
+  "pairs": 3,
+  "baseline_pass": 0,
+  "candidate_pass": 0,
+  "task_fail": 6,
+  "execution_completed": 5,
+  "execution_partial": 1,
+  "research_invocations": 0,
+  "searches": 0,
+  "reads": 0,
+  "generation_requests": 14,
+  "input_tokens": 67756,
+  "output_tokens": 5851,
+  "cached_input_tokens": 59133,
+  "cost_ledger_spent_upper_usd": "0.027355",
+  "pending_reserved_usd": "0",
+  "invoice_usd": null,
+  "unique_owners": 6,
+  "unique_sessions": 6,
+  "business_writes": 0,
+  "budget_violations": 0,
+  "provider_errors": 0,
+  "auto_retries": 0,
+  "codex_cli_invocations": 0,
+  "source_code_regression_confirmed": false,
+  "first_request_equivalence": "see independent-live-audit.json",
+  "frozen_criteria_changed": false,
+  "no_more_generation_authorized_by_unused_request_capacity": true,
+  "interpretation": "授权六任务已完成；固定策略知道case query，但真实模型未得到资料入口。不得把该混杂归因为候选代码失效或真实能力退化。"
+}

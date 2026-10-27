@@ -1,0 +1,52 @@
+{
+  "modified": [
+    "README.md",
+    "docs/ADRIAN.md",
+    "src/min_agent/application.py",
+    "src/min_agent/context.py",
+    "src/min_agent/llm/client.py",
+    "src/min_agent/llm/deepseek.py",
+    "src/min_agent/model_context.py",
+    "src/min_agent/web/__main__.py"
+  ],
+  "added": [
+    "docs/EVALUATION_V1.md",
+    "docs/NIGHT_MODE.md",
+    "docs/diagrams/evaluation-v1/architecture.png",
+    "docs/diagrams/evaluation-v1/architecture.svg",
+    "docs/examples/evaluation-task.schema.json",
+    "docs/examples/evaluation-tasks.json",
+    "docs/examples/night-job.schema.json",
+    "docs/examples/night-jobs.json",
+    "scripts/draw_adrian_evaluation.py",
+    "scripts/evaluate-adrian.cmd",
+    "scripts/night-adrian.cmd",
+    "scripts/run_adrian_frozen_eval.py",
+    "src/min_agent/evaluation/__init__.py",
+    "src/min_agent/evaluation/__main__.py",
+    "src/min_agent/evaluation/codex_adapter.py",
+    "src/min_agent/evaluation/contracts.py",
+    "src/min_agent/evaluation/finance.py",
+    "src/min_agent/evaluation/improvement.py",
+    "src/min_agent/evaluation/journal.py",
+    "src/min_agent/evaluation/night.py",
+    "src/min_agent/evaluation/night_cli.py",
+    "src/min_agent/evaluation/night_executor.py",
+    "src/min_agent/evaluation/review.py",
+    "src/min_agent/evaluation/runner.py",
+    "src/min_agent/evaluation/suites.py",
+    "src/min_agent/evaluation/verifier.py",
+    "src/min_agent/evaluation/worker.py",
+    "tests/integration/test_evaluation_v1.py",
+    "tests/unit/test_adaptive_output.py",
+    "tests/unit/test_codex_night_adapter.py",
+    "tests/unit/test_evaluation_live_boundary.py",
+    "tests/unit/test_evaluation_verifier.py",
+    "tests/unit/test_night_mode.py"
+  ],
+  "binary_patch_omitted": [
+    "docs/diagrams/evaluation-v1/architecture.png"
+  ],
+  "baseline_files": 185,
+  "protected_unchanged": 177
+}

@@ -1,0 +1,50 @@
+{
+  "id": "H-doubao",
+  "goal": "豆包人工接力",
+  "kind": "manual",
+  "task": {
+    "id": "runtime.calc",
+    "category": "runtime",
+    "prompt": "请使用计算工具计算2+3，给出结果。",
+    "evaluation": "deterministic",
+    "data_classification": "synthetic",
+    "profile": "calculator",
+    "parameters": {
+      "expression": "2+3"
+    },
+    "mode": "plan",
+    "actions": [],
+    "tools": [
+      "calculator"
+    ],
+    "fixture": "empty",
+    "max_model_calls": 8,
+    "segment_model_calls": 8,
+    "max_tool_calls": 12,
+    "max_rounds": 8,
+    "timeout_seconds": 40.0,
+    "recovery": false,
+    "live_eligible": false,
+    "model": "deepseek-flash",
+    "reasoning_effort": "high",
+    "output_tokens": null,
+    "checks": [
+      {
+        "id": "answer",
+        "layer": "outcome",
+        "kind": "calculator_value",
+        "expected": "5",
+        "hard_safety": false
+      }
+    ],
+    "expected_verdict": "PASS"
+  },
+  "priority": 0,
+  "dependencies": [],
+  "requires_confirmation": false,
+  "risk": "low",
+  "max_retries": 1,
+  "allow_escalation": false,
+  "max_deepseek_usd": 0.75,
+  "allowed_paths": []
+}

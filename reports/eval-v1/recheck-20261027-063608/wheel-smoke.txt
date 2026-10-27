@@ -1,0 +1,3 @@
+INSTALL EXIT: 0
+SMOKE EXIT: 0
+Installed wheel: new process module imported from isolated target; real owned subprocess succeeded; zero external model calls.

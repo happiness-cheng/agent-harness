@@ -5,7 +5,7 @@ from pathlib import Path
 import secrets
 from uuid import UUID
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
@@ -37,6 +37,15 @@ class WebPermission(_Request):
     enabled: bool
 
 
+class MemoryPermission(_Request):
+    enabled: bool
+    scenario_ids: list[str] | None = Field(default=None, max_length=10)
+
+
+class Shutdown(_Request):
+    instance_id: str
+
+
 class Confirm(_Request):
     proposal_id: str
     continue_task: bool = False
@@ -55,15 +64,20 @@ class Control(_Request):
     scope_changed: bool = True
 
 
-def create_app(harness):
+def create_app(harness, *, identity=None):
     token, csrf = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
     static = Path(__file__).parent / "static"
     @asynccontextmanager
     async def lifespan(app):
         harness.start_scheduler()
-        yield
-        harness.close()
+        try:
+            yield
+        finally:
+            harness.close()
+            app.state.harness_closed = True
     app = FastAPI(title="Agent Harness", docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
+    from min_agent.long_memory.integration import install_routes
+    install_routes(app,harness)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"])
 
     @app.middleware("http")
@@ -98,9 +112,27 @@ def create_app(harness):
 
     @app.get("/api/bootstrap")
     def bootstrap():
-        response = JSONResponse({"csrf": csrf, "demo": harness.demo, "sessions": harness.list_sessions()})
+        response = JSONResponse({"csrf": csrf, "demo": harness.demo, "sessions": harness.list_sessions(),
+            "instance_id": identity['instance_id'] if identity else None,
+            "can_shutdown": identity is not None and getattr(app.state,'shutdown_callback',None) is not None})
         response.set_cookie("harness_session", token, httponly=True, samesite="strict", secure=False)
         return response
+
+    @app.get("/_adrian/identity")
+    def service_identity():
+        if identity is None:return JSONResponse({'error':'identity_not_configured'},status_code=404)
+        return dict(identity,ready=True,provider='demo' if harness.demo else getattr(harness.model,'_provider','custom'),
+                    model_requests=getattr(harness.model,'request_count',None))
+
+    @app.post('/api/adrian/shutdown',status_code=202)
+    def shutdown(body: Shutdown, background: BackgroundTasks):
+        callback = getattr(app.state,'shutdown_callback',None)
+        if identity is None or callback is None:
+            return JSONResponse({'error':'shutdown_not_available'},status_code=404)
+        if not secrets.compare_digest(body.instance_id,identity['instance_id']):
+            raise RuntimeError('服务实例已变化，请刷新页面')
+        background.add_task(callback)
+        return {'status':'closing'}
 
     @app.get("/api/sessions")
     def sessions(): return harness.list_sessions()
@@ -117,6 +149,15 @@ def create_app(harness):
     @app.post("/api/sessions/{session_id}/web-permission")
     def web_permission(session_id: UUID, body: WebPermission):
         harness.allow_web(session_id, body.enabled); return {"enabled": body.enabled}
+    @app.post("/api/sessions/{session_id}/memory-permission")
+    def memory_permission(session_id: UUID, body: MemoryPermission):
+        return harness.configure_memory(session_id,body.enabled,body.scenario_ids)
+    @app.get('/api/sessions/{session_id}/memory/evidence/{identity}')
+    def memory_evidence(session_id: UUID, identity: str):
+        from min_agent.long_memory.delivery import read_delivered_evidence
+        context = harness.context(session_id)
+        preferences = harness.sessions.extension(context,'long_memory_preferences',{})
+        return read_delivered_evidence(harness.memory,context,identity,preferences.get('scenario_ids',[]))
     @app.post("/api/sessions/{session_id}/proposal")
     def proposal(session_id: UUID, body: GoalParameters):
         context = harness.context(session_id)

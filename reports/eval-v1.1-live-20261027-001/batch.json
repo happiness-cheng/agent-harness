@@ -1,0 +1,219 @@
+{
+  "completed": [
+    {
+      "run": "baseline-0",
+      "exit": 0,
+      "receipt": {
+        "backend": "LIVE_PROVIDER_FROZEN_IO",
+        "variant": "baseline",
+        "case": "psf-archived-excerpt",
+        "verdict": "FAIL",
+        "mechanical_observer_verdict": "FAIL",
+        "provider_errors": [],
+        "generation_requests": 2,
+        "adapter_attempts": 2,
+        "usage": [
+          {
+            "request": 1,
+            "input_tokens": 4750,
+            "output_tokens": 272,
+            "total_tokens": 5022,
+            "cached_input_tokens": 2688
+          },
+          {
+            "request": 2,
+            "input_tokens": 5237,
+            "output_tokens": 455,
+            "total_tokens": 5692,
+            "cached_input_tokens": 4480
+          }
+        ],
+        "criteria_changed": false,
+        "observer_note": "只校正来源与计数元数据；机械评分来自原冻结观察器。",
+        "new_model_decision_tested": true
+      }
+    },
+    {
+      "run": "baseline-1",
+      "exit": 0,
+      "receipt": {
+        "backend": "LIVE_PROVIDER_FROZEN_IO",
+        "variant": "baseline",
+        "case": "warranty-exclusion",
+        "verdict": "FAIL",
+        "mechanical_observer_verdict": "FAIL",
+        "provider_errors": [],
+        "generation_requests": 2,
+        "adapter_attempts": 2,
+        "usage": [
+          {
+            "request": 1,
+            "input_tokens": 4739,
+            "output_tokens": 295,
+            "total_tokens": 5034,
+            "cached_input_tokens": 4480
+          },
+          {
+            "request": 2,
+            "input_tokens": 5251,
+            "output_tokens": 379,
+            "total_tokens": 5630,
+            "cached_input_tokens": 4480
+          }
+        ],
+        "criteria_changed": false,
+        "observer_note": "只校正来源与计数元数据；机械评分来自原冻结观察器。",
+        "new_model_decision_tested": true
+      }
+    },
+    {
+      "run": "baseline-2",
+      "exit": 0,
+      "receipt": {
+        "backend": "LIVE_PROVIDER_FROZEN_IO",
+        "variant": "baseline",
+        "case": "api-timeout",
+        "verdict": "FAIL",
+        "mechanical_observer_verdict": "FAIL",
+        "provider_errors": [],
+        "generation_requests": 2,
+        "adapter_attempts": 2,
+        "usage": [
+          {
+            "request": 1,
+            "input_tokens": 4743,
+            "output_tokens": 752,
+            "total_tokens": 5495,
+            "cached_input_tokens": 4480
+          },
+          {
+            "request": 2,
+            "input_tokens": 5692,
+            "output_tokens": 816,
+            "total_tokens": 6508,
+            "cached_input_tokens": 4480
+          }
+        ],
+        "criteria_changed": false,
+        "observer_note": "只校正来源与计数元数据；机械评分来自原冻结观察器。",
+        "new_model_decision_tested": true
+      }
+    },
+    {
+      "run": "candidate-0",
+      "exit": 0,
+      "receipt": {
+        "backend": "LIVE_PROVIDER_FROZEN_IO",
+        "variant": "candidate",
+        "case": "psf-archived-excerpt",
+        "verdict": "FAIL",
+        "mechanical_observer_verdict": "FAIL",
+        "provider_errors": [],
+        "generation_requests": 4,
+        "adapter_attempts": 4,
+        "usage": [
+          {
+            "request": 1,
+            "input_tokens": 4750,
+            "output_tokens": 128,
+            "total_tokens": 4878,
+            "cached_input_tokens": 4608
+          },
+          {
+            "request": 2,
+            "input_tokens": 4901,
+            "output_tokens": 86,
+            "total_tokens": 4987,
+            "cached_input_tokens": 4608
+          },
+          {
+            "request": 3,
+            "input_tokens": 5203,
+            "output_tokens": 205,
+            "total_tokens": 5408,
+            "cached_input_tokens": 4864
+          },
+          {
+            "request": 4,
+            "input_tokens": 2583,
+            "output_tokens": 677,
+            "total_tokens": 3260,
+            "cached_input_tokens": 1536
+          }
+        ],
+        "criteria_changed": false,
+        "observer_note": "只校正来源与计数元数据；机械评分来自原冻结观察器。",
+        "new_model_decision_tested": true
+      }
+    },
+    {
+      "run": "candidate-1",
+      "exit": 0,
+      "receipt": {
+        "backend": "LIVE_PROVIDER_FROZEN_IO",
+        "variant": "candidate",
+        "case": "warranty-exclusion",
+        "verdict": "FAIL",
+        "mechanical_observer_verdict": "FAIL",
+        "provider_errors": [],
+        "generation_requests": 2,
+        "adapter_attempts": 2,
+        "usage": [
+          {
+            "request": 1,
+            "input_tokens": 4739,
+            "output_tokens": 219,
+            "total_tokens": 4958,
+            "cached_input_tokens": 4605
+          },
+          {
+            "request": 2,
+            "input_tokens": 5173,
+            "output_tokens": 651,
+            "total_tokens": 5824,
+            "cached_input_tokens": 4608
+          }
+        ],
+        "criteria_changed": false,
+        "observer_note": "只校正来源与计数元数据；机械评分来自原冻结观察器。",
+        "new_model_decision_tested": true
+      }
+    },
+    {
+      "run": "candidate-2",
+      "exit": 0,
+      "receipt": {
+        "backend": "LIVE_PROVIDER_FROZEN_IO",
+        "variant": "candidate",
+        "case": "api-timeout",
+        "verdict": "FAIL",
+        "mechanical_observer_verdict": "FAIL",
+        "provider_errors": [],
+        "generation_requests": 2,
+        "adapter_attempts": 2,
+        "usage": [
+          {
+            "request": 1,
+            "input_tokens": 4743,
+            "output_tokens": 294,
+            "total_tokens": 5037,
+            "cached_input_tokens": 4608
+          },
+          {
+            "request": 2,
+            "input_tokens": 5252,
+            "output_tokens": 622,
+            "total_tokens": 5874,
+            "cached_input_tokens": 4608
+          }
+        ],
+        "criteria_changed": false,
+        "observer_note": "只校正来源与计数元数据；机械评分来自原冻结观察器。",
+        "new_model_decision_tested": true
+      }
+    }
+  ],
+  "stopped_on_error": false,
+  "request_ceiling": 42,
+  "auto_retry": false
+}

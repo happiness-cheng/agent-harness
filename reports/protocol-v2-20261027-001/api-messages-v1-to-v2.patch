@@ -1,0 +1,11 @@
+--- historical-live-v1/messages
++++ actual-offline-v2/messages
+@@ -7,7 +7,7 @@
+   },
+   {
+     "role": "user",
+-    "content": "核对合成API的超时和重试限制，保留副作用不确定性并引用原文。\nSYNTHETIC_MAIN_ONLY_MARKER：无关的合成主会话标记。",
++    "content": "核对受控API文档的超时、重试及副作用不确定性，引用实际原文。",
+     "tool_call_id": null,
+     "tool_calls": []
+   },

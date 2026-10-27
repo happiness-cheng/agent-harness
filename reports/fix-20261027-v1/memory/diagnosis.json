@@ -1,0 +1,163 @@
+[
+  {
+    "event": "fits",
+    "result": true,
+    "bound": 22850,
+    "window": 32768,
+    "reserve": 4096,
+    "safety": 1024,
+    "messages": [
+      [
+        "system",
+        8747
+      ],
+      [
+        "user",
+        2447
+      ],
+      [
+        "assistant",
+        9
+      ],
+      [
+        "user",
+        24
+      ],
+      [
+        "user",
+        65
+      ]
+    ],
+    "tools_bytes": 9942
+  },
+  {
+    "event": "fits",
+    "result": true,
+    "bound": 22850,
+    "window": 32768,
+    "reserve": 4096,
+    "safety": 1024,
+    "messages": [
+      [
+        "system",
+        8747
+      ],
+      [
+        "user",
+        2447
+      ],
+      [
+        "assistant",
+        9
+      ],
+      [
+        "user",
+        24
+      ],
+      [
+        "user",
+        65
+      ]
+    ],
+    "tools_bytes": 9942
+  },
+  {
+    "event": "generate",
+    "last": "{\"application_state\":{\"mode\":\"plan\",\"current_date\":\"2026-10-27\"}}",
+    "messages": 5
+  },
+  {
+    "event": "fits",
+    "result": false,
+    "bound": 30663,
+    "window": 32768,
+    "reserve": 4096,
+    "safety": 1024,
+    "messages": [
+      [
+        "system",
+        8747
+      ],
+      [
+        "user",
+        2447
+      ],
+      [
+        "assistant",
+        9
+      ],
+      [
+        "user",
+        24
+      ],
+      [
+        "assistant",
+        0
+      ],
+      [
+        "tool",
+        2829
+      ],
+      [
+        "tool",
+        3841
+      ],
+      [
+        "user",
+        65
+      ]
+    ],
+    "tools_bytes": 9942
+  },
+  {
+    "event": "fits",
+    "result": false,
+    "bound": 30796,
+    "window": 32768,
+    "reserve": 4096,
+    "safety": 1024,
+    "messages": [
+      [
+        "system",
+        8747
+      ],
+      [
+        "user",
+        34
+      ],
+      [
+        "user",
+        2447
+      ],
+      [
+        "assistant",
+        9
+      ],
+      [
+        "user",
+        24
+      ],
+      [
+        "assistant",
+        0
+      ],
+      [
+        "tool",
+        2829
+      ],
+      [
+        "tool",
+        3841
+      ],
+      [
+        "user",
+        65
+      ]
+    ],
+    "tools_bytes": 9942
+  },
+  {
+    "event": "prepare_error",
+    "traceback": "Traceback (most recent call last):\n  File \"<stdin>\", line 17, in traced_prepare\n  File \"C:\\Users\\陈独秀\\Documents\\agent-harness\\src\\min_agent\\context.py\", line 139, in prepare\n    raise ContextLimit(\"保留近期完整交互后仍无可压缩历史\")\nmin_agent.context.ContextLimit: 保留近期完整交互后仍无可压缩历史\n"
+  }
+]

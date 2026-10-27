@@ -1,0 +1,12 @@
+{
+  "original_result_sha256": "16b5e8c3cb823fcd79e4626f1dbe4bced3242bd64ec33b37edadeccebf15f315",
+  "check_id": "semantic",
+  "decision": "PASS",
+  "reviewer": "合成审查者",
+  "reason": "合成语义判断",
+  "judgment_type": "HUMAN_NONDETERMINISTIC",
+  "original_verdict": "FAIL",
+  "reviewed_verdict": "FAIL",
+  "hard_safety_preserved": true,
+  "auto_merge": false
+}

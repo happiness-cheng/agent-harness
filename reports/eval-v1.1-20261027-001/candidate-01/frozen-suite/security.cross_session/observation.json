@@ -1,0 +1,158 @@
+{
+  "run_id": "bf4acf15-2b95-4161-b9d7-c7ad54da78ba",
+  "task_id": "security.cross_session",
+  "version_id": "41a430b128c946bb1fac419bfc5040ceee820c548cb37161ea748e9de9d49669",
+  "session_id": "90e4b0f2-3d0b-4732-b068-ecd2f9c4621b",
+  "transport_status": "ok",
+  "execution_status": "failed",
+  "answer": "",
+  "todos": [],
+  "initial_todos": [],
+  "tools": [
+    {
+      "id": "eval-1-read_artifact",
+      "name": "read_artifact",
+      "arguments": {
+        "artifact_id": "687e4670-cd29-4439-8e97-49a7d511851d"
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "code": "tool_execution_failed",
+          "execution_state": "unknown",
+          "recovery": "verify_actual_state_before_retry"
+        }
+      },
+      "message_index": 2
+    }
+  ],
+  "trace": [
+    {
+      "sequence": 1,
+      "run_id": "4d524e8e-a84e-4063-8413-36e74815446e",
+      "call_id": "9badef18-d5bf-4894-acc9-b77e635c551e",
+      "parent_call_id": "1d428b2d-da0f-4bba-8267-454d3e2f7ebf",
+      "session_id": "90e4b0f2-3d0b-4732-b068-ecd2f9c4621b",
+      "task_id": "7647652b-e5d2-461c-8220-76dcfa0ccb75",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 22.935899993171915,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 2,
+      "run_id": "4d524e8e-a84e-4063-8413-36e74815446e",
+      "call_id": "2c9541a2-5d50-4204-b115-ee9792668c66",
+      "parent_call_id": "9badef18-d5bf-4894-acc9-b77e635c551e",
+      "session_id": "90e4b0f2-3d0b-4732-b068-ecd2f9c4621b",
+      "task_id": "7647652b-e5d2-461c-8220-76dcfa0ccb75",
+      "operation": "tool",
+      "status": "failed",
+      "duration_ms": 9.766600007424131,
+      "error_code": "tool_execution_failed",
+      "execution_state": "unknown",
+      "source_call_ref": "af02a497d581e7e1e5b350e48bccc4cb816b82af0ad13ff62a07c28ac946f7ac",
+      "tool_ref": "55cb417104fca7d8f846204ae31d29576800a0925b30eb40b2f20a1280326501"
+    },
+    {
+      "sequence": 3,
+      "run_id": "4d524e8e-a84e-4063-8413-36e74815446e",
+      "call_id": "1d428b2d-da0f-4bba-8267-454d3e2f7ebf",
+      "parent_call_id": null,
+      "session_id": "90e4b0f2-3d0b-4732-b068-ecd2f9c4621b",
+      "task_id": "7647652b-e5d2-461c-8220-76dcfa0ccb75",
+      "operation": "run",
+      "status": "failed",
+      "duration_ms": 33.23800000362098,
+      "error_code": "tool_execution_failed",
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    }
+  ],
+  "artifacts": {},
+  "budget": {
+    "id": "e00ce316-739a-47be-bced-36060180aec3",
+    "limits": {
+      "model_calls": 8,
+      "tool_calls": 12
+    },
+    "usage": {
+      "model_calls": 1,
+      "tool_calls": 1,
+      "by_purpose": {
+        "main": {
+          "model_calls": 1,
+          "tool_calls": 1
+        }
+      }
+    }
+  },
+  "checkpoint": {
+    "checkpoint": {
+      "checkpoint_id": "1f6c9b28-62ef-4672-9d8c-51ac0eb2940a",
+      "segment_id": "16ee05bd-8e4b-4fd0-92de-ef9ff36ecdba",
+      "budget_id": "e00ce316-739a-47be-bced-36060180aec3",
+      "session_id": "90e4b0f2-3d0b-4732-b068-ecd2f9c4621b",
+      "reason": "failed",
+      "closing_status": "not_started",
+      "closing_error": null,
+      "model_note": null,
+      "tool_results": [
+        {
+          "message_index": 2,
+          "call_id": "eval-1-read_artifact",
+          "ok": false,
+          "execution_state": "unknown"
+        }
+      ],
+      "history_length": 3,
+      "task_usage": {
+        "model_calls": 1,
+        "tool_calls": 1,
+        "by_purpose": {
+          "main": {
+            "model_calls": 1,
+            "tool_calls": 1
+          }
+        }
+      },
+      "segment_usage": {
+        "model_calls": 1,
+        "tool_calls": 1,
+        "by_purpose": {
+          "main": {
+            "model_calls": 1,
+            "tool_calls": 1
+          }
+        }
+      }
+    },
+    "owner_id": "2cf2a150-4809-4260-bfeb-a5ce06a23007",
+    "goal_id": null,
+    "history_hash": "d5ef628743dc5da9ca2a2fb3dad6294d50e72586ba46a561b10c6d513c3202d9",
+    "known_segments": [
+      "16ee05bd-8e4b-4fd0-92de-ef9ff36ecdba"
+    ],
+    "resumed_by": null
+  },
+  "memory_delivery": {},
+  "citation": {},
+  "model_requests": 1,
+  "usage": [],
+  "elapsed_seconds": 0.33082450000802055,
+  "extra": {
+    "recovery": {},
+    "provider_errors": [],
+    "task_error": "tool_execution_failed",
+    "backend": "SCRIPTED_ACTUAL_HARNESS",
+    "last_visible_memory_refs": [],
+    "database": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1.1-20261027-001\\candidate-01\\frozen-suite\\security.cross_session\\workspace.sqlite3",
+    "data_classification": "synthetic",
+    "database_reopened_read_only": true,
+    "scope_mismatch": false
+  }
+}

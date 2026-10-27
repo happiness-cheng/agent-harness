@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\eval-v1.1-20261027-001\smoke_live_adapter.py", line 72, in <module>
+    status = live.worker(Namespace(variant=args.variant, case_index=args.case_index, out=out,
+        credentials=ROOT.parents[2]/'synthetic-path-never-read.json', proxy=None))
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\eval-v1.1-20261027-001\live_pair.py", line 73, in worker
+    result = module.run_case(args.out, case, patch)
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\eval-v1.1-20261027-001\candidate-01\workspace\tests\integration\test_research_last_read.py", line 150, in run_case
+    checks = {'task_completed':saved['task']['status']=='completed',
+                               ~~~~~~~~~~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable

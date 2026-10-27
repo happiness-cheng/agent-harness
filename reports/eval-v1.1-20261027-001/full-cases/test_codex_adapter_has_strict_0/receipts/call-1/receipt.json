@@ -1,0 +1,19 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 0.00048469999455846846,
+  "events": [
+    {
+      "type": "turn.completed"
+    }
+  ],
+  "usage": [
+    {
+      "input_tokens": 10,
+      "output_tokens": 5
+    }
+  ],
+  "quota_remaining": "UNOBSERVABLE",
+  "sandbox": "read-only",
+  "approval": "never",
+  "model": "gpt-6.1-sol"
+}

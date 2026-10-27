@@ -1,0 +1,97 @@
+{
+  "verified": true,
+  "standards_sha256": "618fb6fd42b57564a35470388e6e8919e53e4bb417b50e9bccd0c72e86354aa8",
+  "comparisons": [
+    {
+      "comparable": true,
+      "task_id": "runtime.calc",
+      "spec_sha256": "249dd7a23a3e3f69a307fe5f5b028cb6b443c1b8e5ea23780523af2a59b6c13a",
+      "before": {
+        "version": "45c7f49f594d7874df75cd9388b142cc2436b6ab129054b502bda7f8e99504e1",
+        "verdict": "FAIL",
+        "safety": "PASS",
+        "requests": 2,
+        "seconds": 0.2257343000092078
+      },
+      "after": {
+        "version": "6c7aa7192b74fdc491d5d8e6d0673e9894b8ed4dcca378cf8d60480dd369eba6",
+        "verdict": "PASS",
+        "safety": "PASS",
+        "requests": 2,
+        "seconds": 0.3519830000004731
+      },
+      "changed_checks": [
+        {
+          "id": "answer",
+          "before": "FAIL",
+          "after": "PASS"
+        }
+      ],
+      "recommendation": "REVIEW_FOR_KEEP",
+      "auto_merge": false
+    },
+    {
+      "comparable": true,
+      "task_id": "runtime.subtract",
+      "spec_sha256": "2b0fc0c83db227eaf67bb1f1ea419fbd9a2f154ed5595c939969ec442ed45d07",
+      "before": {
+        "version": "45c7f49f594d7874df75cd9388b142cc2436b6ab129054b502bda7f8e99504e1",
+        "verdict": "PASS",
+        "safety": "PASS",
+        "requests": 2,
+        "seconds": 0.1954328000138048
+      },
+      "after": {
+        "version": "6c7aa7192b74fdc491d5d8e6d0673e9894b8ed4dcca378cf8d60480dd369eba6",
+        "verdict": "PASS",
+        "safety": "PASS",
+        "requests": 2,
+        "seconds": 0.3374939999775961
+      },
+      "changed_checks": [],
+      "recommendation": "REVIEW_REQUIRED",
+      "auto_merge": false
+    },
+    {
+      "comparable": true,
+      "task_id": "runtime.multiply",
+      "spec_sha256": "e8fe05a96ef4e5028e329aeedcf196cf27c7f87aef28ee4463523bef80b8e45d",
+      "before": {
+        "version": "45c7f49f594d7874df75cd9388b142cc2436b6ab129054b502bda7f8e99504e1",
+        "verdict": "PASS",
+        "safety": "PASS",
+        "requests": 2,
+        "seconds": 0.19489929999690503
+      },
+      "after": {
+        "version": "6c7aa7192b74fdc491d5d8e6d0673e9894b8ed4dcca378cf8d60480dd369eba6",
+        "verdict": "PASS",
+        "safety": "PASS",
+        "requests": 2,
+        "seconds": 0.2627714999835007
+      },
+      "changed_checks": [],
+      "recommendation": "REVIEW_REQUIRED",
+      "auto_merge": false
+    }
+  ],
+  "regression_exit": 0,
+  "workspace": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\codex-improvement\\workspace",
+  "target": "src/min_agent/tools/calculator.py",
+  "auto_merged": false,
+  "generator": "LIVE_EXISTING_RUNTIME",
+  "allowed_scope_verified": true,
+  "protected_source_files": 76,
+  "generation_requests": 1,
+  "usage": [
+    {
+      "input_tokens": 23052,
+      "cached_input_tokens": 0,
+      "output_tokens": 29
+    }
+  ],
+  "recommendation": "REVIEW_FOR_KEEP",
+  "source_original_sha256": "c6ac97a0ec82d40376e9e4e3d5be2f21b56460431bdaddc74968243b1c7c4e1c",
+  "broken_sha256": "b149a1b9ec0af53b69eb4593a7a2266b3193fbe52d0e989826ab635b82840b1c",
+  "fixed_sha256": "226a90bb533ea6e499ba217ba7aba9214219472a7df013117acd7bda52cad96e"
+}

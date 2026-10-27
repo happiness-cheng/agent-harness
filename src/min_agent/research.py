@@ -47,8 +47,11 @@ class Evidence(_Parameters):
 
 
 class ResearchService:
-    def __init__(self, model, search, reader, artifacts):
+    def __init__(self, model, search, reader, artifacts, *, input_window=None):
         self.model, self.search, self.reader, self.artifacts = model, search, reader, artifacts
+        from min_agent.model_context import context_window, output_reserve
+        self.input_window = context_window(model, override=input_window)
+        self.output_reserve = output_reserve(model)
 
     def run(self, objective, parent_budget, *, constraints=(), control=None, trace_context=None, trace=None):
         if not isinstance(objective, str) or not objective.strip() or len(objective) > 2000:
@@ -76,6 +79,7 @@ class ResearchService:
         tools.register(ToolDefinition("search", "公开网络搜索；摘要不是已读正文；可自主改查询补查。", SearchParameters, search))
         tools.register(ToolDefinition("read_webpage", "首次用url读取公开来源；后续可设url=null、提供本轮artifact_id与start补读原文。返回位置和截断标记，保留反例与限制。", ReadParameters, read))
         underlying = self.model
+        input_window, reserve = self.input_window, self.output_reserve
         prompt = files("min_agent").joinpath("prompts/research.md").read_text(encoding="utf-8")
         class IsolatedModel:
             def generate(self, messages, **kwargs):
@@ -89,7 +93,7 @@ class ResearchService:
                 if closing:
                     kwargs["tools"] = None
                     visible.append(Message(role="user", content="已到研究收尾预留，不再搜索或读网页。仅依据实际已读原文返回最终Evidence JSON；证据不够必须写limitations，不捏造引用。"))
-                if request_bound(visible, kwargs.get("tools")) + 4096 + 1024 > 32768:
+                if request_bound(visible, kwargs.get("tools"), model=underlying) + reserve + 1024 > input_window:
                     raise ContextLimit("研究上下文超过保守窗口，暂停")
                 response = underlying.generate(visible, **kwargs)
                 if closing and response.finish_reason == "tool_calls":

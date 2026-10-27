@@ -1,0 +1,48 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+___________ test_public_mount_reports_actual_resources_without_body ___________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-49/test_public_mount_reports_actu0')
+
+    def test_public_mount_reports_actual_resources_without_body(tmp_path):
+        app = HarnessApplication(tmp_path/'test.sqlite3', memory_mode='off')
+        try:
+            sid = app.create_session()['session_id']
+>           app.mount_research_collection(sid, collection())
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'HarnessApplication' object has no attribute 'mount_research_collection'
+
+reports\protocol-v2-20261027-001\test_resource_entry.py:18: AttributeError
+______________ test_collection_search_and_read_are_closed_world _______________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-49/test_collection_search_and_rea0')
+
+    def test_collection_search_and_read_are_closed_world(tmp_path):
+        app = HarnessApplication(tmp_path/'test.sqlite3')
+        try:
+            sid = app.create_session()['session_id']
+>           corpus = collection()
+                     ^^^^^^^^^^^^
+
+reports\protocol-v2-20261027-001\test_resource_entry.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def collection():
+>       from min_agent.research_resources import ResearchCollection, ResearchDocument
+E       ModuleNotFoundError: No module named 'min_agent.research_resources'
+
+reports\protocol-v2-20261027-001\test_resource_entry.py:9: ModuleNotFoundError
+_____________ test_duplicate_locators_and_invalid_mount_rejected ______________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-49/test_duplicate_locators_and_in0')
+
+    def test_duplicate_locators_and_invalid_mount_rejected(tmp_path):
+>       from min_agent.research_resources import ResearchCollection
+E       ModuleNotFoundError: No module named 'min_agent.research_resources'
+
+reports\protocol-v2-20261027-001\test_resource_entry.py:48: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED reports/protocol-v2-20261027-001/test_resource_entry.py::test_public_mount_reports_actual_resources_without_body
+FAILED reports/protocol-v2-20261027-001/test_resource_entry.py::test_collection_search_and_read_are_closed_world
+FAILED reports/protocol-v2-20261027-001/test_resource_entry.py::test_duplicate_locators_and_invalid_mount_rejected
+3 failed in 7.29s

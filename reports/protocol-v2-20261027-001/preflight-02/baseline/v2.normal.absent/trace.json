@@ -1,0 +1,32 @@
+[
+  {
+    "sequence": 1,
+    "run_id": "3cb74178-eda3-4bf8-a255-e6a9f4c000aa",
+    "call_id": "4fa53bd0-3dde-4d4d-91ba-e0145be2a8ad",
+    "parent_call_id": "32c5167c-a75e-4abe-a545-4ff5931f3f5e",
+    "session_id": "0093e517-4ebe-4cb4-9aab-418a728b07c5",
+    "task_id": "e684c7ee-5bd7-44d5-aa22-8e5c3b9a35fb",
+    "operation": "model",
+    "status": "completed",
+    "duration_ms": 49.610599991865456,
+    "error_code": null,
+    "execution_state": null,
+    "source_call_ref": null,
+    "tool_ref": null
+  },
+  {
+    "sequence": 2,
+    "run_id": "3cb74178-eda3-4bf8-a255-e6a9f4c000aa",
+    "call_id": "32c5167c-a75e-4abe-a545-4ff5931f3f5e",
+    "parent_call_id": null,
+    "session_id": "0093e517-4ebe-4cb4-9aab-418a728b07c5",
+    "task_id": "e684c7ee-5bd7-44d5-aa22-8e5c3b9a35fb",
+    "operation": "run",
+    "status": "completed",
+    "duration_ms": 49.981199990725145,
+    "error_code": null,
+    "execution_state": null,
+    "source_call_ref": null,
+    "tool_ref": null
+  }
+]

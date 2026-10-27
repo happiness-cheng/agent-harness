@@ -1,0 +1,4 @@
+tools.add: execution=completed verification=PASS
+memory.recall: execution=completed verification=PASS
+research.conflict: execution=completed verification=FAIL
+{"results": {"tools.add": "PASS", "memory.recall": "PASS", "research.conflict": "FAIL"}, "counts": {"PASS": 2, "FAIL": 1}, "expected_outcomes_match": false, "model_invocations": 6, "generation_requests": 6, "stopped": null, "not_run": [], "usage_cost": {"status": "ESTIMATED_NOT_INVOICE", "input_tokens": 15306, "output_tokens": 1292, "cached_input_tokens": 12032, "usd_min": 0.0013023959999999997, "usd_max": 0.0026047919999999994, "source": "https://api-docs.deepseek.com/quick_start/pricing/", "pricing_date": "2026-10-26", "invoice_usd": null}, "note": "真实模型，无外部Judge；语义未审查项保留UNKNOWN。"}

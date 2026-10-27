@@ -1,0 +1,11 @@
+--- historical-live-v1/messages
++++ actual-offline-v2/messages
+@@ -7,7 +7,7 @@
+   },
+   {
+     "role": "user",
+-    "content": "核对归档片段中的PSF使命短句；引用实际读到的文字，不补全未保存的全文。\nSYNTHETIC_MAIN_ONLY_MARKER：无关的合成主会话标记。",
++    "content": "核对资料库保存的PSF使命片段并引用；不要补全未保存内容。",
+     "tool_call_id": null,
+     "tool_calls": []
+   },

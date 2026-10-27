@@ -1,0 +1,8 @@
+{
+  "actual_pid": 23368,
+  "parent_pid": 35716,
+  "popen_pid": 35716,
+  "python": "C:\\Users\\陈独秀\\Documents\\agent-harness\\.venv\\Scripts\\python.exe",
+  "lock_after_launcher_exit": "AVAILABLE",
+  "lock_after_child_expiry": "AVAILABLE"
+}

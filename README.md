@@ -60,6 +60,8 @@ flowchart TB
 
 ## 启动
 
+本机 Adrian 试用：双击桌面 **Adrian**，启动现有真实 Runtime 与按需只读长期 Memory；就绪后自动打开浏览器。网页“关闭服务”或服务窗口 Ctrl+C 退出。首次配置、Memory 开关、来源核对与故障排查见 [Adrian 使用说明](docs/ADRIAN.md)。此入口使用项目外凭据，不会回退 Demo；下方原 CLI / Demo 入口保留。
+
 Windows、Python 3.13 或更高版本。在项目目录执行 PowerShell：
 
 新环境按“获取代码 → 安装 → 启动”运行：
@@ -102,6 +104,10 @@ $credentialsFile = Join-Path $env:USERPROFILE 'agent-harness-credentials.json'
 离线模式保存消息并明确回复“离线演示”，不能证明自然语言理解或真实工具选择。测试使用脚本模型检查控制流程。
 
 开发测试另装 `requirements-dev.lock`。依赖锁在 Windows / Python 3.13 验证；不承诺未经验证的平台。也可双击 `scripts/start.bat` 启动已安装环境的离线演示。
+
+## 统一验证与夜间工作（V1）
+
+评估、真实业务状态验收、受控隔离修复见 [统一验证说明](docs/EVALUATION_V1.md)；持久队列、预算、Codex基础路由和早晨报告见 [夜间模式](docs/NIGHT_MODE.md)。默认离线，不自动开启整晚付费任务，也不自动合并候选。可用 `scripts/evaluate-adrian.cmd`、`scripts/night-adrian.cmd` 查看命令帮助。实际结果和限制见 [本轮报告](reports/eval-v1/REPORT.md)。
 
 ## 使用
 
@@ -216,5 +222,9 @@ trace 已满足基础调用追踪，但尚不足以完整诊断现场：部分�
 历史修复及证据见 [审查修复记录](docs/REVIEW_FIXES.md)。两份脱敏聊天已获用户公开发布授权；历史记录中的“仅本地”“尚未提交”描述的是当时状态。当前范围与未通过项以 [提交说明](docs/SUBMISSION.md) 为准。
 
 ## 参考与后续学习
+
+最新本地开发快照包含统一Evaluation V1、长期Memory/上下文能力接线及Windows退出修复；验证记录见[Evaluation V1](docs/EVALUATION_V1.md)、[复验报告](reports/fix-20261027-v1/REPORT.md)。
+
+V1.1真实模型实验结论仍为[NO_VERIFIED_GAIN](reports/eval-v1.1-live-20261027-001/REPORT.md)。后续[资料入口协议v2](reports/protocol-v2-20261027-001/REPORT.md)已完成零生成离线预检；资料挂载接口和研究候选保存在报告内的实现/patch中，未默认合入生产src。参考策略通过不能证明真实模型能力提升，下一轮真实调用仍须单独有界授权。数据库、正式个人Memory、凭据和隔离工作树不在本分支中。
 
 后续会结合 [李博杰《深入理解 AI Agent》开源仓库](https://github.com/bojieli/ai-agent-book) 的上下文、工具、评估与持续进化章节，以及 LangSmith、OpenAI Agents SDK 和 Claude Code 的公开设计继续完善。参考资料与本人选择的关系见 [设计思路](docs/AGENT_VISION.md)。本项目的核心 Runtime 保持自行实现。

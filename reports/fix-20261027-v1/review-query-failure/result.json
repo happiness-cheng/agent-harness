@@ -1,0 +1,7 @@
+{
+  "stop_raised": true,
+  "root_still_running_after_stop_error": true,
+  "process_retained_by_subprocess_active": false,
+  "lock_still_held": true,
+  "cleanup_lock_reacquired": true
+}

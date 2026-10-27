@@ -44,8 +44,10 @@ PROMPT = files("min_agent.prompts").joinpath("compact_history.md").read_text(enc
 
 
 class GroundedSelector:
-    def __init__(self, model, budget, *, input_window=32768, control=None, reserve_model_calls=1, prompt=PROMPT):
-        self.model, self.budget, self.input_window, self.control = model, budget, input_window, control
+    def __init__(self, model, budget, *, input_window=None, control=None, reserve_model_calls=1, prompt=PROMPT):
+        from min_agent.model_context import context_window, output_reserve
+        self.model, self.budget, self.control = model, budget, control
+        self.input_window, self.output_reserve = context_window(model, override=input_window), output_reserve(model)
         self.reserve_model_calls = reserve_model_calls
         self.prompt = prompt
 
@@ -62,7 +64,7 @@ class GroundedSelector:
             return [Message(role="system", content=self.prompt),
                 Message(role="user", content=json.dumps({"objective": objective, "units": rows}, ensure_ascii=False))]
         def fits(rows):
-            return request_bound(request(rows)) + 4096 + 1024 <= self.input_window
+            return request_bound(request(rows), model=self.model) + self.output_reserve + 1024 <= self.input_window
         if not fits([]):
             raise ValueError("选择调用没有足够输入预算")
         chunks, chunk = [], []
@@ -82,7 +84,7 @@ class GroundedSelector:
             if self.control is not None and self.control.snapshot()["stop"]:
                 raise ValueError("用户已停止，不启动压缩选择")
             messages = request(chunk)
-            if request_bound(messages) + 4096 + 1024 > self.input_window:
+            if request_bound(messages, model=self.model) + self.output_reserve + 1024 > self.input_window:
                 raise ValueError("选择请求超出窗口，不启动模型")
             self.budget.consume("model_calls", purpose="compaction")
             response = self.model.generate(messages)
@@ -112,8 +114,8 @@ class GroundedSelector:
         messages = [Message(role="system", content=REVIEW_PROMPT),
             Message(role="user", content=json.dumps(payload, ensure_ascii=False))]
         # 给所有候选的三态决定留出响应空间，不能靠不完整响应暗示删除。
-        output_reserve = max(4096, len(candidates) * 100 + 128)
-        if request_bound(messages) + output_reserve + 1024 > self.input_window:
+        output_reserve = max(self.output_reserve, len(candidates) * 100 + 128)
+        if request_bound(messages, model=self.model) + output_reserve + 1024 > self.input_window:
             raise ValueError("相关性复核完整输入或响应超出窗口，不截断依据")
         if 1 + self.reserve_model_calls > self.budget.remaining.model_calls:
             raise ValueError("相关性复核额度不足，保留收尾调用")

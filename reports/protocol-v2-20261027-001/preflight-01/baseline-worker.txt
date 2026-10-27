@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\protocol-v2-20261027-001\preflight.py", line 226, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\protocol-v2-20261027-001\preflight.py", line 209, in main
+    results = [run_case(args.worker,case,args.out) for case in CASES]
+               ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\陈独秀\Documents\agent-harness\reports\protocol-v2-20261027-001\preflight.py", line 157, in run_case
+    with sqlite3.connect((directory/'workspace.sqlite3').as_uri()+'?mode=ro',uri=True) as db:
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\陈独秀\AppData\Local\AgentHarness\python-3.13.16\tools\Lib\pathlib\_local.py", line 431, in as_uri
+    raise ValueError("relative path can't be expressed as a file URI")
+ValueError: relative path can't be expressed as a file URI

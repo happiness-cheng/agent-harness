@@ -1,0 +1,52 @@
+[
+  {
+    "actual_pid": 3492,
+    "parent_pid": 29476,
+    "popen_pid": 29476,
+    "before_available": false,
+    "launcher_wait_seconds": 0.0015941000019665807,
+    "child_alive_after_launcher": true,
+    "lock_available_after_launcher": false,
+    "lock_after_child_exit": true
+  },
+  {
+    "actual_pid": 23856,
+    "parent_pid": 20312,
+    "popen_pid": 20312,
+    "before_available": false,
+    "launcher_wait_seconds": 0.001413599995430559,
+    "child_alive_after_launcher": true,
+    "lock_available_after_launcher": false,
+    "lock_after_child_exit": true
+  },
+  {
+    "actual_pid": 35016,
+    "parent_pid": 11604,
+    "popen_pid": 11604,
+    "before_available": false,
+    "launcher_wait_seconds": 0.0012975000136066228,
+    "child_alive_after_launcher": true,
+    "lock_available_after_launcher": false,
+    "lock_after_child_exit": true
+  },
+  {
+    "actual_pid": 12120,
+    "parent_pid": 12168,
+    "popen_pid": 12168,
+    "before_available": false,
+    "launcher_wait_seconds": 0.0012148000241722912,
+    "child_alive_after_launcher": true,
+    "lock_available_after_launcher": false,
+    "lock_after_child_exit": true
+  },
+  {
+    "actual_pid": 32904,
+    "parent_pid": 28308,
+    "popen_pid": 28308,
+    "before_available": false,
+    "launcher_wait_seconds": 0.002087300003040582,
+    "child_alive_after_launcher": true,
+    "lock_available_after_launcher": true,
+    "lock_after_child_exit": true
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "parent_exited_before_stop": true,
+  "stop_owned_returned_normally": true,
+  "descendant_still_holds_lock": false,
+  "child_finished_and_released": false,
+  "cleanup_lock_reacquired": true
+}

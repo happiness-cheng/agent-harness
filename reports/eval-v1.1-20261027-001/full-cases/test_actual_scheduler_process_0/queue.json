@@ -1,0 +1,171 @@
+{
+  "version": 1,
+  "policy": {
+    "hours": 10,
+    "deepseek_usd": 0,
+    "codex_calls": 0,
+    "reserve_ratio": 0.2,
+    "codex_timeout_seconds": 180
+  },
+  "started_at": 1793077539.9420636,
+  "jobs": {
+    "A": {
+      "spec": {
+        "id": "A",
+        "goal": "A",
+        "kind": "program",
+        "task": {
+          "id": "runtime.calc",
+          "category": "runtime",
+          "prompt": "请使用计算工具计算2+3，给出结果。",
+          "evaluation": "deterministic",
+          "data_classification": "synthetic",
+          "profile": "calculator",
+          "parameters": {
+            "expression": "2+3"
+          },
+          "mode": "plan",
+          "actions": [],
+          "tools": [
+            "calculator"
+          ],
+          "fixture": "empty",
+          "max_model_calls": 8,
+          "segment_model_calls": 8,
+          "max_tool_calls": 12,
+          "max_rounds": 8,
+          "timeout_seconds": 40.0,
+          "recovery": false,
+          "live_eligible": false,
+          "model": "deepseek-flash",
+          "reasoning_effort": "high",
+          "output_tokens": null,
+          "checks": [
+            {
+              "id": "answer",
+              "layer": "outcome",
+              "kind": "calculator_value",
+              "expected": "5",
+              "hard_safety": false
+            }
+          ],
+          "expected_verdict": "PASS"
+        },
+        "priority": 0,
+        "dependencies": [],
+        "requires_confirmation": false,
+        "risk": "low",
+        "max_retries": 1,
+        "allow_escalation": false,
+        "max_deepseek_usd": 0.75,
+        "allowed_paths": [],
+        "operation": "evaluation",
+        "test_paths": []
+      },
+      "status": "WAITING_FOR_USER",
+      "attempts": [
+        {
+          "route": "deterministic",
+          "started_at": 1793077539.9489062,
+          "directory": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1.1-20261027-001\\full-cases\\test_actual_scheduler_process_0\\attempts\\A\\attempt-1",
+          "effective_spec_sha256": "249dd7a23a3e3f69a307fe5f5b028cb6b443c1b8e5ea23780523af2a59b6c13a"
+        }
+      ],
+      "reason": "中断后结果未知；保留预算预留，人工核对后再决定，不重放",
+      "escalations": 0
+    },
+    "B": {
+      "spec": {
+        "id": "B",
+        "goal": "B",
+        "kind": "program",
+        "task": {
+          "id": "runtime.calc",
+          "category": "runtime",
+          "prompt": "请使用计算工具计算2+3，给出结果。",
+          "evaluation": "deterministic",
+          "data_classification": "synthetic",
+          "profile": "calculator",
+          "parameters": {
+            "expression": "2+3"
+          },
+          "mode": "plan",
+          "actions": [],
+          "tools": [
+            "calculator"
+          ],
+          "fixture": "empty",
+          "max_model_calls": 8,
+          "segment_model_calls": 8,
+          "max_tool_calls": 12,
+          "max_rounds": 8,
+          "timeout_seconds": 40.0,
+          "recovery": false,
+          "live_eligible": false,
+          "model": "deepseek-flash",
+          "reasoning_effort": "high",
+          "output_tokens": null,
+          "checks": [
+            {
+              "id": "answer",
+              "layer": "outcome",
+              "kind": "calculator_value",
+              "expected": "5",
+              "hard_safety": false
+            }
+          ],
+          "expected_verdict": "PASS"
+        },
+        "priority": 0,
+        "dependencies": [],
+        "requires_confirmation": false,
+        "risk": "low",
+        "max_retries": 1,
+        "allow_escalation": false,
+        "max_deepseek_usd": 0.75,
+        "allowed_paths": [],
+        "operation": "evaluation",
+        "test_paths": []
+      },
+      "status": "COMPLETED",
+      "attempts": [
+        {
+          "route": "deterministic",
+          "started_at": 1793077539.9845045,
+          "directory": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1.1-20261027-001\\full-cases\\test_actual_scheduler_process_0\\attempts\\B\\attempt-1",
+          "effective_spec_sha256": "249dd7a23a3e3f69a307fe5f5b028cb6b443c1b8e5ea23780523af2a59b6c13a",
+          "ended_at": 1793077545.1102939,
+          "outcome": {
+            "verdict": "PASS",
+            "reason": "PASS",
+            "evidence_refs": [
+              "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1.1-20261027-001\\full-cases\\test_actual_scheduler_process_0\\attempts\\B\\attempt-1\\result.json"
+            ],
+            "deepseek_usd_upper": 0.0,
+            "cost_known": true,
+            "budget_blocked": false,
+            "non_retryable": false,
+            "codex_invocations": 0,
+            "provider_blocked": false
+          },
+          "evidence_sha256": "9cbbae6ebed41c7589faa5474022a5a5c210d55ca1eae80b923b8bdab4863a3a"
+        }
+      ],
+      "reason": "独立验收通过，证据已保存",
+      "escalations": 0
+    }
+  },
+  "usage": {
+    "deepseek_usd_upper": 0,
+    "reserved_deepseek_usd": 0,
+    "codex_calls": 0,
+    "observed_codex_invocations": 0
+  },
+  "quota_observability": "UNOBSERVABLE",
+  "provider_blocks": {},
+  "events": [],
+  "clock_kind": "WALL_CLOCK",
+  "executor_kind": "EXISTING_HARNESS_AND_CODEX_ADAPTER",
+  "last_finished_at": 1793077545.1269894,
+  "stop_reason": "no_eligible_jobs"
+}

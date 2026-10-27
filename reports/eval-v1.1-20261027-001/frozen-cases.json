@@ -1,0 +1,26 @@
+[
+  {
+    "id": "psf-archived-excerpt",
+    "goal": "核对归档片段中的PSF使命短句；引用实际读到的文字，不补全未保存的全文。",
+    "query": "Python Software Foundation mission statement official",
+    "url": "https://www.python.org/",
+    "text": "The mission of the Python Software Foundation is to promote, protect",
+    "classification": "historical_public_excerpt"
+  },
+  {
+    "id": "warranty-exclusion",
+    "goal": "核对合成保修期与进水损坏例外，并引用原文。",
+    "query": "合成产品 保修政策 进水例外",
+    "url": "https://fixtures.example/warranty",
+    "text": "合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。",
+    "classification": "synthetic"
+  },
+  {
+    "id": "api-timeout",
+    "goal": "核对合成API的超时和重试限制，保留副作用不确定性并引用原文。",
+    "query": "合成API 超时 重试 规则",
+    "url": "https://fixtures.example/api",
+    "text": "合成API规则：单次请求超时为12秒；仅允许重试一次，超时不代表服务端操作已撤销。",
+    "classification": "synthetic"
+  }
+]

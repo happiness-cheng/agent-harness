@@ -1,20 +1,22 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Harness · 工作台</title><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Adrian · 工作台</title><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script></head>
 <body>
 <aside class="sidebar" aria-label="会话导航">
-  <a class="brand" href="/"><span class="brand-mark">h.</span><span>Harness<small>个人工作台</small></span></a>
+  <a class="brand" href="/"><span class="brand-mark">a.</span><span>Adrian<small>个人工作台</small></span></a>
   <button class="new-session" id="new-session">＋ 新建会话</button>
   <div class="section-label">工作会话 <span id="session-count">00</span></div>
   <nav id="session-list" aria-label="已保存的会话"></nav>
   <div class="sidebar-footer"><span class="dot"></span> 本地保存 · 会话独立<small id="connection-status">正在连接…</small></div>
 </aside>
 <main>
-  <header class="topbar"><button class="mobile-nav" id="mobile-nav" aria-label="展开会话">☰</button><div><div class="eyebrow">YOUR WORKSPACE</div><h1 id="session-title">工作台</h1></div><div class="topbar-end"><span id="task-status" class="status">就绪</span><button id="stop" class="stop-button">停止</button></div></header>
+  <header class="topbar"><button class="mobile-nav" id="mobile-nav" aria-label="展开会话">☰</button><div><div class="eyebrow">YOUR WORKSPACE</div><h1 id="session-title">工作台</h1></div><div class="topbar-end"><span id="task-status" class="status">就绪</span><button id="stop" class="stop-button">停止任务</button><button id="shutdown-service" class="stop-button" hidden>关闭服务</button></div></header>
   <div id="demo-banner" class="demo-banner" hidden>离线演示模式：消息会保存，当前不调用真实模型或付费 API。</div>
   <section class="workspace">
     <div class="conversation">
       <div class="conversation-toolbar"><div class="mode-switch" role="group" aria-label="工作模式"><button id="mode-plan" class="selected">Plan</button><button id="mode-build">Build</button></div><span id="mode-caption">先讨论，再执行</span><label class="web-switch"><input type="checkbox" id="allow-web"> 允许公开网络调查</label></div>
+      <div class="conversation-toolbar"><label class="web-switch" title="启用后，选中的已确认跨会话历史可能发送给当前模型服务；不会自动保存聊天。"><input type="checkbox" id="allow-memory"> 使用长期Memory（只读）</label><select id="memory-scenario" aria-label="记忆使用情景"><option value="">通用情景</option></select><small id="memory-status">按需读取已确认历史</small></div>
+      <details><summary>记忆送达记录</summary><pre id="memory-detail">暂无送达记录</pre></details>
       <div id="messages" class="messages" aria-live="polite"><div class="welcome"><div class="welcome-symbol">h.</div><h2>把事情，一步步做好。</h2><p>从一个问题开始，或交给助手一项明确的任务。</p><div class="welcome-tags"><span>有依据的研究</span><span>可确认的执行</span><span>独立的会话</span></div></div></div>
       <div id="queue-status" class="queue-status" hidden></div>
       <form id="composer" class="composer"><label for="message" class="sr-only">输入消息</label><textarea id="message" rows="3" placeholder="说说你想完成什么…" maxlength="20000"></textarea><div class="composer-bottom"><div class="send-options"><label for="send-mode" class="sr-only">发送方式</label><select id="send-mode"><option value="queue">普通消息 · 排队</option><option value="steer">引导当前任务</option></select><label id="scope-label" hidden><input type="checkbox" id="scope-changed" checked> 重新确认范围</label></div><button id="send" class="primary" type="submit">发送 <span>↗</span></button></div></form>

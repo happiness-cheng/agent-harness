@@ -1,0 +1,24 @@
+{
+  "before_source_sha256": "f135af28a876b9c1d6660c1b87a2d1ed1dd3ebbcb00c3436176b112fda6cb4d7",
+  "after_source_sha256": "c953ec972ec5d6825d009509e5bbf203b8e3b8dcba3456f26e5be2fcf24a60f7",
+  "snapshot_matches_current": true,
+  "modified": [
+    "src/min_agent/evaluation/processes.py",
+    "src/min_agent/evaluation/runner.py",
+    "tests/integration/test_memory_tools.py",
+    "tests/unit/test_evaluation_processes.py",
+    "docs/EVALUATION_V1.md",
+    "requirements.lock",
+    "requirements-dev.lock"
+  ],
+  "added": [
+    "src/min_agent/evaluation/_windows_job.py",
+    "tests/integration/test_evaluation_cleanup.py"
+  ],
+  "frozen_suite_unchanged": true,
+  "doc_before_reconstructed_by_exact_hash": true,
+  "wheel_package_files": 89,
+  "wheel_source_mismatches": [],
+  "wheel_unexpected_private_files": [],
+  "wheel_sha256": "cce6b24c118724c3f82bedf4197781ae0577303f5fb25a53570f15d346a18b7e"
+}

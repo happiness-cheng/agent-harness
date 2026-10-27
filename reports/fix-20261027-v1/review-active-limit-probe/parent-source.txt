@@ -1,0 +1,18 @@
+import json,subprocess,sys,time
+from pathlib import Path
+out=Path(sys.argv[1]);child=sys.argv[2]
+for name in ['first','second']:
+ subprocess.Popen([sys.executable,'-c',child,str(out),name],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,creationflags=subprocess.CREATE_NO_WINDOW)
+end=time.monotonic()+20
+while time.monotonic()<end and not all((out/(name+'-ready')).exists() for name in ['first','second']):time.sleep(.01)
+if not all((out/(name+'-ready')).exists() for name in ['first','second']):raise SystemExit(3)
+(out/'parent-ready').write_text('ready')
+while time.monotonic()<end and not (out/'spawn').exists():time.sleep(.01)
+try:
+ childp=subprocess.Popen([sys.executable,'-c','from pathlib import Path; import sys; Path(sys.argv[1]).write_text("executed")',str(out/'new-executed')],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,creationflags=subprocess.CREATE_NO_WINDOW)
+ childp.wait(timeout=10)
+ result={'created':True,'returncode':childp.returncode}
+except OSError as error:result={'created':False,'error_type':type(error).__name__,'winerror':error.winerror}
+(out/'spawn-result.json').write_text(json.dumps(result))
+end=time.monotonic()+20
+while time.monotonic()<end and not (out/'release').exists():time.sleep(.01)

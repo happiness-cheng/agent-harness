@@ -1,0 +1,8 @@
+{
+  "files_checked": 2947,
+  "credential_pattern_files": [],
+  "nonempty_provider_state_report_files": [],
+  "private_runtime_databases_in_manifest": [],
+  "memory_v01_in_manifest": [],
+  "scope": "仅显式发布快照；不读取正式Memory、私人文件或项目外凭据"
+}

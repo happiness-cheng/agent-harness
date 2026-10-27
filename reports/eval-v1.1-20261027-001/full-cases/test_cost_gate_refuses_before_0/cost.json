@@ -1,0 +1,10 @@
+{
+  "limit": 1e-05,
+  "spent_upper": 0,
+  "reservations": {},
+  "events": [],
+  "input_rate": 0.3,
+  "output_rate": 1.2,
+  "currency": "USD",
+  "rate_source": "configured_peak_rates_2026-10-26"
+}

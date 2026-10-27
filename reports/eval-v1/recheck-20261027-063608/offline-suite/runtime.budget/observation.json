@@ -1,0 +1,228 @@
+{
+  "run_id": "b7a48147-4904-4954-af82-3663721c27e0",
+  "task_id": "runtime.budget",
+  "version_id": "f135af28a876b9c1d6660c1b87a2d1ed1dd3ebbcb00c3436176b112fda6cb4d7",
+  "session_id": "3e9012f3-2740-470d-a6d9-e5a5a172b2de",
+  "transport_status": "ok",
+  "execution_status": "partial",
+  "answer": "{\"achievements\": [\"已有结果保留\"], \"pending\": [\"待续跑\"], \"blockers\": [], \"next_steps\": [\"核对后继续\"]}",
+  "todos": [],
+  "initial_todos": [],
+  "tools": [
+    {
+      "id": "eval-1-calculator",
+      "name": "calculator",
+      "arguments": {
+        "expression": "2+3"
+      },
+      "result": {
+        "ok": true,
+        "result": "5"
+      },
+      "message_index": 2
+    },
+    {
+      "id": "eval-2-calculator",
+      "name": "calculator",
+      "arguments": {
+        "expression": "2+3"
+      },
+      "result": {
+        "ok": true,
+        "result": "5"
+      },
+      "message_index": 4
+    }
+  ],
+  "trace": [
+    {
+      "sequence": 1,
+      "run_id": "dd363c98-b579-4a55-997d-4ed2cf6d366f",
+      "call_id": "e2f0826b-86e7-4953-a8f2-7ebc6be8ed88",
+      "parent_call_id": "8f035d27-d2b8-468c-b2ab-82fa3a137eaf",
+      "session_id": "3e9012f3-2740-470d-a6d9-e5a5a172b2de",
+      "task_id": "3f4dcb55-6eea-468a-bc5e-70b59cb758d3",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 13.326600019354373,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 2,
+      "run_id": "dd363c98-b579-4a55-997d-4ed2cf6d366f",
+      "call_id": "17b8dabf-7d11-4446-83aa-9bf0a57bc405",
+      "parent_call_id": "e2f0826b-86e7-4953-a8f2-7ebc6be8ed88",
+      "session_id": "3e9012f3-2740-470d-a6d9-e5a5a172b2de",
+      "task_id": "3f4dcb55-6eea-468a-bc5e-70b59cb758d3",
+      "operation": "tool",
+      "status": "completed",
+      "duration_ms": 5.857900017872453,
+      "error_code": null,
+      "execution_state": "returned",
+      "source_call_ref": "3b3ea1b42b0a02f70f0add8aa74e587a4eff67a4b5a5bb0e90c84d71836be67c",
+      "tool_ref": "d2d4a592700b0920658e5d56ed50ebfaa82b1f4a3e105e9bcfd8bcbb081c2e87"
+    },
+    {
+      "sequence": 3,
+      "run_id": "dd363c98-b579-4a55-997d-4ed2cf6d366f",
+      "call_id": "e9d3cd1f-f3c6-4a6e-b699-a7ad4ce9a4ba",
+      "parent_call_id": "8f035d27-d2b8-468c-b2ab-82fa3a137eaf",
+      "session_id": "3e9012f3-2740-470d-a6d9-e5a5a172b2de",
+      "task_id": "3f4dcb55-6eea-468a-bc5e-70b59cb758d3",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 7.7563000086229295,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 4,
+      "run_id": "dd363c98-b579-4a55-997d-4ed2cf6d366f",
+      "call_id": "d1cec6f3-1237-48b8-bdfc-71245f47ebaa",
+      "parent_call_id": "e9d3cd1f-f3c6-4a6e-b699-a7ad4ce9a4ba",
+      "session_id": "3e9012f3-2740-470d-a6d9-e5a5a172b2de",
+      "task_id": "3f4dcb55-6eea-468a-bc5e-70b59cb758d3",
+      "operation": "tool",
+      "status": "completed",
+      "duration_ms": 11.010699992766604,
+      "error_code": null,
+      "execution_state": "returned",
+      "source_call_ref": "29f5d10300934d5d5310ef13a2112662cc084d6dc320de007427f15cc9cfd9cc",
+      "tool_ref": "d2d4a592700b0920658e5d56ed50ebfaa82b1f4a3e105e9bcfd8bcbb081c2e87"
+    },
+    {
+      "sequence": 5,
+      "run_id": "dd363c98-b579-4a55-997d-4ed2cf6d366f",
+      "call_id": "0fc17a45-bc12-4ec3-b19d-127dff384727",
+      "parent_call_id": "8f035d27-d2b8-468c-b2ab-82fa3a137eaf",
+      "session_id": "3e9012f3-2740-470d-a6d9-e5a5a172b2de",
+      "task_id": "3f4dcb55-6eea-468a-bc5e-70b59cb758d3",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 8.18430000799708,
+      "error_code": null,
+      "execution_state": "returned",
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 6,
+      "run_id": "dd363c98-b579-4a55-997d-4ed2cf6d366f",
+      "call_id": "8f035d27-d2b8-468c-b2ab-82fa3a137eaf",
+      "parent_call_id": null,
+      "session_id": "3e9012f3-2740-470d-a6d9-e5a5a172b2de",
+      "task_id": "3f4dcb55-6eea-468a-bc5e-70b59cb758d3",
+      "operation": "run",
+      "status": "partial",
+      "duration_ms": 57.70969999139197,
+      "error_code": "budget_checkpoint",
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    }
+  ],
+  "artifacts": {},
+  "budget": {
+    "id": "4bfc8ef3-6b5d-409f-a0e2-ec90f13d9e23",
+    "limits": {
+      "model_calls": 3,
+      "tool_calls": 12
+    },
+    "usage": {
+      "model_calls": 3,
+      "tool_calls": 2,
+      "by_purpose": {
+        "main": {
+          "model_calls": 3,
+          "tool_calls": 2
+        }
+      }
+    }
+  },
+  "checkpoint": {
+    "checkpoint": {
+      "checkpoint_id": "080eb889-7299-422e-8d16-b43de6d616fe",
+      "segment_id": "1cf0ccc6-d586-4a46-a19a-d2e8821cbfb4",
+      "budget_id": "4bfc8ef3-6b5d-409f-a0e2-ec90f13d9e23",
+      "session_id": "3e9012f3-2740-470d-a6d9-e5a5a172b2de",
+      "reason": "model_reserve",
+      "closing_status": "returned",
+      "closing_error": null,
+      "model_note": {
+        "achievements": [
+          "已有结果保留"
+        ],
+        "pending": [
+          "待续跑"
+        ],
+        "blockers": [],
+        "next_steps": [
+          "核对后继续"
+        ]
+      },
+      "tool_results": [
+        {
+          "message_index": 2,
+          "call_id": "eval-1-calculator",
+          "ok": true,
+          "execution_state": "returned"
+        },
+        {
+          "message_index": 4,
+          "call_id": "eval-2-calculator",
+          "ok": true,
+          "execution_state": "returned"
+        }
+      ],
+      "history_length": 6,
+      "task_usage": {
+        "model_calls": 3,
+        "tool_calls": 2,
+        "by_purpose": {
+          "main": {
+            "model_calls": 3,
+            "tool_calls": 2
+          }
+        }
+      },
+      "segment_usage": {
+        "model_calls": 3,
+        "tool_calls": 2,
+        "by_purpose": {
+          "main": {
+            "model_calls": 3,
+            "tool_calls": 2
+          }
+        }
+      }
+    },
+    "owner_id": "a47e9b8e-8485-4c48-91ec-c2a6b6cab136",
+    "goal_id": null,
+    "history_hash": "818f4a3c380fa2bd15d5a689f547c05cce198d8c4247aa81eafe90d53bfbc82d",
+    "known_segments": [
+      "1cf0ccc6-d586-4a46-a19a-d2e8821cbfb4"
+    ],
+    "resumed_by": null
+  },
+  "memory_delivery": {},
+  "citation": {},
+  "model_requests": 3,
+  "usage": [],
+  "elapsed_seconds": 0.2063987999863457,
+  "extra": {
+    "recovery": {},
+    "provider_errors": [],
+    "task_error": "budget_checkpoint",
+    "backend": "SCRIPTED_ACTUAL_HARNESS",
+    "last_visible_memory_refs": [],
+    "database": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1\\recheck-20261027-063608\\offline-suite\\runtime.budget\\workspace.sqlite3",
+    "data_classification": "synthetic",
+    "database_reopened_read_only": true,
+    "scope_mismatch": false
+  }
+}

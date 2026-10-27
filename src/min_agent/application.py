@@ -29,6 +29,7 @@ from min_agent.runtime import Runtime
 from min_agent.scheduler import Scheduler
 from min_agent.sessions import SessionStore, ExecutionContext
 from min_agent.skills import SkillCatalog
+from min_agent.skill_retention import SkillRetentionSelector
 from min_agent.storage import SQLiteStorage
 from min_agent.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
 from min_agent.tools.calculator import CALCULATOR_TOOL
@@ -85,14 +86,26 @@ class DemoModel:
 
 class HarnessApplication:
     def __init__(self, database, *, model=None, model_factory=None, proxy=None, desktop=None,
-                 total_models=40, segment_models=6, window=32768, owner_id=None):
+                 total_models=40, segment_models=6, total_tools=60, segment_tools=12, window=None, owner_id=None,
+                 memory_strategy='GOAL_VALUE', memory_budget=4096, memory_policy=None, memory_mode='legacy'):
+        if memory_strategy not in {'NONE','RECENCY','FREQUENCY','GOAL_VALUE'}:
+            raise ValueError('无效Memory策略')
+        if type(memory_budget) is not int or memory_budget<0: raise ValueError('无效Memory预算')
+        self.memory_strategy,self.memory_budget,self.memory_policy=memory_strategy,memory_budget,memory_policy
+        if memory_mode not in {'legacy','active','off'}: raise ValueError('无效Memory使用模式')
+        self.memory_mode = memory_mode
         path = Path(database).resolve(); path.parent.mkdir(parents=True, exist_ok=True)
         self.storage = SQLiteStorage.open(path) if path.exists() else SQLiteStorage.create_new(path)
         self.sessions = SessionStore(storage=self.storage)
+        from min_agent.long_memory import LongMemory
+        self.memory = LongMemory(self.sessions)
         self.owner_id = owner_id or uuid5(NAMESPACE_URL, "agent-harness-local:" + str(path))
         self.model = model or DemoModel(); self.model_factory = model_factory
         self.demo = isinstance(self.model, DemoModel) and model_factory is None
         self.proxy, self.total_models, self.segment_models, self.window = proxy, total_models, segment_models, window
+        BudgetLimits(model_calls=total_models,tool_calls=total_tools)
+        BudgetLimits(model_calls=segment_models,tool_calls=segment_tools)
+        self.total_tools,self.segment_tools=total_tools,segment_tools
         self._lock, self._running, self._errors, self._fetchers = RLock(), {}, {}, {}
         self._pool = ThreadPoolExecutor(max_workers=4, thread_name_prefix="agent-session")
         self._closing = Event(); self._scheduler_thread = None
@@ -136,7 +149,8 @@ class HarnessApplication:
             "trace_runs": [{key: value for key, value in record.items() if key != "events"}
                 for record in self.sessions.extension(context, "trace_runs", [])],
             "allow_web": self.sessions.extension(context, "allow_public_web", False),
-            "error": self._errors.get(str(context.session_id)), "demo": self.demo}
+            "error": self._errors.get(str(context.session_id)), "demo": self.demo,
+            "long_memory": self.memory_status(context)}
 
     def submit(self, session_id, text):
         context = self.context(session_id)
@@ -214,11 +228,54 @@ class HarnessApplication:
         if type(enabled) is not bool: raise ValueError("公开网络开关必须为布尔值")
         self.sessions.set_extension(self.context(session_id), "allow_public_web", enabled)
 
-    def _registry(self, context, segment, raw_model, control, trace=None):
+    def effective_memory_mode(self, context):
+        if self.memory_strategy == 'NONE': return 'off'
+        preferences = self.sessions.extension(context, 'long_memory_preferences', None)
+        if preferences is None: return self.memory_mode
+        return 'active' if preferences['enabled'] else 'off'
+
+    def memory_status(self, context):
+        mode = self.effective_memory_mode(context)
+        preferences = self.sessions.extension(context, 'long_memory_preferences', {})
+        doc = self.memory.document(context)
+        return dict(enabled=mode!='off', mode=mode, scenario_ids=preferences.get('scenario_ids', []),
+            scenarios=[dict(id=s.id,label=s.label) for s in doc.scenarios.values() if s.created_at<=self.memory.clock()],
+            receipt=self.sessions.extension(context, 'long_memory_delivery', None),
+            citation=self.sessions.extension(context, 'long_memory_citation', None))
+
+    def configure_memory(self, session_id, enabled, scenario_ids=None):
+        context = self.context(session_id)
+        with self._lock:
+            snapshot = self.sessions.snapshot(context)
+            if str(context.session_id) in self._running or (snapshot.task and snapshot.task.status=='running'):
+                raise RuntimeError('运行中不能切换Memory范围')
+            if type(enabled) is not bool: raise ValueError('Memory开关必须为布尔值')
+            if enabled and self.memory_strategy=='NONE': raise ValueError('此运行模式禁用长期Memory')
+            current = self.sessions.extension(context, 'long_memory_preferences', {})
+            ids = current.get('scenario_ids',[]) if scenario_ids is None else scenario_ids
+            if not isinstance(ids,list) or len(ids)>10 or any(not isinstance(i,str) for i in ids):
+                raise ValueError('场景范围无效')
+            known = {s.id for s in self.memory.document(context).scenarios.values() if s.created_at<=self.memory.clock()}
+            if not set(ids)<=known: raise PermissionError('场景不属于当前可用owner范围')
+            self.sessions.set_extension(context,'long_memory_preferences',dict(enabled=enabled,scenario_ids=list(dict.fromkeys(ids))))
+        return self.memory_status(context)
+
+    def _registry(self, context, segment, raw_model, control, trace=None, memory_query='当前任务'):
         controller = TaskController(self.sessions)
         todos = TodoService(self.sessions)
         registry = todo_registry(todos, controller, context)
         registry.register(CALCULATOR_TOOL)
+        mode = self.effective_memory_mode(context)
+        if mode == 'active':
+            from min_agent.long_memory.delivery import bind_active_memory
+            from min_agent.long_memory.models import Query
+            preferences = self.sessions.extension(context,'long_memory_preferences',{})
+            bind_active_memory(registry,self.memory,context,Query(text=memory_query[:20000] or '当前任务',
+                as_of=self.memory.clock(),scenario_ids=preferences.get('scenario_ids',[])),budget=self.memory_budget)
+        elif mode == 'legacy' and (self.memory.document(context).memories or self.memory.document(context).pending_erasure_ids):
+            from min_agent.long_memory.integration import bind_runtime_memory
+            bind_runtime_memory(registry,self.memory,context,budget=self.memory_budget,
+                strategy=self.memory_strategy,policy=self.memory_policy)
         register_reminders(registry, ReminderService(self.sessions), controller, context)
         def propose(**kwargs): return self.propose(context, kwargs).model_dump_json()
         registry.register(ToolDefinition("propose_goal", "记录候选目标/约束/完成标准和精确动作清单供用户确认；不授权业务写入，不切换Build。普通聊天不必调用。", GoalParameters, propose))
@@ -256,7 +313,7 @@ class HarnessApplication:
                     return {"stop": current["stop"] or bool(current["steers"]), "steers": []}
                 def poll(inner, task_id):
                     return inner.snapshot()["stop"], []
-            result = ResearchService(raw_model, search, reader, artifacts).run(question, segment,
+            result = ResearchService(raw_model, search, reader, artifacts, input_window=self.window).run(question, segment,
                 constraints=state.proposal.goal.constraints if state.proposal else (), control=ResearchControl(),
                 trace_context=TraceContext(session_id=context.session_id, task_id=task.task_id), trace=trace)
             if self.sessions.work_state(context).confirmed_goal_id != version:
@@ -269,6 +326,7 @@ class HarnessApplication:
         identity = str(context.session_id)
         try:
             while not self._closing.is_set():
+                self.memory.reconcile_deletions(context)
                 events = SessionEvents(self.sessions, context)
                 new_input = text is None
                 if new_input: text = events.next_input()
@@ -280,16 +338,28 @@ class HarnessApplication:
                 # 普通新输入开启新逻辑任务；定向续跑仅新建片段，复用原任务账本。
                 budget_id = snapshot.active_budget_id
                 if new_input or budget_id is None:
-                    budget_id = budgets.create(context, BudgetLimits(model_calls=self.total_models, tool_calls=60))
+                    budget_id = budgets.create(context, BudgetLimits(model_calls=self.total_models, tool_calls=self.total_tools))
                 ledger = budgets.open(context, budget_id)
-                segment = ledger.start_segment(BudgetLimits(model_calls=self.segment_models, tool_calls=12))
+                segment = ledger.start_segment(BudgetLimits(model_calls=self.segment_models, tool_calls=self.segment_tools))
                 raw_model = self.model_factory(context) if self.model_factory is not None else self.model
-                compactor = Compactor(raw_model, self.sessions, context, segment, input_window=self.window, control=events)
+                from min_agent.model_context import context_window, output_reserve
+                window = context_window(raw_model, override=self.window)
+                compactor = Compactor(raw_model, self.sessions, context, segment, input_window=window, control=events)
                 manager = ContextManager(self.sessions, context, ArtifactStore(self.sessions, context),
-                    window=self.window, compactor=compactor,
-                    selector=GroundedSelector(raw_model, segment, input_window=self.window, control=events))
+                    window=window, output_reserve=output_reserve(raw_model), compactor=compactor, model=raw_model,
+                    selector=GroundedSelector(raw_model, segment, input_window=window, control=events),
+                    skill_selector=SkillRetentionSelector(raw_model, segment, input_window=window, control=events))
                 trace = TraceRecorder()
-                runtime = Runtime(ManagedModel(raw_model, manager, control=events), self._registry(context, segment, raw_model, events, trace),
+                memory_query = text
+                work = self.sessions.work_state(context)
+                if not new_input and work.proposal:
+                    memory_query = work.proposal.goal.objective+'\n'+text
+                registry = self._registry(context, segment, raw_model, events, trace, memory_query=memory_query)
+                primary_model = raw_model
+                if getattr(registry, '_memory_delivery', None) is not None:
+                    from min_agent.long_memory.delivery import MemoryDeliveryModel
+                    primary_model = MemoryDeliveryModel(raw_model, registry._memory_delivery)
+                runtime = Runtime(ManagedModel(primary_model, manager, control=events), registry,
                     budget=segment, checkpoint_policy=CheckpointPolicy(), control=events,
                     progress_guard=ProgressGuard(self.sessions, context), recover_unknown_writes=True, trace=trace)
                 if checkpoint_id is not None:

@@ -1,0 +1,10 @@
+At C:\Users\陈独秀\Documents\agent-harness\reports\protocol-v2-20261027-001\reproduce.ps1:5 char:39
++ $outputDir = Join-Path $projectRoot ('reports/' + $OutputName)
++                                       ~~~~~~~~~~~~~~~~~~~~~~~~
+Unexpected token 'reports/' + $OutputName)
+if (Test-Path -LiteralPath $outputDir) { throw '杈撳嚭宸插瓨鍦紝鎷掔粷瑕嗙洊' }
+$pythonExe = Join-Path $projectRoot '.venv/Scripts/python.exe'
+if (-not (Test-Path -LiteralPath $pythonExe)) { throw '鍏堟寜README鍑嗗鏈湴渚濊禆鐜锛涙湰鑴氭湰涓嶈仈缃戝畨瑁?' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+ 

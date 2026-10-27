@@ -1,0 +1,67 @@
+COMMAND: C:\Users\陈独秀\Documents\agent-harness\.venv\Scripts\python.exe -X utf8 -m pytest -q tests/integration/test_evaluation_v1.py tests/unit/test_evaluation_verifier.py tests/unit/test_adaptive_output.py tests/unit/test_night_mode.py tests/unit/test_codex_night_adapter.py tests/unit/test_evaluation_live_boundary.py
+EXIT: 1
+......F....................                                              [100%]
+================================== FAILURES ===================================
+_______ test_actual_scheduler_process_crash_does_not_replay_running_job _______
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-16/test_actual_scheduler_process_0')
+
+    def test_actual_scheduler_process_crash_does_not_replay_running_job(tmp_path):
+        import os,subprocess,sys,time
+        from min_agent.evaluation.night import NightQueue,NightPolicy,NightJob,run_night
+        from min_agent.evaluation.suites import task_by_id
+        queue=NightQueue(tmp_path/'queue.json');queue.initialize(NightPolicy())
+        for identity in ['A','B']:queue.add(NightJob(id=identity,goal=identity,task=task_by_id('runtime.calc')))
+        marker=tmp_path/'started.txt'
+        code='''from pathlib import Path
+    import sys,time
+    from min_agent.evaluation.night import NightQueue,run_night
+    def hang(job,route,out):
+     Path(sys.argv[2]).write_text('started once',encoding='utf-8')
+     time.sleep(300)
+    run_night(NightQueue(sys.argv[1]),executor=hang)
+    '''
+        root=Path(__file__).resolve().parents[2]
+        options=dict(cwd=root,env=dict(os.environ,PYTHONPATH=str(root/'src')),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        if os.name=='nt':options['creationflags']=subprocess.CREATE_NO_WINDOW
+        process=subprocess.Popen([sys.executable,'-X','utf8','-c',code,str(queue.path),str(marker)],**options)
+        try:
+            end=time.monotonic()+15
+            while not marker.exists() and time.monotonic()<end:time.sleep(.1)
+            assert marker.exists()
+        finally:
+            process.terminate();process.wait(timeout=10)
+>       recovered=run_night(NightQueue(queue.path))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_evaluation_v1.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\min_agent\evaluation\night.py:125: in run_night
+    with DatabaseLease(str(queue.path)+'.runner',{'product':'adrian-night-runner'}):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <min_agent.web.launcher.DatabaseLease object at 0x000001CEB0EBD6D0>
+
+    def __enter__(self):
+        self.path.parent.mkdir(parents=True,exist_ok=True)
+        stream=self.path.open('a+b')
+        stream.seek(0,2)
+        if stream.tell()==0:stream.write(b'\n');stream.flush()
+        stream.seek(0)
+        try:
+            if os.name=='nt':
+                import msvcrt
+                msvcrt.locking(stream.fileno(),msvcrt.LK_NBLCK,1)
+            else:
+                import fcntl
+                fcntl.flock(stream.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except OSError:
+            stream.close()
+>           raise DatabaseInUse('当前数据库已有写库进程，不能重复启动') from None
+E           min_agent.web.launcher.DatabaseInUse: 当前数据库已有写库进程，不能重复启动
+
+src\min_agent\web\launcher.py:51: DatabaseInUse
+=========================== short test summary info ===========================
+FAILED tests/integration/test_evaluation_v1.py::test_actual_scheduler_process_crash_does_not_replay_running_job
+1 failed, 26 passed in 58.10s

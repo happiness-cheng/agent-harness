@@ -1,0 +1,11 @@
+--- historical-live-v1/messages
++++ actual-offline-v2/messages
+@@ -7,7 +7,7 @@
+   },
+   {
+     "role": "user",
+-    "content": "核对合成保修期与进水损坏例外，并引用原文。\nSYNTHETIC_MAIN_ONLY_MARKER：无关的合成主会话标记。",
++    "content": "核对受控保修条款的范围及例外，引用实际原文。",
+     "tool_call_id": null,
+     "tool_calls": []
+   },

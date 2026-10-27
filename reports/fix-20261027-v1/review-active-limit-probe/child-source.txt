@@ -1,0 +1,8 @@
+from pathlib import Path
+import sys,time
+from min_agent.web.launcher import DatabaseLease
+out=Path(sys.argv[1]);name=sys.argv[2]
+with DatabaseLease(out/(name+'-resource'),{'product':'active-limit-probe'}):
+ (out/(name+'-ready')).write_text('ready')
+ end=time.monotonic()+35
+ while time.monotonic()<end and not (out/'release').exists():time.sleep(.01)

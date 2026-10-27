@@ -1,0 +1,141 @@
+{
+  "pairs": [
+    {
+      "case": "api-timeout",
+      "before": {
+        "verdict": "FAIL",
+        "read_visible": false,
+        "reads": 0,
+        "usage": {
+          "model_calls": 4,
+          "tool_calls": 2,
+          "by_purpose": {
+            "main": {
+              "model_calls": 2,
+              "tool_calls": 1
+            },
+            "research": {
+              "model_calls": 2,
+              "tool_calls": 1
+            }
+          }
+        }
+      },
+      "after": {
+        "verdict": "PASS",
+        "read_visible": true,
+        "reads": 1,
+        "usage": {
+          "model_calls": 5,
+          "tool_calls": 3,
+          "by_purpose": {
+            "main": {
+              "model_calls": 2,
+              "tool_calls": 1
+            },
+            "research": {
+              "model_calls": 3,
+              "tool_calls": 2
+            }
+          }
+        }
+      },
+      "same_limits": {
+        "model_calls": 7,
+        "tool_calls": 3
+      }
+    },
+    {
+      "case": "psf-archived-excerpt",
+      "before": {
+        "verdict": "FAIL",
+        "read_visible": false,
+        "reads": 0,
+        "usage": {
+          "model_calls": 4,
+          "tool_calls": 2,
+          "by_purpose": {
+            "main": {
+              "model_calls": 2,
+              "tool_calls": 1
+            },
+            "research": {
+              "model_calls": 2,
+              "tool_calls": 1
+            }
+          }
+        }
+      },
+      "after": {
+        "verdict": "PASS",
+        "read_visible": true,
+        "reads": 1,
+        "usage": {
+          "model_calls": 5,
+          "tool_calls": 3,
+          "by_purpose": {
+            "main": {
+              "model_calls": 2,
+              "tool_calls": 1
+            },
+            "research": {
+              "model_calls": 3,
+              "tool_calls": 2
+            }
+          }
+        }
+      },
+      "same_limits": {
+        "model_calls": 7,
+        "tool_calls": 3
+      }
+    },
+    {
+      "case": "warranty-exclusion",
+      "before": {
+        "verdict": "FAIL",
+        "read_visible": false,
+        "reads": 0,
+        "usage": {
+          "model_calls": 4,
+          "tool_calls": 2,
+          "by_purpose": {
+            "main": {
+              "model_calls": 2,
+              "tool_calls": 1
+            },
+            "research": {
+              "model_calls": 2,
+              "tool_calls": 1
+            }
+          }
+        }
+      },
+      "after": {
+        "verdict": "PASS",
+        "read_visible": true,
+        "reads": 1,
+        "usage": {
+          "model_calls": 5,
+          "tool_calls": 3,
+          "by_purpose": {
+            "main": {
+              "model_calls": 2,
+              "tool_calls": 1
+            },
+            "research": {
+              "model_calls": 3,
+              "tool_calls": 2
+            }
+          }
+        }
+      },
+      "same_limits": {
+        "model_calls": 7,
+        "tool_calls": 3
+      }
+    }
+  ],
+  "evidence_class": "FIXED_POLICY_MECHANISM_ONLY",
+  "real_model_gain": "NOT_TESTED"
+}

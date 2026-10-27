@@ -1,0 +1,45 @@
+{
+  "backend": "MOCK_TRANSPORT_FROZEN_IO",
+  "variant": "candidate",
+  "case": "psf-archived-excerpt",
+  "verdict": "PASS",
+  "mechanical_observer_verdict": "PASS",
+  "provider_errors": [],
+  "generation_requests": 0,
+  "adapter_attempts": 5,
+  "usage": [
+    {
+      "request": 1,
+      "input_tokens": 100,
+      "output_tokens": 100,
+      "total_tokens": 200
+    },
+    {
+      "request": 2,
+      "input_tokens": 100,
+      "output_tokens": 100,
+      "total_tokens": 200
+    },
+    {
+      "request": 3,
+      "input_tokens": 100,
+      "output_tokens": 100,
+      "total_tokens": 200
+    },
+    {
+      "request": 4,
+      "input_tokens": 100,
+      "output_tokens": 100,
+      "total_tokens": 200
+    },
+    {
+      "request": 5,
+      "input_tokens": 100,
+      "output_tokens": 100,
+      "total_tokens": 200
+    }
+  ],
+  "criteria_changed": false,
+  "observer_note": "result.json中的fixed_policy_calls为复用观察器的字段名；本次实际模型由本收据标明。",
+  "new_model_decision_tested": false
+}

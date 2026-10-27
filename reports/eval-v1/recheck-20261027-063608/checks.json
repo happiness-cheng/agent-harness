@@ -1,0 +1,15 @@
+{
+  "attachment_sha256": "fa0436ad9cc7e094f6673f01e2781be4706507614915a50f023d948d2c80841b",
+  "same_brief": true,
+  "source_sha256": "5705d3e66d442d4dc7973b15e8a16e4d62753ebc8ace34678f31cbf482a74280",
+  "source_unchanged": true,
+  "prior_artifacts_verified": 336,
+  "prior_artifacts_changed": [],
+  "tests_exit": 1,
+  "new_model_calls": 0,
+  "private_data_uploaded": false,
+  "production_database_migrated": false,
+  "token_policy": "real Web/Eval settings max_output_tokens=None; Provider metadata cap and current context headroom; finite request/time/cost gates retained",
+  "legacy_adapter_default": 4096,
+  "legacy_default_note": "preserved compatibility; not used by Adrian Web/Eval live entries"
+}

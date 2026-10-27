@@ -1,0 +1,90 @@
+{
+  "run": "candidate-0",
+  "messages": [
+    {
+      "role": "user",
+      "content": "核对归档片段中的PSF使命短句；引用实际读到的文字，不补全未保存的全文。\nSYNTHETIC_MAIN_ONLY_MARKER：无关的合成主会话标记。",
+      "tool_call_id": null,
+      "tool_calls": []
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_call_id": null,
+      "tool_calls": [
+        {
+          "id": "call_00_MKVyM9qlKvZVjYw1JW4g4274",
+          "name": "recall_memory",
+          "arguments": {
+            "question": "PSF 使命短句 / PSF mission 短句、归档片段中的原文"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "{\"ok\": true, \"result\": \"[]\"}",
+      "tool_call_id": "call_00_MKVyM9qlKvZVjYw1JW4g4274",
+      "tool_calls": []
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_call_id": null,
+      "tool_calls": [
+        {
+          "id": "call_00_9yXzyBUEpAvAC1jyEpHJ8511",
+          "name": "recall_memory",
+          "arguments": {
+            "question": "PSF 是什么？使命陈述使命短句归档片段"
+          }
+        },
+        {
+          "id": "call_01_oQyqur7uu3zz49VJV4pz4988",
+          "name": "read_session_state",
+          "arguments": {}
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "{\"ok\": true, \"result\": \"[]\"}",
+      "tool_call_id": "call_00_9yXzyBUEpAvAC1jyEpHJ8511",
+      "tool_calls": []
+    },
+    {
+      "role": "tool",
+      "content": "{\"ok\": true, \"result\": \"{\\\"source_kind\\\": \\\"runtime_state\\\", \\\"session_id\\\": \\\"e175cbe8-2ad8-454b-871e-23ba21172d9d\\\", \\\"work_state\\\": {\\\"mode\\\": \\\"plan\\\", \\\"status\\\": \\\"ready\\\", \\\"proposal\\\": null, \\\"confirmed_goal_id\\\": null, \\\"waiting_reason\\\": null}, \\\"task\\\": {\\\"task_id\\\": \\\"279118ed-0b70-4c82-ba94-3e275bb4dc3b\\\", \\\"status\\\": \\\"running\\\", \\\"run_id\\\": null, \\\"error_code\\\": null, \\\"history_start\\\": 0}, \\\"todos\\\": [], \\\"reminders\\\": [], \\\"committed_actions\\\": [], \\\"authorization_note\\\": \\\"只读视图不授予权限；实际写入仍须Runtime授权检查\\\"}\"}",
+      "tool_call_id": "call_01_oQyqur7uu3zz49VJV4pz4988",
+      "tool_calls": []
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_call_id": null,
+      "tool_calls": [
+        {
+          "id": "call_00_omO7z27xSTBu0qiQHJHG3741",
+          "name": "recall_memory",
+          "arguments": {
+            "question": "归档片段 原文 短句 引用 无法确认全文"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "{\"ok\": false, \"error\": {\"code\": \"budget_checkpoint\", \"message\": \"已到工具收尾边界；该请求未执行。\", \"execution_state\": \"not_started\", \"recovery\": \"review_checkpoint\"}}",
+      "tool_call_id": "call_00_omO7z27xSTBu0qiQHJHG3741",
+      "tool_calls": []
+    }
+  ],
+  "final_answer": "",
+  "checkpoint": {
+    "reason": null,
+    "closing_status": null,
+    "closing_error": null,
+    "model_note": null
+  },
+  "provider_state_exported": false
+}

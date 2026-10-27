@@ -1,0 +1,140 @@
+{
+  "run_id": "80e8983b-f2e0-4199-a9e2-c122bd957721",
+  "task_id": "memory.retracted",
+  "version_id": "41a430b128c946bb1fac419bfc5040ceee820c548cb37161ea748e9de9d49669",
+  "session_id": "87c75dc5-74b0-486a-bccd-5e6f1336445c",
+  "transport_status": "ok",
+  "execution_status": "completed",
+  "answer": "当前没有找到可用证据，不能断言完整历史不存在。",
+  "todos": [],
+  "initial_todos": [],
+  "tools": [
+    {
+      "id": "eval-1-search_long_memory",
+      "name": "search_long_memory",
+      "arguments": {
+        "question": "讲解Python偏好"
+      },
+      "result": {
+        "ok": true,
+        "result": "{\"memory_ids\": []}"
+      },
+      "message_index": 2
+    }
+  ],
+  "trace": [
+    {
+      "sequence": 1,
+      "run_id": "677d58b2-1dac-4a4e-b19b-459d4c2a9073",
+      "call_id": "2373f2aa-94b2-413c-9a16-7567a6478922",
+      "parent_call_id": "4e4f17fb-4421-48fe-b48d-3984100e7aab",
+      "session_id": "87c75dc5-74b0-486a-bccd-5e6f1336445c",
+      "task_id": "6a200a7c-3605-4803-8edb-43dd6f2642ba",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 52.14529999648221,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 2,
+      "run_id": "677d58b2-1dac-4a4e-b19b-459d4c2a9073",
+      "call_id": "1a903c59-fa2b-40f3-8735-a87addfe6f68",
+      "parent_call_id": "2373f2aa-94b2-413c-9a16-7567a6478922",
+      "session_id": "87c75dc5-74b0-486a-bccd-5e6f1336445c",
+      "task_id": "6a200a7c-3605-4803-8edb-43dd6f2642ba",
+      "operation": "tool",
+      "status": "completed",
+      "duration_ms": 19.049900001846254,
+      "error_code": null,
+      "execution_state": "returned",
+      "source_call_ref": "f33950a668868e5dcb51a33e9fa75065dcfe35c23080e6ea273d573acb49d49e",
+      "tool_ref": "bc380efae0620bf154b4a6e828263b88d188f7779e71a856029e8fa89a718e11"
+    },
+    {
+      "sequence": 3,
+      "run_id": "677d58b2-1dac-4a4e-b19b-459d4c2a9073",
+      "call_id": "7c33b619-8842-432c-85de-d086d85b9d92",
+      "parent_call_id": "4e4f17fb-4421-48fe-b48d-3984100e7aab",
+      "session_id": "87c75dc5-74b0-486a-bccd-5e6f1336445c",
+      "task_id": "6a200a7c-3605-4803-8edb-43dd6f2642ba",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 44.73660001531243,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 4,
+      "run_id": "677d58b2-1dac-4a4e-b19b-459d4c2a9073",
+      "call_id": "4e4f17fb-4421-48fe-b48d-3984100e7aab",
+      "parent_call_id": null,
+      "session_id": "87c75dc5-74b0-486a-bccd-5e6f1336445c",
+      "task_id": "6a200a7c-3605-4803-8edb-43dd6f2642ba",
+      "operation": "run",
+      "status": "completed",
+      "duration_ms": 127.03659999533556,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    }
+  ],
+  "artifacts": {},
+  "budget": {
+    "id": "d4a14cd0-e201-4128-9877-5cba7211fc35",
+    "limits": {
+      "model_calls": 8,
+      "tool_calls": 12
+    },
+    "usage": {
+      "model_calls": 2,
+      "tool_calls": 1,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        }
+      }
+    }
+  },
+  "checkpoint": null,
+  "memory_delivery": {
+    "number": 2,
+    "status": "delivered",
+    "requested": [],
+    "loaded": [],
+    "selected": [],
+    "delivered": [],
+    "omitted": [],
+    "reference_sha256": "1ae504abcb1bfb8583c18c995464d1e0fbff32cc13083a2000cd8102b4e354b1",
+    "bytes": 333,
+    "budget": 4096,
+    "metadata_support_ids": [],
+    "task_id": "6a200a7c-3605-4803-8edb-43dd6f2642ba"
+  },
+  "citation": {
+    "status": "not_provided",
+    "cited_ids": [],
+    "unsupported_ids": [],
+    "semantic_support": "not_proven_by_id_check"
+  },
+  "model_requests": 2,
+  "usage": [],
+  "elapsed_seconds": 0.5273865000053775,
+  "extra": {
+    "recovery": {},
+    "provider_errors": [],
+    "task_error": null,
+    "backend": "SCRIPTED_ACTUAL_HARNESS",
+    "last_visible_memory_refs": [],
+    "database": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1.1-20261027-001\\candidate-01\\frozen-suite\\memory.retracted\\workspace.sqlite3",
+    "data_classification": "synthetic",
+    "database_reopened_read_only": true,
+    "scope_mismatch": false
+  }
+}

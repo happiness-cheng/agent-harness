@@ -1,0 +1,8 @@
+{
+  "python": "3.13.16 (tags/v3.13.16:cbc944f, Sep 30 2026, 19:17:50) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "source_version": "604b6d4572ec5e122fbf1c91f7e64820da4481f5307b7a193b95a57b86573fab",
+  "spec_sha256": "ecbcb9053231f9bad23623794c726ad799ae81521d47463bbb6b202f4234406a",
+  "data_classification": "synthetic",
+  "backend": "SCRIPTED_ACTUAL_HARNESS"
+}

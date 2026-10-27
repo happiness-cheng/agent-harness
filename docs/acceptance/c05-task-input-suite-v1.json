@@ -1,0 +1,11 @@
+{
+  "version": "uncovered-task-input-v1",
+  "status": "frozen-before-fix",
+  "scope": "只验证上下文向下游提供完整未覆盖记录；无外部请求，普通历史摘要器为替身，不评价摘要语义或下游判断质量。",
+  "cases": [
+    {"id":"U01","group":"development","scenario":"after_a","expected":{"all_uncovered_messages":true,"middle_present":true,"summary_matches":true,"raw_unchanged":true,"provider_state_excluded":true,"main_called":true}},
+    {"id":"U02","group":"acceptance","scenario":"after_b","expected":{"all_uncovered_messages":true,"middle_present":true,"summary_matches":true,"raw_unchanged":true,"provider_state_excluded":true,"main_called":true}},
+    {"id":"U03","group":"acceptance","scenario":"no_summary","expected":{"all_uncovered_messages":true,"middle_present":true,"summary_matches":true,"raw_unchanged":true,"provider_state_excluded":true,"main_called":true}},
+    {"id":"U04","group":"acceptance","scenario":"overflow","expected":{"all_uncovered_messages":true,"middle_present":true,"raw_unchanged":true,"main_called":true,"selector_model_calls":0,"selection_budget_spent":0,"fallback":true,"retained_body_count":1}}
+  ]
+}

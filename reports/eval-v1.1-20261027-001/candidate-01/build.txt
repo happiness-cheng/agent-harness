@@ -1,0 +1,9 @@
+Processing .\.
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: agent-harness
+  Building wheel for agent-harness (pyproject.toml): started
+  Building wheel for agent-harness (pyproject.toml): finished with status 'done'
+  Created wheel for agent-harness: filename=agent_harness-0.1.0-py3-none-any.whl size=217367 sha256=3eec28f5d5cc94983382c7e801628420424b126feb58c90ab4b47882e2681a20
+  Stored in directory: C:\Users\陈独秀\AppData\Local\Temp\pip-ephem-wheel-cache-g18bfyti\wheels\32\4b\84\3df905de795bd50c251acfb2c94c4ffcb3bc0df0ff50697e36
+Successfully built agent-harness

@@ -1,0 +1,85 @@
+{
+  "variant": "baseline",
+  "task_id": "v2.diagnostic.stop-after-search",
+  "group": "reach_control",
+  "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+  "task_hash": "62089bcdc44be5b4172398e00044d82f84a500c24896ce12c0d6fa368c40bd9a",
+  "task_outcome": "FAIL",
+  "hypothesis_reachability": {
+    "value": "REACHED",
+    "dispatch": 2,
+    "remaining": {
+      "tool_calls": 1,
+      "model_calls": 4
+    },
+    "read_tool_exposed": false,
+    "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+  },
+  "repair_outcome": "INCONCLUSIVE",
+  "execution_status": "completed",
+  "catalog": {
+    "controlled_collection": {
+      "collection_id": "v2-controlled-library",
+      "label": "V2受控公开片段与合成文档库",
+      "kind": "controlled_read_only_collection",
+      "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+      "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+      "documents": [
+        {
+          "document_id": "warranty",
+          "title": "合成产品保修政策",
+          "locator": "https://fixtures.example/warranty",
+          "nature": "synthetic_document",
+          "coverage": "完整合成测试条款，不代表真实产品政策",
+          "origin_url": ""
+        }
+      ]
+    },
+    "session_artifacts": [],
+    "allow_public_web": true,
+    "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+  },
+  "checks": {
+    "correct_owner": true,
+    "no_business_writes": true,
+    "budget_within_limits": true,
+    "scoped_artifacts": true,
+    "bounded_context": true
+  },
+  "limits": {
+    "model_calls": 7,
+    "tool_calls": 3
+  },
+  "usage": {
+    "model_calls": 4,
+    "tool_calls": 2,
+    "by_purpose": {
+      "main": {
+        "model_calls": 2,
+        "tool_calls": 1
+      },
+      "research": {
+        "model_calls": 2,
+        "tool_calls": 1
+      }
+    }
+  },
+  "actual_read": false,
+  "evidence": {
+    "conclusion": "未读取原文，不能确认。",
+    "citations": [],
+    "limitations": [
+      "仅依据受控资料，历史片段不代表全文或最新版本。"
+    ],
+    "conflicts": [],
+    "uncertainties": [],
+    "next_queries": []
+  },
+  "final": "{\"status\": \"completed\", \"evidence\": {\"conclusion\": \"未读取原文，不能确认。\", \"citations\": [], \"limitations\": [\"仅依据受控资料，历史片段不代表全文或最新版本。\"], \"conflicts\": [], \"uncertainties\": [], \"next_queries\": []}, \"error\": null}",
+  "owner_id": "31db2fe9-f744-4d03-aff2-a963b3624896",
+  "session_id": "c3834634-4463-4615-a049-2323630f6cb8",
+  "artifact_count": 0,
+  "external_generation_requests": 0,
+  "local_reference_dispatches": 4,
+  "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+}

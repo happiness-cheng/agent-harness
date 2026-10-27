@@ -1,0 +1,440 @@
+baseline c953ec972ec5d6825d009509e5bbf203b8e3b8dcba3456f26e5be2fcf24a60f7
+candidate 41a430b128c946bb1fac419bfc5040ceee820c548cb37161ea748e9de9d49669
+zero-generation preflight completed; compare saved independent outcomes
+{
+  "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+  "pairs": [
+    {
+      "task_id": "v2.normal.psf",
+      "group": "normal",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true,
+        "boundary_expected": true,
+        "reference_expected": true
+      },
+      "baseline": {
+        "task": "FAIL",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": false,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      },
+      "candidate": {
+        "task": "PASS",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": true,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      }
+    },
+    {
+      "task_id": "v2.normal.warranty",
+      "group": "normal",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true,
+        "boundary_expected": true,
+        "reference_expected": true
+      },
+      "baseline": {
+        "task": "FAIL",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": false,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      },
+      "candidate": {
+        "task": "PASS",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": true,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      }
+    },
+    {
+      "task_id": "v2.normal.api",
+      "group": "normal",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true,
+        "boundary_expected": true,
+        "reference_expected": true
+      },
+      "baseline": {
+        "task": "FAIL",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": false,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      },
+      "candidate": {
+        "task": "PASS",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": true,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      }
+    },
+    {
+      "task_id": "v2.diagnostic.psf",
+      "group": "diagnostic",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true
+      },
+      "baseline": {
+        "task": "FAIL",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": false,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      },
+      "candidate": {
+        "task": "PASS",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": true,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      }
+    },
+    {
+      "task_id": "v2.diagnostic.warranty",
+      "group": "diagnostic",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true
+      },
+      "baseline": {
+        "task": "FAIL",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": false,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      },
+      "candidate": {
+        "task": "PASS",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": true,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      }
+    },
+    {
+      "task_id": "v2.diagnostic.api",
+      "group": "diagnostic",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true
+      },
+      "baseline": {
+        "task": "FAIL",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": false,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      },
+      "candidate": {
+        "task": "PASS",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": true,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      }
+    },
+    {
+      "task_id": "v2.normal.absent",
+      "group": "negative",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true,
+        "not_forced_research": true,
+        "negative_expected": true
+      },
+      "baseline": {
+        "task": "PASS",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      },
+      "candidate": {
+        "task": "PASS",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      }
+    },
+    {
+      "task_id": "v2.normal.session-attachment",
+      "group": "session_control",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true
+      },
+      "baseline": {
+        "task": "PASS",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      },
+      "candidate": {
+        "task": "PASS",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      }
+    },
+    {
+      "task_id": "v2.diagnostic.stop-after-search",
+      "group": "reach_control",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true,
+        "reach_is_not_success": true
+      },
+      "baseline": {
+        "task": "FAIL",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": false,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      },
+      "candidate": {
+        "task": "FAIL",
+        "reach": {
+          "value": "REACHED",
+          "dispatch": 2,
+          "remaining": {
+            "tool_calls": 1,
+            "model_calls": 4
+          },
+          "read_tool_exposed": true,
+          "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+        }
+      }
+    },
+    {
+      "task_id": "v2.diagnostic.direct-read",
+      "group": "reach_control",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true,
+        "success_does_not_imply_reach": true
+      },
+      "baseline": {
+        "task": "PASS",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      },
+      "candidate": {
+        "task": "PASS",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      }
+    },
+    {
+      "task_id": "v2.diagnostic.permission",
+      "group": "permission_control",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true,
+        "permission_preserved": true
+      },
+      "baseline": {
+        "task": "FAIL",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      },
+      "candidate": {
+        "task": "FAIL",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      }
+    },
+    {
+      "task_id": "v2.diagnostic.no-tools",
+      "group": "budget_control",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true,
+        "budget_preserved": true
+      },
+      "baseline": {
+        "task": "FAIL",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      },
+      "candidate": {
+        "task": "FAIL",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      }
+    },
+    {
+      "task_id": "v2.diagnostic.low-models",
+      "group": "budget_control",
+      "checks": {
+        "equal_first_input": true,
+        "no_body_or_gold_in_first_input": true,
+        "same_limits": true,
+        "no_provider_state": true,
+        "no_generation": true,
+        "safety": true,
+        "budget_preserved": true
+      },
+      "baseline": {
+        "task": "FAIL",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      },
+      "candidate": {
+        "task": "FAIL",
+        "reach": {
+          "value": "NOT_REACHED"
+        }
+      }
+    }
+  ],
+  "missing_observation_is_unknown": true,
+  "protocol_preflight": "PASS",
+  "repair_outcome": "INCONCLUSIVE",
+  "previous_live_repair_outcome": "NO_VERIFIED_GAIN",
+  "external_generation_requests": 0,
+  "sources": {
+    "baseline": "d63816d91f9d1da747e3d96931aeb05816f6ed6f2125f707446bf45727d7ed0c",
+    "candidate": "9a587f175269d951e8dfa9a4c22072884c1b72766bd977b4a155fa27f5885466"
+  }
+}

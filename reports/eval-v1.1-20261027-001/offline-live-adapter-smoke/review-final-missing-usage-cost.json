@@ -1,0 +1,22 @@
+{
+  "limit": 0.25,
+  "spent_upper": 0.016401,
+  "reservations": {},
+  "events": [
+    {
+      "event": "reserved_before_generation",
+      "ticket": "fd6a59026a254f33b412b0fc9de31bea",
+      "usd_upper": 0.016401
+    },
+    {
+      "event": "unknown_kept_full_reserve",
+      "ticket": "fd6a59026a254f33b412b0fc9de31bea",
+      "usd_upper": 0.016401
+    }
+  ],
+  "input_rate": 0.3,
+  "output_rate": 1.2,
+  "currency": "USD",
+  "rate_source": "configured_peak_rates_2026-10-26",
+  "breach": false
+}

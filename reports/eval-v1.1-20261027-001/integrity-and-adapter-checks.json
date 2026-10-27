@@ -1,0 +1,56 @@
+{
+  "main_worktree_unchanged_files": 418,
+  "main_worktree_modified": [],
+  "old_records_modified": [],
+  "frozen_new_test_unchanged": true,
+  "source_baseline": "c953ec972ec5d6825d009509e5bbf203b8e3b8dcba3456f26e5be2fcf24a60f7",
+  "source_candidate": "41a430b128c946bb1fac419bfc5040ceee820c548cb37161ea748e9de9d49669",
+  "candidate_snapshot_matches": true,
+  "offline_adapter_six_runs": [
+    {
+      "variant": "baseline",
+      "case": "psf-archived-excerpt",
+      "verdict": "FAIL",
+      "adapter_attempts": 4,
+      "generation_requests": 0
+    },
+    {
+      "variant": "baseline",
+      "case": "warranty-exclusion",
+      "verdict": "FAIL",
+      "adapter_attempts": 4,
+      "generation_requests": 0
+    },
+    {
+      "variant": "baseline",
+      "case": "api-timeout",
+      "verdict": "FAIL",
+      "adapter_attempts": 4,
+      "generation_requests": 0
+    },
+    {
+      "variant": "candidate",
+      "case": "psf-archived-excerpt",
+      "verdict": "PASS",
+      "adapter_attempts": 5,
+      "generation_requests": 0
+    },
+    {
+      "variant": "candidate",
+      "case": "warranty-exclusion",
+      "verdict": "PASS",
+      "adapter_attempts": 5,
+      "generation_requests": 0
+    },
+    {
+      "variant": "candidate",
+      "case": "api-timeout",
+      "verdict": "PASS",
+      "adapter_attempts": 5,
+      "generation_requests": 0
+    }
+  ],
+  "unknown_usage_stops_first_attempt": true,
+  "real_provider_generations": 0,
+  "codex_cli_invocations": 0
+}

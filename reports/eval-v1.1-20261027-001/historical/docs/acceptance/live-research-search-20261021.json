@@ -1,0 +1,85 @@
+{
+  "previous_requests": 26,
+  "batch_cap": 32,
+  "calls": [
+    {
+      "tools": [
+        "search",
+        "read_webpage"
+      ],
+      "finish_reason": "tool_calls",
+      "calls": [
+        {
+          "name": "search",
+          "arguments": {
+            "query": "Python Software Foundation mission statement official"
+          }
+        }
+      ],
+      "seconds": 1.091
+    },
+    {
+      "tools": [
+        "search",
+        "read_webpage"
+      ],
+      "finish_reason": "tool_calls",
+      "calls": [
+        {
+          "name": "read_webpage",
+          "arguments": {
+            "url": "https://www.python.org/",
+            "question": "What is the mission of the Python Software Foundation?"
+          }
+        }
+      ],
+      "seconds": 1.03
+    }
+  ],
+  "search_urls": [
+    "https://www.python.org/",
+    "https://www.python.org/downloads/",
+    "https://www.runoob.com/python/python-tutorial.html",
+    "https://blog.csdn.net/sensen_kiss/article/details/141940274",
+    "https://pythonlang.cn/"
+  ],
+  "read_urls": [
+    "https://www.python.org/"
+  ],
+  "semantic_review": "pending",
+  "requests": 2,
+  "combined_requests": 28,
+  "usage": [
+    {
+      "request": 1,
+      "input_tokens": 861,
+      "output_tokens": 42,
+      "total_tokens": 903
+    },
+    {
+      "request": 2,
+      "input_tokens": 1508,
+      "output_tokens": 70,
+      "total_tokens": 1578
+    }
+  ],
+  "result": {
+    "status": "failed",
+    "error": "tool_execution_failed",
+    "evidence": null
+  },
+  "selected_from_actual_search": true,
+  "query_requests": 1,
+  "fetch_requests": 1,
+  "budget": {
+    "model_calls": 2,
+    "tool_calls": 2,
+    "by_purpose": {
+      "research": {
+        "model_calls": 2,
+        "tool_calls": 2
+      }
+    }
+  },
+  "ok": false
+}

@@ -1,0 +1,185 @@
+ M README.md
+ M pyproject.toml
+ M requirements-dev.lock
+ M requirements.lock
+ M scripts/start.bat
+ M src/min_agent/application.py
+ M src/min_agent/compaction.py
+ M src/min_agent/compression_selector.py
+ M src/min_agent/compression_summary.py
+ M src/min_agent/context.py
+ M src/min_agent/llm/deepseek.py
+ M src/min_agent/prompts/system.md
+ M src/min_agent/research.py
+ M src/min_agent/runtime.py
+ M src/min_agent/sessions.py
+ M src/min_agent/skills.py
+ M src/min_agent/skills/public-evidence.md
+ M src/min_agent/storage.py
+ M src/min_agent/tools/registry.py
+ M src/min_agent/web/__main__.py
+ M src/min_agent/web/app.py
+ M src/min_agent/web/static/app.js
+ M src/min_agent/web/static/index.html
+ M tests/integration/test_authorized_todo.py
+ M tests/scenarios/test_intent_contract.py
+ M tests/unit/test_checkpoint_resume.py
+?? AGENTS.md
+?? Adrian_Memory_v0.1_Implementation_Brief.md
+?? docs/ADRIAN.md
+?? docs/EVALUATION_V1.md
+?? docs/MEMORY_ARCHITECTURE_V01.md
+?? docs/MEMORY_EVAL_PROTOCOL.md
+?? docs/PROMPT_DESIGN_DISCUSSION.md
+?? docs/acceptance/b01-state-bar-after-20261024.json
+?? docs/acceptance/b01-state-bar-after-v2-20261024.json
+?? docs/acceptance/b01-state-bar-before-20261024.json
+?? docs/acceptance/b01-state-bar-before-v2-20261024.json
+?? docs/acceptance/b01-state-bar-comparison-20261024.json
+?? docs/acceptance/b01-state-bar-comparison-v2-20261024.json
+?? docs/acceptance/b01-state-bar-final-20261024.json
+?? docs/acceptance/b01-state-bar-final-v2-20261024.json
+?? docs/acceptance/b01-state-bar-public-20261024.json
+?? docs/acceptance/b01-state-bar-public-v2-20261024.json
+?? docs/acceptance/b01-state-bar-suite-v1.json
+?? docs/acceptance/c04-multi-compaction-20261024.json
+?? docs/acceptance/c04-multi-compaction-isolated-20261024.json
+?? docs/acceptance/c04-multi-compaction-suite-v1.json
+?? docs/acceptance/c05-task-input-after-20261024.json
+?? docs/acceptance/c05-task-input-before-20261024.json
+?? docs/acceptance/c05-task-input-public-20261024.json
+?? docs/acceptance/c05-task-input-suite-v1.json
+?? docs/acceptance/m02-memory-baseline-main-v2.json
+?? docs/acceptance/m02-memory-baseline-v1.json
+?? docs/acceptance/m02-memory-baseline-v2.json
+?? docs/acceptance/m02-memory-suite-v1.json
+?? docs/acceptance/m02-memory-suite-v2.json
+?? docs/acceptance/p01-secretary-20261022.json
+?? docs/acceptance/p01-secretary-v2-20261022.json
+?? docs/acceptance/p02-workflow-20261022.json
+?? docs/acceptance/p02-workflow-v2-20261022.json
+?? docs/acceptance/p04-generalization-20261022.json
+?? docs/acceptance/p05-input-audit-20261022.json
+?? docs/acceptance/p06-tool-exposure-20261022.json
+?? docs/acceptance/p07-knowledge-context-20261022.json
+?? docs/acceptance/p07-source-material-20261022.md
+?? docs/acceptance/s01-skill-disclosure-20261022.json
+?? docs/acceptance/s01-skill-selection-live-20261022.json
+?? docs/acceptance/s02-skill-deduplication-20261023.json
+?? docs/acceptance/s03-skill-metadata-20261023.json
+?? docs/acceptance/s04-skill-behavior-suite-v1.json
+?? docs/acceptance/s04-skill-lifecycle-after-20261023.json
+?? docs/acceptance/s04-skill-lifecycle-baseline-20261023.json
+?? docs/acceptance/s04-skill-lifecycle-suite-v1.json
+?? docs/acceptance/s05-skill-retention-baseline-20261023.json
+?? docs/acceptance/s05-skill-retention-live-20261023.json
+?? docs/acceptance/s05-skill-retention-suite-v1.json
+?? docs/acceptance/s06-skill-restoration-after-20261023.json
+?? docs/acceptance/s06-skill-restoration-before-20261023.json
+?? docs/acceptance/s06-skill-restoration-public-20261023.json
+?? docs/acceptance/s07-previous-lifecycle-20261023.json
+?? docs/acceptance/s07-skill-compaction-after-20261023.json
+?? docs/acceptance/s07-skill-compaction-baseline-20261023.json
+?? docs/acceptance/s07-skill-compaction-before-20261023.json
+?? docs/acceptance/s07-skill-compaction-public-20261023.json
+?? docs/acceptance/s07-skill-compaction-suite-v1.json
+?? docs/steps/ADRIAN_INTEGRATION_PLAN.md
+?? docs/steps/ADRIAN_MEMORY_V01_PLAN.md
+?? docs/steps/B01-code.patch
+?? docs/steps/B01-context-comparison.md
+?? docs/steps/B01-readable.md
+?? docs/steps/B01-state-bar-plan.md
+?? docs/steps/B01-state-bar.md
+?? docs/steps/C04-context-regression.md
+?? docs/steps/C04-multi-compaction-plan.md
+?? docs/steps/C04-readable.md
+?? docs/steps/C05-readable.md
+?? docs/steps/C05-task-input-plan.md
+?? docs/steps/C05-task-input.md
+?? docs/steps/M02-memory-complete.md
+?? docs/steps/M02-memory-evaluation-plan.md
+?? docs/steps/M02-memory-rubric.md
+?? docs/steps/M02-readable.md
+?? docs/steps/M02-review.md
+?? docs/steps/MODEL_CONTEXT_PLAN.md
+?? docs/steps/P01-full-materials.md
+?? docs/steps/P01-readable.md
+?? docs/steps/P01-secretary.md
+?? docs/steps/P02-readable.md
+?? docs/steps/P02-workflow.md
+?? docs/steps/P03-general-intent.md
+?? docs/steps/P03-readable.md
+?? docs/steps/P04-generalization.md
+?? docs/steps/P04-readable.md
+?? docs/steps/P05-input-audit.md
+?? docs/steps/P06-readable.md
+?? docs/steps/P06-tool-exposure.md
+?? docs/steps/P07-knowledge-context.md
+?? docs/steps/P07-readable.md
+?? docs/steps/P08-role-review.md
+?? docs/steps/P09-clarification-review.md
+?? docs/steps/P10-shared-analysis-review.md
+?? docs/steps/P11-tone-review.md
+?? docs/steps/P12-prompt-assessment.md
+?? docs/steps/S01-readable.md
+?? docs/steps/S01-skill-disclosure.md
+?? docs/steps/S02-readable.md
+?? docs/steps/S02-skill-deduplication.md
+?? docs/steps/S03-description-and-lifecycle-design.md
+?? docs/steps/S03-readable.md
+?? docs/steps/S03-skill-metadata.md
+?? docs/steps/S04-evaluation-first.md
+?? docs/steps/S04-readable.md
+?? docs/steps/S05-readable.md
+?? docs/steps/S05-skill-retention-evaluation.md
+?? docs/steps/S06-readable.md
+?? docs/steps/S06-skill-restoration.md
+?? docs/steps/S07-plan.md
+?? docs/steps/S07-readable.md
+?? docs/steps/S07-skill-compaction.md
+?? reports/
+?? scripts/audit_multi_compaction.py
+?? scripts/audit_skill_compaction.py
+?? scripts/audit_skill_disclosure.py
+?? scripts/audit_skill_lifecycle.py
+?? scripts/audit_state_bar.py
+?? scripts/audit_task_input.py
+?? scripts/check_adrian_workbench.py
+?? scripts/create-adrian-shortcut.ps1
+?? scripts/eval_adrian_memory.py
+?? scripts/eval_memory.py
+?? scripts/eval_secretary_prompt.py
+?? scripts/eval_skill_disclosure.py
+?? scripts/eval_skill_retention.py
+?? scripts/eval_tool_exposure.py
+?? scripts/start-adrian.cmd
+?? scripts/verify_adrian_memory.py
+?? src/min_agent/long_memory/
+?? src/min_agent/model_context.py
+?? src/min_agent/skill_retention.py
+?? src/min_agent/state_bar.py
+?? src/min_agent/web/launcher.py
+?? tests/fakes/adrian_ui_server.py
+?? tests/integration/test_adrian_launch_process.py
+?? tests/integration/test_adrian_memory_wiring.py
+?? tests/integration/test_long_memory_runtime.py
+?? tests/integration/test_model_context_runtime.py
+?? tests/integration/test_multi_compaction_regression.py
+?? tests/integration/test_state_bar.py
+?? tests/integration/test_task_input_coverage.py
+?? tests/unit/test_adrian_evidence_delivery.py
+?? tests/unit/test_adrian_launcher.py
+?? tests/unit/test_adrian_memory_eval.py
+?? tests/unit/test_long_memory_retrieval.py
+?? tests/unit/test_long_memory_safety.py
+?? tests/unit/test_long_memory_selection.py
+?? tests/unit/test_long_memory_store.py
+?? tests/unit/test_memory_erasure_transactions.py
+?? tests/unit/test_memory_evaluation.py
+?? tests/unit/test_model_context.py
+?? tests/unit/test_skill_compaction.py
+?? tests/unit/test_skill_context.py
+?? tests/unit/test_skill_disclosure_eval.py
+?? tests/unit/test_skill_metadata.py
+?? tests/unit/test_skill_retention_eval.py
+?? tests/unit/test_tool_exposure_eval.py

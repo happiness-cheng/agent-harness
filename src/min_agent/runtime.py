@@ -413,6 +413,9 @@ class Runtime:
                 view = {"application_state": {"mode": mode, "current_date": Clock().today().isoformat()}}
                 if status is not None:
                     view["agent_status"] = status
+                memory_view = self._tools.memory_view(messages)
+                if memory_view:
+                    view['untrusted_user_memory'] = memory_view
                 return json.dumps(view, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
             except Exception as error:
                 raise ContextLimit("当前状态投影不可用，停止本次模型请求") from error

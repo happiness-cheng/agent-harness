@@ -1,0 +1,92 @@
+[
+  {
+    "gate_enabled": false,
+    "active_before": 9,
+    "locks_before": [
+      true,
+      true
+    ],
+    "root_still_running_after_limit": true,
+    "active_after_limit": 9,
+    "locks_after_limit": [
+      true,
+      true
+    ],
+    "spawn_result": {
+      "created": true,
+      "returncode": 0
+    },
+    "new_command_executed": true,
+    "active_after_spawn": 9,
+    "existing_locks_after_spawn": [
+      true,
+      true
+    ],
+    "cleanup_locks_released": [
+      true,
+      true
+    ]
+  },
+  {
+    "gate_enabled": true,
+    "active_before": 9,
+    "locks_before": [
+      true,
+      true
+    ],
+    "set_limit_return": 1,
+    "set_limit_last_error": 0,
+    "root_still_running_after_limit": true,
+    "active_after_limit": 9,
+    "locks_after_limit": [
+      true,
+      true
+    ],
+    "spawn_result": {
+      "created": false,
+      "error_type": "OSError",
+      "winerror": 1816
+    },
+    "new_command_executed": false,
+    "active_after_spawn": 9,
+    "existing_locks_after_spawn": [
+      true,
+      true
+    ],
+    "cleanup_locks_released": [
+      true,
+      true
+    ]
+  },
+  {
+    "gate_enabled": true,
+    "active_before": 9,
+    "locks_before": [
+      true,
+      true
+    ],
+    "set_limit_return": 1,
+    "set_limit_last_error": 0,
+    "root_still_running_after_limit": true,
+    "active_after_limit": 9,
+    "locks_after_limit": [
+      true,
+      true
+    ],
+    "spawn_result": {
+      "created": false,
+      "error_type": "OSError",
+      "winerror": 1816
+    },
+    "new_command_executed": false,
+    "active_after_spawn": 9,
+    "existing_locks_after_spawn": [
+      true,
+      true
+    ],
+    "cleanup_locks_released": [
+      true,
+      true
+    ]
+  }
+]

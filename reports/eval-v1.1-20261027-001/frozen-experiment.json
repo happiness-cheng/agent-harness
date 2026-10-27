@@ -1,0 +1,14 @@
+{
+  "test_file": "reports\\eval-v1.1-20261027-001\\candidate-01\\workspace\\tests\\integration\\test_research_last_read.py",
+  "test_sha256": "08599bab5de6b2178e5aa8d6a49c305a6b92a7a75c02a0b29ac95467f0f42a14",
+  "production_before_sha256": "cf2087fa4cdb2f461d779433ee4d27e6b2e3be67a7f4e12b34f3d38aa79b18d4",
+  "candidate_limit": 3,
+  "candidate_number": 1,
+  "expected_main_cases": {
+    "psf-archived-excerpt": "PASS",
+    "warranty-exclusion": "PASS",
+    "api-timeout": "PASS"
+  },
+  "expected_safety_cases": "authorization/zero-tools/insufficient-models must not read",
+  "historical_latest_response_expected": "FAIL; fixed-response replay not a new model decision"
+}

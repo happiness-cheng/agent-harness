@@ -1,0 +1,64 @@
+FFFFFF                                                                   [100%]
+================================== FAILURES ===================================
+________ test_approval_and_dependencies_do_not_block_independent_jobs _________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-4/test_approval_and_dependencies0')
+
+    def test_approval_and_dependencies_do_not_block_independent_jobs(tmp_path):
+>       from min_agent.evaluation.night import NightJob,run_night,NightOutcome
+E       ModuleNotFoundError: No module named 'min_agent.evaluation.night'
+
+tests\unit\test_night_mode.py:21: ModuleNotFoundError
+_____________ test_ten_hour_simulation_progress_and_budget_stops ______________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-4/test_ten_hour_simulation_progr0')
+
+    def test_ten_hour_simulation_progress_and_budget_stops(tmp_path):
+>       from min_agent.evaluation.night import NightJob,run_night,NightOutcome
+E       ModuleNotFoundError: No module named 'min_agent.evaluation.night'
+
+tests\unit\test_night_mode.py:36: ModuleNotFoundError
+______ test_restart_keeps_budget_and_does_not_repeat_unknown_running_job ______
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-4/test_restart_keeps_budget_and_0')
+
+    def test_restart_keeps_budget_and_does_not_repeat_unknown_running_job(tmp_path):
+>       from min_agent.evaluation.night import NightJob,run_night,NightOutcome
+E       ModuleNotFoundError: No module named 'min_agent.evaluation.night'
+
+tests\unit\test_night_mode.py:53: ModuleNotFoundError
+__________________ test_failures_stop_and_reports_are_honest __________________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-4/test_failures_stop_and_reports0')
+
+    def test_failures_stop_and_reports_are_honest(tmp_path):
+>       from min_agent.evaluation.night import NightJob,run_night,NightOutcome
+E       ModuleNotFoundError: No module named 'min_agent.evaluation.night'
+
+tests\unit\test_night_mode.py:64: ModuleNotFoundError
+_ test_each_generation_reserves_cost_before_call_and_missing_usage_keeps_reserve _
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-4/test_each_generation_reserves_0')
+
+    def test_each_generation_reserves_cost_before_call_and_missing_usage_keeps_reserve(tmp_path):
+>       from min_agent.evaluation.finance import CostLedger
+E       ModuleNotFoundError: No module named 'min_agent.evaluation.finance'
+
+tests\unit\test_night_mode.py:76: ModuleNotFoundError
+______ test_dangerous_tasks_and_doubao_are_handed_back_without_execution ______
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-4/test_dangerous_tasks_and_douba0')
+
+    def test_dangerous_tasks_and_doubao_are_handed_back_without_execution(tmp_path):
+>       from min_agent.evaluation.night import NightJob,run_night
+E       ModuleNotFoundError: No module named 'min_agent.evaluation.night'
+
+tests\unit\test_night_mode.py:86: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/unit/test_night_mode.py::test_approval_and_dependencies_do_not_block_independent_jobs
+FAILED tests/unit/test_night_mode.py::test_ten_hour_simulation_progress_and_budget_stops
+FAILED tests/unit/test_night_mode.py::test_restart_keeps_budget_and_does_not_repeat_unknown_running_job
+FAILED tests/unit/test_night_mode.py::test_failures_stop_and_reports_are_honest
+FAILED tests/unit/test_night_mode.py::test_each_generation_reserves_cost_before_call_and_missing_usage_keeps_reserve
+FAILED tests/unit/test_night_mode.py::test_dangerous_tasks_and_doubao_are_handed_back_without_execution
+6 failed in 0.61s

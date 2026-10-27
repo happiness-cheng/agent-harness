@@ -1,0 +1,242 @@
+{
+  "experiment": "P06-tool-exposure-ablation",
+  "request_limit": 8,
+  "requests": 1,
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "max_output_tokens": 2048,
+  "prompt": {
+    "text": "只依据真实上下文帮助用户。",
+    "sha256_utf8": "8335c945a6393dd9fbece0fbd4166b95940325b0500c3926902a6306d9192dd8"
+  },
+  "application_state": {
+    "mode": "plan",
+    "status": "ready",
+    "proposal": null,
+    "confirmed_goal_id": null,
+    "waiting_reason": null,
+    "current_date": "2026-10-22",
+    "time_zone": "Asia/Shanghai"
+  },
+  "available_tool_definitions": [
+    {
+      "name": "reminder_list",
+      "description": "查询当前会话的单次提醒及状态；Plan可用。",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {},
+        "title": "ListReminders",
+        "type": "object"
+      }
+    },
+    {
+      "name": "reminder_add",
+      "description": "用户需要到点通知时使用；须明确带偏移的ISO时刻、时区、Build和已确认范围。只有日期时先澄清，不默认早上9点。",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "scheduled_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Scheduled At"
+          },
+          "time_zone": {
+            "default": "Asia/Shanghai",
+            "title": "Time Zone",
+            "type": "string"
+          },
+          "todo_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Todo Id"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "AddReminder",
+        "type": "object"
+      }
+    },
+    {
+      "name": "reminder_update",
+      "description": "按真实提醒ID修改尚未触发的提醒，须Build和精确确认；不随todo日期隐式修改。",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "reminder_id": {
+            "title": "Reminder Id",
+            "type": "string"
+          },
+          "patch": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Patch",
+            "type": "object"
+          }
+        },
+        "required": [
+          "reminder_id",
+          "patch"
+        ],
+        "title": "UpdateReminder",
+        "type": "object"
+      }
+    },
+    {
+      "name": "reminder_cancel",
+      "description": "按真实ID取消当前会话未触发提醒，须Build和确认；重复取消不产生新副作用。",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "reminder_id": {
+            "title": "Reminder Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reminder_id"
+        ],
+        "title": "ReminderId",
+        "type": "object"
+      }
+    },
+    {
+      "name": "propose_goal",
+      "description": "记录候选目标/约束/完成标准和精确动作清单供用户确认；不授权业务写入，不切换Build。普通聊天不必调用。",
+      "parameters": {
+        "$defs": {
+          "ActionSpec": {
+            "additionalProperties": false,
+            "description": "可信执行入口提供的规范化请求，不能凭标签扩大参数或资源。",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "todo.list",
+                  "todo.add",
+                  "todo.update",
+                  "todo.complete",
+                  "todo.delete",
+                  "reminder.list",
+                  "reminder.add",
+                  "reminder.update",
+                  "reminder.cancel"
+                ],
+                "title": "Operation",
+                "type": "string"
+              },
+              "parameters": {
+                "additionalProperties": {
+                  "$ref": "#/$defs/JsonValue"
+                },
+                "title": "Parameters",
+                "type": "object"
+              }
+            },
+            "required": [
+              "operation"
+            ],
+            "title": "ActionSpec",
+            "type": "object"
+          },
+          "JsonValue": {}
+        },
+        "additionalProperties": false,
+        "properties": {
+          "objective": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Objective",
+            "type": "string"
+          },
+          "constraints": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Constraints",
+            "type": "array"
+          },
+          "completion_criteria": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Completion Criteria",
+            "type": "array"
+          },
+          "actions": {
+            "items": {
+              "$ref": "#/$defs/ActionSpec"
+            },
+            "maxItems": 50,
+            "title": "Actions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "objective",
+          "completion_criteria"
+        ],
+        "title": "GoalParameters",
+        "type": "object"
+      }
+    }
+  ],
+  "conditions": {
+    "tools_present": [
+      "reminder_list",
+      "reminder_add",
+      "reminder_update",
+      "reminder_cancel",
+      "propose_goal"
+    ],
+    "no_tools": []
+  },
+  "input_scope": "固定提示与消息，仅改变工具暴露",
+  "records": [
+    {
+      "case_id": "grounded_learning",
+      "repeat": 1,
+      "condition": "tools_present",
+      "user": "我已经能读懂工具调用循环，但权限和检查点只看过概念。明天想花一小时继续学习，请结合这个进度帮我安排。",
+      "expectation": "依据已给进度建议优先级，不泛列全部Agent知识，不编造用户经验。",
+      "messages_sha256": "514cf429614ea2bb176ff3e0b6ab78d92edc323b1ea9fb627951c984c01f6239",
+      "tool_names": [
+        "reminder_list",
+        "reminder_add",
+        "reminder_update",
+        "reminder_cancel",
+        "propose_goal"
+      ],
+      "error": "network_error",
+      "diagnostics": {},
+      "seconds": 0.0
+    }
+  ],
+  "semantic_review": "pending",
+  "run_state": "failed",
+  "usage": []
+}

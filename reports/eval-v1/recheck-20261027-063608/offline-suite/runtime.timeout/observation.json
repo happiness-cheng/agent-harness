@@ -1,0 +1,25 @@
+{
+  "run_id": "65ae2499-dc34-4a00-ac04-6fa6210d5416",
+  "task_id": "runtime.timeout",
+  "version_id": "f135af28a876b9c1d6660c1b87a2d1ed1dd3ebbcb00c3436176b112fda6cb4d7",
+  "session_id": "",
+  "transport_status": "timeout",
+  "execution_status": "unknown",
+  "answer": "",
+  "todos": [],
+  "initial_todos": [],
+  "tools": [],
+  "trace": [],
+  "artifacts": {},
+  "budget": {},
+  "checkpoint": null,
+  "memory_delivery": {},
+  "citation": {},
+  "model_requests": 0,
+  "usage": [],
+  "elapsed_seconds": 1.3560663999815006,
+  "extra": {
+    "worker_exit": 1,
+    "data_classification": "synthetic"
+  }
+}

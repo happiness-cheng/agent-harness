@@ -1,0 +1,1 @@
+{"simulated_elapsed_seconds": 36000.0, "states": {"A-approval": "WAITING_FOR_USER", "B-independent": "COMPLETED", "C-deepseek": "COMPLETED", "D-deepseek-blocked": "BLOCKED_BY_BUDGET", "E-codex": "COMPLETED", "F-codex-blocked": "BLOCKED_BY_BUDGET", "G-failure": "FAILED", "H-doubao": "WAITING_FOR_USER"}, "real_model_calls": 0}

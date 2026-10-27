@@ -1,0 +1,155 @@
+[
+  {
+    "task": "v2.normal.psf",
+    "old_user_messages": [
+      "核对归档片段中的PSF使命短句；引用实际读到的文字，不补全未保存的全文。\nSYNTHETIC_MAIN_ONLY_MARKER：无关的合成主会话标记。",
+      "{\"application_state\":{\"mode\":\"plan\",\"current_date\":\"2026-10-27\"}}"
+    ],
+    "new_user_messages": [
+      "核对资料库保存的PSF使命片段并引用；不要补全未保存内容。",
+      "{\"application_state\":{\"mode\":\"plan\",\"current_date\":\"2026-10-27\"}}"
+    ],
+    "old_recorded_tool_names": [
+      "calculator",
+      "propose_goal",
+      "read_artifact",
+      "read_memory_source",
+      "read_session_state",
+      "read_skill",
+      "recall_memory",
+      "reminder_add",
+      "reminder_cancel",
+      "reminder_list",
+      "reminder_update",
+      "research",
+      "todo_add",
+      "todo_complete",
+      "todo_delete",
+      "todo_list",
+      "todo_update"
+    ],
+    "new_tool_names": [
+      "calculator",
+      "propose_goal",
+      "read_artifact",
+      "read_memory_source",
+      "read_session_state",
+      "read_skill",
+      "recall_memory",
+      "reminder_add",
+      "reminder_cancel",
+      "reminder_list",
+      "reminder_update",
+      "research",
+      "todo_add",
+      "todo_complete",
+      "todo_delete",
+      "todo_list",
+      "todo_update"
+    ],
+    "catalog_in_new_actual_schema": "针对已允许的公开问题自主搜索、阅读与补查，返回有原文位置/限制/冲突的证据包；不复制私人聊天、不写业务或递归委派。\nRESOURCE_CATALOG_JSON:{\"controlled_collection\": {\"collection_id\": \"v2-controlled-library\", \"label\": \"V2受控公开片段与合成文档库\", \"kind\": \"controlled_read_only_collection\", \"availability\": \"当前应用生命周期内已挂载；不属于当前Session既有历史归档\", \"access\": \"research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退\", \"documents\": [{\"document_id\": \"psf\", \"title\": \"PSF使命公开历史片段\", \"locator\": \"https://fixtures.example/archive/psf\", \"nature\": \"public_archive_excerpt\", \"coverage\": \"仅保存公开网页的历史短片段，非全文，未实时更新\", \"origin_url\": \"https://www.python.org/\"}]}, \"session_artifacts\": [], \"allow_public_web\": true, \"notice\": \"目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。\"}",
+    "old_schema_evidence": "旧收据只保存工具名称，不能声称恢复完整历史Schema字节；旧失败记录和受控后端接线代码另支持目录缺失判断。"
+  },
+  {
+    "task": "v2.normal.warranty",
+    "old_user_messages": [
+      "核对合成保修期与进水损坏例外，并引用原文。\nSYNTHETIC_MAIN_ONLY_MARKER：无关的合成主会话标记。",
+      "{\"application_state\":{\"mode\":\"plan\",\"current_date\":\"2026-10-27\"}}"
+    ],
+    "new_user_messages": [
+      "核对受控保修条款的范围及例外，引用实际原文。",
+      "{\"application_state\":{\"mode\":\"plan\",\"current_date\":\"2026-10-27\"}}"
+    ],
+    "old_recorded_tool_names": [
+      "calculator",
+      "propose_goal",
+      "read_artifact",
+      "read_memory_source",
+      "read_session_state",
+      "read_skill",
+      "recall_memory",
+      "reminder_add",
+      "reminder_cancel",
+      "reminder_list",
+      "reminder_update",
+      "research",
+      "todo_add",
+      "todo_complete",
+      "todo_delete",
+      "todo_list",
+      "todo_update"
+    ],
+    "new_tool_names": [
+      "calculator",
+      "propose_goal",
+      "read_artifact",
+      "read_memory_source",
+      "read_session_state",
+      "read_skill",
+      "recall_memory",
+      "reminder_add",
+      "reminder_cancel",
+      "reminder_list",
+      "reminder_update",
+      "research",
+      "todo_add",
+      "todo_complete",
+      "todo_delete",
+      "todo_list",
+      "todo_update"
+    ],
+    "catalog_in_new_actual_schema": "针对已允许的公开问题自主搜索、阅读与补查，返回有原文位置/限制/冲突的证据包；不复制私人聊天、不写业务或递归委派。\nRESOURCE_CATALOG_JSON:{\"controlled_collection\": {\"collection_id\": \"v2-controlled-library\", \"label\": \"V2受控公开片段与合成文档库\", \"kind\": \"controlled_read_only_collection\", \"availability\": \"当前应用生命周期内已挂载；不属于当前Session既有历史归档\", \"access\": \"research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退\", \"documents\": [{\"document_id\": \"warranty\", \"title\": \"合成产品保修政策\", \"locator\": \"https://fixtures.example/warranty\", \"nature\": \"synthetic_document\", \"coverage\": \"完整合成测试条款，不代表真实产品政策\", \"origin_url\": \"\"}]}, \"session_artifacts\": [], \"allow_public_web\": true, \"notice\": \"目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。\"}",
+    "old_schema_evidence": "旧收据只保存工具名称，不能声称恢复完整历史Schema字节；旧失败记录和受控后端接线代码另支持目录缺失判断。"
+  },
+  {
+    "task": "v2.normal.api",
+    "old_user_messages": [
+      "核对合成API的超时和重试限制，保留副作用不确定性并引用原文。\nSYNTHETIC_MAIN_ONLY_MARKER：无关的合成主会话标记。",
+      "{\"application_state\":{\"mode\":\"plan\",\"current_date\":\"2026-10-27\"}}"
+    ],
+    "new_user_messages": [
+      "核对受控API文档的超时、重试及副作用不确定性，引用实际原文。",
+      "{\"application_state\":{\"mode\":\"plan\",\"current_date\":\"2026-10-27\"}}"
+    ],
+    "old_recorded_tool_names": [
+      "calculator",
+      "propose_goal",
+      "read_artifact",
+      "read_memory_source",
+      "read_session_state",
+      "read_skill",
+      "recall_memory",
+      "reminder_add",
+      "reminder_cancel",
+      "reminder_list",
+      "reminder_update",
+      "research",
+      "todo_add",
+      "todo_complete",
+      "todo_delete",
+      "todo_list",
+      "todo_update"
+    ],
+    "new_tool_names": [
+      "calculator",
+      "propose_goal",
+      "read_artifact",
+      "read_memory_source",
+      "read_session_state",
+      "read_skill",
+      "recall_memory",
+      "reminder_add",
+      "reminder_cancel",
+      "reminder_list",
+      "reminder_update",
+      "research",
+      "todo_add",
+      "todo_complete",
+      "todo_delete",
+      "todo_list",
+      "todo_update"
+    ],
+    "catalog_in_new_actual_schema": "针对已允许的公开问题自主搜索、阅读与补查，返回有原文位置/限制/冲突的证据包；不复制私人聊天、不写业务或递归委派。\nRESOURCE_CATALOG_JSON:{\"controlled_collection\": {\"collection_id\": \"v2-controlled-library\", \"label\": \"V2受控公开片段与合成文档库\", \"kind\": \"controlled_read_only_collection\", \"availability\": \"当前应用生命周期内已挂载；不属于当前Session既有历史归档\", \"access\": \"research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退\", \"documents\": [{\"document_id\": \"api\", \"title\": \"合成API调用规则\", \"locator\": \"https://fixtures.example/api\", \"nature\": \"synthetic_document\", \"coverage\": \"完整合成测试文档，不代表真实服务契约\", \"origin_url\": \"\"}]}, \"session_artifacts\": [], \"allow_public_web\": true, \"notice\": \"目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。\"}",
+    "old_schema_evidence": "旧收据只保存工具名称，不能声称恢复完整历史Schema字节；旧失败记录和受控后端接线代码另支持目录缺失判断。"
+  }
+]

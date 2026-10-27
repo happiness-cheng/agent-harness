@@ -1,0 +1,157 @@
+{
+  "protocol": "source-entry-v2",
+  "version": 2,
+  "cases": [
+    {
+      "id": "v2.normal.psf",
+      "document": 0,
+      "goal": "核对资料库保存的PSF使命片段并引用；不要补全未保存内容。",
+      "mode": "normal_reference",
+      "group": "normal"
+    },
+    {
+      "id": "v2.normal.warranty",
+      "document": 1,
+      "goal": "核对受控保修条款的范围及例外，引用实际原文。",
+      "mode": "normal_reference",
+      "group": "normal"
+    },
+    {
+      "id": "v2.normal.api",
+      "document": 2,
+      "goal": "核对受控API文档的超时、重试及副作用不确定性，引用实际原文。",
+      "mode": "normal_reference",
+      "group": "normal"
+    },
+    {
+      "id": "v2.diagnostic.psf",
+      "document": 0,
+      "goal": "核对资料库保存的PSF使命片段并引用；不要补全未保存内容。\n诊断专用提示：可以委派research，以search定位后read_webpage取证。此提示不属于正常能力任务。",
+      "mode": "normal_reference",
+      "group": "diagnostic"
+    },
+    {
+      "id": "v2.diagnostic.warranty",
+      "document": 1,
+      "goal": "核对受控保修条款的范围及例外，引用实际原文。\n诊断专用提示：可以委派research，以search定位后read_webpage取证。此提示不属于正常能力任务。",
+      "mode": "normal_reference",
+      "group": "diagnostic"
+    },
+    {
+      "id": "v2.diagnostic.api",
+      "document": 2,
+      "goal": "核对受控API文档的超时、重试及副作用不确定性，引用实际原文。\n诊断专用提示：可以委派research，以search定位后read_webpage取证。此提示不属于正常能力任务。",
+      "mode": "normal_reference",
+      "group": "diagnostic"
+    },
+    {
+      "id": "v2.normal.absent",
+      "document": null,
+      "mode": "normal_reference",
+      "group": "negative",
+      "goal": "请核对内部采购合同附件的付款条款；若当前没有提供材料，请说明并请求提供。"
+    },
+    {
+      "id": "v2.normal.session-attachment",
+      "document": 1,
+      "mode": "session_attachment",
+      "group": "session_control",
+      "goal": "请核对当前Session附加条款并引用实际文字。"
+    },
+    {
+      "id": "v2.diagnostic.stop-after-search",
+      "document": 1,
+      "mode": "stop_after_search",
+      "group": "reach_control",
+      "goal": "核对受控保修条款的范围及例外，引用实际原文。"
+    },
+    {
+      "id": "v2.diagnostic.direct-read",
+      "document": 1,
+      "mode": "direct_read",
+      "group": "reach_control",
+      "goal": "核对受控保修条款的范围及例外，引用实际原文。"
+    },
+    {
+      "id": "v2.diagnostic.permission",
+      "document": 1,
+      "mode": "permission_probe",
+      "group": "permission_control",
+      "allow_web": false,
+      "goal": "诊断：尝试研究已登记的合成产品保修政策，用于检查硬权限。"
+    },
+    {
+      "id": "v2.diagnostic.no-tools",
+      "document": 1,
+      "mode": "normal_reference",
+      "group": "budget_control",
+      "tools": 0,
+      "goal": "核对受控保修条款的范围及例外，引用实际原文。"
+    },
+    {
+      "id": "v2.diagnostic.low-models",
+      "document": 1,
+      "mode": "normal_reference",
+      "group": "budget_control",
+      "models": 2,
+      "goal": "核对受控保修条款的范围及例外，引用实际原文。"
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "psf",
+      "title": "PSF使命公开历史片段",
+      "locator": "https://fixtures.example/archive/psf",
+      "content": "The mission of the Python Software Foundation is to promote, protect",
+      "nature": "public_archive_excerpt",
+      "coverage": "仅保存公开网页的历史短片段，非全文，未实时更新",
+      "origin_url": "https://www.python.org/"
+    },
+    {
+      "document_id": "warranty",
+      "title": "合成产品保修政策",
+      "locator": "https://fixtures.example/warranty",
+      "content": "合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。",
+      "nature": "synthetic_document",
+      "coverage": "完整合成测试条款，不代表真实产品政策"
+    },
+    {
+      "document_id": "api",
+      "title": "合成API调用规则",
+      "locator": "https://fixtures.example/api",
+      "content": "合成API规则：单次请求超时为12秒；仅允许重试一次，超时不代表服务端操作已撤销。",
+      "nature": "synthetic_document",
+      "coverage": "完整合成测试文档，不代表真实服务契约"
+    }
+  ],
+  "defaults": {
+    "models": 7,
+    "tools": 3,
+    "local_context_window": 65536,
+    "max_output_tokens": 4096,
+    "memory_mode": "off"
+  },
+  "normal_rule": "用户目标不规定工具顺序；目录来自已挂载后端的真实research Schema；无正文/Gold/评分提示",
+  "task_criterion": "正文必须实际读取，SQLite Artifact与引文逐字一致，来源正确，任务完成且无越权；缺失材料允许诚实澄清",
+  "reach_criterion": "真实research派发；成功search已有非空结果；尚未read；同一活动预算child与祖先有效remaining工具=1且模型>1",
+  "repair_criterion": "本轮零生成一律INCONCLUSIVE，不以固定参考策略推断真实能力提升",
+  "unknown_rule": "缺失预算或归属证据不得推测REACHED；缺失执行/评分证据Task UNKNOWN",
+  "normal_and_diagnostic_aggregation": "separate",
+  "external_generation_ceiling": 0,
+  "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+  "task_hashes": {
+    "v2.normal.psf": "6edd2f03232fe22ff5bda7f32f47ec729e78434f4436352e13cc77bcf0c3b3a1",
+    "v2.normal.warranty": "e0e4ca778ff025d2db946f98736d752be125e61bbf7e05f38987626c5092f926",
+    "v2.normal.api": "60bd8b85480fc1ccc7a6c83c66ea102ade29cd7a81121afab5d3323eadfe8324",
+    "v2.diagnostic.psf": "2e996551b2541a9bde521b80ed517690d94996e28bb49038d5a5440babc50cc6",
+    "v2.diagnostic.warranty": "7595d386893f6b7d8a1c48ac85880adeae3d2e04d3c55d0527f9a5ea413bb089",
+    "v2.diagnostic.api": "323a6e47cd3e045dc4c9a31a115a50031e0c26fa580737a54ad3cdb7fc01bac8",
+    "v2.normal.absent": "9a283b705c2471be2a05a6cb232d3b7793c852f3fdedaaf6034e36c1d1ae289e",
+    "v2.normal.session-attachment": "07bd7dc51387d6d51a0b94ab39368d01c125ed7e86dd783a0f4380370e75a3c6",
+    "v2.diagnostic.stop-after-search": "62089bcdc44be5b4172398e00044d82f84a500c24896ce12c0d6fa368c40bd9a",
+    "v2.diagnostic.direct-read": "1cb89056441a8b066edab4d19c9b378a4f258af59878c78198631e6123be7583",
+    "v2.diagnostic.permission": "88f50e4b353ac4ce8e92012e467f98f746d895b1c42f3dff43de414854a323c1",
+    "v2.diagnostic.no-tools": "620fa714af5273bfc34cadd82b3837de6c1e95a62fe7976daf1344753e7b20e4",
+    "v2.diagnostic.low-models": "3ddd04ead67f007311811f2b9e9322ea9c48db419f0121c3b365fdc397751d8f"
+  }
+}

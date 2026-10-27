@@ -1,0 +1,12 @@
+{
+  "reports/eval-v1/live-acceptance/research.conflict/task.json": "011e4fff43d8f40a59179609c06243a9ed3c61a2145e849081d9902baca339fb",
+  "reports/eval-v1/live-acceptance/research.conflict/observation.json": "177dd715061d3b2a59b656cd29094eb20f3cfd593f4bc0d7241e5df61a49ca59",
+  "reports/eval-v1/live-acceptance/research.conflict/result.json": "c03f09fc18949aa6554baeb23ba911750b81e085db0118f72c5971a198b7c1ec",
+  "reports/eval-v1/research-input-change-proposal.md": "470a61d4dfe6516c90175388cb580e3811637e238758501ba0bd267186c42c8b",
+  "docs/acceptance/live-research-search-20261021.json": "5581e90a189b5cd35dcf799ec4d8508f79e0b2e0612030e56965247acf385653",
+  "docs/acceptance/live-research-gzip-20261021.json": "25e6fe818bfc16c84a19a427076618246ada8d5f5d22af35f82f3717d0457c28",
+  "docs/acceptance/live-research-continuation-20261021.json": "e60dcadfde4e544f05dfbda467e271e8efb151dc18b6d1777835f7a1a1b2367b",
+  "docs/acceptance/python-gzip-read-20261021.json": "05b16480f0993401f5e843aa2762ab0da07259535e650776b8632a7134b74ffa",
+  "docs/acceptance/search-guarded-20261021.json": "842786bcb738eb9bc86e0859df7c1b9520d6df59497077924fea3798e9970c58",
+  "reports/eval-v1/acceptance-protocol.json": "cf5436059807f4d76e028e1f20a5faf999bb372833d7d94433fd8eab0376f118"
+}

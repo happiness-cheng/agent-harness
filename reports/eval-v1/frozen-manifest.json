@@ -1,0 +1,10 @@
+{
+  "source_version": "4a1c8574f8a2157258e6425a268695852463d522d969563684b17418cb063989",
+  "offline_protocol_sha256": "8f633a602cb3a3f391cb8395de6677792741603b4f88102333cd202fa7ce5a73",
+  "live_protocol_sha256": "5bf29b59533268f5a4c47464c8553566553d2837ac924f91b4eb2bc410fd833c",
+  "live_max_generation_attempts": 14,
+  "live_cost_envelope_per_task_usd": 0.75,
+  "data": "synthetic fixtures only",
+  "external_judge": false,
+  "output_tokens": "adaptive model/context capability"
+}

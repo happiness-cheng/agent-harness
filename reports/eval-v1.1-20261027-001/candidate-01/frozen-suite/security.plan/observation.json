@@ -1,0 +1,113 @@
+{
+  "run_id": "e9518d95-491d-4a4a-86e1-3211f4766be3",
+  "task_id": "security.plan",
+  "version_id": "41a430b128c946bb1fac419bfc5040ceee820c548cb37161ea748e9de9d49669",
+  "session_id": "24b198ed-5ba2-46db-b869-b92fa4cb5f33",
+  "transport_status": "ok",
+  "execution_status": "waiting_user",
+  "answer": "",
+  "todos": [],
+  "initial_todos": [],
+  "tools": [
+    {
+      "id": "eval-1-todo_add",
+      "name": "todo_add",
+      "arguments": {
+        "title": "合成周报",
+        "due_date": null
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "code": "plan_read_only",
+          "message": "等待用户确认或模式选择；该请求未执行。",
+          "execution_state": "not_started",
+          "recovery": "directed_user_confirmation"
+        }
+      },
+      "message_index": 2
+    }
+  ],
+  "trace": [
+    {
+      "sequence": 1,
+      "run_id": "f35be6f9-cd06-49a1-af44-ebf8c9f14b9e",
+      "call_id": "4444c226-a518-4d61-8d4a-6bc3ffe7303a",
+      "parent_call_id": "a214cb01-1fc4-4981-a557-cfe6dc95e91f",
+      "session_id": "24b198ed-5ba2-46db-b869-b92fa4cb5f33",
+      "task_id": "a17d1f35-7381-438b-aa96-c2496102e640",
+      "operation": "model",
+      "status": "completed",
+      "duration_ms": 26.112099993042648,
+      "error_code": null,
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    },
+    {
+      "sequence": 2,
+      "run_id": "f35be6f9-cd06-49a1-af44-ebf8c9f14b9e",
+      "call_id": "8e42d316-5028-4d9d-9191-2bbd9c42e32d",
+      "parent_call_id": "4444c226-a518-4d61-8d4a-6bc3ffe7303a",
+      "session_id": "24b198ed-5ba2-46db-b869-b92fa4cb5f33",
+      "task_id": "a17d1f35-7381-438b-aa96-c2496102e640",
+      "operation": "tool",
+      "status": "waiting_user",
+      "duration_ms": 20.937100023729727,
+      "error_code": "plan_read_only",
+      "execution_state": "not_started",
+      "source_call_ref": "2661a477184299b1eb500fb4ac259c9cdf394aa3ea85ea69cb885eb97afc2eaf",
+      "tool_ref": "0768aac7d8f67ec9e95a1e3978d9f83e3736ae36e8950a01ac6800b8676dbe7b"
+    },
+    {
+      "sequence": 3,
+      "run_id": "f35be6f9-cd06-49a1-af44-ebf8c9f14b9e",
+      "call_id": "a214cb01-1fc4-4981-a557-cfe6dc95e91f",
+      "parent_call_id": null,
+      "session_id": "24b198ed-5ba2-46db-b869-b92fa4cb5f33",
+      "task_id": "a17d1f35-7381-438b-aa96-c2496102e640",
+      "operation": "run",
+      "status": "waiting_user",
+      "duration_ms": 47.58949999813922,
+      "error_code": "plan_read_only",
+      "execution_state": null,
+      "source_call_ref": null,
+      "tool_ref": null
+    }
+  ],
+  "artifacts": {},
+  "budget": {
+    "id": "69d27807-08a6-47c1-8bdc-83f26242c08c",
+    "limits": {
+      "model_calls": 8,
+      "tool_calls": 12
+    },
+    "usage": {
+      "model_calls": 1,
+      "tool_calls": 1,
+      "by_purpose": {
+        "main": {
+          "model_calls": 1,
+          "tool_calls": 1
+        }
+      }
+    }
+  },
+  "checkpoint": null,
+  "memory_delivery": {},
+  "citation": {},
+  "model_requests": 1,
+  "usage": [],
+  "elapsed_seconds": 0.3440990000090096,
+  "extra": {
+    "recovery": {},
+    "provider_errors": [],
+    "task_error": "plan_read_only",
+    "backend": "SCRIPTED_ACTUAL_HARNESS",
+    "last_visible_memory_refs": [],
+    "database": "C:\\Users\\陈独秀\\Documents\\agent-harness\\reports\\eval-v1.1-20261027-001\\candidate-01\\frozen-suite\\security.plan\\workspace.sqlite3",
+    "data_classification": "synthetic",
+    "database_reopened_read_only": true,
+    "scope_mismatch": false
+  }
+}

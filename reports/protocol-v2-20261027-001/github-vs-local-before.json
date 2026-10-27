@@ -1,0 +1,1893 @@
+{
+  "remote": "https://github.com/happiness-cheng/agent-harness.git",
+  "branch": "main",
+  "local_HEAD": "220f6ec18d50e08316a54c3b34b81b0d00c6744d",
+  "fetched_origin_main": "fd360064049a76a81e8cffce1283865268290cf0",
+  "remote_only_commits": [
+    "fd36006 Merge pull request #1 from happiness-cheng/feat/state-bar-20261024",
+    "a4f1b2f feat: add on-demand runtime state bar projection"
+  ],
+  "files": [
+    {
+      "path": ".gitignore",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "bfaee00af1e0f549e4e741f02dad79e607123de95b4bc98e8cc8ae9ebbc475a8",
+      "local_sha256": "bfaee00af1e0f549e4e741f02dad79e607123de95b4bc98e8cc8ae9ebbc475a8"
+    },
+    {
+      "path": "LICENSE",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a3d4dc71faee0907f3d78117fe3f711b80eccac4b6c2e44c20dccee35dc1203c",
+      "local_sha256": "a3d4dc71faee0907f3d78117fe3f711b80eccac4b6c2e44c20dccee35dc1203c"
+    },
+    {
+      "path": "README.md",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "0f513040928214fd94604374680704c6dbaee0dd46d356b3813ef37e09154da5",
+      "local_sha256": "5bd699776833a93f3aaa2470e0258b2946386e0d979cd9c543589a3796935a02"
+    },
+    {
+      "path": "docs/ACCEPTANCE.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "32d3b9cc451723a345acd76dd19e9cc78fe00635f810e102b3ded5978867d327",
+      "local_sha256": "32d3b9cc451723a345acd76dd19e9cc78fe00635f810e102b3ded5978867d327"
+    },
+    {
+      "path": "docs/AGENT_VISION.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "53c78d162e9a5b0df1640b864edbf8f95bcb2a2808c3e81d94fdeccbe7876c56",
+      "local_sha256": "53c78d162e9a5b0df1640b864edbf8f95bcb2a2808c3e81d94fdeccbe7876c56"
+    },
+    {
+      "path": "docs/AI_PROMPT_LOG.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "0120051e5238ce1cdf9da1d1ee18a953fedf26430c04a4ce0a43a24bab81ca3b",
+      "local_sha256": "0120051e5238ce1cdf9da1d1ee18a953fedf26430c04a4ce0a43a24bab81ca3b"
+    },
+    {
+      "path": "docs/ARCHITECTURE_REVISIONS.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "472f61dab13a5473aeb183b862e3ccd6212817b717ce333e1941988f0bf14d48",
+      "local_sha256": "472f61dab13a5473aeb183b862e3ccd6212817b717ce333e1941988f0bf14d48"
+    },
+    {
+      "path": "docs/CHAT_RECORDS_REVIEW.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "fd0c78ad1dbf68b9e1f7d165541a9ba8d779d5b1c76eb68e02c7db92b9ae334c",
+      "local_sha256": "fd0c78ad1dbf68b9e1f7d165541a9ba8d779d5b1c76eb68e02c7db92b9ae334c"
+    },
+    {
+      "path": "docs/DESIGN.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "1a0ed8c3ede65a96ebe773ad7f0d8c2769d7f09161019f8e1bb10bb1eb19dce4",
+      "local_sha256": "1a0ed8c3ede65a96ebe773ad7f0d8c2769d7f09161019f8e1bb10bb1eb19dce4"
+    },
+    {
+      "path": "docs/PROBLEM_SOLVING.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "fa7d6f57c783bdb993eeaa024221a3dc7122c466b18b5bbe895d240c2df888bd",
+      "local_sha256": "fa7d6f57c783bdb993eeaa024221a3dc7122c466b18b5bbe895d240c2df888bd"
+    },
+    {
+      "path": "docs/REVIEW_FIXES.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "e8313f5c2afe26c7d038b6f09a4e49431d1eb87bd08ae2ea3f15dba40bbb216d",
+      "local_sha256": "e8313f5c2afe26c7d038b6f09a4e49431d1eb87bd08ae2ea3f15dba40bbb216d"
+    },
+    {
+      "path": "docs/SUBMISSION.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "f6f8aa4a71182f0d6cc3d0939d89c5ee1024251801aab62697d771083e24b4ff",
+      "local_sha256": "f6f8aa4a71182f0d6cc3d0939d89c5ee1024251801aab62697d771083e24b4ff"
+    },
+    {
+      "path": "docs/acceptance/PUBLIC_EXPORT.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "7b9c8fa362aab1d6851e660ef865911b7b24cb9c57095f467fa57c43c4292209",
+      "local_sha256": "7b9c8fa362aab1d6851e660ef865911b7b24cb9c57095f467fa57c43c4292209"
+    },
+    {
+      "path": "docs/acceptance/b01-state-bar-after-20261024.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a738ef352be8568cb16f5e96a8141150a04e5d38a6814f4b48fc5bd2e88551e4",
+      "local_sha256": "f122472bd99b1132cdd975871564ee2505611aea39c67e3ce43d7b32e1b6eb12"
+    },
+    {
+      "path": "docs/acceptance/b01-state-bar-after-v2-20261024.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "c84fa2dc37a4138415aedab9a442faacd261d7549b98e1ca906c627ebfb951e6",
+      "local_sha256": "cc94929a0b972118c733fb8af2fe9dc11677e1d1982237f3b24f4eab484499b4"
+    },
+    {
+      "path": "docs/acceptance/b01-state-bar-before-20261024.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "4a85f4c9eb0e88dcd7c92c16e74aeb529e14a2c1f52199b87ba7ffc9a00c6285",
+      "local_sha256": "2895ecbe969337b066378db7a1db18a822e122d3840bc7d1d00bec7addd1fcf6"
+    },
+    {
+      "path": "docs/acceptance/b01-state-bar-before-v2-20261024.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "11ca8ce9456834494128e935a3fd41d61489b78a79f6ddb74943a4bf7aef12b6",
+      "local_sha256": "dc28ee199fcc1077a270c2be9ca358892f361cbecfc66f0ad849f429fbedd8d9"
+    },
+    {
+      "path": "docs/acceptance/b01-state-bar-comparison-20261024.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "0557d73bf5698cf2330ec6a648f0403b3d8c4a72546b2d80c79a63dfaff4d4a0",
+      "local_sha256": "8cd8dc03a500c1ab6985b7520df26dd22e623a5439d943c139b2302dbb231997"
+    },
+    {
+      "path": "docs/acceptance/b01-state-bar-comparison-v2-20261024.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "b78ef53fc882deb650b81e94b2279181ac7bac4ea35b0d4665f665ca5d796103",
+      "local_sha256": "2fa9e71bf2f0f47268494538c79515d84bd8a026447640be3de00dcddf8fb712"
+    },
+    {
+      "path": "docs/acceptance/b01-state-bar-final-20261024.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "15c8fe0d748901760132fa9f28eb962bbd34f6bff23866512fb1654983dac0dd",
+      "local_sha256": "171e7ae4411b4f0e8990da61593f82e48f3e3f3b097668a95c9ef95715ebc380"
+    },
+    {
+      "path": "docs/acceptance/b01-state-bar-final-v2-20261024.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "eb984b92d6359eb6fdda35fe3571cef07e2346caf7dec5eb703d45e1fccbb7c7",
+      "local_sha256": "42639d647370569bcef88fbdb6dca132f646aeed4825c2738a11e5fa41117f34"
+    },
+    {
+      "path": "docs/acceptance/b01-state-bar-public-20261024.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "69c8732f9490e76d8ad6564a21b902a4ca7f0e4b91ecbb9fe13ee5ed8847fa6f",
+      "local_sha256": "d64f8fa382156a99028d92bb761e7a1596b087ce49ce29c0382794f88b3cd553"
+    },
+    {
+      "path": "docs/acceptance/b01-state-bar-public-v2-20261024.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "b4ec9351a916332844052f98b9e3d4fae268c85ed762d156059bb201dc2a4733",
+      "local_sha256": "52d7886f0e3b5d76fff30efa4424ce9b3d38a84ebbb5102819d3f123c094dd3a"
+    },
+    {
+      "path": "docs/acceptance/b01-state-bar-suite-v1.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "aa08be470d87e7ad512dafb423da3d5ba2ff3f42b3647bce06133fa3ede391be",
+      "local_sha256": "aa08be470d87e7ad512dafb423da3d5ba2ff3f42b3647bce06133fa3ede391be"
+    },
+    {
+      "path": "docs/acceptance/build-20261020.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a47a839862f1e3fdbbd1e843b9cf7766fa9f02fbed56677e90a11b4a25703a1f",
+      "local_sha256": "a47a839862f1e3fdbbd1e843b9cf7766fa9f02fbed56677e90a11b4a25703a1f"
+    },
+    {
+      "path": "docs/acceptance/build-reviewed-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "61ff696e23ab106a76f39ab221e27d6aaeedef299cdad8c5bdaaf5534f9c73b0",
+      "local_sha256": "61ff696e23ab106a76f39ab221e27d6aaeedef299cdad8c5bdaaf5534f9c73b0"
+    },
+    {
+      "path": "docs/acceptance/clean-install-20261020.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "0e9dd2f7776ed0f531a5bacd28abc69d5c7e1a3396dedfb5780e9349255d839e",
+      "local_sha256": "0e9dd2f7776ed0f531a5bacd28abc69d5c7e1a3396dedfb5780e9349255d839e"
+    },
+    {
+      "path": "docs/acceptance/clean-install-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "5a33605bf53c979e0784f1a5728c230bb589336729e12e0e97ef53a99d1f518a",
+      "local_sha256": "5a33605bf53c979e0784f1a5728c230bb589336729e12e0e97ef53a99d1f518a"
+    },
+    {
+      "path": "docs/acceptance/clean-install-reviewed-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "6e5be296befcd2c1d4d433aa0375ea409d77935fe92c2ee982a9a7e9001c587a",
+      "local_sha256": "6e5be296befcd2c1d4d433aa0375ea409d77935fe92c2ee982a9a7e9001c587a"
+    },
+    {
+      "path": "docs/acceptance/desktop-20261020.png",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "ea5e8fd76180a2554a2ebc9fea6a22cca56577a918796bf9c0667ba6f8d1fca6",
+      "local_sha256": "ea5e8fd76180a2554a2ebc9fea6a22cca56577a918796bf9c0667ba6f8d1fca6"
+    },
+    {
+      "path": "docs/acceptance/desktop-observation-20261020.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "3281c319b3239e69eedb1c62aa9ad1f0d221c3701315aad5d9e4bd53cda4c4bd",
+      "local_sha256": "3281c319b3239e69eedb1c62aa9ad1f0d221c3701315aad5d9e4bd53cda4c4bd"
+    },
+    {
+      "path": "docs/acceptance/document-audit-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "bfa500ea624de7dc1e427614822d573633046a8c73c6257d7f83b08204232d71",
+      "local_sha256": "bfa500ea624de7dc1e427614822d573633046a8c73c6257d7f83b08204232d71"
+    },
+    {
+      "path": "docs/acceptance/document-voice-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "42f5cd1b6cbe45dff407f09e7b6e6ee680139a383621a6f2b7919d9367d5757a",
+      "local_sha256": "42f5cd1b6cbe45dff407f09e7b6e6ee680139a383621a6f2b7919d9367d5757a"
+    },
+    {
+      "path": "docs/acceptance/live-20261020.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "d9967f6d22ed3eda8f27df750becb54a7dd34924113143d9e1a94b3b56ffb1ee",
+      "local_sha256": "d9967f6d22ed3eda8f27df750becb54a7dd34924113143d9e1a94b3b56ffb1ee"
+    },
+    {
+      "path": "docs/acceptance/live-continuity-20261020.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "93715ccef8ebad33d2baae1f2f4a128671812b0ae351d187b78ceb3855e378e1",
+      "local_sha256": "93715ccef8ebad33d2baae1f2f4a128671812b0ae351d187b78ceb3855e378e1"
+    },
+    {
+      "path": "docs/acceptance/live-followup-20261020.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "4c0ed07760dc01234d39224a779d18d2e1c7c4ffd5ea7c31ab1bce58e94a944b",
+      "local_sha256": "4c0ed07760dc01234d39224a779d18d2e1c7c4ffd5ea7c31ab1bce58e94a944b"
+    },
+    {
+      "path": "docs/acceptance/live-research-continuation-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "e60dcadfde4e544f05dfbda467e271e8efb151dc18b6d1777835f7a1a1b2367b",
+      "local_sha256": "e60dcadfde4e544f05dfbda467e271e8efb151dc18b6d1777835f7a1a1b2367b"
+    },
+    {
+      "path": "docs/acceptance/live-research-gzip-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "25e6fe818bfc16c84a19a427076618246ada8d5f5d22af35f82f3717d0457c28",
+      "local_sha256": "25e6fe818bfc16c84a19a427076618246ada8d5f5d22af35f82f3717d0457c28"
+    },
+    {
+      "path": "docs/acceptance/live-research-search-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "5581e90a189b5cd35dcf799ec4d8508f79e0b2e0612030e56965247acf385653",
+      "local_sha256": "5581e90a189b5cd35dcf799ec4d8508f79e0b2e0612030e56965247acf385653"
+    },
+    {
+      "path": "docs/acceptance/live-summary-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "c63570e24b287ab6a95884e59bbfbece15ae48e44d02ff00e151bab630e40cff",
+      "local_sha256": "c63570e24b287ab6a95884e59bbfbece15ae48e44d02ff00e151bab630e40cff"
+    },
+    {
+      "path": "docs/acceptance/mobile-20261020.png",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "58be6b05e915fe37e5a7f01716cb116ef21f8ec1d1ebd80d0ab57c3b707e214c",
+      "local_sha256": "58be6b05e915fe37e5a7f01716cb116ef21f8ec1d1ebd80d0ab57c3b707e214c"
+    },
+    {
+      "path": "docs/acceptance/public-web-20261020.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "b752835e32f7f4fb8bf32d00ee6641886cba616c3efa1675995bccddb4486d69",
+      "local_sha256": "b752835e32f7f4fb8bf32d00ee6641886cba616c3efa1675995bccddb4486d69"
+    },
+    {
+      "path": "docs/acceptance/python-gzip-read-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "05b16480f0993401f5e843aa2762ab0da07259535e650776b8632a7134b74ffa",
+      "local_sha256": "05b16480f0993401f5e843aa2762ab0da07259535e650776b8632a7134b74ffa"
+    },
+    {
+      "path": "docs/acceptance/python-read-diagnostic-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "68b1e4a8d98213939d80cd1caf8adb97bcadf22484eb205fa75a9e705c34af1e",
+      "local_sha256": "68b1e4a8d98213939d80cd1caf8adb97bcadf22484eb205fa75a9e705c34af1e"
+    },
+    {
+      "path": "docs/acceptance/review-fixes-20261021/after-final.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "bf7bb34b035f5118edde6eb8a75cca317a7a2fb0cdc487717063d6d4e2fc2a2b",
+      "local_sha256": "bf7bb34b035f5118edde6eb8a75cca317a7a2fb0cdc487717063d6d4e2fc2a2b"
+    },
+    {
+      "path": "docs/acceptance/review-fixes-20261021/after-p1.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "6733cddbe942b7d9435395cd214596aca749c8cac5e0b3ae6277c07085da1996",
+      "local_sha256": "6733cddbe942b7d9435395cd214596aca749c8cac5e0b3ae6277c07085da1996"
+    },
+    {
+      "path": "docs/acceptance/review-fixes-20261021/baseline.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "aaa2c66eb7132d1ad4f434cf356de422c1b9a1dc329f881ebf76a0a2a015095d",
+      "local_sha256": "aaa2c66eb7132d1ad4f434cf356de422c1b9a1dc329f881ebf76a0a2a015095d"
+    },
+    {
+      "path": "docs/acceptance/review-fixes-20261021/before.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "80e34f0acf3154e350da1f469de550ee16391a255b695272f7e76d60917d7abd",
+      "local_sha256": "80e34f0acf3154e350da1f469de550ee16391a255b695272f7e76d60917d7abd"
+    },
+    {
+      "path": "docs/acceptance/review-fixes-20261021/chat-preview-audit.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "68dd842a0e693ae9f227f6bdc0303c673bec4f8eae73b62117485df8afd2ba77",
+      "local_sha256": "68dd842a0e693ae9f227f6bdc0303c673bec4f8eae73b62117485df8afd2ba77"
+    },
+    {
+      "path": "docs/acceptance/review-fixes-20261021/clean-install.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "5f32a6c405b4286d0e91e5caf709b330385c9c00215e3cff0b91e116b890636a",
+      "local_sha256": "5f32a6c405b4286d0e91e5caf709b330385c9c00215e3cff0b91e116b890636a"
+    },
+    {
+      "path": "docs/acceptance/review-fixes-20261021/document-audit.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "0877ed3fa6182fbe0dfc616b911a4e8ab8374c2265842eb180783305692044fb",
+      "local_sha256": "0877ed3fa6182fbe0dfc616b911a4e8ab8374c2265842eb180783305692044fb"
+    },
+    {
+      "path": "docs/acceptance/review-fixes-20261021/installed-probe.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "7b705e4fe5862981f22b2bb9a8f9e30de5e785d6eb7342d46a8834994e5f2f49",
+      "local_sha256": "7b705e4fe5862981f22b2bb9a8f9e30de5e785d6eb7342d46a8834994e5f2f49"
+    },
+    {
+      "path": "docs/acceptance/review-fixes-20261021/server-before.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "0135005614e08f8fc3a5822240fec1c70974700240ae084626cb5996b69ae875",
+      "local_sha256": "0135005614e08f8fc3a5822240fec1c70974700240ae084626cb5996b69ae875"
+    },
+    {
+      "path": "docs/acceptance/review-fixes-20261021/verification.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "ab4feb16c53e5fc4f450bf8b9f0278d7104f3020e8d3d5e08d26c7177816ff51",
+      "local_sha256": "ab4feb16c53e5fc4f450bf8b9f0278d7104f3020e8d3d5e08d26c7177816ff51"
+    },
+    {
+      "path": "docs/acceptance/running-app-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "20c6e7081ea1366f20b24a314c1441fd6854949a8db91477c684b2cb3e1a6a58",
+      "local_sha256": "20c6e7081ea1366f20b24a314c1441fd6854949a8db91477c684b2cb3e1a6a58"
+    },
+    {
+      "path": "docs/acceptance/search-alternatives-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "ce1dd1692eaaa913f57247f633856c5a4590de46503e748256b52736c9517974",
+      "local_sha256": "ce1dd1692eaaa913f57247f633856c5a4590de46503e748256b52736c9517974"
+    },
+    {
+      "path": "docs/acceptance/search-backend-diagnostic-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "24fabd64c55045abab8279b4b537f1aefeee8bf94f528a11c3b15cca816bad7c",
+      "local_sha256": "24fabd64c55045abab8279b4b537f1aefeee8bf94f528a11c3b15cca816bad7c"
+    },
+    {
+      "path": "docs/acceptance/search-browser-diagnostic-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "79c39b024d257622d04c97d7bc9d8e697313b62a534f44c161a47494064eab5c",
+      "local_sha256": "79c39b024d257622d04c97d7bc9d8e697313b62a534f44c161a47494064eab5c"
+    },
+    {
+      "path": "docs/acceptance/search-direct-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "cce5cede59e26a04e97aa9255a84d2fe95c722c8d694351f22e21e019f23d551",
+      "local_sha256": "cce5cede59e26a04e97aa9255a84d2fe95c722c8d694351f22e21e019f23d551"
+    },
+    {
+      "path": "docs/acceptance/search-final-providers-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "e30fd568578b0551e8f5113c3fcbb67893a19b1cdc22b05dcd29d83bf80afe27",
+      "local_sha256": "e30fd568578b0551e8f5113c3fcbb67893a19b1cdc22b05dcd29d83bf80afe27"
+    },
+    {
+      "path": "docs/acceptance/search-fixed-backend-20261020.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "19bdd488d6bf6e1803919881439bb41dd382fab879dadc42c1baa1c3edcf415a",
+      "local_sha256": "19bdd488d6bf6e1803919881439bb41dd382fab879dadc42c1baa1c3edcf415a"
+    },
+    {
+      "path": "docs/acceptance/search-guarded-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "842786bcb738eb9bc86e0859df7c1b9520d6df59497077924fea3798e9970c58",
+      "local_sha256": "842786bcb738eb9bc86e0859df7c1b9520d6df59497077924fea3798e9970c58"
+    },
+    {
+      "path": "docs/acceptance/search-http-diagnostic-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "f1de066e71f62758f22015fae2b2ad1ca190406ef4f5f5f01830028b26a97403",
+      "local_sha256": "f1de066e71f62758f22015fae2b2ad1ca190406ef4f5f5f01830028b26a97403"
+    },
+    {
+      "path": "docs/acceptance/search-query-diagnostic-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "4484b698ddd95928526181583874e69572af4bacf2a1e8b1560befa12ab1af6d",
+      "local_sha256": "4484b698ddd95928526181583874e69572af4bacf2a1e8b1560befa12ab1af6d"
+    },
+    {
+      "path": "docs/acceptance/search-rss-diagnostic-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "917d8f4a00fe01baf8bb80c6f1e90b78299b0c8563ff65457552d17a1a8a3cbd",
+      "local_sha256": "917d8f4a00fe01baf8bb80c6f1e90b78299b0c8563ff65457552d17a1a8a3cbd"
+    },
+    {
+      "path": "docs/acceptance/security-inventory-20261020.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "1d36c4299858142a6564ec81aafa54348179c280966751ddec0094ec72d197bb",
+      "local_sha256": "1d36c4299858142a6564ec81aafa54348179c280966751ddec0094ec72d197bb"
+    },
+    {
+      "path": "docs/acceptance/security-reviewed-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "bfa712e803a74d4a1f889e23c8a319055dd95425254c0ea9275641f829ecfc6a",
+      "local_sha256": "bfa712e803a74d4a1f889e23c8a319055dd95425254c0ea9275641f829ecfc6a"
+    },
+    {
+      "path": "docs/acceptance/submission-review-20261021.json",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "51248a133505bbef1421162e9ec6c6d61b19a91af2ef39fbdf385a9b60a17be4",
+      "local_sha256": "51248a133505bbef1421162e9ec6c6d61b19a91af2ef39fbdf385a9b60a17be4"
+    },
+    {
+      "path": "docs/ai-conversations/01-design.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "e2a5fb3a10114f9e7870d6895d52b3acd67e39515076b33f32ba022af0aa5b09",
+      "local_sha256": "e2a5fb3a10114f9e7870d6895d52b3acd67e39515076b33f32ba022af0aa5b09"
+    },
+    {
+      "path": "docs/ai-conversations/02-architecture.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "60a62f902c747f31835bbe86d735481ba7d87d380844ea7faf7b3d0eed76f10a",
+      "local_sha256": "60a62f902c747f31835bbe86d735481ba7d87d380844ea7faf7b3d0eed76f10a"
+    },
+    {
+      "path": "docs/ai-conversations/README.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "5dfa23975b751507af2356629dc866c04c809605c186d7352abc74ef60abb4cc",
+      "local_sha256": "5dfa23975b751507af2356629dc866c04c809605c186d7352abc74ef60abb4cc"
+    },
+    {
+      "path": "docs/steps/B01-code.patch",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "8792863805aca8482b9cc684b1462380e4d8e64f54d813fca4cdf9c21603cb83",
+      "local_sha256": "7218756aafce0b4b626e263037bfecd95b0666cb6570925c312580d39d5c0dae"
+    },
+    {
+      "path": "docs/steps/B01-context-comparison.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "5f98ebcac1e8183c10a8575b78374879395e3f0f120fb27368a2b5f6ccf7a6e2",
+      "local_sha256": "700e9af1d88921bb317d789182155b577273b96bdb14a06d2d2b9155c6c1c68f"
+    },
+    {
+      "path": "docs/steps/B01-readable.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "b73e88edb421492c6047b43894b978565bfa55ec271db6a03891ff7fe04cf46b",
+      "local_sha256": "8f3f63ba0c6a1a55aac9b6622f8730b879a361984e39ed88c9e7d4017a71e735"
+    },
+    {
+      "path": "docs/steps/B01-state-bar-plan.md",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "1edd47d70f819930926f5265d6059c5384e7733cfd997c1b0deb7e3dda637613",
+      "local_sha256": "568b056f4e4126bd98bdef30e8d9d1e1cfbc9a6bc716db97fac9b78e1046c0a9"
+    },
+    {
+      "path": "docs/steps/B01-state-bar.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "db641f8855e9f75c6327a57056a733731bbf42e75e6fc8d3ca94ee3b821e01d6",
+      "local_sha256": "d28bfabe87eba296e5262fc55871191c4eb2ba1a4425712b31e6a4aaf56eac11"
+    },
+    {
+      "path": "docs/steps/C01-compression.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "e9642f47519304adf222cf7177035e038dff8eac468da8a2a0555d00221c67ce",
+      "local_sha256": "e9642f47519304adf222cf7177035e038dff8eac468da8a2a0555d00221c67ce"
+    },
+    {
+      "path": "docs/steps/C02-selection-provenance.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "504b5647ea132fc31cb69dded903beec95f4d2f52301b3623dfb206b78749306",
+      "local_sha256": "504b5647ea132fc31cb69dded903beec95f4d2f52301b3623dfb206b78749306"
+    },
+    {
+      "path": "docs/steps/C03-semantic-compression.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "b344c25a191da4903fdfc347425698149f07c072e44ebdb4943274ad104fa896",
+      "local_sha256": "38670f97c1dedb177feb69157500dde0d68db429af62a811273ff762e1418186"
+    },
+    {
+      "path": "docs/steps/M01-structured-memory.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "87b298046d689464512b96d1253468c58911fa0ecbfb7ff67c714874586769e1",
+      "local_sha256": "87b298046d689464512b96d1253468c58911fa0ecbfb7ff67c714874586769e1"
+    },
+    {
+      "path": "docs/steps/S01.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "e39498c9212ce8faab9b58bc44c5d527c09f50f485ca79dffcb5319c47184b55",
+      "local_sha256": "e39498c9212ce8faab9b58bc44c5d527c09f50f485ca79dffcb5319c47184b55"
+    },
+    {
+      "path": "docs/steps/S02.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a33d47ba9c9df5782acecfa5b7f2540c1efed1d6ee33f0aec4e5b33325d7e303",
+      "local_sha256": "a33d47ba9c9df5782acecfa5b7f2540c1efed1d6ee33f0aec4e5b33325d7e303"
+    },
+    {
+      "path": "docs/steps/S03.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "88fa0715cdacdd5d8a3c584446362ea9107247322bff2f18c4f7bb6237688191",
+      "local_sha256": "88fa0715cdacdd5d8a3c584446362ea9107247322bff2f18c4f7bb6237688191"
+    },
+    {
+      "path": "docs/steps/S04.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "34c0b3ae0060a6cff56665029d939ef83d1638cdbd465d47adf992ef36e5c9bd",
+      "local_sha256": "34c0b3ae0060a6cff56665029d939ef83d1638cdbd465d47adf992ef36e5c9bd"
+    },
+    {
+      "path": "docs/steps/S05.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "daa2c322692aec9c46604a1d2c49982643a8b70110c88e7c0fbc9e7c39f9bffc",
+      "local_sha256": "daa2c322692aec9c46604a1d2c49982643a8b70110c88e7c0fbc9e7c39f9bffc"
+    },
+    {
+      "path": "docs/steps/S06.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "7bfab37a827b75e696c5df2dcfe7b1c7404580a7c913f85558725d86ca4ceada",
+      "local_sha256": "7bfab37a827b75e696c5df2dcfe7b1c7404580a7c913f85558725d86ca4ceada"
+    },
+    {
+      "path": "docs/steps/S07.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "becd56cf3d2cafa18066495900f08db33edf23afe191d8d858b0e60ba6505448",
+      "local_sha256": "becd56cf3d2cafa18066495900f08db33edf23afe191d8d858b0e60ba6505448"
+    },
+    {
+      "path": "docs/steps/S08.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "70a43b746acebf4224ccad71eca2475fee98227c0954df19230e5c1ebc7fc820",
+      "local_sha256": "70a43b746acebf4224ccad71eca2475fee98227c0954df19230e5c1ebc7fc820"
+    },
+    {
+      "path": "docs/steps/S09.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "2d91569a939a0cde70970fdd456ff3a1a2b5d54f4c6784ff58bedf1b37658232",
+      "local_sha256": "2d91569a939a0cde70970fdd456ff3a1a2b5d54f4c6784ff58bedf1b37658232"
+    },
+    {
+      "path": "docs/steps/S10.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "87174086efa9e5183619e349beeb2f634ae665ae306154053d73e48e7f768e88",
+      "local_sha256": "87174086efa9e5183619e349beeb2f634ae665ae306154053d73e48e7f768e88"
+    },
+    {
+      "path": "docs/steps/S11.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "5b0ef8c8ded60738f153c9bf8ffe11ac0b49f1a04071224c94a7623b7d2f046b",
+      "local_sha256": "5b0ef8c8ded60738f153c9bf8ffe11ac0b49f1a04071224c94a7623b7d2f046b"
+    },
+    {
+      "path": "docs/steps/S12.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "d7bac0702eced93ce74b902914c361e5dffcb813771d5ef96acfdc69eecf1dfa",
+      "local_sha256": "d7bac0702eced93ce74b902914c361e5dffcb813771d5ef96acfdc69eecf1dfa"
+    },
+    {
+      "path": "docs/steps/S13.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "c10697e3c0953461fad2b529179aaaeda2ba2a57b2cd4540783deff30e257629",
+      "local_sha256": "c10697e3c0953461fad2b529179aaaeda2ba2a57b2cd4540783deff30e257629"
+    },
+    {
+      "path": "docs/steps/S14.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "4ee5eec2262ac5e20201db8b474d5d3ac8503a944e19d632fb9edaba85617838",
+      "local_sha256": "4ee5eec2262ac5e20201db8b474d5d3ac8503a944e19d632fb9edaba85617838"
+    },
+    {
+      "path": "docs/steps/S15-a.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "e573ebd153d5eb1a8d1b53a71b46fb60670f5229897e7bd2d8e9dd6ce496a352",
+      "local_sha256": "e573ebd153d5eb1a8d1b53a71b46fb60670f5229897e7bd2d8e9dd6ce496a352"
+    },
+    {
+      "path": "docs/steps/S15-b.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "0bc68e05395b2cb208b49f0042048b767d612fc51c4faf7a9ed1850b7a29a547",
+      "local_sha256": "0bc68e05395b2cb208b49f0042048b767d612fc51c4faf7a9ed1850b7a29a547"
+    },
+    {
+      "path": "docs/steps/S15-plan.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a5aa03d2c61767b695100d8cb49b8e5ef580ddb3689664e8626b2c8778bb2b5b",
+      "local_sha256": "a5aa03d2c61767b695100d8cb49b8e5ef580ddb3689664e8626b2c8778bb2b5b"
+    },
+    {
+      "path": "docs/steps/S16-a.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "383d3c24e0d4a595dbf596a3b7738c3bf09bed098b8163ee9dd6627369e1860a",
+      "local_sha256": "383d3c24e0d4a595dbf596a3b7738c3bf09bed098b8163ee9dd6627369e1860a"
+    },
+    {
+      "path": "docs/steps/S16-b.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "ed3058a49554ca91298b40fd891961e4829e42be54cc742c909dbbc7cab39871",
+      "local_sha256": "ed3058a49554ca91298b40fd891961e4829e42be54cc742c909dbbc7cab39871"
+    },
+    {
+      "path": "docs/steps/S17-a.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "ef0c32ea779b12475433b883d2281b01943296978ef89e261447205ff26a2c4e",
+      "local_sha256": "ef0c32ea779b12475433b883d2281b01943296978ef89e261447205ff26a2c4e"
+    },
+    {
+      "path": "docs/steps/S17-b.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "3c09c8f1b22a9bdf3d89324c8f354ddfe6ea05d9a92a7923770e1f56916715fd",
+      "local_sha256": "3c09c8f1b22a9bdf3d89324c8f354ddfe6ea05d9a92a7923770e1f56916715fd"
+    },
+    {
+      "path": "docs/steps/S18.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "3498dd6ef96f0c596a668c605b253dbdd5270748815997b331c9503433d2f568",
+      "local_sha256": "3498dd6ef96f0c596a668c605b253dbdd5270748815997b331c9503433d2f568"
+    },
+    {
+      "path": "docs/steps/S19-a.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "b4a57ea25fcd5141e9bfded6eb78326daac79c29d0da431730e013d6093f089f",
+      "local_sha256": "b4a57ea25fcd5141e9bfded6eb78326daac79c29d0da431730e013d6093f089f"
+    },
+    {
+      "path": "docs/steps/S19-b.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "13ebd05d58f06fcb998f1b457dfe0e229b345fe17efe4bf2e6cd22af223a507c",
+      "local_sha256": "13ebd05d58f06fcb998f1b457dfe0e229b345fe17efe4bf2e6cd22af223a507c"
+    },
+    {
+      "path": "docs/steps/S20-a.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "b9c74e1135cf3089347b624cba50914915c0a711ed32d06ae1757abf7724d216",
+      "local_sha256": "b9c74e1135cf3089347b624cba50914915c0a711ed32d06ae1757abf7724d216"
+    },
+    {
+      "path": "pyproject.toml",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "96ae5f01c1c8c763130f109ce2a9f3d9c32000087b9e6ad2731751cd58e0e9f6",
+      "local_sha256": "81d9bf8616fa2bd663a2f7ede19b31955730212dc03bec0edb71ffc065236ea7"
+    },
+    {
+      "path": "requirements-dev.lock",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "31f7b27e964978715d9dcc734023f5e15c08db0f387c72c90c9b7714091019db",
+      "local_sha256": "d148b3fc79a4723c32fb484ead18c3f7d662d100b4ce675b529672a8702e44a0"
+    },
+    {
+      "path": "requirements.lock",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "cc36779afc2121e3bd78acd7a39339f4b45c6ea64af7f87f9883eeba6a7003f2",
+      "local_sha256": "673a45281c157a7e3644971a3cb8a87aeda9301d34d75c666de122bddf8327de"
+    },
+    {
+      "path": "scripts/audit_state_bar.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "d491e3091eff85d8d16ac9034dcff2eee1099dae2989fbd50630963cda5eabf0",
+      "local_sha256": "d491e3091eff85d8d16ac9034dcff2eee1099dae2989fbd50630963cda5eabf0"
+    },
+    {
+      "path": "scripts/live_acceptance.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "6be97a8391d35ccecf1665c385e63c1f99de7ff3a466a45e486a93983b226614",
+      "local_sha256": "6be97a8391d35ccecf1665c385e63c1f99de7ff3a466a45e486a93983b226614"
+    },
+    {
+      "path": "scripts/live_continuity.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "c672c8731c08a48efe1e1ae291459ec3c55c8576e5bd78d429f4efd94181c831",
+      "local_sha256": "c672c8731c08a48efe1e1ae291459ec3c55c8576e5bd78d429f4efd94181c831"
+    },
+    {
+      "path": "scripts/live_followup.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "fdb222f4a1078c3f06f080542a0fce3f83e5483f6c4256ab4bb4adc8edc8c59a",
+      "local_sha256": "fdb222f4a1078c3f06f080542a0fce3f83e5483f6c4256ab4bb4adc8edc8c59a"
+    },
+    {
+      "path": "scripts/start.bat",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "33fe221008fdec4e15bc99a12749cfd9afe5f46287314181de16fd67dae8321b",
+      "local_sha256": "aa8bf0c590e60c0e6f008d97de4e0442fc38d5d7a11f858fbc4c075eb657325b"
+    },
+    {
+      "path": "scripts/verify_release.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "f477da0ee92f97dc1da1e9a7ca9cf019316b04d607b4d57b84d55e4a7d10a29c",
+      "local_sha256": "f477da0ee92f97dc1da1e9a7ca9cf019316b04d607b4d57b84d55e4a7d10a29c"
+    },
+    {
+      "path": "src/min_agent/__init__.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "ed5efe52d89f4747e3b4590b4e14a205a3aa960d7a039571c1cb8ec039e6f46a",
+      "local_sha256": "ed5efe52d89f4747e3b4590b4e14a205a3aa960d7a039571c1cb8ec039e6f46a"
+    },
+    {
+      "path": "src/min_agent/application.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "d887250d6359bacf478138cb76bcf18ad648c034ad9db5d5842fbfd64c738691",
+      "local_sha256": "dd04fcc92fae33326dd66afd6dc6e848adb08da43f57d1694fabb6d06b330b43"
+    },
+    {
+      "path": "src/min_agent/artifacts.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "af62f671de927942110f121f15bfeabd140c4d9d802f9c99692254b9b59315c6",
+      "local_sha256": "af62f671de927942110f121f15bfeabd140c4d9d802f9c99692254b9b59315c6"
+    },
+    {
+      "path": "src/min_agent/budget.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "600a58a76f51a2f080e632fa6e8cdf2ff876e04bba0a5290732367bee56234e7",
+      "local_sha256": "600a58a76f51a2f080e632fa6e8cdf2ff876e04bba0a5290732367bee56234e7"
+    },
+    {
+      "path": "src/min_agent/budget_persistence.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "9a9e53c17553f4058e152f684dbf254268fa41b99347462f81bc781a744a889e",
+      "local_sha256": "9a9e53c17553f4058e152f684dbf254268fa41b99347462f81bc781a744a889e"
+    },
+    {
+      "path": "src/min_agent/checkpoints.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "399a1434b9b61356e59f037356828533a26fb7eada6164d58dc9a273b575f269",
+      "local_sha256": "399a1434b9b61356e59f037356828533a26fb7eada6164d58dc9a273b575f269"
+    },
+    {
+      "path": "src/min_agent/clock.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "47e139dec59d5dfa98a277db5dd40ccb33faaf209f279ad601d30faefc64d844",
+      "local_sha256": "47e139dec59d5dfa98a277db5dd40ccb33faaf209f279ad601d30faefc64d844"
+    },
+    {
+      "path": "src/min_agent/compaction.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "ca78202b770091025e19d1853d0b3a1f18d023e526ef6cf5298935746086f6c5",
+      "local_sha256": "df704ef1b89d5337b3c9a74f929cdef68753344a054a3d11f74ae7d3abf28205"
+    },
+    {
+      "path": "src/min_agent/compression_evidence.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "29018b8199b073a28c991bd4c06322872faf0ae59673476966c658c46e2cdb7a",
+      "local_sha256": "29018b8199b073a28c991bd4c06322872faf0ae59673476966c658c46e2cdb7a"
+    },
+    {
+      "path": "src/min_agent/compression_selector.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "7875c351575913b21c49ed246c73f0f9f71f87bc5d684b10e422c033bf52adc3",
+      "local_sha256": "73f521881e6205d3266a5d4c4b0fc7370b94586fd4e56cc8e30cc961477bb4fc"
+    },
+    {
+      "path": "src/min_agent/compression_summary.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "cc5e6f1df8da8d37f7b27a33e2100640114168164c11f93b895af2b6da0cc445",
+      "local_sha256": "772e23c95b66a86bac38ed65cc86db23a0acce41095fac24958c46686dab8619"
+    },
+    {
+      "path": "src/min_agent/compression_text.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "34af62418fabd1f805e6678b1927f14eeb8c69e7d5926ee8f122690158c4c048",
+      "local_sha256": "34af62418fabd1f805e6678b1927f14eeb8c69e7d5926ee8f122690158c4c048"
+    },
+    {
+      "path": "src/min_agent/context.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "3307b167a66b50308edc604e1e221702b416ac9c75b03f192bbc01b62c7c8cee",
+      "local_sha256": "8212f2d995b7db9ee0d1c3338c56345d819b8a432551ea5cc271c48b5c436cf4"
+    },
+    {
+      "path": "src/min_agent/desktop_notifications.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "95fe4994670f49ecfb9f8549a5bda916b7c335f72c6b665ad687e9e72b5376b2",
+      "local_sha256": "95fe4994670f49ecfb9f8549a5bda916b7c335f72c6b665ad687e9e72b5376b2"
+    },
+    {
+      "path": "src/min_agent/events.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a1ffa5de6649882e962655fc9ec3bf6882ee30af34f3d48412e898b76564bbc1",
+      "local_sha256": "a1ffa5de6649882e962655fc9ec3bf6882ee30af34f3d48412e898b76564bbc1"
+    },
+    {
+      "path": "src/min_agent/llm/__init__.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "cf57fc49158f61555f09a494f9ab86fdeb972bcc5ba8201bf4be96bd3cf0369d",
+      "local_sha256": "cf57fc49158f61555f09a494f9ab86fdeb972bcc5ba8201bf4be96bd3cf0369d"
+    },
+    {
+      "path": "src/min_agent/llm/client.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "128b50e1123980dfbd483b13a24bdb222f83711ba7c36b2071b4c5c2bdb542e1",
+      "local_sha256": "8461cc1c75eedc2dd8c24586ba1539498adf3df661901b4499fcd0cf991f7c1c"
+    },
+    {
+      "path": "src/min_agent/llm/config.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "16f035b83617bcbaf2a29d848be8369a07c0a07eeac33bd9575936ef620adc19",
+      "local_sha256": "16f035b83617bcbaf2a29d848be8369a07c0a07eeac33bd9575936ef620adc19"
+    },
+    {
+      "path": "src/min_agent/llm/context_capabilities.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "f675ef88af7a4b27c3f92f93e3391e0bd82dbf1afab56c5212fa17550f5e5c36",
+      "local_sha256": "f675ef88af7a4b27c3f92f93e3391e0bd82dbf1afab56c5212fa17550f5e5c36"
+    },
+    {
+      "path": "src/min_agent/llm/deepseek.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "8acdb8fa98077743e51147e5843d48300f78dfdcb639a799a95ff69a87e10449",
+      "local_sha256": "451e51681f3c6188f7ee5b49ffd0113f342eb93b5f75310365155a6fd609b5b5"
+    },
+    {
+      "path": "src/min_agent/llm/openai_protocol.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "b77d8b19e0b1cca7eeb6ca49092d22c8eb1b6478f8de3b9b7f4157fd32446ded",
+      "local_sha256": "b77d8b19e0b1cca7eeb6ca49092d22c8eb1b6478f8de3b9b7f4157fd32446ded"
+    },
+    {
+      "path": "src/min_agent/llm/smoke.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "4192172280645b6a08d4e70d5793cee3cf324c6451ef92350b32affd228ffadf",
+      "local_sha256": "4192172280645b6a08d4e70d5793cee3cf324c6451ef92350b32affd228ffadf"
+    },
+    {
+      "path": "src/min_agent/memory.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "52f543666691478c3c4efc7649b7a65ee5e6d116e36b105659e2c6cd6f111198",
+      "local_sha256": "52f543666691478c3c4efc7649b7a65ee5e6d116e36b105659e2c6cd6f111198"
+    },
+    {
+      "path": "src/min_agent/memory_records.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "10e1905e3f5567616c24f5cc080e28e4fe9f4fb6733e05a77323022719abba72",
+      "local_sha256": "10e1905e3f5567616c24f5cc080e28e4fe9f4fb6733e05a77323022719abba72"
+    },
+    {
+      "path": "src/min_agent/memory_state.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "d581d1c7e56a01c04d8ac87b57dbe7b9adfa39e7835d1a2a4577eaf2caf8d52f",
+      "local_sha256": "d581d1c7e56a01c04d8ac87b57dbe7b9adfa39e7835d1a2a4577eaf2caf8d52f"
+    },
+    {
+      "path": "src/min_agent/models.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a6eda6a864639a1533b4d6ebb35021f055725922d0b7a61db25aed9de5e9333a",
+      "local_sha256": "a6eda6a864639a1533b4d6ebb35021f055725922d0b7a61db25aed9de5e9333a"
+    },
+    {
+      "path": "src/min_agent/notifications.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "7d9abbf5d9ddf351ae0ab4c75faf9249f1179d44093ea9007e0a114bef157a2f",
+      "local_sha256": "7d9abbf5d9ddf351ae0ab4c75faf9249f1179d44093ea9007e0a114bef157a2f"
+    },
+    {
+      "path": "src/min_agent/operations.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "5ea84687470d6791997e85d70b9b5eb5fd0b659c057bf6473d35a74504858ec2",
+      "local_sha256": "5ea84687470d6791997e85d70b9b5eb5fd0b659c057bf6473d35a74504858ec2"
+    },
+    {
+      "path": "src/min_agent/progress_guard.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "d695b65f0cc2da73cbcc99acc2cdadc96c3f5d22cda87f05fbeb4e02776faf03",
+      "local_sha256": "d695b65f0cc2da73cbcc99acc2cdadc96c3f5d22cda87f05fbeb4e02776faf03"
+    },
+    {
+      "path": "src/min_agent/prompts/compact_history.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "f6867befcb0ebcecee5777a2100526965f75de400b61deb104881283fc77bf24",
+      "local_sha256": "f6867befcb0ebcecee5777a2100526965f75de400b61deb104881283fc77bf24"
+    },
+    {
+      "path": "src/min_agent/prompts/compact_memory.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "44209dddb1439413fa2424a50ebae642647911ff3e55fc9b963a0a83899abc2e",
+      "local_sha256": "44209dddb1439413fa2424a50ebae642647911ff3e55fc9b963a0a83899abc2e"
+    },
+    {
+      "path": "src/min_agent/prompts/compress_selection.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "b3cd0e0cdcba76762cb76676fbfba90ba727dcf822326efe371e38beb36b1a56",
+      "local_sha256": "b3cd0e0cdcba76762cb76676fbfba90ba727dcf822326efe371e38beb36b1a56"
+    },
+    {
+      "path": "src/min_agent/prompts/research.md",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "d89ab137219be5f6bd78e6c3454c5aa18002cbf193888c34e222cdac468ad1ae",
+      "local_sha256": "d89ab137219be5f6bd78e6c3454c5aa18002cbf193888c34e222cdac468ad1ae"
+    },
+    {
+      "path": "src/min_agent/prompts/system.md",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "5d323ca2cf2a5ba422ab8640ce0f2f6254c2a688dfac479f2273533faa6922e9",
+      "local_sha256": "80da134d5552d2b4e43cda7be3d16ec216c24501cc9c4170710b7ba5f31de31c"
+    },
+    {
+      "path": "src/min_agent/research.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "855bd039b7d06c9b2e09a5b932bfe62678d171673e5816a18208509d2dd0afc2",
+      "local_sha256": "cf2087fa4cdb2f461d779433ee4d27e6b2e3be67a7f4e12b34f3d38aa79b18d4"
+    },
+    {
+      "path": "src/min_agent/runtime.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "fffc4bfbd574df1fee698db826c7eacd68dbb7b45204a8aaf8bb62bbdf3d5c14",
+      "local_sha256": "279a04be43329834ed4168cc6870902ffcddcba0d78953b30d5d0095685ffc1a"
+    },
+    {
+      "path": "src/min_agent/scheduler.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "362763be2f5827e77ae9d85b00a3c4370525229ecdcbe340e98803ddc1d28cb2",
+      "local_sha256": "362763be2f5827e77ae9d85b00a3c4370525229ecdcbe340e98803ddc1d28cb2"
+    },
+    {
+      "path": "src/min_agent/sessions.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "4c172aadd49f7fb4a53de22ca7f2c5b168ae9ed36b432afb6bec03977223cb0b",
+      "local_sha256": "12e3a6d0e03067bef8703a3236be27eaa66ef02e9aa3fe54ed4b65bafbe1f4d6"
+    },
+    {
+      "path": "src/min_agent/skills.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "26d7dcaa0258f3e4f560a3689be26a3d75ed711afc83b8f437ecf9ef7b95e909",
+      "local_sha256": "afd05d7ef47c02511cc38e10a8c1a255dd4547660e3f0f42e412e9891b647a6a"
+    },
+    {
+      "path": "src/min_agent/skills/public-evidence.md",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "60cfbd5751bf074316b0419e719183edb1e4ccd39faf3f861ab444f7885ed1bd",
+      "local_sha256": "92ac73fbeb508463d1773227e07719dbc334fb71def9700db10044cb211851be"
+    },
+    {
+      "path": "src/min_agent/state_bar.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "af1ae536246d8e9ca0896f735af7e194bd48f54d019c4c04bec02b1c449a2f40",
+      "local_sha256": "af1ae536246d8e9ca0896f735af7e194bd48f54d019c4c04bec02b1c449a2f40"
+    },
+    {
+      "path": "src/min_agent/storage.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "37b47a2b6bbc1deafa4301237414dbcad3572ad8cd7d4051b44a3e9d82cbe863",
+      "local_sha256": "e50048f9bad5892b6bf7bd04d97293516f4f6d2b4a6d65c66d562a0a50ba3687"
+    },
+    {
+      "path": "src/min_agent/structured_context.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "326fd15e76cceac44dbffc934385f2d25a1f7e96c6579391934b42bbfd5ff963",
+      "local_sha256": "326fd15e76cceac44dbffc934385f2d25a1f7e96c6579391934b42bbfd5ff963"
+    },
+    {
+      "path": "src/min_agent/task_state.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "3b708ff7bb46e556fa6b3e434aadbd28d44ac79c7805bac67689662b51e8b69a",
+      "local_sha256": "3b708ff7bb46e556fa6b3e434aadbd28d44ac79c7805bac67689662b51e8b69a"
+    },
+    {
+      "path": "src/min_agent/tools/__init__.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "d04d656367ee91142ef33e0ee4bc5b8e2604815654ac36db51f4e9467e8f1501",
+      "local_sha256": "d04d656367ee91142ef33e0ee4bc5b8e2604815654ac36db51f4e9467e8f1501"
+    },
+    {
+      "path": "src/min_agent/tools/calculator.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "c6ac97a0ec82d40376e9e4e3d5be2f21b56460431bdaddc74968243b1c7c4e1c",
+      "local_sha256": "c6ac97a0ec82d40376e9e4e3d5be2f21b56460431bdaddc74968243b1c7c4e1c"
+    },
+    {
+      "path": "src/min_agent/tools/read_webpage.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "4f4631b13b34b0edc6abb26439d698df60a8471769f88bca99de68279ccf703f",
+      "local_sha256": "4f4631b13b34b0edc6abb26439d698df60a8471769f88bca99de68279ccf703f"
+    },
+    {
+      "path": "src/min_agent/tools/registry.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "7239398f14115ec00b7ba132599c3460d120dffa4de8103ab834d65b5c25493d",
+      "local_sha256": "9f59cd56c7760115e493f15cfcbb9b65e10a80a0366bf52cb7b69f1b26b7e9ed"
+    },
+    {
+      "path": "src/min_agent/tools/reminder.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "ff9dd5cdbb9054aa91b27a540b16ab8a547d7fdb95033f29714ecf115331b87a",
+      "local_sha256": "ff9dd5cdbb9054aa91b27a540b16ab8a547d7fdb95033f29714ecf115331b87a"
+    },
+    {
+      "path": "src/min_agent/tools/reminder_tools.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "d0505faf1b906c86ef458bc2b6843aa45715c11cff90c290213c6a94d01ff230",
+      "local_sha256": "d0505faf1b906c86ef458bc2b6843aa45715c11cff90c290213c6a94d01ff230"
+    },
+    {
+      "path": "src/min_agent/tools/search.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "c79045cb225e6b31b7313bee50cdae5e3e384a718cfb7ed44812581735dc79d6",
+      "local_sha256": "c79045cb225e6b31b7313bee50cdae5e3e384a718cfb7ed44812581735dc79d6"
+    },
+    {
+      "path": "src/min_agent/tools/todo.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a7fef82056e46257576c54cd083faf31230054b70a8b2edf1e38d30e455c8232",
+      "local_sha256": "a7fef82056e46257576c54cd083faf31230054b70a8b2edf1e38d30e455c8232"
+    },
+    {
+      "path": "src/min_agent/tools/todo_tools.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "4a80c75df77777d4b57e547e1fb95f4896e822103468299474c1e740239b5dee",
+      "local_sha256": "4a80c75df77777d4b57e547e1fb95f4896e822103468299474c1e740239b5dee"
+    },
+    {
+      "path": "src/min_agent/trace.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "082d92cab2bacb764fb137d5c3ca8f79c2795d5b819d6ee0f5dbde6769829520",
+      "local_sha256": "082d92cab2bacb764fb137d5c3ca8f79c2795d5b819d6ee0f5dbde6769829520"
+    },
+    {
+      "path": "src/min_agent/web/__init__.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "89b44be3ea36e507c0286ae6a5be6d85e22826ff482a11da80cd26d0d09a0ea1",
+      "local_sha256": "89b44be3ea36e507c0286ae6a5be6d85e22826ff482a11da80cd26d0d09a0ea1"
+    },
+    {
+      "path": "src/min_agent/web/__main__.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "94ad8442ca930d6fe24e8ba0924448220c56696e0941dfaafe7755b6d8181ab0",
+      "local_sha256": "53e6e6bcb071a32db3867a14de65da20ab25619f02fcf87a247f7f6753d103f2"
+    },
+    {
+      "path": "src/min_agent/web/app.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "47482f3fa2df0dae4562afc67efce057d2d55a7a7b0ae2faf6b7e9c2bda149e5",
+      "local_sha256": "0a17d4a5a0b21b915d5a10384fd59419719339f2211fdccf67fedd9d7f7911eb"
+    },
+    {
+      "path": "src/min_agent/web/static/app.js",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "5669118a35128d48d60bf8fa45393eb9a75fefa7c353bbdd359265837f74616a",
+      "local_sha256": "beb9ee39fc63528d77b2dc14e9f1bf3de9da1025b6bbd2d02f06e936d7d41b83"
+    },
+    {
+      "path": "src/min_agent/web/static/index.html",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "20d06f8d2db3e4cb1eef683045732b228101ce8d1ac709e302e7b468e8993a74",
+      "local_sha256": "882e016a236ea26884a896ce996172614694ea068c60768363569182c639480e"
+    },
+    {
+      "path": "src/min_agent/web/static/style.css",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "fe398563920cfefe25be185dda63fd248c0a2395b56bcd669d732fe3f6bdfc6f",
+      "local_sha256": "fe398563920cfefe25be185dda63fd248c0a2395b56bcd669d732fe3f6bdfc6f"
+    },
+    {
+      "path": "tests/__init__.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "c9d07e5289ec72f75aec071a8befe6afafe099c81f928b4518f92f2c032ee334",
+      "local_sha256": "c9d07e5289ec72f75aec071a8befe6afafe099c81f928b4518f92f2c032ee334"
+    },
+    {
+      "path": "tests/e2e/test_acceptance.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "9fd9be3ca0b7d86d95f8dc628aff7356173fbb4207f246080e3c809cfe875f70",
+      "local_sha256": "9fd9be3ca0b7d86d95f8dc628aff7356173fbb4207f246080e3c809cfe875f70"
+    },
+    {
+      "path": "tests/fakes/__init__.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "138a3297fe92570d9d2582d68b838c9f1681ac38541366eb649efb75f5ad76f4",
+      "local_sha256": "138a3297fe92570d9d2582d68b838c9f1681ac38541366eb649efb75f5ad76f4"
+    },
+    {
+      "path": "tests/fakes/model.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "4f55d675776569a3897102296eff522ab7d3f82ebe077471b8dcfd6a0e6df264",
+      "local_sha256": "4f55d675776569a3897102296eff522ab7d3f82ebe077471b8dcfd6a0e6df264"
+    },
+    {
+      "path": "tests/integration/test_application_flow.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "4de19699b0a010840d49efb2c129c2343b7c344ee82e3f1f5b31b3e614c749df",
+      "local_sha256": "4de19699b0a010840d49efb2c129c2343b7c344ee82e3f1f5b31b3e614c749df"
+    },
+    {
+      "path": "tests/integration/test_authorized_todo.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "920c910ea4999dee2501fcda3cfa237b1a15896ed9573bf3c902ee9a4015fcc0",
+      "local_sha256": "920c910ea4999dee2501fcda3cfa237b1a15896ed9573bf3c902ee9a4015fcc0"
+    },
+    {
+      "path": "tests/integration/test_budget_persistence.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "bc009e3c5c68f57be7edd6a5bacfcf8a8a22e64fc894009403c37bd971d7d5ed",
+      "local_sha256": "bc009e3c5c68f57be7edd6a5bacfcf8a8a22e64fc894009403c37bd971d7d5ed"
+    },
+    {
+      "path": "tests/integration/test_checkpoint_persistence.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "f1b44d891fb982413eb67632deee2b13f22fce654799c60c3c975dc6e1d3f0eb",
+      "local_sha256": "f1b44d891fb982413eb67632deee2b13f22fce654799c60c3c975dc6e1d3f0eb"
+    },
+    {
+      "path": "tests/integration/test_compression_layers.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a930591f77ce1042a8e7fc4097749de53300003da8b426da00cfe428c63caa9b",
+      "local_sha256": "a930591f77ce1042a8e7fc4097749de53300003da8b426da00cfe428c63caa9b"
+    },
+    {
+      "path": "tests/integration/test_confirmed_action_instances.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "98d797f7751121ca0425bc84905736313080b4e3b238aca0dd8818ff46d2dc87",
+      "local_sha256": "98d797f7751121ca0425bc84905736313080b4e3b238aca0dd8818ff46d2dc87"
+    },
+    {
+      "path": "tests/integration/test_deepseek_restart.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "bd2dbd5587b82803996f9e89eb6df820b1ff2550be7f6f37e2c3a9ca31bbf8fe",
+      "local_sha256": "bd2dbd5587b82803996f9e89eb6df820b1ff2550be7f6f37e2c3a9ca31bbf8fe"
+    },
+    {
+      "path": "tests/integration/test_excerpt_priority.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "d418dfdd2f294c4b5ac9238b6c55cf4abf173b499526c26d90de1f5300184e10",
+      "local_sha256": "d418dfdd2f294c4b5ac9238b6c55cf4abf173b499526c26d90de1f5300184e10"
+    },
+    {
+      "path": "tests/integration/test_integrated_boundaries.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "8e381b24ff51b785dfc1570c7ba694ba9c1080f47ce61c5709b767991795e399",
+      "local_sha256": "8e381b24ff51b785dfc1570c7ba694ba9c1080f47ce61c5709b767991795e399"
+    },
+    {
+      "path": "tests/integration/test_llm_restart.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "7ab9b2c37d18f74fb80ef05f4ce1530ac65b2040b322513f6df3448612caa09b",
+      "local_sha256": "7ab9b2c37d18f74fb80ef05f4ce1530ac65b2040b322513f6df3448612caa09b"
+    },
+    {
+      "path": "tests/integration/test_logical_task_budgets.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "1583a5e742c482796955e04b8367d0fe292d5e836ffc9bec43c695139dd2aa95",
+      "local_sha256": "1583a5e742c482796955e04b8367d0fe292d5e836ffc9bec43c695139dd2aa95"
+    },
+    {
+      "path": "tests/integration/test_memory_state.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "b708746f0ed6f65e6a54003379300f73dd6646b68a373cfb9261c17ad2b20eb5",
+      "local_sha256": "b708746f0ed6f65e6a54003379300f73dd6646b68a373cfb9261c17ad2b20eb5"
+    },
+    {
+      "path": "tests/integration/test_memory_tools.py",
+      "same_text": false,
+      "local_exists": true,
+      "github_sha256": "e3d64aa9bd46c9686338d531da2c15f61eef03c964017d6ebcc01e78b6dac478",
+      "local_sha256": "a828370f505797757be0476e092403bdf7bd0093511cd414fc21dab4538b3817"
+    },
+    {
+      "path": "tests/integration/test_operation_recovery.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "cb14a49a0d9974aa88264ccc9373c037835afd5a0098c572b218f6a54bfd4af7",
+      "local_sha256": "cb14a49a0d9974aa88264ccc9373c037835afd5a0098c572b218f6a54bfd4af7"
+    },
+    {
+      "path": "tests/integration/test_research_traces.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "00a82d529ab450f95f0bfef7b83d88b8f225175bb3d56345e9d9afc2c5caa44c",
+      "local_sha256": "00a82d529ab450f95f0bfef7b83d88b8f225175bb3d56345e9d9afc2c5caa44c"
+    },
+    {
+      "path": "tests/integration/test_selection_provenance.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "1701d450955be74009515dc6db69b61dee507127153d6018e133e74d4d6ace50",
+      "local_sha256": "1701d450955be74009515dc6db69b61dee507127153d6018e133e74d4d6ace50"
+    },
+    {
+      "path": "tests/integration/test_semantic_compression.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "7b32e5abf5788e919ba639d0da7f032137c3736674f9baa6d287da59274effa0",
+      "local_sha256": "7b32e5abf5788e919ba639d0da7f032137c3736674f9baa6d287da59274effa0"
+    },
+    {
+      "path": "tests/integration/test_service_persistence.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "161e43ccc9500f025f19288df8aeebe1ed9f3fff50d6b64e15be70c22fcdbd97",
+      "local_sha256": "161e43ccc9500f025f19288df8aeebe1ed9f3fff50d6b64e15be70c22fcdbd97"
+    },
+    {
+      "path": "tests/integration/test_state_bar.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "0b15bd85583846b1267482981025104df7edc67ab67f3b79610574b47499b2a7",
+      "local_sha256": "0b15bd85583846b1267482981025104df7edc67ab67f3b79610574b47499b2a7"
+    },
+    {
+      "path": "tests/integration/test_storage_restart.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "ce6ad0345681d70c77eed5840616ebca3a2c49e8142b40d1ecde7455343d62de",
+      "local_sha256": "ce6ad0345681d70c77eed5840616ebca3a2c49e8142b40d1ecde7455343d62de"
+    },
+    {
+      "path": "tests/integration/test_structured_memory.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "cab06549a70504bffc09ed40a18a15a1ebe19f5d510a62f8794a94a8b27207db",
+      "local_sha256": "cab06549a70504bffc09ed40a18a15a1ebe19f5d510a62f8794a94a8b27207db"
+    },
+    {
+      "path": "tests/integration/test_turn_archives.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "c87c40352ce375829043f67534f604167502f1bb15bd49a59f2a85982e040b21",
+      "local_sha256": "c87c40352ce375829043f67534f604167502f1bb15bd49a59f2a85982e040b21"
+    },
+    {
+      "path": "tests/live/__init__.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a749804f886be3ca71f3f07da83e414c2551eca4101b18719790f0cd4f197231",
+      "local_sha256": "a749804f886be3ca71f3f07da83e414c2551eca4101b18719790f0cd4f197231"
+    },
+    {
+      "path": "tests/live/test_deepseek_smoke.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "55530484d1e327e8ce829cdf5bf0f260f2f495ae1043c11626d3fd63aa766395",
+      "local_sha256": "55530484d1e327e8ce829cdf5bf0f260f2f495ae1043c11626d3fd63aa766395"
+    },
+    {
+      "path": "tests/live/test_intent_contract.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "670fd9f86c383dcb8cf6fb7a05fb890aa4e6ffe14d1845b33ac7ca3783092c04",
+      "local_sha256": "670fd9f86c383dcb8cf6fb7a05fb890aa4e6ffe14d1845b33ac7ca3783092c04"
+    },
+    {
+      "path": "tests/live/test_openai_smoke.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "8a00de72613ea77fd33dcd3a9282791b2435102fb83216c5fe73a52bb20c56dc",
+      "local_sha256": "8a00de72613ea77fd33dcd3a9282791b2435102fb83216c5fe73a52bb20c56dc"
+    },
+    {
+      "path": "tests/scenarios/__init__.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "0b62ac986258318b78ae0b169ccd2bd03e7cab573a5ad23948a13d77e24b91ac",
+      "local_sha256": "0b62ac986258318b78ae0b169ccd2bd03e7cab573a5ad23948a13d77e24b91ac"
+    },
+    {
+      "path": "tests/scenarios/intent_cases.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a4f62c8e7bb436fbd0aaae98041d4bf44a8bc40e0c33d0086569455c9cb03f30",
+      "local_sha256": "a4f62c8e7bb436fbd0aaae98041d4bf44a8bc40e0c33d0086569455c9cb03f30"
+    },
+    {
+      "path": "tests/scenarios/test_intent_contract.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "e5cadcb1adb0e0c22428dbf76d5ecc820e226df8143b511108564cbe99d97d55",
+      "local_sha256": "e5cadcb1adb0e0c22428dbf76d5ecc820e226df8143b511108564cbe99d97d55"
+    },
+    {
+      "path": "tests/scenarios/test_research_evidence.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "9331606559e170a4a46fa6ada439c0a8217b7ce239f34b640b08d7640475137e",
+      "local_sha256": "9331606559e170a4a46fa6ada439c0a8217b7ce239f34b640b08d7640475137e"
+    },
+    {
+      "path": "tests/ui/test_chat_flow.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "825e04b13a232a7f0387f3fcea1f2b9ca52751102e4a25babda04f31ae3f7896",
+      "local_sha256": "825e04b13a232a7f0387f3fcea1f2b9ca52751102e4a25babda04f31ae3f7896"
+    },
+    {
+      "path": "tests/unit/test_budget.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "16ddc8014928f5862cb262e15bb0c0e00d349c057cf2e37ed9c4506b68415a23",
+      "local_sha256": "16ddc8014928f5862cb262e15bb0c0e00d349c057cf2e37ed9c4506b68415a23"
+    },
+    {
+      "path": "tests/unit/test_budget_snapshot.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "f5f02166318f1e43a0ec2cc6106ac63cc7dea070ef0243f4715653a42627f1ef",
+      "local_sha256": "f5f02166318f1e43a0ec2cc6106ac63cc7dea070ef0243f4715653a42627f1ef"
+    },
+    {
+      "path": "tests/unit/test_calculator.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "eaf4b761a435acef41430d4d37226500aa936f825ba928fad24492d48d04a6cc",
+      "local_sha256": "eaf4b761a435acef41430d4d37226500aa936f825ba928fad24492d48d04a6cc"
+    },
+    {
+      "path": "tests/unit/test_checkpoint_resume.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "e243eece3823d9e536848d13a86f12a1e2aaa733d032563285220317ef4b953b",
+      "local_sha256": "e243eece3823d9e536848d13a86f12a1e2aaa733d032563285220317ef4b953b"
+    },
+    {
+      "path": "tests/unit/test_compaction.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "6f4f36ed6fb7f31929e1b029cfd8cfd9fc282d5d31e9e8c4bdeade9d33c74058",
+      "local_sha256": "6f4f36ed6fb7f31929e1b029cfd8cfd9fc282d5d31e9e8c4bdeade9d33c74058"
+    },
+    {
+      "path": "tests/unit/test_compression_summary.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "d9552aa54079dc90402bbe5ef88f743bb20f97dbe2f2b10ef34a2b2ca9beabb1",
+      "local_sha256": "d9552aa54079dc90402bbe5ef88f743bb20f97dbe2f2b10ef34a2b2ca9beabb1"
+    },
+    {
+      "path": "tests/unit/test_context_lifecycle.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "0962d41f8b55fa36edb360416009bf57223e1e4120f4ba6103a0a1fc6165280a",
+      "local_sha256": "0962d41f8b55fa36edb360416009bf57223e1e4120f4ba6103a0a1fc6165280a"
+    },
+    {
+      "path": "tests/unit/test_deepseek_adapter.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a75f4adac8f6eae170f4c39cadf50161f1a592f788791cffeb48e1f869e28e2e",
+      "local_sha256": "a75f4adac8f6eae170f4c39cadf50161f1a592f788791cffeb48e1f869e28e2e"
+    },
+    {
+      "path": "tests/unit/test_deepseek_smoke.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "690d7e82a216dea889ce7f87c5144bda83189c3d46280c76a25f1a77834a0a14",
+      "local_sha256": "690d7e82a216dea889ce7f87c5144bda83189c3d46280c76a25f1a77834a0a14"
+    },
+    {
+      "path": "tests/unit/test_execution_control.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "9f50ee51e46fa059cccff6de61ac9b6e1e99f968e6f1705a5a57c69a05869960",
+      "local_sha256": "9f50ee51e46fa059cccff6de61ac9b6e1e99f968e6f1705a5a57c69a05869960"
+    },
+    {
+      "path": "tests/unit/test_llm_adapter.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "78897448b070f6b5887fd16238183714b07b1408c3a474fdb7798c21d2e0ce6f",
+      "local_sha256": "78897448b070f6b5887fd16238183714b07b1408c3a474fdb7798c21d2e0ce6f"
+    },
+    {
+      "path": "tests/unit/test_llm_http_diagnostics.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "603a3fbcb3501c14cb6168b2b4454020943b73d1083a5e3691d1f6e1bfe25b0b",
+      "local_sha256": "603a3fbcb3501c14cb6168b2b4454020943b73d1083a5e3691d1f6e1bfe25b0b"
+    },
+    {
+      "path": "tests/unit/test_llm_proxy.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "dd53c747f8ae9a5d95b2fab594a6f71b1666d850f18ff3bf8b6a98d34d4a6a2b",
+      "local_sha256": "dd53c747f8ae9a5d95b2fab594a6f71b1666d850f18ff3bf8b6a98d34d4a6a2b"
+    },
+    {
+      "path": "tests/unit/test_llm_smoke_guard.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "2f9abf0cd47443f5b79c1ebccbadbffcb3464f654c4bd6515ff6243a82f85f9d",
+      "local_sha256": "2f9abf0cd47443f5b79c1ebccbadbffcb3464f654c4bd6515ff6243a82f85f9d"
+    },
+    {
+      "path": "tests/unit/test_mode_authorization.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "826e1b27d5313740b98d2efdc3f92fa08853d2a225777f8f2910d2cf52970c1e",
+      "local_sha256": "826e1b27d5313740b98d2efdc3f92fa08853d2a225777f8f2910d2cf52970c1e"
+    },
+    {
+      "path": "tests/unit/test_models.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "d17869537c28b04356f4fd2d3fbaedab602f53a34d99e4bdc6935e222da7a8e5",
+      "local_sha256": "d17869537c28b04356f4fd2d3fbaedab602f53a34d99e4bdc6935e222da7a8e5"
+    },
+    {
+      "path": "tests/unit/test_package.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a2c7e5acca00561f2d3095a678435155795958c887cda98742128be539841da7",
+      "local_sha256": "a2c7e5acca00561f2d3095a678435155795958c887cda98742128be539841da7"
+    },
+    {
+      "path": "tests/unit/test_public_web.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "810197bf6b9bbbdef96cf2cd875461f7ea897f825c55644f1161b174546613da",
+      "local_sha256": "810197bf6b9bbbdef96cf2cd875461f7ea897f825c55644f1161b174546613da"
+    },
+    {
+      "path": "tests/unit/test_reminder_scheduler.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "a60c19f445aab8d280fe63e90c2a12bd943248a9a7a1d2f25d7139270ed98f10",
+      "local_sha256": "a60c19f445aab8d280fe63e90c2a12bd943248a9a7a1d2f25d7139270ed98f10"
+    },
+    {
+      "path": "tests/unit/test_runtime_reply.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "b9007e3e5ead13f397b8c5622045cb145522622cbfbce7084cf3f79614cb0ed4",
+      "local_sha256": "b9007e3e5ead13f397b8c5622045cb145522622cbfbce7084cf3f79614cb0ed4"
+    },
+    {
+      "path": "tests/unit/test_runtime_tool_errors.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "fbaa2dad77090a60187b1a0ee777547fbba99ec5421328e0a727cd8f179836ee",
+      "local_sha256": "fbaa2dad77090a60187b1a0ee777547fbba99ec5421328e0a727cd8f179836ee"
+    },
+    {
+      "path": "tests/unit/test_runtime_tool_loop.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "3913922c36fddd583913ac251e700d63987f772a6bdfd4c280f0ead020e55f7e",
+      "local_sha256": "3913922c36fddd583913ac251e700d63987f772a6bdfd4c280f0ead020e55f7e"
+    },
+    {
+      "path": "tests/unit/test_session_isolation.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "6e46d02b34a701f966cbc0ed215cdede181e612ac52ca0c0be05286f1c8c1c1d",
+      "local_sha256": "6e46d02b34a701f966cbc0ed215cdede181e612ac52ca0c0be05286f1c8c1c1d"
+    },
+    {
+      "path": "tests/unit/test_todo_add_list.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "23c7cab52c678ec2a0268ba8f890aa5f663f346f8ef4a73a0a6bf29209920279",
+      "local_sha256": "23c7cab52c678ec2a0268ba8f890aa5f663f346f8ef4a73a0a6bf29209920279"
+    },
+    {
+      "path": "tests/unit/test_todo_complete.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "0fee6409783b8b14ed19ae2e4bc270cdd7b7dbcbd2a1ea7a171b72e8988aa9d2",
+      "local_sha256": "0fee6409783b8b14ed19ae2e4bc270cdd7b7dbcbd2a1ea7a171b72e8988aa9d2"
+    },
+    {
+      "path": "tests/unit/test_todo_dates.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "de8cc58cd00961b4da6e1aea1c93d25f2c822b4a443fe4163d49cca9729d8568",
+      "local_sha256": "de8cc58cd00961b4da6e1aea1c93d25f2c822b4a443fe4163d49cca9729d8568"
+    },
+    {
+      "path": "tests/unit/test_todo_delete.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "e46ac8c1e8434f374e8a90e6ce7fde2d0fcba5f41aba3f8d22299b792fb84e11",
+      "local_sha256": "e46ac8c1e8434f374e8a90e6ce7fde2d0fcba5f41aba3f8d22299b792fb84e11"
+    },
+    {
+      "path": "tests/unit/test_todo_update.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "dca25a728ca0314092b2889c05b72e4abffbccbf14462a4922a495f96df42fab",
+      "local_sha256": "dca25a728ca0314092b2889c05b72e4abffbccbf14462a4922a495f96df42fab"
+    },
+    {
+      "path": "tests/unit/test_tool_registry.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "1acb47265ea3c0f6b9912ab50b59638e61d6d52d39c1f90979f0d313f0ffe22d",
+      "local_sha256": "1acb47265ea3c0f6b9912ab50b59638e61d6d52d39c1f90979f0d313f0ffe22d"
+    },
+    {
+      "path": "tests/unit/test_trace.py",
+      "same_text": true,
+      "local_exists": true,
+      "github_sha256": "70ed4fd6ab487508d6531d611c0b1a3f053e0653b69affc75ad3d2671cf5c8ae",
+      "local_sha256": "70ed4fd6ab487508d6531d611c0b1a3f053e0653b69affc75ad3d2671cf5c8ae"
+    }
+  ],
+  "local_new_non_report_files": [
+    "AGENTS.md",
+    "Adrian_Memory_v0.1_Implementation_Brief.md",
+    "docs/ADRIAN.md",
+    "docs/EVALUATION_V1.md",
+    "docs/MEMORY_ARCHITECTURE_V01.md",
+    "docs/MEMORY_EVAL_PROTOCOL.md",
+    "docs/NIGHT_MODE.md",
+    "docs/PROMPT_DESIGN_DISCUSSION.md",
+    "docs/acceptance/b01-state-bar-after-20261024.json",
+    "docs/acceptance/b01-state-bar-after-v2-20261024.json",
+    "docs/acceptance/b01-state-bar-before-20261024.json",
+    "docs/acceptance/b01-state-bar-before-v2-20261024.json",
+    "docs/acceptance/b01-state-bar-comparison-20261024.json",
+    "docs/acceptance/b01-state-bar-comparison-v2-20261024.json",
+    "docs/acceptance/b01-state-bar-final-20261024.json",
+    "docs/acceptance/b01-state-bar-final-v2-20261024.json",
+    "docs/acceptance/b01-state-bar-public-20261024.json",
+    "docs/acceptance/b01-state-bar-public-v2-20261024.json",
+    "docs/acceptance/b01-state-bar-suite-v1.json",
+    "docs/acceptance/c04-multi-compaction-20261024.json",
+    "docs/acceptance/c04-multi-compaction-isolated-20261024.json",
+    "docs/acceptance/c04-multi-compaction-suite-v1.json",
+    "docs/acceptance/c05-task-input-after-20261024.json",
+    "docs/acceptance/c05-task-input-before-20261024.json",
+    "docs/acceptance/c05-task-input-public-20261024.json",
+    "docs/acceptance/c05-task-input-suite-v1.json",
+    "docs/acceptance/m02-memory-baseline-main-v2.json",
+    "docs/acceptance/m02-memory-baseline-v1.json",
+    "docs/acceptance/m02-memory-baseline-v2.json",
+    "docs/acceptance/m02-memory-suite-v1.json",
+    "docs/acceptance/m02-memory-suite-v2.json",
+    "docs/acceptance/p01-secretary-20261022.json",
+    "docs/acceptance/p01-secretary-v2-20261022.json",
+    "docs/acceptance/p02-workflow-20261022.json",
+    "docs/acceptance/p02-workflow-v2-20261022.json",
+    "docs/acceptance/p04-generalization-20261022.json",
+    "docs/acceptance/p05-input-audit-20261022.json",
+    "docs/acceptance/p06-tool-exposure-20261022.json",
+    "docs/acceptance/p07-knowledge-context-20261022.json",
+    "docs/acceptance/p07-source-material-20261022.md",
+    "docs/acceptance/s01-skill-disclosure-20261022.json",
+    "docs/acceptance/s01-skill-selection-live-20261022.json",
+    "docs/acceptance/s02-skill-deduplication-20261023.json",
+    "docs/acceptance/s03-skill-metadata-20261023.json",
+    "docs/acceptance/s04-skill-behavior-suite-v1.json",
+    "docs/acceptance/s04-skill-lifecycle-after-20261023.json",
+    "docs/acceptance/s04-skill-lifecycle-baseline-20261023.json",
+    "docs/acceptance/s04-skill-lifecycle-suite-v1.json",
+    "docs/acceptance/s05-skill-retention-baseline-20261023.json",
+    "docs/acceptance/s05-skill-retention-live-20261023.json",
+    "docs/acceptance/s05-skill-retention-suite-v1.json",
+    "docs/acceptance/s06-skill-restoration-after-20261023.json",
+    "docs/acceptance/s06-skill-restoration-before-20261023.json",
+    "docs/acceptance/s06-skill-restoration-public-20261023.json",
+    "docs/acceptance/s07-previous-lifecycle-20261023.json",
+    "docs/acceptance/s07-skill-compaction-after-20261023.json",
+    "docs/acceptance/s07-skill-compaction-baseline-20261023.json",
+    "docs/acceptance/s07-skill-compaction-before-20261023.json",
+    "docs/acceptance/s07-skill-compaction-public-20261023.json",
+    "docs/acceptance/s07-skill-compaction-suite-v1.json",
+    "docs/diagrams/evaluation-v1/architecture.png",
+    "docs/diagrams/evaluation-v1/architecture.svg",
+    "docs/examples/evaluation-task.schema.json",
+    "docs/examples/evaluation-tasks.json",
+    "docs/examples/night-job.schema.json",
+    "docs/examples/night-jobs.json",
+    "docs/steps/ADRIAN_INTEGRATION_PLAN.md",
+    "docs/steps/ADRIAN_MEMORY_V01_PLAN.md",
+    "docs/steps/B01-code.patch",
+    "docs/steps/B01-context-comparison.md",
+    "docs/steps/B01-readable.md",
+    "docs/steps/B01-state-bar-plan.md",
+    "docs/steps/B01-state-bar.md",
+    "docs/steps/C04-context-regression.md",
+    "docs/steps/C04-multi-compaction-plan.md",
+    "docs/steps/C04-readable.md",
+    "docs/steps/C05-readable.md",
+    "docs/steps/C05-task-input-plan.md",
+    "docs/steps/C05-task-input.md",
+    "docs/steps/M02-memory-complete.md",
+    "docs/steps/M02-memory-evaluation-plan.md",
+    "docs/steps/M02-memory-rubric.md",
+    "docs/steps/M02-readable.md",
+    "docs/steps/M02-review.md",
+    "docs/steps/MODEL_CONTEXT_PLAN.md",
+    "docs/steps/P01-full-materials.md",
+    "docs/steps/P01-readable.md",
+    "docs/steps/P01-secretary.md",
+    "docs/steps/P02-readable.md",
+    "docs/steps/P02-workflow.md",
+    "docs/steps/P03-general-intent.md",
+    "docs/steps/P03-readable.md",
+    "docs/steps/P04-generalization.md",
+    "docs/steps/P04-readable.md",
+    "docs/steps/P05-input-audit.md",
+    "docs/steps/P06-readable.md",
+    "docs/steps/P06-tool-exposure.md",
+    "docs/steps/P07-knowledge-context.md",
+    "docs/steps/P07-readable.md",
+    "docs/steps/P08-role-review.md",
+    "docs/steps/P09-clarification-review.md",
+    "docs/steps/P10-shared-analysis-review.md",
+    "docs/steps/P11-tone-review.md",
+    "docs/steps/P12-prompt-assessment.md",
+    "docs/steps/S01-readable.md",
+    "docs/steps/S01-skill-disclosure.md",
+    "docs/steps/S02-readable.md",
+    "docs/steps/S02-skill-deduplication.md",
+    "docs/steps/S03-description-and-lifecycle-design.md",
+    "docs/steps/S03-readable.md",
+    "docs/steps/S03-skill-metadata.md",
+    "docs/steps/S04-evaluation-first.md",
+    "docs/steps/S04-readable.md",
+    "docs/steps/S05-readable.md",
+    "docs/steps/S05-skill-retention-evaluation.md",
+    "docs/steps/S06-readable.md",
+    "docs/steps/S06-skill-restoration.md",
+    "docs/steps/S07-plan.md",
+    "docs/steps/S07-readable.md",
+    "docs/steps/S07-skill-compaction.md",
+    "\"reports/eval-v1.1-20261027-001/full-cases/test_http_single_writer_close_0/\\344\\270\\255\\346\\226\\207 \\347\\251\\272\\346\\240\\274/workspace.sqlite3.writer.lock\"",
+    "\"reports/eval-v1.1-20261027-001/full-cases/test_same_database_has_one_wri0/\\344\\270\\255\\346\\226\\207 \\347\\251\\272\\346\\240\\274/workspace.sqlite3.writer.lock\"",
+    "scripts/audit_multi_compaction.py",
+    "scripts/audit_skill_compaction.py",
+    "scripts/audit_skill_disclosure.py",
+    "scripts/audit_skill_lifecycle.py",
+    "scripts/audit_state_bar.py",
+    "scripts/audit_task_input.py",
+    "scripts/check_adrian_workbench.py",
+    "scripts/create-adrian-shortcut.ps1",
+    "scripts/draw_adrian_evaluation.py",
+    "scripts/eval_adrian_memory.py",
+    "scripts/eval_memory.py",
+    "scripts/eval_secretary_prompt.py",
+    "scripts/eval_skill_disclosure.py",
+    "scripts/eval_skill_retention.py",
+    "scripts/eval_tool_exposure.py",
+    "scripts/evaluate-adrian.cmd",
+    "scripts/night-adrian.cmd",
+    "scripts/run_adrian_frozen_eval.py",
+    "scripts/start-adrian.cmd",
+    "scripts/verify_adrian_memory.py",
+    "src/min_agent/evaluation/__init__.py",
+    "src/min_agent/evaluation/__main__.py",
+    "src/min_agent/evaluation/_windows_job.py",
+    "src/min_agent/evaluation/codex_adapter.py",
+    "src/min_agent/evaluation/contracts.py",
+    "src/min_agent/evaluation/finance.py",
+    "src/min_agent/evaluation/improvement.py",
+    "src/min_agent/evaluation/journal.py",
+    "src/min_agent/evaluation/night.py",
+    "src/min_agent/evaluation/night_cli.py",
+    "src/min_agent/evaluation/night_executor.py",
+    "src/min_agent/evaluation/processes.py",
+    "src/min_agent/evaluation/review.py",
+    "src/min_agent/evaluation/runner.py",
+    "src/min_agent/evaluation/suites.py",
+    "src/min_agent/evaluation/verifier.py",
+    "src/min_agent/evaluation/worker.py",
+    "src/min_agent/long_memory/__init__.py",
+    "src/min_agent/long_memory/delivery.py",
+    "src/min_agent/long_memory/delivery_support.py",
+    "src/min_agent/long_memory/evaluation.py",
+    "src/min_agent/long_memory/integration.py",
+    "src/min_agent/long_memory/models.py",
+    "src/min_agent/long_memory/retrieval.py",
+    "src/min_agent/long_memory/selection.py",
+    "src/min_agent/long_memory/store.py",
+    "src/min_agent/model_context.py",
+    "src/min_agent/skill_retention.py",
+    "src/min_agent/state_bar.py",
+    "src/min_agent/web/launcher.py",
+    "tests/fakes/adrian_ui_server.py",
+    "tests/integration/test_adrian_launch_process.py",
+    "tests/integration/test_adrian_memory_wiring.py",
+    "tests/integration/test_evaluation_cleanup.py",
+    "tests/integration/test_evaluation_v1.py",
+    "tests/integration/test_long_memory_runtime.py",
+    "tests/integration/test_model_context_runtime.py",
+    "tests/integration/test_multi_compaction_regression.py",
+    "tests/integration/test_state_bar.py",
+    "tests/integration/test_task_input_coverage.py",
+    "tests/unit/test_adaptive_output.py",
+    "tests/unit/test_adrian_evidence_delivery.py",
+    "tests/unit/test_adrian_launcher.py",
+    "tests/unit/test_adrian_memory_eval.py",
+    "tests/unit/test_codex_night_adapter.py",
+    "tests/unit/test_evaluation_live_boundary.py",
+    "tests/unit/test_evaluation_processes.py",
+    "tests/unit/test_evaluation_verifier.py",
+    "tests/unit/test_long_memory_retrieval.py",
+    "tests/unit/test_long_memory_safety.py",
+    "tests/unit/test_long_memory_selection.py",
+    "tests/unit/test_long_memory_store.py",
+    "tests/unit/test_memory_erasure_transactions.py",
+    "tests/unit/test_memory_evaluation.py",
+    "tests/unit/test_model_context.py",
+    "tests/unit/test_night_mode.py",
+    "tests/unit/test_skill_compaction.py",
+    "tests/unit/test_skill_context.py",
+    "tests/unit/test_skill_disclosure_eval.py",
+    "tests/unit/test_skill_metadata.py",
+    "tests/unit/test_skill_retention_eval.py",
+    "tests/unit/test_tool_exposure_eval.py"
+  ],
+  "remote_only_files_to_preserve": [],
+  "note": "git diff不统计尚未跟踪的本地新增；此核验逐个读取真实本地文件后再比较。"
+}

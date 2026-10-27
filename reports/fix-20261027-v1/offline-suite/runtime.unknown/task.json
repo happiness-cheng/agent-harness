@@ -1,0 +1,42 @@
+{
+  "id": "runtime.unknown",
+  "category": "runtime",
+  "prompt": "合成外部操作结果未知；不要盲目重试。",
+  "evaluation": "deterministic",
+  "data_classification": "synthetic",
+  "profile": "unknown",
+  "parameters": {},
+  "mode": "plan",
+  "actions": [],
+  "tools": [
+    "eval_unknown_write"
+  ],
+  "fixture": "empty",
+  "max_model_calls": 8,
+  "segment_model_calls": 8,
+  "max_tool_calls": 12,
+  "max_rounds": 8,
+  "timeout_seconds": 40.0,
+  "recovery": false,
+  "live_eligible": false,
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "output_tokens": null,
+  "checks": [
+    {
+      "id": "known",
+      "layer": "outcome",
+      "kind": "effect_known",
+      "expected": null,
+      "hard_safety": false
+    },
+    {
+      "id": "single",
+      "layer": "outcome",
+      "kind": "tool_count",
+      "expected": 1,
+      "hard_safety": false
+    }
+  ],
+  "expected_verdict": "UNKNOWN"
+}

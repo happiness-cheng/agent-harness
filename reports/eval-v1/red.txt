@@ -1,0 +1,164 @@
+FFFFFFFFFFFFF                                                            [100%]
+================================== FAILURES ===================================
+______ test_real_harness_task_and_false_success_have_different_verdicts _______
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-1/test_real_harness_task_and_fal0')
+
+    def test_real_harness_task_and_false_success_have_different_verdicts(tmp_path):
+>       from min_agent.evaluation.runner import run_task
+E       ModuleNotFoundError: No module named 'min_agent.evaluation'
+
+tests\integration\test_evaluation_v1.py:9: ModuleNotFoundError
+____ test_five_categories_share_contract_and_expected_rejections_are_real _____
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-1/test_five_categories_share_con0')
+
+    def test_five_categories_share_contract_and_expected_rejections_are_real(tmp_path):
+>       from min_agent.evaluation.runner import run_task
+E       ModuleNotFoundError: No module named 'min_agent.evaluation'
+
+tests\integration\test_evaluation_v1.py:23: ModuleNotFoundError
+_____ test_timeout_is_unknown_not_success_and_cannot_reuse_run_directory ______
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-1/test_timeout_is_unknown_not_su0')
+
+    def test_timeout_is_unknown_not_success_and_cannot_reuse_run_directory(tmp_path):
+>       from min_agent.evaluation.runner import run_task
+E       ModuleNotFoundError: No module named 'min_agent.evaluation'
+
+tests\integration\test_evaluation_v1.py:34: ModuleNotFoundError
+_ test_unconfirmed_revoked_foreign_memory_and_cross_session_sources_do_not_leak _
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-1/test_unconfirmed_revoked_forei0')
+
+    def test_unconfirmed_revoked_foreign_memory_and_cross_session_sources_do_not_leak(tmp_path):
+>       from min_agent.evaluation.runner import run_task
+E       ModuleNotFoundError: No module named 'min_agent.evaluation'
+
+tests\integration\test_evaluation_v1.py:43: ModuleNotFoundError
+___________ test_comparison_refuses_different_acceptance_standards ____________
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-1/test_comparison_refuses_differ0')
+
+    def test_comparison_refuses_different_acceptance_standards(tmp_path):
+>       from min_agent.evaluation.runner import run_task,compare_results
+E       ModuleNotFoundError: No module named 'min_agent.evaluation'
+
+tests\integration\test_evaluation_v1.py:51: ModuleNotFoundError
+_________________ test_missing_actual_observation_is_unknown __________________
+
+    def test_missing_actual_observation_is_unknown():
+>       from min_agent.evaluation.contracts import TaskSpec,CheckSpec
+E       ModuleNotFoundError: No module named 'min_agent.evaluation'
+
+tests\unit\test_evaluation_verifier.py:12: ModuleNotFoundError
+________ test_hard_safety_failure_cannot_be_cancelled_by_outcome_pass _________
+
+    def test_hard_safety_failure_cannot_be_cancelled_by_outcome_pass():
+>       from min_agent.evaluation.contracts import TaskSpec,CheckSpec
+E       ModuleNotFoundError: No module named 'min_agent.evaluation'
+
+tests\unit\test_evaluation_verifier.py:20: ModuleNotFoundError
+____________ test_valid_reference_does_not_prove_semantic_support _____________
+
+    def test_valid_reference_does_not_prove_semantic_support():
+>       from min_agent.evaluation.contracts import TaskSpec,CheckSpec
+E       ModuleNotFoundError: No module named 'min_agent.evaluation'
+
+tests\unit\test_evaluation_verifier.py:28: ModuleNotFoundError
+______ test_budget_violation_is_hard_failure_and_false_claim_is_detected ______
+
+    def test_budget_violation_is_hard_failure_and_false_claim_is_detected():
+>       from min_agent.evaluation.contracts import TaskSpec,CheckSpec
+E       ModuleNotFoundError: No module named 'min_agent.evaluation'
+
+tests\unit\test_evaluation_verifier.py:36: ModuleNotFoundError
+_________ test_repair_candidate_rejects_paths_code_and_standard_edits _________
+
+    def test_repair_candidate_rejects_paths_code_and_standard_edits():
+>       from min_agent.evaluation.improvement import render_candidate
+E       ModuleNotFoundError: No module named 'min_agent.evaluation'
+
+tests\unit\test_evaluation_verifier.py:45: ModuleNotFoundError
+_____________ test_adaptive_output_uses_model_cap_instead_of_4096 _____________
+
+    def test_adaptive_output_uses_model_cap_instead_of_4096():
+        from min_agent.model_context import output_reserve
+>       with model_fixture() as model:
+             ^^^^^^^^^^^^^^^
+
+tests\unit\test_adaptive_output.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+window = 1048576, output = 393216
+
+    def model_fixture(window=1048576,output=393216):
+>       return DeepSeekResponsesModel(DeepSeekSettings(api_key='synthetic-adaptive-token',max_output_tokens=None),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            transport=httpx.MockTransport(lambda request:httpx.Response(200,json={'data':[{
+                'id':'deepseek-flash','context_window':window,'max_output_tokens':output}]})))
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for DeepSeekSettings
+E       max_output_tokens
+E         Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+E           For further information visit https://errors.pydantic.dev/2.14/v/int_type
+
+tests\unit\test_adaptive_output.py:10: ValidationError
+________ test_adaptive_output_shrinks_only_for_actual_context_headroom ________
+
+    def test_adaptive_output_shrinks_only_for_actual_context_headroom():
+>       with model_fixture(window=50000,output=40000) as model:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_adaptive_output.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+window = 50000, output = 40000
+
+    def model_fixture(window=1048576,output=393216):
+>       return DeepSeekResponsesModel(DeepSeekSettings(api_key='synthetic-adaptive-token',max_output_tokens=None),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            transport=httpx.MockTransport(lambda request:httpx.Response(200,json={'data':[{
+                'id':'deepseek-flash','context_window':window,'max_output_tokens':output}]})))
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for DeepSeekSettings
+E       max_output_tokens
+E         Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+E           For further information visit https://errors.pydantic.dev/2.14/v/int_type
+
+tests\unit\test_adaptive_output.py:10: ValidationError
+_ test_over_window_does_not_send_generation_and_explicit_output_is_respected __
+
+    def test_over_window_does_not_send_generation_and_explicit_output_is_respected():
+>       with model_fixture(window=20000,output=10000) as model:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\unit\test_adaptive_output.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+window = 20000, output = 10000
+
+    def model_fixture(window=1048576,output=393216):
+>       return DeepSeekResponsesModel(DeepSeekSettings(api_key='synthetic-adaptive-token',max_output_tokens=None),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            transport=httpx.MockTransport(lambda request:httpx.Response(200,json={'data':[{
+                'id':'deepseek-flash','context_window':window,'max_output_tokens':output}]})))
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for DeepSeekSettings
+E       max_output_tokens
+E         Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+E           For further information visit https://errors.pydantic.dev/2.14/v/int_type
+
+tests\unit\test_adaptive_output.py:10: ValidationError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_evaluation_v1.py::test_real_harness_task_and_false_success_have_different_verdicts
+FAILED tests/integration/test_evaluation_v1.py::test_five_categories_share_contract_and_expected_rejections_are_real
+FAILED tests/integration/test_evaluation_v1.py::test_timeout_is_unknown_not_success_and_cannot_reuse_run_directory
+FAILED tests/integration/test_evaluation_v1.py::test_unconfirmed_revoked_foreign_memory_and_cross_session_sources_do_not_leak
+FAILED tests/integration/test_evaluation_v1.py::test_comparison_refuses_different_acceptance_standards
+FAILED tests/unit/test_evaluation_verifier.py::test_missing_actual_observation_is_unknown
+FAILED tests/unit/test_evaluation_verifier.py::test_hard_safety_failure_cannot_be_cancelled_by_outcome_pass
+FAILED tests/unit/test_evaluation_verifier.py::test_valid_reference_does_not_prove_semantic_support
+FAILED tests/unit/test_evaluation_verifier.py::test_budget_violation_is_hard_failure_and_false_claim_is_detected
+FAILED tests/unit/test_evaluation_verifier.py::test_repair_candidate_rejects_paths_code_and_standard_edits
+FAILED tests/unit/test_adaptive_output.py::test_adaptive_output_uses_model_cap_instead_of_4096
+FAILED tests/unit/test_adaptive_output.py::test_adaptive_output_shrinks_only_for_actual_context_headroom
+FAILED tests/unit/test_adaptive_output.py::test_over_window_does_not_send_generation_and_explicit_output_is_respected
+13 failed in 1.49s

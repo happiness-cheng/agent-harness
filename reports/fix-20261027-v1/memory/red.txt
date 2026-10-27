@@ -1,0 +1,36 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_explicit_source_read_and_structured_recall_are_not_silently_head_truncated _
+
+tmp_path = WindowsPath('C:/Users/陈独秀/AppData/Local/Temp/pytest-of-陈独秀/pytest-27/test_explicit_source_read_and_0')
+
+    def test_explicit_source_read_and_structured_recall_are_not_silently_head_truncated(tmp_path):
+        model = None
+        harness = HarnessApplication(tmp_path / "long-source.sqlite3", model_factory=lambda context: model)
+        try:
+            identity = harness.create_session()["session_id"]; context = harness.context(identity)
+            text = "周报：" + "background " * 220 + "不要删除原文"
+            task = harness.sessions.begin(context)
+            harness.sessions.append(context, task.task_id, [
+                Message(role="user", content=text), Message(role="assistant", content="已了解"),
+            ])
+            harness.sessions.finish(context, task.task_id, status="completed")
+            source = MemoryJournal(harness.sessions, context).select("周报")[0]["events"][0]["source"]
+            model = ScriptedModel([
+                ModelResponse(finish_reason="tool_calls", tool_calls=[
+                    ToolCall(id="source-long", name="read_memory_source", arguments={"reference": source}),
+                    ToolCall(id="past", name="recall_memory", arguments={"question": "周报"}),
+                ]),
+                ModelResponse(finish_reason="stop", content="已核对原文中的否定要求"),
+            ])
+            harness.submit(identity, "请补读完整原要求"); harness.wait(identity)
+>           assert harness.snapshot(identity)["task"]["status"] == "completed"
+E           AssertionError: assert 'partial' == 'completed'
+E             
+E             - completed
+E             + partial
+
+tests\integration\test_memory_tools.py:60: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration/test_memory_tools.py::test_explicit_source_read_and_structured_recall_are_not_silently_head_truncated
+1 failed in 2.80s

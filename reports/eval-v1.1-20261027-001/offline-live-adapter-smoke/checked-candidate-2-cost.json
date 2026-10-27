@@ -1,0 +1,62 @@
+{
+  "limit": 0.25,
+  "spent_upper": 0.00075,
+  "reservations": {},
+  "events": [
+    {
+      "event": "reserved_before_generation",
+      "ticket": "6f7950d28e0b437f8172927e54445ee5",
+      "usd_upper": 0.016396
+    },
+    {
+      "event": "settled_usage_upper",
+      "ticket": "6f7950d28e0b437f8172927e54445ee5",
+      "usd_upper": 0.00015
+    },
+    {
+      "event": "reserved_before_generation",
+      "ticket": "306e4402e9894b3599f951cd2eddd6b4",
+      "usd_upper": 0.011217
+    },
+    {
+      "event": "settled_usage_upper",
+      "ticket": "306e4402e9894b3599f951cd2eddd6b4",
+      "usd_upper": 0.00015
+    },
+    {
+      "event": "reserved_before_generation",
+      "ticket": "62db267706db4546b6d87520b26fedfc",
+      "usd_upper": 0.011358
+    },
+    {
+      "event": "settled_usage_upper",
+      "ticket": "62db267706db4546b6d87520b26fedfc",
+      "usd_upper": 0.00015
+    },
+    {
+      "event": "reserved_before_generation",
+      "ticket": "2e31d851d3044d2e9409813c33b99c11",
+      "usd_upper": 0.011265
+    },
+    {
+      "event": "settled_usage_upper",
+      "ticket": "2e31d851d3044d2e9409813c33b99c11",
+      "usd_upper": 0.00015
+    },
+    {
+      "event": "reserved_before_generation",
+      "ticket": "5cf33e9929914133b8e5ec8ea519a33c",
+      "usd_upper": 0.016711
+    },
+    {
+      "event": "settled_usage_upper",
+      "ticket": "5cf33e9929914133b8e5ec8ea519a33c",
+      "usd_upper": 0.00015
+    }
+  ],
+  "input_rate": 0.3,
+  "output_rate": 1.2,
+  "currency": "USD",
+  "rate_source": "configured_peak_rates_2026-10-26",
+  "breach": false
+}

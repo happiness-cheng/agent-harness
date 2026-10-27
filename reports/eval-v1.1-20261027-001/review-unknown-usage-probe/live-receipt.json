@@ -1,0 +1,14 @@
+{
+  "backend": "MOCK_TRANSPORT_FROZEN_IO",
+  "variant": "candidate",
+  "case": "psf-archived-excerpt",
+  "verdict": "PASS",
+  "mechanical_observer_verdict": "PASS",
+  "provider_errors": [],
+  "generation_requests": 0,
+  "adapter_attempts": 5,
+  "usage": [],
+  "criteria_changed": false,
+  "observer_note": "只校正来源与计数元数据；机械评分来自原冻结观察器。",
+  "new_model_decision_tested": false
+}

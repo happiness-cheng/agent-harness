@@ -1,0 +1,39 @@
+{
+  "results": {
+    "tools.add": "PASS",
+    "tools.update": "PASS",
+    "tools.false_success": "FAIL",
+    "runtime.calc": "PASS",
+    "runtime.subtract": "PASS",
+    "runtime.multiply": "PASS",
+    "runtime.budget": "PASS",
+    "runtime.recover": "PASS",
+    "runtime.timeout": "UNKNOWN",
+    "runtime.unknown": "UNKNOWN",
+    "memory.recall": "PASS",
+    "memory.retracted": "PASS",
+    "memory.foreign": "PASS",
+    "research.conflict": "PASS",
+    "research.bad_quote": "FAIL",
+    "research.semantic": "UNKNOWN",
+    "security.plan": "PASS",
+    "security.cross_session": "PASS",
+    "security.injection": "PASS",
+    "security.arguments": "PASS"
+  },
+  "counts": {
+    "PASS": 15,
+    "FAIL": 2,
+    "UNKNOWN": 3
+  },
+  "expected_outcomes_match": true,
+  "model_invocations": 50,
+  "generation_requests": 0,
+  "stopped": null,
+  "not_run": [],
+  "usage_cost": {
+    "status": "OFFLINE_ZERO_EXTERNAL_CALLS",
+    "invoice_usd": 0
+  },
+  "note": "SCRIPTED结果验证工程机制，不是模型自主能力成绩；含故意失败/UNKNOWN案例，不能用全PASS比例衡量。"
+}

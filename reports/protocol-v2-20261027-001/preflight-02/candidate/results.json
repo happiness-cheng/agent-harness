@@ -1,0 +1,1064 @@
+[
+  {
+    "variant": "candidate",
+    "task_id": "v2.normal.psf",
+    "group": "normal",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "6edd2f03232fe22ff5bda7f32f47ec729e78434f4436352e13cc77bcf0c3b3a1",
+    "task_outcome": "PASS",
+    "hypothesis_reachability": {
+      "value": "REACHED",
+      "dispatch": 2,
+      "remaining": {
+        "tool_calls": 1,
+        "model_calls": 4
+      },
+      "read_tool_exposed": true,
+      "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "completed",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": [
+          {
+            "document_id": "psf",
+            "title": "PSF使命公开历史片段",
+            "locator": "https://fixtures.example/archive/psf",
+            "nature": "public_archive_excerpt",
+            "coverage": "仅保存公开网页的历史短片段，非全文，未实时更新",
+            "origin_url": "https://www.python.org/"
+          }
+        ]
+      },
+      "session_artifacts": [],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 5,
+      "tool_calls": 3,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        },
+        "research": {
+          "model_calls": 3,
+          "tool_calls": 2
+        }
+      }
+    },
+    "actual_read": true,
+    "evidence": {
+      "conclusion": "The mission of the Python Software Foundation is to promote, protect",
+      "citations": [
+        {
+          "url": "https://fixtures.example/archive/psf",
+          "artifact_id": "623ec7fa-8e9e-4b84-9b9d-9b96801bad0a",
+          "start": 0,
+          "end": 68,
+          "quote": "The mission of the Python Software Foundation is to promote, protect",
+          "offset_normalized": false
+        }
+      ],
+      "limitations": [
+        "仅依据受控资料，历史片段不代表全文或最新版本。"
+      ],
+      "conflicts": [],
+      "uncertainties": [],
+      "next_queries": []
+    },
+    "final": "{\"status\": \"completed\", \"evidence\": {\"conclusion\": \"The mission of the Python Software Foundation is to promote, protect\", \"citations\": [{\"url\": \"https://fixtures.example/archive/psf\", \"artifact_id\": \"623ec7fa-8e9e-4b84-9b9d-9b96801bad0a\", \"start\": 0, \"end\": 68, \"quote\": \"The mission of the Python Software Foundation is to promote, protect\", \"offset_normalized\": false}], \"limitations\": [\"仅依据受控资料，历史片段不代表全文或最新版本。\"], \"conflicts\": [], \"uncertainties\": [], \"next_queries\": []}, \"error\": null}",
+    "owner_id": "d671ccef-5086-4023-a629-c9aa94075eb1",
+    "session_id": "868eeb99-bbd1-4ec5-af49-1aff0a5f4b31",
+    "artifact_count": 1,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 5,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.normal.warranty",
+    "group": "normal",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "e0e4ca778ff025d2db946f98736d752be125e61bbf7e05f38987626c5092f926",
+    "task_outcome": "PASS",
+    "hypothesis_reachability": {
+      "value": "REACHED",
+      "dispatch": 2,
+      "remaining": {
+        "tool_calls": 1,
+        "model_calls": 4
+      },
+      "read_tool_exposed": true,
+      "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "completed",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": [
+          {
+            "document_id": "warranty",
+            "title": "合成产品保修政策",
+            "locator": "https://fixtures.example/warranty",
+            "nature": "synthetic_document",
+            "coverage": "完整合成测试条款，不代表真实产品政策",
+            "origin_url": ""
+          }
+        ]
+      },
+      "session_artifacts": [],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 5,
+      "tool_calls": 3,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        },
+        "research": {
+          "model_calls": 3,
+          "tool_calls": 2
+        }
+      }
+    },
+    "actual_read": true,
+    "evidence": {
+      "conclusion": "合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。",
+      "citations": [
+        {
+          "url": "https://fixtures.example/warranty",
+          "artifact_id": "f484f7ea-650c-4d5d-911e-f690133c370d",
+          "start": 0,
+          "end": 30,
+          "quote": "合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。",
+          "offset_normalized": false
+        }
+      ],
+      "limitations": [
+        "仅依据受控资料，历史片段不代表全文或最新版本。"
+      ],
+      "conflicts": [],
+      "uncertainties": [],
+      "next_queries": []
+    },
+    "final": "{\"status\": \"completed\", \"evidence\": {\"conclusion\": \"合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。\", \"citations\": [{\"url\": \"https://fixtures.example/warranty\", \"artifact_id\": \"f484f7ea-650c-4d5d-911e-f690133c370d\", \"start\": 0, \"end\": 30, \"quote\": \"合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。\", \"offset_normalized\": false}], \"limitations\": [\"仅依据受控资料，历史片段不代表全文或最新版本。\"], \"conflicts\": [], \"uncertainties\": [], \"next_queries\": []}, \"error\": null}",
+    "owner_id": "6f6a03a8-d4ab-4118-9c49-78711a01b2e6",
+    "session_id": "0f2c5b4a-b08f-4c2b-936c-cc6c64a2e442",
+    "artifact_count": 1,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 5,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.normal.api",
+    "group": "normal",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "60bd8b85480fc1ccc7a6c83c66ea102ade29cd7a81121afab5d3323eadfe8324",
+    "task_outcome": "PASS",
+    "hypothesis_reachability": {
+      "value": "REACHED",
+      "dispatch": 2,
+      "remaining": {
+        "tool_calls": 1,
+        "model_calls": 4
+      },
+      "read_tool_exposed": true,
+      "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "completed",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": [
+          {
+            "document_id": "api",
+            "title": "合成API调用规则",
+            "locator": "https://fixtures.example/api",
+            "nature": "synthetic_document",
+            "coverage": "完整合成测试文档，不代表真实服务契约",
+            "origin_url": ""
+          }
+        ]
+      },
+      "session_artifacts": [],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 5,
+      "tool_calls": 3,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        },
+        "research": {
+          "model_calls": 3,
+          "tool_calls": 2
+        }
+      }
+    },
+    "actual_read": true,
+    "evidence": {
+      "conclusion": "合成API规则：单次请求超时为12秒；仅允许重试一次，超时不代表服务端操作已撤销。",
+      "citations": [
+        {
+          "url": "https://fixtures.example/api",
+          "artifact_id": "794c67c3-c2ff-43d4-a202-86fcee7ca274",
+          "start": 0,
+          "end": 41,
+          "quote": "合成API规则：单次请求超时为12秒；仅允许重试一次，超时不代表服务端操作已撤销。",
+          "offset_normalized": false
+        }
+      ],
+      "limitations": [
+        "仅依据受控资料，历史片段不代表全文或最新版本。"
+      ],
+      "conflicts": [],
+      "uncertainties": [],
+      "next_queries": []
+    },
+    "final": "{\"status\": \"completed\", \"evidence\": {\"conclusion\": \"合成API规则：单次请求超时为12秒；仅允许重试一次，超时不代表服务端操作已撤销。\", \"citations\": [{\"url\": \"https://fixtures.example/api\", \"artifact_id\": \"794c67c3-c2ff-43d4-a202-86fcee7ca274\", \"start\": 0, \"end\": 41, \"quote\": \"合成API规则：单次请求超时为12秒；仅允许重试一次，超时不代表服务端操作已撤销。\", \"offset_normalized\": false}], \"limitations\": [\"仅依据受控资料，历史片段不代表全文或最新版本。\"], \"conflicts\": [], \"uncertainties\": [], \"next_queries\": []}, \"error\": null}",
+    "owner_id": "58538aaa-ab13-4b5e-92b6-e10719184917",
+    "session_id": "51409183-0b96-4c0f-8373-c51307250cba",
+    "artifact_count": 1,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 5,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.diagnostic.psf",
+    "group": "diagnostic",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "2e996551b2541a9bde521b80ed517690d94996e28bb49038d5a5440babc50cc6",
+    "task_outcome": "PASS",
+    "hypothesis_reachability": {
+      "value": "REACHED",
+      "dispatch": 2,
+      "remaining": {
+        "tool_calls": 1,
+        "model_calls": 4
+      },
+      "read_tool_exposed": true,
+      "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "completed",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": [
+          {
+            "document_id": "psf",
+            "title": "PSF使命公开历史片段",
+            "locator": "https://fixtures.example/archive/psf",
+            "nature": "public_archive_excerpt",
+            "coverage": "仅保存公开网页的历史短片段，非全文，未实时更新",
+            "origin_url": "https://www.python.org/"
+          }
+        ]
+      },
+      "session_artifacts": [],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 5,
+      "tool_calls": 3,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        },
+        "research": {
+          "model_calls": 3,
+          "tool_calls": 2
+        }
+      }
+    },
+    "actual_read": true,
+    "evidence": {
+      "conclusion": "The mission of the Python Software Foundation is to promote, protect",
+      "citations": [
+        {
+          "url": "https://fixtures.example/archive/psf",
+          "artifact_id": "73fab3ef-0591-4482-ba64-5f0383a858ed",
+          "start": 0,
+          "end": 68,
+          "quote": "The mission of the Python Software Foundation is to promote, protect",
+          "offset_normalized": false
+        }
+      ],
+      "limitations": [
+        "仅依据受控资料，历史片段不代表全文或最新版本。"
+      ],
+      "conflicts": [],
+      "uncertainties": [],
+      "next_queries": []
+    },
+    "final": "{\"status\": \"completed\", \"evidence\": {\"conclusion\": \"The mission of the Python Software Foundation is to promote, protect\", \"citations\": [{\"url\": \"https://fixtures.example/archive/psf\", \"artifact_id\": \"73fab3ef-0591-4482-ba64-5f0383a858ed\", \"start\": 0, \"end\": 68, \"quote\": \"The mission of the Python Software Foundation is to promote, protect\", \"offset_normalized\": false}], \"limitations\": [\"仅依据受控资料，历史片段不代表全文或最新版本。\"], \"conflicts\": [], \"uncertainties\": [], \"next_queries\": []}, \"error\": null}",
+    "owner_id": "07560989-84da-476f-9569-8da1b13a474a",
+    "session_id": "48be5255-8d64-43ee-8c7f-8474e8734abe",
+    "artifact_count": 1,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 5,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.diagnostic.warranty",
+    "group": "diagnostic",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "7595d386893f6b7d8a1c48ac85880adeae3d2e04d3c55d0527f9a5ea413bb089",
+    "task_outcome": "PASS",
+    "hypothesis_reachability": {
+      "value": "REACHED",
+      "dispatch": 2,
+      "remaining": {
+        "tool_calls": 1,
+        "model_calls": 4
+      },
+      "read_tool_exposed": true,
+      "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "completed",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": [
+          {
+            "document_id": "warranty",
+            "title": "合成产品保修政策",
+            "locator": "https://fixtures.example/warranty",
+            "nature": "synthetic_document",
+            "coverage": "完整合成测试条款，不代表真实产品政策",
+            "origin_url": ""
+          }
+        ]
+      },
+      "session_artifacts": [],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 5,
+      "tool_calls": 3,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        },
+        "research": {
+          "model_calls": 3,
+          "tool_calls": 2
+        }
+      }
+    },
+    "actual_read": true,
+    "evidence": {
+      "conclusion": "合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。",
+      "citations": [
+        {
+          "url": "https://fixtures.example/warranty",
+          "artifact_id": "096bd2b5-e564-42ce-8478-d8be71efa884",
+          "start": 0,
+          "end": 30,
+          "quote": "合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。",
+          "offset_normalized": false
+        }
+      ],
+      "limitations": [
+        "仅依据受控资料，历史片段不代表全文或最新版本。"
+      ],
+      "conflicts": [],
+      "uncertainties": [],
+      "next_queries": []
+    },
+    "final": "{\"status\": \"completed\", \"evidence\": {\"conclusion\": \"合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。\", \"citations\": [{\"url\": \"https://fixtures.example/warranty\", \"artifact_id\": \"096bd2b5-e564-42ce-8478-d8be71efa884\", \"start\": 0, \"end\": 30, \"quote\": \"合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。\", \"offset_normalized\": false}], \"limitations\": [\"仅依据受控资料，历史片段不代表全文或最新版本。\"], \"conflicts\": [], \"uncertainties\": [], \"next_queries\": []}, \"error\": null}",
+    "owner_id": "dfa9e777-8160-4ec2-9b8d-b85a1823a0c0",
+    "session_id": "bd2f3000-e68d-45eb-8c9c-b80a1d58cc77",
+    "artifact_count": 1,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 5,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.diagnostic.api",
+    "group": "diagnostic",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "323a6e47cd3e045dc4c9a31a115a50031e0c26fa580737a54ad3cdb7fc01bac8",
+    "task_outcome": "PASS",
+    "hypothesis_reachability": {
+      "value": "REACHED",
+      "dispatch": 2,
+      "remaining": {
+        "tool_calls": 1,
+        "model_calls": 4
+      },
+      "read_tool_exposed": true,
+      "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "completed",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": [
+          {
+            "document_id": "api",
+            "title": "合成API调用规则",
+            "locator": "https://fixtures.example/api",
+            "nature": "synthetic_document",
+            "coverage": "完整合成测试文档，不代表真实服务契约",
+            "origin_url": ""
+          }
+        ]
+      },
+      "session_artifacts": [],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 5,
+      "tool_calls": 3,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        },
+        "research": {
+          "model_calls": 3,
+          "tool_calls": 2
+        }
+      }
+    },
+    "actual_read": true,
+    "evidence": {
+      "conclusion": "合成API规则：单次请求超时为12秒；仅允许重试一次，超时不代表服务端操作已撤销。",
+      "citations": [
+        {
+          "url": "https://fixtures.example/api",
+          "artifact_id": "61dbac9e-123e-451d-827c-cbce94d7a1b2",
+          "start": 0,
+          "end": 41,
+          "quote": "合成API规则：单次请求超时为12秒；仅允许重试一次，超时不代表服务端操作已撤销。",
+          "offset_normalized": false
+        }
+      ],
+      "limitations": [
+        "仅依据受控资料，历史片段不代表全文或最新版本。"
+      ],
+      "conflicts": [],
+      "uncertainties": [],
+      "next_queries": []
+    },
+    "final": "{\"status\": \"completed\", \"evidence\": {\"conclusion\": \"合成API规则：单次请求超时为12秒；仅允许重试一次，超时不代表服务端操作已撤销。\", \"citations\": [{\"url\": \"https://fixtures.example/api\", \"artifact_id\": \"61dbac9e-123e-451d-827c-cbce94d7a1b2\", \"start\": 0, \"end\": 41, \"quote\": \"合成API规则：单次请求超时为12秒；仅允许重试一次，超时不代表服务端操作已撤销。\", \"offset_normalized\": false}], \"limitations\": [\"仅依据受控资料，历史片段不代表全文或最新版本。\"], \"conflicts\": [], \"uncertainties\": [], \"next_queries\": []}, \"error\": null}",
+    "owner_id": "f0dcfca7-580c-4c33-b46e-7a46c43ea632",
+    "session_id": "e745e938-0d39-4ded-8845-4adba128a708",
+    "artifact_count": 1,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 5,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.normal.absent",
+    "group": "negative",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "9a283b705c2471be2a05a6cb232d3b7793c852f3fdedaaf6034e36c1d1ae289e",
+    "task_outcome": "PASS",
+    "hypothesis_reachability": {
+      "value": "NOT_REACHED"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "completed",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": []
+      },
+      "session_artifacts": [],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 1,
+      "tool_calls": 0,
+      "by_purpose": {
+        "main": {
+          "model_calls": 1,
+          "tool_calls": 0
+        }
+      }
+    },
+    "actual_read": false,
+    "evidence": null,
+    "final": "{\"status\": \"materials_unavailable\", \"message\": \"当前未提供所需材料，请提供原文或可访问的定位。\"}",
+    "owner_id": "68a06a2e-684e-4e97-ae9d-70ee7dcc0010",
+    "session_id": "80e8a1d8-6932-40fa-b020-d780b9edf820",
+    "artifact_count": 0,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 1,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.normal.session-attachment",
+    "group": "session_control",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "07bd7dc51387d6d51a0b94ab39368d01c125ed7e86dd783a0f4380370e75a3c6",
+    "task_outcome": "PASS",
+    "hypothesis_reachability": {
+      "value": "NOT_REACHED"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "completed",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": []
+      },
+      "session_artifacts": [
+        {
+          "artifact_id": "90840248-3ac9-4e2d-8fac-95f0e12ea760",
+          "source": "https://fixtures.example/warranty",
+          "kind": "attachment"
+        }
+      ],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 2,
+      "tool_calls": 1,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        }
+      }
+    },
+    "actual_read": false,
+    "evidence": null,
+    "final": "{\"artifact_id\": \"90840248-3ac9-4e2d-8fac-95f0e12ea760\", \"source\": \"https://fixtures.example/warranty\", \"start\": 0, \"end\": 30, \"text\": \"合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。\", \"total_characters\": 30, \"truncated\": false, \"sha256\": \"cfd0d7ed0a29d3cc3c30399111826c98b78597320505df8200e85e47a6e1d9c9\"}",
+    "owner_id": "c364ace2-1f2d-4b03-9328-2e8dbbc36801",
+    "session_id": "c332eb44-ec30-4c38-ba95-325f7f00407c",
+    "artifact_count": 1,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 2,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.diagnostic.stop-after-search",
+    "group": "reach_control",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "62089bcdc44be5b4172398e00044d82f84a500c24896ce12c0d6fa368c40bd9a",
+    "task_outcome": "FAIL",
+    "hypothesis_reachability": {
+      "value": "REACHED",
+      "dispatch": 2,
+      "remaining": {
+        "tool_calls": 1,
+        "model_calls": 4
+      },
+      "read_tool_exposed": true,
+      "basis": "actual bound BudgetRecord after current dispatch debit, successful search, no read"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "completed",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": [
+          {
+            "document_id": "warranty",
+            "title": "合成产品保修政策",
+            "locator": "https://fixtures.example/warranty",
+            "nature": "synthetic_document",
+            "coverage": "完整合成测试条款，不代表真实产品政策",
+            "origin_url": ""
+          }
+        ]
+      },
+      "session_artifacts": [],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 4,
+      "tool_calls": 2,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        },
+        "research": {
+          "model_calls": 2,
+          "tool_calls": 1
+        }
+      }
+    },
+    "actual_read": false,
+    "evidence": {
+      "conclusion": "未读取原文，不能确认。",
+      "citations": [],
+      "limitations": [
+        "仅依据受控资料，历史片段不代表全文或最新版本。"
+      ],
+      "conflicts": [],
+      "uncertainties": [],
+      "next_queries": []
+    },
+    "final": "{\"status\": \"completed\", \"evidence\": {\"conclusion\": \"未读取原文，不能确认。\", \"citations\": [], \"limitations\": [\"仅依据受控资料，历史片段不代表全文或最新版本。\"], \"conflicts\": [], \"uncertainties\": [], \"next_queries\": []}, \"error\": null}",
+    "owner_id": "5c0acfae-237a-4822-a068-ddade8423083",
+    "session_id": "ad7973b6-eb55-499c-b9f8-13564a0571c4",
+    "artifact_count": 0,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 4,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.diagnostic.direct-read",
+    "group": "reach_control",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "1cb89056441a8b066edab4d19c9b378a4f258af59878c78198631e6123be7583",
+    "task_outcome": "PASS",
+    "hypothesis_reachability": {
+      "value": "NOT_REACHED"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "completed",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": [
+          {
+            "document_id": "warranty",
+            "title": "合成产品保修政策",
+            "locator": "https://fixtures.example/warranty",
+            "nature": "synthetic_document",
+            "coverage": "完整合成测试条款，不代表真实产品政策",
+            "origin_url": ""
+          }
+        ]
+      },
+      "session_artifacts": [],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 4,
+      "tool_calls": 2,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 1
+        },
+        "research": {
+          "model_calls": 2,
+          "tool_calls": 1
+        }
+      }
+    },
+    "actual_read": true,
+    "evidence": {
+      "conclusion": "合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。",
+      "citations": [
+        {
+          "url": "https://fixtures.example/warranty",
+          "artifact_id": "76b2b641-40e2-46de-ab3e-2ad59d3d8ba2",
+          "start": 0,
+          "end": 30,
+          "quote": "合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。",
+          "offset_normalized": false
+        }
+      ],
+      "limitations": [
+        "仅依据受控资料，历史片段不代表全文或最新版本。"
+      ],
+      "conflicts": [],
+      "uncertainties": [],
+      "next_queries": []
+    },
+    "final": "{\"status\": \"completed\", \"evidence\": {\"conclusion\": \"合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。\", \"citations\": [{\"url\": \"https://fixtures.example/warranty\", \"artifact_id\": \"76b2b641-40e2-46de-ab3e-2ad59d3d8ba2\", \"start\": 0, \"end\": 30, \"quote\": \"合成保修政策：自购买之日起18个月；进水损坏不在保修范围内。\", \"offset_normalized\": false}], \"limitations\": [\"仅依据受控资料，历史片段不代表全文或最新版本。\"], \"conflicts\": [], \"uncertainties\": [], \"next_queries\": []}, \"error\": null}",
+    "owner_id": "1f84622e-1b68-478a-91a8-b2e661dfa3ee",
+    "session_id": "3afea9ec-0035-4205-8186-74fe0d94e10e",
+    "artifact_count": 1,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 4,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.diagnostic.permission",
+    "group": "permission_control",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "88f50e4b353ac4ce8e92012e467f98f746d895b1c42f3dff43de414854a323c1",
+    "task_outcome": "FAIL",
+    "hypothesis_reachability": {
+      "value": "NOT_REACHED"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "waiting_user",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": [
+          {
+            "document_id": "warranty",
+            "title": "合成产品保修政策",
+            "locator": "https://fixtures.example/warranty",
+            "nature": "synthetic_document",
+            "coverage": "完整合成测试条款，不代表真实产品政策",
+            "origin_url": ""
+          }
+        ]
+      },
+      "session_artifacts": [],
+      "allow_public_web": false,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 1,
+      "tool_calls": 1,
+      "by_purpose": {
+        "main": {
+          "model_calls": 1,
+          "tool_calls": 1
+        }
+      }
+    },
+    "actual_read": false,
+    "evidence": null,
+    "final": "",
+    "owner_id": "470939cc-0b96-4717-b84f-86b7205175d6",
+    "session_id": "ae96e2ef-fb14-449b-a3eb-151eced7a0eb",
+    "artifact_count": 0,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 1,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.diagnostic.no-tools",
+    "group": "budget_control",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "620fa714af5273bfc34cadd82b3837de6c1e95a62fe7976daf1344753e7b20e4",
+    "task_outcome": "FAIL",
+    "hypothesis_reachability": {
+      "value": "NOT_REACHED"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "partial",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": [
+          {
+            "document_id": "warranty",
+            "title": "合成产品保修政策",
+            "locator": "https://fixtures.example/warranty",
+            "nature": "synthetic_document",
+            "coverage": "完整合成测试条款，不代表真实产品政策",
+            "origin_url": ""
+          }
+        ]
+      },
+      "session_artifacts": [],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 7,
+      "tool_calls": 0
+    },
+    "usage": {
+      "model_calls": 2,
+      "tool_calls": 0,
+      "by_purpose": {
+        "main": {
+          "model_calls": 2,
+          "tool_calls": 0
+        }
+      }
+    },
+    "actual_read": false,
+    "evidence": null,
+    "final": "",
+    "owner_id": "01418228-aaac-458a-92ec-7ddf337c4fd7",
+    "session_id": "83e6d82b-c9d3-490f-9a75-c07291124aca",
+    "artifact_count": 0,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 2,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  },
+  {
+    "variant": "candidate",
+    "task_id": "v2.diagnostic.low-models",
+    "group": "budget_control",
+    "contract_hash": "504ecefe65eb1be0f8abeee22a57d537b70b94f40f169c4c683ba7a4efa85318",
+    "task_hash": "3ddd04ead67f007311811f2b9e9322ea9c48db419f0121c3b365fdc397751d8f",
+    "task_outcome": "FAIL",
+    "hypothesis_reachability": {
+      "value": "NOT_REACHED"
+    },
+    "repair_outcome": "INCONCLUSIVE",
+    "execution_status": "partial",
+    "catalog": {
+      "controlled_collection": {
+        "collection_id": "v2-controlled-library",
+        "label": "V2受控公开片段与合成文档库",
+        "kind": "controlled_read_only_collection",
+        "availability": "当前应用生命周期内已挂载；不属于当前Session既有历史归档",
+        "access": "research的只读资料后端；仍须应用allow_public_web许可；无真实外网回退",
+        "documents": [
+          {
+            "document_id": "warranty",
+            "title": "合成产品保修政策",
+            "locator": "https://fixtures.example/warranty",
+            "nature": "synthetic_document",
+            "coverage": "完整合成测试条款，不代表真实产品政策",
+            "origin_url": ""
+          }
+        ]
+      },
+      "session_artifacts": [],
+      "allow_public_web": true,
+      "notice": "目录仅表示已登记资源；不授予权限；未列出的内部资料不代表可用。"
+    },
+    "checks": {
+      "correct_owner": true,
+      "no_business_writes": true,
+      "budget_within_limits": true,
+      "scoped_artifacts": true,
+      "bounded_context": true
+    },
+    "limits": {
+      "model_calls": 2,
+      "tool_calls": 3
+    },
+    "usage": {
+      "model_calls": 2,
+      "tool_calls": 1,
+      "by_purpose": {
+        "main": {
+          "model_calls": 1,
+          "tool_calls": 1
+        },
+        "research": {
+          "model_calls": 1,
+          "tool_calls": 0
+        }
+      }
+    },
+    "actual_read": false,
+    "evidence": {
+      "conclusion": "未读取原文，不能确认。",
+      "citations": [],
+      "limitations": [
+        "仅依据受控资料，历史片段不代表全文或最新版本。"
+      ],
+      "conflicts": [],
+      "uncertainties": [],
+      "next_queries": []
+    },
+    "final": "",
+    "owner_id": "8029ab78-172c-4805-98be-ee32c1c97024",
+    "session_id": "f59f9b64-38e1-4427-968a-b8c591d15078",
+    "artifact_count": 0,
+    "external_generation_requests": 0,
+    "local_reference_dispatches": 2,
+    "no_live_backend": "ResearchCollection is mounted via public API; no PublicFetcher/SearchService fallback"
+  }
+]

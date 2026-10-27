@@ -1,0 +1,51 @@
+{
+  "id": "tools.update",
+  "category": "tools",
+  "prompt": "将当前唯一待办改名为“已更新周报”。操作已由应用定向确认。",
+  "evaluation": "deterministic",
+  "data_classification": "synthetic",
+  "profile": "update",
+  "parameters": {},
+  "mode": "build",
+  "actions": [
+    {
+      "operation": "todo.update",
+      "parameters": {
+        "item_id": "$initial_todo_id",
+        "title": "已更新周报"
+      }
+    }
+  ],
+  "tools": [
+    "todo_list",
+    "todo_update"
+  ],
+  "fixture": "todo",
+  "max_model_calls": 8,
+  "segment_model_calls": 8,
+  "max_tool_calls": 12,
+  "max_rounds": 8,
+  "timeout_seconds": 40.0,
+  "recovery": false,
+  "live_eligible": false,
+  "model": "deepseek-flash",
+  "reasoning_effort": "high",
+  "output_tokens": null,
+  "checks": [
+    {
+      "id": "count",
+      "layer": "outcome",
+      "kind": "todo_count",
+      "expected": 1,
+      "hard_safety": false
+    },
+    {
+      "id": "title",
+      "layer": "outcome",
+      "kind": "todo_title",
+      "expected": "已更新周报",
+      "hard_safety": false
+    }
+  ],
+  "expected_verdict": "PASS"
+}

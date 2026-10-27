@@ -1,0 +1,13 @@
+{
+  "path": "src/min_agent/evaluation/_windows_job.py",
+  "change": "仅删除原文件结尾多余空行",
+  "ast_identical": true,
+  "original_sha256": "d236a17aa678324f6f38141f63bb350be3242238825c592350a96cb4520904ce",
+  "publication_sha256": "04a5e76d13a5c021ceaf90c6585cdee825ebe2d52d6225c8bc9012715b57b594",
+  "root_production_source": "c953ec972ec5d6825d009509e5bbf203b8e3b8dcba3456f26e5be2fcf24a60f7",
+  "publication_production_source": "6e28a311a8b6edefb8dc83479c04bf77b27f9c43c487df3b69540e305882e27e",
+  "root_source_unchanged": true,
+  "status": "DISCARDED_FORMATTING_PROBE",
+  "reason": "保持发布源码与已验基线字节一致，保留原EOF空行；不改冻结源码",
+  "effective_publication_source": "c953ec972ec5d6825d009509e5bbf203b8e3b8dcba3456f26e5be2fcf24a60f7"
+}

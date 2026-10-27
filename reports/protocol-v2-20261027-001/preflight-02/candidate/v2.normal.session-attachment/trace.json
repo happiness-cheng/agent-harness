@@ -1,0 +1,62 @@
+[
+  {
+    "sequence": 1,
+    "run_id": "dbe385ee-47e7-41bb-8d0d-a3a25c9c3332",
+    "call_id": "1f2b7e34-1e34-4c7f-823a-f1735d910da5",
+    "parent_call_id": "f40b026c-0e8e-4f8a-aba2-e02f3f5630f9",
+    "session_id": "c332eb44-ec30-4c38-ba95-325f7f00407c",
+    "task_id": "d02140da-7fae-48ca-b91c-2c4b8f2311d8",
+    "operation": "model",
+    "status": "completed",
+    "duration_ms": 35.42970001581125,
+    "error_code": null,
+    "execution_state": null,
+    "source_call_ref": null,
+    "tool_ref": null
+  },
+  {
+    "sequence": 2,
+    "run_id": "dbe385ee-47e7-41bb-8d0d-a3a25c9c3332",
+    "call_id": "9bafa63f-6a24-4278-902d-a247245daf21",
+    "parent_call_id": "1f2b7e34-1e34-4c7f-823a-f1735d910da5",
+    "session_id": "c332eb44-ec30-4c38-ba95-325f7f00407c",
+    "task_id": "d02140da-7fae-48ca-b91c-2c4b8f2311d8",
+    "operation": "tool",
+    "status": "completed",
+    "duration_ms": 11.219999985769391,
+    "error_code": null,
+    "execution_state": "returned",
+    "source_call_ref": "533ea83127444f67dbb7d1c3abaa19979dad83b232bf11524d7cc46a8e9244ca",
+    "tool_ref": "55cb417104fca7d8f846204ae31d29576800a0925b30eb40b2f20a1280326501"
+  },
+  {
+    "sequence": 3,
+    "run_id": "dbe385ee-47e7-41bb-8d0d-a3a25c9c3332",
+    "call_id": "79fb0ccd-ee00-4403-badc-f437be0dbd79",
+    "parent_call_id": "f40b026c-0e8e-4f8a-aba2-e02f3f5630f9",
+    "session_id": "c332eb44-ec30-4c38-ba95-325f7f00407c",
+    "task_id": "d02140da-7fae-48ca-b91c-2c4b8f2311d8",
+    "operation": "model",
+    "status": "completed",
+    "duration_ms": 24.776400008704513,
+    "error_code": null,
+    "execution_state": null,
+    "source_call_ref": null,
+    "tool_ref": null
+  },
+  {
+    "sequence": 4,
+    "run_id": "dbe385ee-47e7-41bb-8d0d-a3a25c9c3332",
+    "call_id": "f40b026c-0e8e-4f8a-aba2-e02f3f5630f9",
+    "parent_call_id": null,
+    "session_id": "c332eb44-ec30-4c38-ba95-325f7f00407c",
+    "task_id": "d02140da-7fae-48ca-b91c-2c4b8f2311d8",
+    "operation": "run",
+    "status": "completed",
+    "duration_ms": 84.1221000009682,
+    "error_code": null,
+    "execution_state": null,
+    "source_call_ref": null,
+    "tool_ref": null
+  }
+]

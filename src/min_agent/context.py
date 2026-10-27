@@ -5,6 +5,8 @@ import json
 from copy import deepcopy
 
 from min_agent.models import Message
+from min_agent.skills import latest_skill_snapshots, project_skill_results, restored_skill_snapshots
+from min_agent.skill_retention import managed_skill_context, normalize_selection, skill_history_projection
 from min_agent.state_bar import RuntimeContextMessage
 
 
@@ -12,21 +14,32 @@ class ContextLimit(RuntimeError):
     pass
 
 
-def request_bound(messages, tools=None):
-    # 文本/JSON的UTF-8字节数作为保守预算，不冒充provider精确token计量。
-    return len(json.dumps({"messages": [m.model_dump(mode="json") for m in messages], "tools": tools or []},
-                          ensure_ascii=False).encode()) + 1024
+def request_bound(messages, tools=None, *, model=None):
+    # 真实Provider只统计实际请求体；不同时计算内部可见消息和它对应的原生续传状态。
+    # UTF-8字节仍是保守估计，不冒充Tokenizer或服务端精确Token计数。
+    builder = getattr(model, '_build_body', None)
+    if callable(builder):
+        payload = builder(messages, tools)
+    else:
+        payload = {"messages": [m.model_dump(mode="json") for m in messages], "tools": tools or []}
+    return len(json.dumps(payload, ensure_ascii=False).encode()) + 1024
 
 
 class ContextManager:
-    def __init__(self, sessions, context, artifacts, *, window=32768, output_reserve=4096,
-                 safety_margin=1024, compactor=None, selector=None, state_reader=None):
+    def __init__(self, sessions, context, artifacts, *, window=None, output_reserve=None,
+                 safety_margin=1024, compactor=None, selector=None, state_reader=None, skill_selector=None, model=None):
+        from min_agent.model_context import context_window, output_reserve as configured_output
+        window = context_window(model, override=window)
+        if output_reserve is None:
+            output_reserve = configured_output(model)
         if any(type(value) is not int or value < 0 for value in (window, output_reserve, safety_margin)):
             raise ValueError("窗口预算必须为非负整数")
         self.sessions, self.context, self.artifacts = sessions, sessions.check_access(context), artifacts
         self.window, self.output_reserve, self.safety_margin = window, output_reserve, safety_margin
+        self.model = model
         self.compactor = compactor
         self.selector, self.state_reader = selector, state_reader
+        self.skill_selector = skill_selector
 
     def prepare(self, messages, tools=None):
         from min_agent.compression_text import tool_summary
@@ -43,7 +56,9 @@ class ContextManager:
         try:
             for message in messages:
                 requests.update((call.id, call.name) for call in message.tool_calls)
-                if message.role == "tool" and len(message.content.encode()) > 2000:
+                # Skill是执行规程，不交给普通工具摘要；仍接受整体窗口预算检查。
+                if (message.role == "tool" and len(message.content.encode()) > 2000
+                        and requests.get(message.tool_call_id) != "read_skill"):
                     key = sha256(message.model_dump_json().encode()).hexdigest()
                     if key not in state["projections"]:
                         if requests.get(message.tool_call_id) in {
@@ -81,10 +96,17 @@ class ContextManager:
         if state["covered"]:
             if hashes[:state["covered"]] != state["covered_hashes"]:
                 raise ContextLimit("上下文版本不匹配，停止而不重新摘要旧投影")
+        if state["covered"] or state.get("skill_retention"):
             visible = self._visible(stable, core, state, dynamic)
         else:
             visible = projected + dynamic
         if self._fits(visible, tools): return visible
+        # 先选择整份Skill，再整理普通历史；仅窗口有压力时触发。
+        state = self._prepare_skill_retention(core, state)
+        visible = self._visible(stable, core, state, dynamic)
+        if self._fits(visible, tools):
+            self.sessions.set_extension(self.context, "context", state)
+            return visible
         boundaries = [index for index, message in enumerate(core) if message.role == "user" and index > state["covered"]]
         end = boundaries[-2] if len(boundaries) >= 2 else None
         # 第二层先于LLM兜底压缩，且从原始消息构建，不能从预览恢复原文。
@@ -130,16 +152,44 @@ class ContextManager:
         latest = next((message.content for message in reversed(messages) if message.role == "user"), "")
         return json.dumps({"goal": goal, "current_request": latest}, ensure_ascii=False)
 
+    def _prepare_skill_retention(self, core, state):
+        candidates = [snapshot for _, snapshot in latest_skill_snapshots(core)]
+        if not candidates or self.skill_selector is None:
+            return state
+        # 旧摘要只覆盖 covered 以前的记录，其后的任务依据必须完整提供。
+        start = state["covered"]
+        task_context = {"previous_memory": state["summary"], "uncompressed_messages": [
+            message.model_dump(mode="json", exclude={"provider_state"})
+            for message in skill_history_projection(core[start:])]}
+        try:
+            selection = self.skill_selector.select(candidates, task_context)
+        except ContextLimit:
+            raise
+        except Exception:
+            selection = None
+        candidate = deepcopy(state)
+        candidate["skill_retention"] = normalize_selection(selection, candidates)
+        return candidate
+
     def _visible(self, stable, core, state, dynamic=()):
         visible = stable + [Message(role="user", content=json.dumps(
-            {"untrusted_session_memory": state["summary"]}, ensure_ascii=False))] + core[state["covered"]:]
+            {"untrusted_session_memory": state["summary"]}, ensure_ascii=False))]
+        if state.get("skill_retention"):
+            visible += managed_skill_context(core, state["covered"], state["skill_retention"])
+        else:
+            visible += restored_skill_snapshots(core, state["covered"])
+            visible += core[state["covered"]:]
         if self.state_reader is not None:
             visible.append(Message(role="user", content=json.dumps(
                 {"current_runtime_state": self.state_reader()}, ensure_ascii=False)))
         return visible + list(dynamic)
 
     def _fits(self, messages, tools):
-        return request_bound(messages, tools) + self.output_reserve + self.safety_margin <= self.window
+        from min_agent.model_context import ModelWindowExceeded
+        try:
+            return request_bound(project_skill_results(messages), tools, model=self.model) + self.output_reserve + self.safety_margin <= self.window
+        except ModelWindowExceeded:
+            return False
 
 
 class ManagedModel:
@@ -150,17 +200,18 @@ class ManagedModel:
     def generate(self, messages, *, tools=None):
         if self.control is not None and self.control.snapshot()["stop"]:
             raise ContextLimit("用户已停止，不启动上下文或模型请求")
-        projected = self.manager.prepare(messages, tools)
+        visible = self.manager.prepare(messages, tools)
         if self.control is not None and self.control.snapshot()["stop"]:
             raise ContextLimit("上下文准备期间用户已停止，不刷新状态或启动模型请求")
         # 压缩可能改变版本和预算；派发前刷新一次，再检查完整请求预算。
         refreshed = False
-        for message in projected:
+        for message in visible:
             if isinstance(message, RuntimeContextMessage):
                 message.refresh()
                 refreshed = True
-        if refreshed and not self.manager._fits(projected, tools):
+        if refreshed and not self.manager._fits(visible, tools):
             raise ContextLimit("最新状态投影加入后窗口不足")
+        projected = project_skill_results(visible)
         if self.control is not None and self.control.snapshot()["stop"]:
             raise ContextLimit("上下文准备期间用户已停止，不启动后续模型请求")
         return self.model.generate(projected, tools=tools)
