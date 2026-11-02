@@ -112,12 +112,13 @@ def todo_registry(todos: TodoService, controller: TaskController, context: Execu
     executor = _TodoExecutor(todos, controller, context)
     registry = ToolRegistry(sessions=todos._sessions, context=executor._context)
     definitions = [
-        ("todo_list", "查询当前会话的待办、真实ID、状态及逾期；Plan允许，含完成项，不含已删除项。", _ListParameters, executor.list_items),
-        ("todo_add", "按已确认范围记录当前会话待办；需Build及确认。日期接受YYYY-MM-DD或今天/明天/后天；无主动提醒能力。", _AddParameters, executor.add),
-        ("todo_update", "按真实ID修改已确认的title/due_date。patch省略字段保留原值，due_date=null清除日期；需Build及确认。", _UpdateParameters, executor.update),
-        ("todo_complete", "按已确认的真实ID完成当前会话待办；重复完成changed=false；需Build及确认。", _IdParameters, executor.complete),
-        ("todo_delete", "按已确认的真实ID逻辑删除当前会话待办；普通查询隐藏，重复删除changed=false；需Build及确认。", _IdParameters, executor.delete),
+        ("todo_list", "查询当前会话的待办、真实ID、状态及逾期；Plan允许，含完成项，不含已删除项。", _ListParameters, executor.list_items, False),
+        ("todo_add", "按已确认范围记录当前会话待办；需Build及确认。日期接受YYYY-MM-DD或今天/明天/后天；无主动提醒能力。", _AddParameters, executor.add, True),
+        ("todo_update", "按真实ID修改已确认的title/due_date。patch省略字段保留原值，due_date=null清除日期；需Build及确认。", _UpdateParameters, executor.update, True),
+        ("todo_complete", "按已确认的真实ID完成当前会话待办；重复完成changed=false；需Build及确认。", _IdParameters, executor.complete, True),
+        ("todo_delete", "按已确认的真实ID逻辑删除当前会话待办；普通查询隐藏，重复删除changed=false；需Build及确认。", _IdParameters, executor.delete, True),
     ]
-    for name, description, parameters, handler in definitions:
-        registry.register(ToolDefinition(name=name, description=description, parameters=parameters, handler=handler))
+    for name, description, parameters, handler, managed in definitions:
+        registry.register(ToolDefinition(name=name, description=description, parameters=parameters,
+                                         handler=handler, managed_execution=managed))
     return registry

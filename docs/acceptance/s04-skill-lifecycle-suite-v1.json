@@ -1,0 +1,84 @@
+{
+  "version": "skill-lifecycle-v1",
+  "status": "frozen-before-implementation",
+  "notes": "acceptance为独立于开发迭代的固定回归样本，并非盲测；均为机制测试，不评价真实模型质量。",
+  "cases": [
+    {
+      "id": "L01",
+      "group": "development",
+      "scenario": "short",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true
+      },
+      "purpose": "正常读取后规程全文可见"
+    },
+    {
+      "id": "L02",
+      "group": "development",
+      "scenario": "long",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true
+      },
+      "purpose": "窗口充足时长规程不被普通工具摘要替代"
+    },
+    {
+      "id": "L03",
+      "group": "development",
+      "scenario": "compacted",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true
+      },
+      "purpose": "旧轮次压缩后，无需模型重读即可恢复仍需遵循的快照"
+    },
+    {
+      "id": "L04",
+      "group": "acceptance",
+      "scenario": "duplicate",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true
+      },
+      "purpose": "相同内容重复读取仍只有一份"
+    },
+    {
+      "id": "L05",
+      "group": "acceptance",
+      "scenario": "version",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 1,
+        "older_body_count": 0,
+        "raw_history_unchanged": true
+      },
+      "purpose": "压缩后恢复同名Skill最近一次显式加载版本"
+    },
+    {
+      "id": "L06",
+      "group": "acceptance",
+      "scenario": "unloaded",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 0,
+        "raw_history_unchanged": true
+      },
+      "purpose": "没有加载的Skill不主动注入"
+    },
+    {
+      "id": "L07",
+      "group": "acceptance",
+      "scenario": "budget",
+      "expected": {
+        "model_called": false,
+        "raw_history_unchanged": true
+      },
+      "purpose": "预算不足明确阻断，不静默截断后继续模型调用"
+    }
+  ]
+}

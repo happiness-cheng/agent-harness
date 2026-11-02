@@ -8,7 +8,12 @@ import pytest
 
 from min_agent.models import Message, ToolCall
 from min_agent.sessions import ExecutionContext, SessionStore
-from min_agent.storage import SQLiteStorage
+from min_agent.storage import SQLiteStorage, _SESSION_COMMIT
+
+
+def trusted_storage_save(storage, *args, **kwargs):
+    """模拟受信 SessionStore 调用，原存储不变量断言保持不变。"""
+    return storage.save(*args, _session_commit=_SESSION_COMMIT, **kwargs)
 from min_agent.tools.todo import TodoService
 
 
@@ -27,8 +32,8 @@ def test_closed_database_reopens_with_session_history_task_and_isolated_full_tod
     path = tmp_path / "state.sqlite3"
 
     with SQLiteStorage.create_new(path) as storage:
-        storage.save(a, snapshot_a, [first, removed])
-        storage.save(b, snapshot_b, [other])
+        trusted_storage_save(storage, a, snapshot_a, [first, removed])
+        trusted_storage_save(storage, b, snapshot_b, [other])
 
     with SQLiteStorage.open(path) as storage:
         restored_a, restored_b = storage.load(a), storage.load(b)
@@ -66,11 +71,11 @@ def test_save_cannot_omit_existing_live_or_logically_deleted_records(tmp_path, s
     before = sessions.snapshot(context)
     path = tmp_path / "state.sqlite3"
     with SQLiteStorage.create_new(path) as storage:
-        storage.save(context, before, [first, second])
+        trusted_storage_save(storage, context, before, [first, second])
         updated = append_history(sessions, context)
 
         with pytest.raises(ValueError, match="保留"):
-            storage.save(context, updated, [first])
+            trusted_storage_save(storage, context, updated, [first])
 
         assert storage.load(context).snapshot == before
         assert storage.load(context).todos == [first, second]
@@ -80,10 +85,10 @@ def test_save_cannot_reorder_existing_record_identities(tmp_path, state):
     sessions, context, _, first, second = state
     snapshot = sessions.snapshot(context)
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
-        storage.save(context, snapshot, [first, second])
+        trusted_storage_save(storage, context, snapshot, [first, second])
 
         with pytest.raises(ValueError, match="顺序"):
-            storage.save(context, snapshot, [second, first])
+            trusted_storage_save(storage, context, snapshot, [second, first])
 
         assert storage.load(context).todos == [first, second]
 
@@ -95,7 +100,7 @@ def test_real_sqlite_failure_on_second_todo_rolls_back_earlier_writes_and_reopen
     before = sessions.snapshot(context)
     with SQLiteStorage.create_new(path) as storage:
         if existing:
-            storage.save(context, before, [first, second])
+            trusted_storage_save(storage, context, before, [first, second])
         with closing(sqlite3.connect(path, autocommit=True)) as fault:
             fault.execute("""CREATE TRIGGER reject_second_todo BEFORE INSERT ON todos
                 WHEN NEW.position = 1 BEGIN SELECT RAISE(ABORT, 'forced_write_failure'); END""")
@@ -103,7 +108,7 @@ def test_real_sqlite_failure_on_second_todo_rolls_back_earlier_writes_and_reopen
         changed_first = service.update(context, first.id, title="不得半写入")
 
         with pytest.raises(sqlite3.IntegrityError, match="forced_write_failure"):
-            storage.save(context, updated, [changed_first, second])
+            trusted_storage_save(storage, context, updated, [changed_first, second])
 
         if existing:
             assert storage.load(context).snapshot == before
@@ -129,13 +134,13 @@ def test_repeat_save_and_append_preserve_order_without_implicitly_saving_busines
     sessions, context, service, first, second = state
     snapshot = sessions.snapshot(context)
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
-        storage.save(context, snapshot, [first, second])
+        trusted_storage_save(storage, context, snapshot, [first, second])
         changed = service.update(context, first.id, title="新标题")
         third = service.add(context, "第一条")
         assert storage.load(context).todos == [first, second]
 
-        storage.save(context, snapshot, [changed, second, third])
-        storage.save(context, snapshot, [changed, second, third])
+        trusted_storage_save(storage, context, snapshot, [changed, second, third])
+        trusted_storage_save(storage, context, snapshot, [changed, second, third])
 
         assert storage.load(context).todos == [changed, second, third]
         assert len(storage.load_all()) == 1
@@ -146,9 +151,9 @@ def test_trusted_load_all_recovers_same_owner_sessions_and_other_owner_without_m
     b, c = sessions.create(a.owner_id), sessions.create(uuid4())
     item_b, item_c = service.add(b, "第一条"), service.add(c, "第一条")
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
-        storage.save(a, sessions.snapshot(a), [first, second])
-        storage.save(b, sessions.snapshot(b), [item_b])
-        storage.save(c, sessions.snapshot(c), [item_c])
+        trusted_storage_save(storage, a, sessions.snapshot(a), [first, second])
+        trusted_storage_save(storage, b, sessions.snapshot(b), [item_b])
+        trusted_storage_save(storage, c, sessions.snapshot(c), [item_c])
 
         recovered = {bundle.snapshot.session_id: bundle for bundle in storage.load_all()}
 
@@ -179,7 +184,7 @@ def test_invalid_or_cross_owned_snapshot_never_creates_partial_records(tmp_path,
 
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
         with pytest.raises((PermissionError, ValueError, TypeError)):
-            storage.save(context, snapshot, items)
+            trusted_storage_save(storage, context, snapshot, items)
         assert storage.load_all() == []
 
 
@@ -187,11 +192,11 @@ def test_existing_owner_is_checked_before_invalid_save_payload(tmp_path, state):
     sessions, context, _, first, second = state
     snapshot = sessions.snapshot(context)
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
-        storage.save(context, snapshot, [first, second])
+        trusted_storage_save(storage, context, snapshot, [first, second])
         foreign = ExecutionContext(owner_id=uuid4(), session_id=context.session_id)
 
         with pytest.raises(PermissionError):
-            storage.save(foreign, None, None)
+            trusted_storage_save(storage, foreign, None, None)
 
         assert storage.load(context).snapshot == snapshot
         assert storage.load(context).todos == [first, second]
@@ -205,18 +210,18 @@ def test_context_is_revalidated_for_storage_reads_and_writes(tmp_path, state, pr
         owner_id="not-a-uuid", session_id=context.session_id,
     )
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
-        storage.save(context, snapshot, [first, second])
+        trusted_storage_save(storage, context, snapshot, [first, second])
         with pytest.raises((TypeError, ValueError)):
             storage.load(invalid)
         with pytest.raises((TypeError, ValueError)):
-            storage.save(invalid, snapshot, [first, second])
+            trusted_storage_save(storage, invalid, snapshot, [first, second])
         assert storage.load(context).todos == [first, second]
 
 
 def test_unknown_session_load_uses_same_denial_as_wrong_owner(tmp_path, state):
     sessions, context, _, first, second = state
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
-        storage.save(context, sessions.snapshot(context), [first, second])
+        trusted_storage_save(storage, context, sessions.snapshot(context), [first, second])
         errors = []
         for invalid in [
             ExecutionContext(owner_id=context.owner_id, session_id=uuid4()),
@@ -243,7 +248,7 @@ def test_invalid_history_pairing_is_not_saved(tmp_path, state, problem):
     snapshot = snapshot.model_copy(update={"messages": messages})
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
         with pytest.raises(ValueError):
-            storage.save(context, snapshot, [first, second])
+            trusted_storage_save(storage, context, snapshot, [first, second])
         assert storage.load_all() == []
 
 
@@ -260,7 +265,7 @@ def test_pending_task_facts_survive_restart_without_automatic_replay_or_completi
     snapshot = sessions.snapshot(context)
     path = tmp_path / "state.sqlite3"
     with SQLiteStorage.create_new(path) as storage:
-        storage.save(context, snapshot, [first, second])
+        trusted_storage_save(storage, context, snapshot, [first, second])
     with SQLiteStorage.open(path) as storage:
         restored = storage.load(context)
         assert restored.snapshot == snapshot
@@ -328,10 +333,10 @@ def test_corrupt_record_is_not_loaded_skipped_or_silently_overwritten(tmp_path, 
     snapshot = sessions.snapshot(context)
     path = tmp_path / "state.sqlite3"
     with SQLiteStorage.create_new(path) as storage:
-        storage.save(context, snapshot, [first, second])
+        trusted_storage_save(storage, context, snapshot, [first, second])
     if problem == "snapshot_owner":
         execute_sql(path, "UPDATE sessions SET snapshot_json = ?", (
-            snapshot.model_copy(update={"owner_id": uuid4()}).model_dump_json(),
+            snapshot.model_copy(update={"owner_id": uuid4(), "revision": snapshot.revision + 1}).model_dump_json(),
         ))
     elif problem == "position":
         execute_sql(path, "UPDATE todos SET position = 10 WHERE todo_id = ?", (str(first.id),))
@@ -348,7 +353,7 @@ def test_corrupt_record_is_not_loaded_skipped_or_silently_overwritten(tmp_path, 
         with pytest.raises(ValueError):
             storage.load_all()
         with pytest.raises(ValueError):
-            storage.save(context, snapshot, [first, second])
+            trusted_storage_save(storage, context, snapshot, [first, second])
 
     assert path.read_bytes() == before
 
@@ -360,21 +365,21 @@ def test_storage_connection_enforces_sqlite_foreign_keys_and_rolls_back_trigger_
         execute_sql(path, """CREATE TRIGGER inject_orphan AFTER INSERT ON todos WHEN NEW.position = 0
             BEGIN INSERT INTO todos VALUES ('missing-session', 'orphan', 0, '{}'); END""")
         with pytest.raises(sqlite3.IntegrityError, match="FOREIGN KEY"):
-            storage.save(context, sessions.snapshot(context), [first, second])
+            trusted_storage_save(storage, context, sessions.snapshot(context), [first, second])
         assert storage.load_all() == []
 
 
 def test_context_manager_closes_connection_and_explicit_close_is_idempotent(tmp_path, state):
     sessions, context, _, first, second = state
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
-        storage.save(context, sessions.snapshot(context), [first, second])
+        trusted_storage_save(storage, context, sessions.snapshot(context), [first, second])
     storage.close()
     with pytest.raises(RuntimeError, match="已关闭"):
         storage.load(context)
     with pytest.raises(RuntimeError, match="已关闭"):
         storage.load_all()
     with pytest.raises(RuntimeError, match="已关闭"):
-        storage.save(context, sessions.snapshot(context), [first, second])
+        trusted_storage_save(storage, context, sessions.snapshot(context), [first, second])
     with pytest.raises(RuntimeError, match="已关闭"):
         with storage:
             pass
@@ -386,7 +391,7 @@ def test_input_and_returned_snapshots_are_detached_from_saved_state(tmp_path, st
     expected = snapshot.model_copy(deep=True)
     items = [first, second]
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
-        storage.save(context, snapshot, items)
+        trusted_storage_save(storage, context, snapshot, items)
         snapshot.messages.append(Message(role="user", content="仅本地输入变化"))
         items.clear()
         loaded = storage.load(context)
@@ -405,7 +410,7 @@ def test_two_threads_can_save_and_load_different_sessions_through_one_adapter(tm
         def save_and_load(context, items):
             barrier.wait(timeout=5)
             snapshot = sessions.snapshot(context)
-            storage.save(context, snapshot, items)
+            trusted_storage_save(storage, context, snapshot, items)
             return storage.load(context)
 
         with ThreadPoolExecutor(max_workers=2) as pool:
@@ -424,7 +429,7 @@ def test_sql_like_user_text_remains_data_in_history_and_title(tmp_path, state):
     sessions.append(context, task.task_id, [Message(role="user", content=text)])
     sessions.finish(context, task.task_id, status="completed")
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
-        storage.save(context, sessions.snapshot(context), [changed, second])
+        trusted_storage_save(storage, context, sessions.snapshot(context), [changed, second])
         assert storage.load(context).todos[0].title == text
         assert storage.load(context).snapshot.messages[0].content == text
 
@@ -440,10 +445,10 @@ def test_old_or_modified_snapshot_cannot_undo_protected_business_facts(tmp_path,
         invalid = first if problem == "restore_deleted" else protected.model_copy(update={"title": "不得改写保留内容"})
     snapshot = sessions.snapshot(context)
     with SQLiteStorage.create_new(tmp_path / "state.sqlite3") as storage:
-        storage.save(context, snapshot, [protected, second])
+        trusted_storage_save(storage, context, snapshot, [protected, second])
 
         with pytest.raises(ValueError):
-            storage.save(context, snapshot, [invalid, second])
+            trusted_storage_save(storage, context, snapshot, [invalid, second])
 
         assert storage.load(context).todos == [protected, second]
 

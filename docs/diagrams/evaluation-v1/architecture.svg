@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="900" viewBox="0 0 1100 900">
+<style>text{font-family:"Microsoft YaHei",Arial,sans-serif;fill:#111827}</style>
+<rect width="1100" height="900" fill="white"/>
+<defs>
+<marker id="arrow-blue" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#2563eb"/></marker>
+<marker id="arrow-green" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#16a34a"/></marker>
+<marker id="arrow-red" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#dc2626"/></marker>
+<marker id="arrow-purple" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#9333ea"/></marker>
+</defs>
+<text x="60" y="48" font-size="26" font-weight="600">Adrian · 统一验证与夜间自主工作</text>
+<text x="60" y="74" font-size="14" fill="#6b7280">调度与验证连接现有Agent；不新增通用Agent Runtime</text>
+<path d="M340 160 H410" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<path d="M690 160 H760" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#arrow-red)"/>
+<path d="M550 220 V300" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<path d="M690 185 H725 V275 H900 V300" fill="none" stroke="#9333ea" stroke-width="2" marker-end="url(#arrow-purple)"/>
+<path d="M340 360 H410" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<path d="M410 395 H365 V560 H340" fill="none" stroke="#16a34a" stroke-width="2" marker-end="url(#arrow-green)"/>
+<path d="M340 560 H410" fill="none" stroke="#16a34a" stroke-width="2" marker-end="url(#arrow-green)"/>
+<path d="M200 420 V455 H385 V535 H410" fill="none" stroke="#9333ea" stroke-width="2" marker-end="url(#arrow-purple)"/>
+<path d="M900 420 V455 H715 V585 H690" fill="none" stroke="#9333ea" stroke-width="2" marker-end="url(#arrow-purple)"/>
+<path d="M690 560 H760" fill="none" stroke="#16a34a" stroke-width="2" marker-end="url(#arrow-green)"/>
+<path d="M550 620 V700" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<rect x="60" y="100" width="280" height="120" rx="8" fill="#eff6ff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="78" y="143" font-size="19" font-weight="600">持久任务队列</text>
+<text x="78" y="176" font-size="12">优先级 / 依赖 / 恢复 / 10h期限</text>
+<rect x="410" y="100" width="280" height="120" rx="8" fill="#eff6ff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="428" y="143" font-size="19" font-weight="600">预算与分级路由</text>
+<text x="428" y="176" font-size="12">程序 → DeepSeek → 受控Codex</text>
+<rect x="760" y="100" width="280" height="120" rx="8" fill="#fef2f2" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="778" y="143" font-size="19" font-weight="600">审批 / 豆包人工接力</text>
+<text x="778" y="176" font-size="12">挂起该任务，继续独立任务</text>
+<rect x="60" y="300" width="280" height="120" rx="8" fill="#faf5ff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="78" y="343" font-size="19" font-weight="600">冻结 TaskSpec 与判据</text>
+<text x="78" y="376" font-size="12">Gold不进入模型输入，不随候选修改</text>
+<rect x="410" y="300" width="280" height="120" rx="8" fill="#eff6ff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="428" y="343" font-size="19" font-weight="600">原 Harness / Runtime</text>
+<text x="428" y="376" font-size="12">Session / 权限 / Context / Budget</text>
+<rect x="760" y="300" width="280" height="120" rx="8" fill="#faf5ff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="778" y="343" font-size="19" font-weight="600">独立 worktree / Codex</text>
+<text x="778" y="376" font-size="12">受限候选，不自动合并主分支</text>
+<rect x="60" y="500" width="280" height="120" rx="8" fill="#f0fdf4" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="78" y="543" font-size="19" font-weight="600">真实状态与执行证据</text>
+<text x="78" y="576" font-size="12">只读SQLite / Trace / Artifact / 送达</text>
+<rect x="410" y="500" width="280" height="120" rx="8" fill="#f0fdf4" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="428" y="543" font-size="19" font-weight="600">独立 Verifier</text>
+<text x="428" y="576" font-size="12">Outcome / Process / Evidence / Semantic</text>
+<rect x="760" y="500" width="280" height="120" rx="8" fill="#f0fdf4" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="778" y="543" font-size="19" font-weight="600">逐题与早晨报告</text>
+<text x="778" y="576" font-size="12">PASS / FAIL / UNKNOWN / 成本边界</text>
+<rect x="410" y="700" width="280" height="120" rx="8" fill="#fff7ed" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="428" y="743" font-size="19" font-weight="600">人类审阅关键决策</text>
+<text x="428" y="776" font-size="12">未知副作用 / 权限 / 是否采纳候选</text>
+<text x="60" y="860" font-size="13">蓝：执行　绿：证据与验证　紫：冻结标准/隔离候选　红：审批边界</text>
+</svg>

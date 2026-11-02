@@ -2,7 +2,7 @@
   "exit": 1,
   "report": {
     "network_calls": 0,
-    "temporary_directory": "C:\\Users\\<USER>\\AppData\\Local\\Temp\\agent-harness-review-9vekwh4c",
+    "temporary_directory": "C:\\Users\\USER\\AppData\\Local\\Temp\\agent-harness-review-9vekwh4c",
     "session_budget": [
       {
         "input": "独立问题一",

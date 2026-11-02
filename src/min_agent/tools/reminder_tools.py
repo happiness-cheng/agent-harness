@@ -46,10 +46,11 @@ def register_reminders(registry, service, controller, context):
             else: result = service.cancel(context, **parameters)
             return json.dumps(result, ensure_ascii=False)
     definitions = [
-        ("reminder_list", "查询当前会话的单次提醒及状态；Plan可用。", ListReminders, lambda: execute("list", {})),
-        ("reminder_add", "用户需要到点通知时使用；须明确带偏移的ISO时刻、时区、Build和已确认范围。只有日期时先澄清，不默认早上9点。", AddReminder, lambda **kwargs: execute("add", kwargs)),
-        ("reminder_update", "按真实提醒ID修改尚未触发的提醒，须Build和精确确认；不随todo日期隐式修改。", UpdateReminder, lambda **kwargs: execute("update", kwargs)),
-        ("reminder_cancel", "按真实ID取消当前会话未触发提醒，须Build和确认；重复取消不产生新副作用。", ReminderId, lambda **kwargs: execute("cancel", kwargs)),
+        ("reminder_list", "查询当前会话的单次提醒及状态；Plan可用。", ListReminders, lambda: execute("list", {}), False),
+        ("reminder_add", "用户需要到点通知时使用；须明确带偏移的ISO时刻、时区、Build和已确认范围。只有日期时先澄清，不默认早上9点。", AddReminder, lambda **kwargs: execute("add", kwargs), True),
+        ("reminder_update", "按真实提醒ID修改尚未触发的提醒，须Build和精确确认；不随todo日期隐式修改。", UpdateReminder, lambda **kwargs: execute("update", kwargs), True),
+        ("reminder_cancel", "按真实ID取消当前会话未触发提醒，须Build和确认；重复取消不产生新副作用。", ReminderId, lambda **kwargs: execute("cancel", kwargs), True),
     ]
-    for name, description, parameters, handler in definitions:
-        registry.register(ToolDefinition(name, description, parameters, handler))
+    for name, description, parameters, handler, managed in definitions:
+        registry.register(ToolDefinition(name, description, parameters, handler,
+                                         managed_execution=managed))

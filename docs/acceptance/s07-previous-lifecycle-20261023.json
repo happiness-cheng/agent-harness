@@ -1,0 +1,581 @@
+{
+  "suite_version": "skill-lifecycle-v1",
+  "suite_sha256": "17fc6036bef82bfa112c7c01694241fd1a033074cd5f11615117c8f88899f31e",
+  "live_requests": 0,
+  "passed": 7,
+  "total": 7,
+  "scope": "真实ManagedModel输入；压缩场景预置合法covered状态，未验证自动压缩触发或模型语义",
+  "records": [
+    {
+      "id": "L01",
+      "group": "development",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true
+      },
+      "observed": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true,
+        "older_body_count": 0,
+        "request_bytes_bound": 1530,
+        "error": null
+      },
+      "passed": true,
+      "skill_body": "# 规程\n保留事实边界，核对结果。",
+      "input_messages": [
+        {
+          "role": "user",
+          "content": "继续按已加载规程处理",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "first",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"# 规程\\n保留事实边界，核对结果。\"}",
+          "tool_call_id": "first",
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ],
+      "visible_messages": [
+        {
+          "role": "user",
+          "content": "继续按已加载规程处理",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "first",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"# 规程\\n保留事实边界，核对结果。\"}",
+          "tool_call_id": "first",
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ]
+    },
+    {
+      "id": "L02",
+      "group": "development",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true
+      },
+      "observed": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true,
+        "older_body_count": 0,
+        "request_bytes_bound": 8011,
+        "error": null
+      },
+      "passed": true,
+      "skill_body": "# 规程\n步骤0：核对输入来源和处理结果。\n步骤1：核对输入来源和处理结果。\n步骤2：核对输入来源和处理结果。\n步骤3：核对输入来源和处理结果。\n步骤4：核对输入来源和处理结果。\n步骤5：核对输入来源和处理结果。\n步骤6：核对输入来源和处理结果。\n步骤7：核对输入来源和处理结果。\n步骤8：核对输入来源和处理结果。\n步骤9：核对输入来源和处理结果。\n步骤10：核对输入来源和处理结果。\n步骤11：核对输入来源和处理结果。\n步骤12：核对输入来源和处理结果。\n步骤13：核对输入来源和处理结果。\n步骤14：核对输入来源和处理结果。\n步骤15：核对输入来源和处理结果。\n步骤16：核对输入来源和处理结果。\n步骤17：核对输入来源和处理结果。\n步骤18：核对输入来源和处理结果。\n步骤19：核对输入来源和处理结果。\n步骤20：核对输入来源和处理结果。\n步骤21：核对输入来源和处理结果。\n步骤22：核对输入来源和处理结果。\n步骤23：核对输入来源和处理结果。\n步骤24：核对输入来源和处理结果。\n步骤25：核对输入来源和处理结果。\n步骤26：核对输入来源和处理结果。\n步骤27：核对输入来源和处理结果。\n步骤28：核对输入来源和处理结果。\n步骤29：核对输入来源和处理结果。\n步骤30：核对输入来源和处理结果。\n步骤31：核对输入来源和处理结果。\n步骤32：核对输入来源和处理结果。\n步骤33：核对输入来源和处理结果。\n步骤34：核对输入来源和处理结果。\n步骤35：核对输入来源和处理结果。\n步骤36：核对输入来源和处理结果。\n步骤37：核对输入来源和处理结果。\n步骤38：核对输入来源和处理结果。\n步骤39：核对输入来源和处理结果。\n步骤40：核对输入来源和处理结果。\n步骤41：核对输入来源和处理结果。\n步骤42：核对输入来源和处理结果。\n步骤43：核对输入来源和处理结果。\n步骤44：核对输入来源和处理结果。\n步骤45：核对输入来源和处理结果。\n步骤46：核对输入来源和处理结果。\n步骤47：核对输入来源和处理结果。\n步骤48：核对输入来源和处理结果。\n步骤49：核对输入来源和处理结果。\n步骤50：核对输入来源和处理结果。\n步骤51：核对输入来源和处理结果。\n步骤52：核对输入来源和处理结果。\n步骤53：核对输入来源和处理结果。\n步骤54：核对输入来源和处理结果。\n步骤55：核对输入来源和处理结果。\n步骤56：核对输入来源和处理结果。\n步骤57：核对输入来源和处理结果。\n步骤58：核对输入来源和处理结果。\n步骤59：核对输入来源和处理结果。\n步骤60：核对输入来源和处理结果。\n步骤61：核对输入来源和处理结果。\n步骤62：核对输入来源和处理结果。\n步骤63：核对输入来源和处理结果。\n步骤64：核对输入来源和处理结果。\n步骤65：核对输入来源和处理结果。\n步骤66：核对输入来源和处理结果。\n步骤67：核对输入来源和处理结果。\n步骤68：核对输入来源和处理结果。\n步骤69：核对输入来源和处理结果。\n步骤70：核对输入来源和处理结果。\n步骤71：核对输入来源和处理结果。\n步骤72：核对输入来源和处理结果。\n步骤73：核对输入来源和处理结果。\n步骤74：核对输入来源和处理结果。\n步骤75：核对输入来源和处理结果。\n步骤76：核对输入来源和处理结果。\n步骤77：核对输入来源和处理结果。\n步骤78：核对输入来源和处理结果。\n步骤79：核对输入来源和处理结果。\n步骤80：核对输入来源和处理结果。\n步骤81：核对输入来源和处理结果。\n步骤82：核对输入来源和处理结果。\n步骤83：核对输入来源和处理结果。\n步骤84：核对输入来源和处理结果。\n步骤85：核对输入来源和处理结果。\n步骤86：核对输入来源和处理结果。\n步骤87：核对输入来源和处理结果。\n步骤88：核对输入来源和处理结果。\n步骤89：核对输入来源和处理结果。\n步骤90：核对输入来源和处理结果。\n步骤91：核对输入来源和处理结果。\n步骤92：核对输入来源和处理结果。\n步骤93：核对输入来源和处理结果。\n步骤94：核对输入来源和处理结果。\n步骤95：核对输入来源和处理结果。\n步骤96：核对输入来源和处理结果。\n步骤97：核对输入来源和处理结果。\n步骤98：核对输入来源和处理结果。\n步骤99：核对输入来源和处理结果。\n步骤100：核对输入来源和处理结果。\n步骤101：核对输入来源和处理结果。\n步骤102：核对输入来源和处理结果。\n步骤103：核对输入来源和处理结果。\n步骤104：核对输入来源和处理结果。\n步骤105：核对输入来源和处理结果。\n步骤106：核对输入来源和处理结果。\n步骤107：核对输入来源和处理结果。\n步骤108：核对输入来源和处理结果。\n步骤109：核对输入来源和处理结果。\n步骤110：核对输入来源和处理结果。\n步骤111：核对输入来源和处理结果。\n步骤112：核对输入来源和处理结果。\n步骤113：核对输入来源和处理结果。\n步骤114：核对输入来源和处理结果。\n步骤115：核对输入来源和处理结果。\n步骤116：核对输入来源和处理结果。\n步骤117：核对输入来源和处理结果。\n步骤118：核对输入来源和处理结果。\n步骤119：核对输入来源和处理结果。\n步骤120：核对输入来源和处理结果。\n步骤121：核对输入来源和处理结果。\n步骤122：核对输入来源和处理结果。\n步骤123：核对输入来源和处理结果。\n步骤124：核对输入来源和处理结果。\n步骤125：核对输入来源和处理结果。\n步骤126：核对输入来源和处理结果。\n步骤127：核对输入来源和处理结果。\n步骤128：核对输入来源和处理结果。\n步骤129：核对输入来源和处理结果。",
+      "input_messages": [
+        {
+          "role": "user",
+          "content": "继续按已加载规程处理",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "first",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"# 规程\\n步骤0：核对输入来源和处理结果。\\n步骤1：核对输入来源和处理结果。\\n步骤2：核对输入来源和处理结果。\\n步骤3：核对输入来源和处理结果。\\n步骤4：核对输入来源和处理结果。\\n步骤5：核对输入来源和处理结果。\\n步骤6：核对输入来源和处理结果。\\n步骤7：核对输入来源和处理结果。\\n步骤8：核对输入来源和处理结果。\\n步骤9：核对输入来源和处理结果。\\n步骤10：核对输入来源和处理结果。\\n步骤11：核对输入来源和处理结果。\\n步骤12：核对输入来源和处理结果。\\n步骤13：核对输入来源和处理结果。\\n步骤14：核对输入来源和处理结果。\\n步骤15：核对输入来源和处理结果。\\n步骤16：核对输入来源和处理结果。\\n步骤17：核对输入来源和处理结果。\\n步骤18：核对输入来源和处理结果。\\n步骤19：核对输入来源和处理结果。\\n步骤20：核对输入来源和处理结果。\\n步骤21：核对输入来源和处理结果。\\n步骤22：核对输入来源和处理结果。\\n步骤23：核对输入来源和处理结果。\\n步骤24：核对输入来源和处理结果。\\n步骤25：核对输入来源和处理结果。\\n步骤26：核对输入来源和处理结果。\\n步骤27：核对输入来源和处理结果。\\n步骤28：核对输入来源和处理结果。\\n步骤29：核对输入来源和处理结果。\\n步骤30：核对输入来源和处理结果。\\n步骤31：核对输入来源和处理结果。\\n步骤32：核对输入来源和处理结果。\\n步骤33：核对输入来源和处理结果。\\n步骤34：核对输入来源和处理结果。\\n步骤35：核对输入来源和处理结果。\\n步骤36：核对输入来源和处理结果。\\n步骤37：核对输入来源和处理结果。\\n步骤38：核对输入来源和处理结果。\\n步骤39：核对输入来源和处理结果。\\n步骤40：核对输入来源和处理结果。\\n步骤41：核对输入来源和处理结果。\\n步骤42：核对输入来源和处理结果。\\n步骤43：核对输入来源和处理结果。\\n步骤44：核对输入来源和处理结果。\\n步骤45：核对输入来源和处理结果。\\n步骤46：核对输入来源和处理结果。\\n步骤47：核对输入来源和处理结果。\\n步骤48：核对输入来源和处理结果。\\n步骤49：核对输入来源和处理结果。\\n步骤50：核对输入来源和处理结果。\\n步骤51：核对输入来源和处理结果。\\n步骤52：核对输入来源和处理结果。\\n步骤53：核对输入来源和处理结果。\\n步骤54：核对输入来源和处理结果。\\n步骤55：核对输入来源和处理结果。\\n步骤56：核对输入来源和处理结果。\\n步骤57：核对输入来源和处理结果。\\n步骤58：核对输入来源和处理结果。\\n步骤59：核对输入来源和处理结果。\\n步骤60：核对输入来源和处理结果。\\n步骤61：核对输入来源和处理结果。\\n步骤62：核对输入来源和处理结果。\\n步骤63：核对输入来源和处理结果。\\n步骤64：核对输入来源和处理结果。\\n步骤65：核对输入来源和处理结果。\\n步骤66：核对输入来源和处理结果。\\n步骤67：核对输入来源和处理结果。\\n步骤68：核对输入来源和处理结果。\\n步骤69：核对输入来源和处理结果。\\n步骤70：核对输入来源和处理结果。\\n步骤71：核对输入来源和处理结果。\\n步骤72：核对输入来源和处理结果。\\n步骤73：核对输入来源和处理结果。\\n步骤74：核对输入来源和处理结果。\\n步骤75：核对输入来源和处理结果。\\n步骤76：核对输入来源和处理结果。\\n步骤77：核对输入来源和处理结果。\\n步骤78：核对输入来源和处理结果。\\n步骤79：核对输入来源和处理结果。\\n步骤80：核对输入来源和处理结果。\\n步骤81：核对输入来源和处理结果。\\n步骤82：核对输入来源和处理结果。\\n步骤83：核对输入来源和处理结果。\\n步骤84：核对输入来源和处理结果。\\n步骤85：核对输入来源和处理结果。\\n步骤86：核对输入来源和处理结果。\\n步骤87：核对输入来源和处理结果。\\n步骤88：核对输入来源和处理结果。\\n步骤89：核对输入来源和处理结果。\\n步骤90：核对输入来源和处理结果。\\n步骤91：核对输入来源和处理结果。\\n步骤92：核对输入来源和处理结果。\\n步骤93：核对输入来源和处理结果。\\n步骤94：核对输入来源和处理结果。\\n步骤95：核对输入来源和处理结果。\\n步骤96：核对输入来源和处理结果。\\n步骤97：核对输入来源和处理结果。\\n步骤98：核对输入来源和处理结果。\\n步骤99：核对输入来源和处理结果。\\n步骤100：核对输入来源和处理结果。\\n步骤101：核对输入来源和处理结果。\\n步骤102：核对输入来源和处理结果。\\n步骤103：核对输入来源和处理结果。\\n步骤104：核对输入来源和处理结果。\\n步骤105：核对输入来源和处理结果。\\n步骤106：核对输入来源和处理结果。\\n步骤107：核对输入来源和处理结果。\\n步骤108：核对输入来源和处理结果。\\n步骤109：核对输入来源和处理结果。\\n步骤110：核对输入来源和处理结果。\\n步骤111：核对输入来源和处理结果。\\n步骤112：核对输入来源和处理结果。\\n步骤113：核对输入来源和处理结果。\\n步骤114：核对输入来源和处理结果。\\n步骤115：核对输入来源和处理结果。\\n步骤116：核对输入来源和处理结果。\\n步骤117：核对输入来源和处理结果。\\n步骤118：核对输入来源和处理结果。\\n步骤119：核对输入来源和处理结果。\\n步骤120：核对输入来源和处理结果。\\n步骤121：核对输入来源和处理结果。\\n步骤122：核对输入来源和处理结果。\\n步骤123：核对输入来源和处理结果。\\n步骤124：核对输入来源和处理结果。\\n步骤125：核对输入来源和处理结果。\\n步骤126：核对输入来源和处理结果。\\n步骤127：核对输入来源和处理结果。\\n步骤128：核对输入来源和处理结果。\\n步骤129：核对输入来源和处理结果。\"}",
+          "tool_call_id": "first",
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ],
+      "visible_messages": [
+        {
+          "role": "user",
+          "content": "继续按已加载规程处理",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "first",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"# 规程\\n步骤0：核对输入来源和处理结果。\\n步骤1：核对输入来源和处理结果。\\n步骤2：核对输入来源和处理结果。\\n步骤3：核对输入来源和处理结果。\\n步骤4：核对输入来源和处理结果。\\n步骤5：核对输入来源和处理结果。\\n步骤6：核对输入来源和处理结果。\\n步骤7：核对输入来源和处理结果。\\n步骤8：核对输入来源和处理结果。\\n步骤9：核对输入来源和处理结果。\\n步骤10：核对输入来源和处理结果。\\n步骤11：核对输入来源和处理结果。\\n步骤12：核对输入来源和处理结果。\\n步骤13：核对输入来源和处理结果。\\n步骤14：核对输入来源和处理结果。\\n步骤15：核对输入来源和处理结果。\\n步骤16：核对输入来源和处理结果。\\n步骤17：核对输入来源和处理结果。\\n步骤18：核对输入来源和处理结果。\\n步骤19：核对输入来源和处理结果。\\n步骤20：核对输入来源和处理结果。\\n步骤21：核对输入来源和处理结果。\\n步骤22：核对输入来源和处理结果。\\n步骤23：核对输入来源和处理结果。\\n步骤24：核对输入来源和处理结果。\\n步骤25：核对输入来源和处理结果。\\n步骤26：核对输入来源和处理结果。\\n步骤27：核对输入来源和处理结果。\\n步骤28：核对输入来源和处理结果。\\n步骤29：核对输入来源和处理结果。\\n步骤30：核对输入来源和处理结果。\\n步骤31：核对输入来源和处理结果。\\n步骤32：核对输入来源和处理结果。\\n步骤33：核对输入来源和处理结果。\\n步骤34：核对输入来源和处理结果。\\n步骤35：核对输入来源和处理结果。\\n步骤36：核对输入来源和处理结果。\\n步骤37：核对输入来源和处理结果。\\n步骤38：核对输入来源和处理结果。\\n步骤39：核对输入来源和处理结果。\\n步骤40：核对输入来源和处理结果。\\n步骤41：核对输入来源和处理结果。\\n步骤42：核对输入来源和处理结果。\\n步骤43：核对输入来源和处理结果。\\n步骤44：核对输入来源和处理结果。\\n步骤45：核对输入来源和处理结果。\\n步骤46：核对输入来源和处理结果。\\n步骤47：核对输入来源和处理结果。\\n步骤48：核对输入来源和处理结果。\\n步骤49：核对输入来源和处理结果。\\n步骤50：核对输入来源和处理结果。\\n步骤51：核对输入来源和处理结果。\\n步骤52：核对输入来源和处理结果。\\n步骤53：核对输入来源和处理结果。\\n步骤54：核对输入来源和处理结果。\\n步骤55：核对输入来源和处理结果。\\n步骤56：核对输入来源和处理结果。\\n步骤57：核对输入来源和处理结果。\\n步骤58：核对输入来源和处理结果。\\n步骤59：核对输入来源和处理结果。\\n步骤60：核对输入来源和处理结果。\\n步骤61：核对输入来源和处理结果。\\n步骤62：核对输入来源和处理结果。\\n步骤63：核对输入来源和处理结果。\\n步骤64：核对输入来源和处理结果。\\n步骤65：核对输入来源和处理结果。\\n步骤66：核对输入来源和处理结果。\\n步骤67：核对输入来源和处理结果。\\n步骤68：核对输入来源和处理结果。\\n步骤69：核对输入来源和处理结果。\\n步骤70：核对输入来源和处理结果。\\n步骤71：核对输入来源和处理结果。\\n步骤72：核对输入来源和处理结果。\\n步骤73：核对输入来源和处理结果。\\n步骤74：核对输入来源和处理结果。\\n步骤75：核对输入来源和处理结果。\\n步骤76：核对输入来源和处理结果。\\n步骤77：核对输入来源和处理结果。\\n步骤78：核对输入来源和处理结果。\\n步骤79：核对输入来源和处理结果。\\n步骤80：核对输入来源和处理结果。\\n步骤81：核对输入来源和处理结果。\\n步骤82：核对输入来源和处理结果。\\n步骤83：核对输入来源和处理结果。\\n步骤84：核对输入来源和处理结果。\\n步骤85：核对输入来源和处理结果。\\n步骤86：核对输入来源和处理结果。\\n步骤87：核对输入来源和处理结果。\\n步骤88：核对输入来源和处理结果。\\n步骤89：核对输入来源和处理结果。\\n步骤90：核对输入来源和处理结果。\\n步骤91：核对输入来源和处理结果。\\n步骤92：核对输入来源和处理结果。\\n步骤93：核对输入来源和处理结果。\\n步骤94：核对输入来源和处理结果。\\n步骤95：核对输入来源和处理结果。\\n步骤96：核对输入来源和处理结果。\\n步骤97：核对输入来源和处理结果。\\n步骤98：核对输入来源和处理结果。\\n步骤99：核对输入来源和处理结果。\\n步骤100：核对输入来源和处理结果。\\n步骤101：核对输入来源和处理结果。\\n步骤102：核对输入来源和处理结果。\\n步骤103：核对输入来源和处理结果。\\n步骤104：核对输入来源和处理结果。\\n步骤105：核对输入来源和处理结果。\\n步骤106：核对输入来源和处理结果。\\n步骤107：核对输入来源和处理结果。\\n步骤108：核对输入来源和处理结果。\\n步骤109：核对输入来源和处理结果。\\n步骤110：核对输入来源和处理结果。\\n步骤111：核对输入来源和处理结果。\\n步骤112：核对输入来源和处理结果。\\n步骤113：核对输入来源和处理结果。\\n步骤114：核对输入来源和处理结果。\\n步骤115：核对输入来源和处理结果。\\n步骤116：核对输入来源和处理结果。\\n步骤117：核对输入来源和处理结果。\\n步骤118：核对输入来源和处理结果。\\n步骤119：核对输入来源和处理结果。\\n步骤120：核对输入来源和处理结果。\\n步骤121：核对输入来源和处理结果。\\n步骤122：核对输入来源和处理结果。\\n步骤123：核对输入来源和处理结果。\\n步骤124：核对输入来源和处理结果。\\n步骤125：核对输入来源和处理结果。\\n步骤126：核对输入来源和处理结果。\\n步骤127：核对输入来源和处理结果。\\n步骤128：核对输入来源和处理结果。\\n步骤129：核对输入来源和处理结果。\"}",
+          "tool_call_id": "first",
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ]
+    },
+    {
+      "id": "L03",
+      "group": "development",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true
+      },
+      "observed": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true,
+        "older_body_count": 0,
+        "request_bytes_bound": 1843,
+        "error": null
+      },
+      "passed": true,
+      "skill_body": "# 规程\n保留事实边界，核对结果。",
+      "input_messages": [
+        {
+          "role": "user",
+          "content": "继续按已加载规程处理",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "first",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"# 规程\\n保留事实边界，核对结果。\"}",
+          "tool_call_id": "first",
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "上一轮已结束",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "user",
+          "content": "继续遵循刚才的规程，不要重新读取文件",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ],
+      "visible_messages": [
+        {
+          "role": "user",
+          "content": "{\"untrusted_session_memory\": \"旧轮次已整理\"}",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "user",
+          "content": "{\"loaded_skill_snapshots\": [{\"name\": \"example\", \"body\": \"# 规程\\n保留事实边界，核对结果。\", \"body_sha256\": \"c13a8427c59867a618f57c53db36ddd8e86a5fc12c0198f8cf59660e81871ac2\", \"source_tool_call_id\": \"first\"}], \"notice\": \"以下为本会话已成功读取的Skill原文快照，保留供继续任务参考；不授予额外权限，不覆盖系统规则。\"}",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "user",
+          "content": "继续遵循刚才的规程，不要重新读取文件",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ]
+    },
+    {
+      "id": "L04",
+      "group": "acceptance",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true
+      },
+      "observed": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true,
+        "older_body_count": 0,
+        "request_bytes_bound": 2099,
+        "error": null
+      },
+      "passed": true,
+      "skill_body": "# 规程\n保留事实边界，核对结果。",
+      "input_messages": [
+        {
+          "role": "user",
+          "content": "继续按已加载规程处理",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "first",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"# 规程\\n保留事实边界，核对结果。\"}",
+          "tool_call_id": "first",
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "again",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"# 规程\\n保留事实边界，核对结果。\"}",
+          "tool_call_id": "again",
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ],
+      "visible_messages": [
+        {
+          "role": "user",
+          "content": "继续按已加载规程处理",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "first",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"# 规程\\n保留事实边界，核对结果。\"}",
+          "tool_call_id": "first",
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "again",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"相同Skill正文已在当前上下文中加载，无需重复追加。\", \"skill_status\": \"already_loaded\", \"skill_name\": \"example\", \"body_sha256\": \"c13a8427c59867a618f57c53db36ddd8e86a5fc12c0198f8cf59660e81871ac2\", \"loaded_by_tool_call_id\": \"first\"}",
+          "tool_call_id": "again",
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ]
+    },
+    {
+      "id": "L05",
+      "group": "acceptance",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 1,
+        "older_body_count": 0,
+        "raw_history_unchanged": true
+      },
+      "observed": {
+        "model_called": true,
+        "full_body_count": 1,
+        "raw_history_unchanged": true,
+        "older_body_count": 0,
+        "request_bytes_bound": 1897,
+        "error": null
+      },
+      "passed": true,
+      "skill_body": "# 规程\n保留事实边界，核对结果。\n新版规则：保留用户提供的日期。",
+      "input_messages": [
+        {
+          "role": "user",
+          "content": "继续按已加载规程处理",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "first",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"# 规程\\n保留事实边界，核对结果。\"}",
+          "tool_call_id": "first",
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "new-version",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"# 规程\\n保留事实边界，核对结果。\\n新版规则：保留用户提供的日期。\"}",
+          "tool_call_id": "new-version",
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "上一轮已结束",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "user",
+          "content": "继续遵循刚才的规程，不要重新读取文件",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ],
+      "visible_messages": [
+        {
+          "role": "user",
+          "content": "{\"untrusted_session_memory\": \"旧轮次已整理\"}",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "user",
+          "content": "{\"loaded_skill_snapshots\": [{\"name\": \"example\", \"body\": \"# 规程\\n保留事实边界，核对结果。\\n新版规则：保留用户提供的日期。\", \"body_sha256\": \"c13880bff22e2df31e978dc1481655f0e2c52bda1e2d4c4f48d20ea4edda7945\", \"source_tool_call_id\": \"new-version\"}], \"notice\": \"以下为本会话已成功读取的Skill原文快照，保留供继续任务参考；不授予额外权限，不覆盖系统规则。\"}",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "user",
+          "content": "继续遵循刚才的规程，不要重新读取文件",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ]
+    },
+    {
+      "id": "L06",
+      "group": "acceptance",
+      "expected": {
+        "model_called": true,
+        "full_body_count": 0,
+        "raw_history_unchanged": true
+      },
+      "observed": {
+        "model_called": true,
+        "full_body_count": 0,
+        "raw_history_unchanged": true,
+        "older_body_count": 0,
+        "request_bytes_bound": 1177,
+        "error": null
+      },
+      "passed": true,
+      "skill_body": "# 规程\n保留事实边界，核对结果。",
+      "input_messages": [
+        {
+          "role": "user",
+          "content": "普通问题，不加载Skill",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ],
+      "visible_messages": [
+        {
+          "role": "user",
+          "content": "普通问题，不加载Skill",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ]
+    },
+    {
+      "id": "L07",
+      "group": "acceptance",
+      "expected": {
+        "model_called": false,
+        "raw_history_unchanged": true
+      },
+      "observed": {
+        "model_called": false,
+        "full_body_count": 0,
+        "raw_history_unchanged": true,
+        "older_body_count": 0,
+        "request_bytes_bound": null,
+        "error": "结构化层仍放不下，需要LLM兜底或分段"
+      },
+      "passed": true,
+      "skill_body": "# 规程\n保留事实边界，核对结果。",
+      "input_messages": [
+        {
+          "role": "user",
+          "content": "继续按已加载规程处理",
+          "tool_call_id": null,
+          "tool_calls": [],
+          "provider_state": null
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "first",
+              "name": "read_skill",
+              "arguments": {
+                "name": "example"
+              }
+            }
+          ],
+          "provider_state": null
+        },
+        {
+          "role": "tool",
+          "content": "{\"ok\": true, \"result\": \"# 规程\\n保留事实边界，核对结果。\"}",
+          "tool_call_id": "first",
+          "tool_calls": [],
+          "provider_state": null
+        }
+      ],
+      "visible_messages": []
+    }
+  ]
+}

@@ -1,6 +1,8 @@
-# Agent Harness
+﻿# Agent Harness
 
 从一道“实现最小 Agent”的笔试出发，逐步构建我心目中的个人 Agent：先理解意图，在明确边界内执行，让过程与结果可以追查。
+
+2026-11-02 更新：本地 Ollama、只读长期 Memory、独立验证与受限计算器改进闭环已落地。当前范围与历史验证分开记录，见[项目状态](docs/PROJECT_STATUS.md)；测试通过数不代表模型任务成功率。
 
 ## 我的设计起点
 
@@ -15,7 +17,7 @@
 | **① 决策与上下文** | 模型应该知道什么？怎样理解意图并决定下一步？ | 系统提示、需求对齐、Plan / Build、渐进披露与上下文管理 |
 | **② 知识与能力** | 模型如何完成任务、如何与外部交互？ | 工具契约、待办与提醒、公开研究子循环、会话记忆与 Skill |
 | **③ 执行与运行时** | 如何安全执行？出错怎样处理？ | Session 隔离、权限、预算、检查点、错误反馈与 trace |
-| **④ 评估与进化** | 如何验证修复、发现缺陷、持续改进？ | 已有测试与验收；完整自动评估和持续进化后续实现 |
+| **④ 评估与进化** | 如何验证修复、发现缺陷、持续改进？ | 三态Verifier、隔离评测与受限计算器候选；通用自动改进未实现 |
 
 前三部分构成本次最小 Agent 的实现范围；四个部分按职责协作，不是四个必须依次调用的独立服务。
 
@@ -26,7 +28,7 @@ flowchart TB
   K --> R[③ 执行与运行时]
   R -->|实际结果、错误与状态| D
   D -->|澄清、确认与答复| U
-  R -.->|运行证据| E[④ 评估与进化：后续完整实现]
+  R -.->|运行证据| E[④ 评估与进化：限定场景已实现]
   E -.->|验证后的改进| D
 ~~~
 
@@ -59,6 +61,8 @@ flowchart TB
 真实运行使用 DeepSeek 官方 Responses API，model ID 为 `deepseek-flash`，reasoning effort 为 `high`。OpenAI 适配器保留，真实请求曾受计费额度阻塞；双模型比较暂缓。基础功能与目标设计的差距见文末限制，特别是缓存前缀、累计资源预算、详细日志和第四部分，仍需继续完善。
 
 ## 启动
+
+本机 Adrian 试用：双击桌面 **Adrian**，启动现有真实 Runtime 与按需只读长期 Memory；就绪后自动打开浏览器。网页“关闭服务”或服务窗口 Ctrl+C 退出。首次配置、Memory 开关、来源核对与故障排查见 [Adrian 使用说明](docs/ADRIAN.md)。此入口使用项目外凭据，不会回退 Demo；下方原 CLI / Demo 入口保留。
 
 Windows、Python 3.13 或更高版本。在项目目录执行 PowerShell：
 
@@ -102,6 +106,34 @@ $credentialsFile = Join-Path $env:USERPROFILE 'agent-harness-credentials.json'
 离线模式保存消息并明确回复“离线演示”，不能证明自然语言理解或真实工具选择。测试使用脚本模型检查控制流程。
 
 开发测试另装 `requirements-dev.lock`。依赖锁在 Windows / Python 3.13 验证；不承诺未经验证的平台。也可双击 `scripts/start.bat` 启动已安装环境的离线演示。
+
+### 本地 Ollama（qwen3.5:4b，无需云端凭据）
+
+本机已安装 Ollama 并已有模型时，可用本地模型作为决策核心。不需要 API Key、凭据文件或代理；启动前只读检查服务与模型，缺失时明确失败，不下载模型、不回退云端。
+
+~~~powershell
+.\.venv\Scripts\python.exe -X utf8 -m min_agent.web --ollama --database data/ollama-test.sqlite3 --port 8766
+~~~
+
+打开 [本地 Ollama 工作台](http://127.0.0.1:8766)。模型、地址和窗口都可显式指定：
+
+~~~powershell
+.\.venv\Scripts\python.exe -X utf8 -m min_agent.web --ollama --ollama-model qwen3.5:4b --ollama-url http://127.0.0.1:11434 --ollama-num-ctx 32768
+~~~
+
+`--ollama-num-ctx` 可配置 2048–262144，默认 32768：本机已用两轮真实任务验证（第一轮约 17.5K tokens、第二轮约 24.3K tokens 的长日志检索 + calculator，工具结果 703→708，无截断）。低内存环境可显式 `--ollama-num-ctx 16384`；262144 虽能加载（进程约 12.8–13.7GB），但加载期可用内存降到 0GB、加载后仅 0.17GB，不作为默认。云端 Provider 不使用这个默认值：DeepSeek 等会读取自身声明的窗口（如 1M）；harness 对没有声明窗口的 Mock/Demo 默认按 256K 处理。对比数据见 [上下文能力实测](docs/ollama-context-capability-20261102.md)。请求保持非流式；网页仍通过现有会话轮询展示最终结果，没有 Token 级流式输出。
+
+真实本地验收（显式授权；不下载模型；使用独立测试库）：
+
+~~~powershell
+.\.venv\Scripts\python.exe -X utf8 scripts\ollama_live_acceptance.py --allow-live --report docs\acceptance\ollama-live-20261102.json
+~~~
+
+切回原有 Provider：关闭该进程，用上面的 `--demo` 或 `--live` 命令重启。设计说明、协议映射、实测证据与限制见 [本地 Ollama 接入](docs/OLLAMA.md)。
+
+## 统一验证与夜间工作（V1）
+
+评估、真实业务状态验收、受控隔离修复见 [统一验证说明](docs/EVALUATION_V1.md)；持久队列、预算、Codex基础路由和早晨报告见 [夜间模式](docs/NIGHT_MODE.md)。默认离线，不自动开启整晚付费任务，也不自动合并候选。可用 `scripts/evaluate-adrian.cmd`、`scripts/night-adrian.cmd` 查看命令帮助。实际结果和限制见 [本轮报告](reports/eval-v1/REPORT.md)。
 
 ## 使用
 

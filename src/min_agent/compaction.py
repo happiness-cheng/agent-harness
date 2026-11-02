@@ -15,6 +15,7 @@ from min_agent.compression_selector import GroundedSelector
 from min_agent.compression_text import ExcerptOverflow, plan_excerpts, save_selection_review, text_units
 from min_agent.compression_evidence import read_evidence, save_evidence
 from min_agent.memory_records import source_text
+from min_agent.skill_retention import skill_history_projection
 
 
 class CompactionBlocked(ContextLimit):
@@ -34,9 +35,10 @@ class Summary(BaseModel):
 
 
 class Compactor:
-    def __init__(self, model, sessions, context, budget, *, input_window=32768, control=None):
+    def __init__(self, model, sessions, context, budget, *, input_window=None, control=None):
+        from min_agent.model_context import context_window
         self.model, self.sessions, self.context, self.budget = model, sessions, context, budget
-        self.input_window = input_window
+        self.input_window = context_window(model, override=input_window)
         self.control = control
 
     def window_attempt(self, state, messages, tools, window):
@@ -182,7 +184,8 @@ class Compactor:
         return candidate
 
     def compact_history(self, state, messages, hashes, end):
-        source = {"previous_memory": state["summary"], "messages": [m.model_dump(mode="json") for m in messages]}
+        source = {"previous_memory": state["summary"],
+                  "messages": [m.model_dump(mode="json") for m in skill_history_projection(messages)]}
         summary = self._summarize(state, source, "history")
         MemoryJournal(self.sessions, self.context).archive(messages, json.dumps(summary, ensure_ascii=False), start=state["covered"])
         candidate = deepcopy(state)

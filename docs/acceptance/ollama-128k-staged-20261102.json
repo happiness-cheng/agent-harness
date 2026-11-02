@@ -1,0 +1,80 @@
+{
+  "started_at": "2026-11-02T22:26:07+08:00",
+  "model": "qwen3.5:4b",
+  "num_ctx": 131072,
+  "thresholds": {
+    "min_after_load_gb": 0.6,
+    "min_during_load_gb": 0.3
+  },
+  "preload": {
+    "memory": {
+      "total_ram_gb": 13.86,
+      "available_ram_gb": 7.95,
+      "commit_limit_gb": 25.72,
+      "available_commit_gb": 11.27
+    },
+    "pagefile": {
+      "AllocatedBaseSize": 12152,
+      "CurrentUsage": 2468,
+      "PeakUsage": 4883
+    }
+  },
+  "unloaded": true,
+  "preload_after_unload": {
+    "memory": {
+      "total_ram_gb": 13.86,
+      "available_ram_gb": 7.93,
+      "commit_limit_gb": 25.72,
+      "available_commit_gb": 11.26
+    },
+    "pagefile": {
+      "AllocatedBaseSize": 12152,
+      "CurrentUsage": 2468,
+      "PeakUsage": 4883
+    }
+  },
+  "load": {
+    "ok": true,
+    "wall_seconds": 30.92,
+    "load_seconds": 28.42,
+    "ps_size_gb": 7.8,
+    "ps_vram_gb": 0.92,
+    "context_length": 131072
+  },
+  "load_memory": {
+    "samples": 61,
+    "min_available_ram_gb": 0.43,
+    "min_available_commit_gb": 1.65
+  },
+  "after_load": {
+    "memory": {
+      "total_ram_gb": 13.86,
+      "available_ram_gb": 0.53,
+      "commit_limit_gb": 25.72,
+      "available_commit_gb": 1.65
+    },
+    "pagefile": {
+      "AllocatedBaseSize": 12152,
+      "CurrentUsage": 2456,
+      "PeakUsage": 4883
+    }
+  },
+  "resource_insufficient": true,
+  "verdict": "资源不满足：加载期或加载后内存低于安全阈值，立即卸载，不执行真实任务",
+  "unload": true,
+  "recovered": {
+    "memory": {
+      "total_ram_gb": 13.86,
+      "available_ram_gb": 7.97,
+      "commit_limit_gb": 25.72,
+      "available_commit_gb": 10.99
+    },
+    "pagefile": {
+      "AllocatedBaseSize": 12152,
+      "CurrentUsage": 2457,
+      "PeakUsage": 4883
+    }
+  },
+  "truncation_logs": [],
+  "finished_at": "2026-11-02T22:26:44+08:00"
+}

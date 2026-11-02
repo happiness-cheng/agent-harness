@@ -25,8 +25,10 @@ def test_state_reads_latest_business_value_and_consumed_action_without_rebuildin
         parameters={"item_id": str(item.id), "due_date": "2026-10-23"}))
     table = SessionStateTable(store, context, todos)
     old = table.read()
+    task = store.begin(context)
     result = todo_registry(todos, controller, context).execute(ToolCall(id="change",
         name="todo_update", arguments={"item_id": str(item.id), "patch": {"due_date": "2026-10-23"}}))
+    store.finish(context, task.task_id, status="completed")
     assert result["ok"]
     current = table.read()
     assert old["todos"][0]["item"]["due_date"] == "2026-10-22"

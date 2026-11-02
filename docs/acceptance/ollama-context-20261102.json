@@ -1,0 +1,546 @@
+{
+  "started_at": "2026-11-02T21:34:39+08:00",
+  "model": "qwen3.5:4b",
+  "base_url": "http://127.0.0.1:11434",
+  "ollama_version": "0.40.13",
+  "hardware": {
+    "total_ram_gb": 13.86,
+    "available_ram_gb": 2.72,
+    "commit_limit_gb": 25.72,
+    "available_commit_gb": 5.21,
+    "cpu_count": 12,
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD"
+  },
+  "model_info": {
+    "context_length": 262144,
+    "block_count": 32,
+    "full_attention_layers": 8,
+    "kv_heads": 4,
+    "key_length": 256,
+    "value_length": 256,
+    "kv_bytes_per_token_estimate": 32768,
+    "parameter_count": 4205751296
+  },
+  "contexts": [
+    {
+      "num_ctx": 8192,
+      "unload_before": {
+        "unloaded": true,
+        "context_length": 8192
+      },
+      "baseline_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 6.56,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 10.12
+      },
+      "peak_memory": {
+        "samples": 62,
+        "min_available_ram_gb": 2.34,
+        "min_available_commit_gb": 4.02
+      },
+      "load": {
+        "ok": true,
+        "wall_seconds": 31.33,
+        "content": "收到！我已经准备好了。请问有什么任务需要我协助？",
+        "tool_calls": [],
+        "done_reason": "stop",
+        "prompt_eval_count": 16,
+        "eval_count": 13,
+        "load_seconds": 28.41,
+        "prompt_eval_seconds": 0.95,
+        "eval_seconds": 1.93,
+        "total_seconds": 31.29,
+        "total_wall_seconds": 31.34
+      },
+      "ps": {
+        "name": "qwen3.5:4b",
+        "model": "qwen3.5:4b",
+        "size": 3340039617,
+        "digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "qwen35",
+          "families": [
+            "qwen35"
+          ],
+          "parameter_size": "4.2B",
+          "quantization_level": "Q4_K_M"
+        },
+        "expires_at": "2026-11-02T22:05:12.5262607+08:00",
+        "size_vram": 110362624,
+        "context_length": 8192,
+        "runner": "llamacpp"
+      },
+      "after_load_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 2.95,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 5.26
+      },
+      "estimated_kv_cache_gb": 0.25,
+      "harness_task": {
+        "status": "completed",
+        "error_code": null,
+        "answer": "计算结果如下：  \n**37 × 19 = 703**",
+        "tool_ok": true,
+        "model_calls": 2,
+        "trace": [
+          "model:completed",
+          "tool:completed",
+          "model:completed",
+          "run:completed"
+        ],
+        "wall_seconds": 51.23,
+        "memory": {
+          "samples": 101,
+          "min_available_ram_gb": 1.94,
+          "min_available_commit_gb": 4.49
+        }
+      },
+      "long_probe": {
+        "requested_chars": 7213,
+        "expected_code": "ZX-7391-KQ",
+        "status": "stop",
+        "answer": "ZX-7391-KQ",
+        "correct": true,
+        "usage": [
+          {
+            "request": 1,
+            "prompt_eval_count": 3727,
+            "eval_count": 9,
+            "total_duration": 34830453600,
+            "load_duration": 22882600,
+            "prompt_eval_duration": 33460841999,
+            "eval_duration": 1187939000
+          }
+        ],
+        "wall_seconds": 34.87,
+        "memory": {
+          "samples": 69,
+          "min_available_ram_gb": 1.36,
+          "min_available_commit_gb": 4.0
+        }
+      },
+      "unload_after": {
+        "unloaded": true,
+        "context_length": 8192
+      },
+      "recovered_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 5.88,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 10.08
+      }
+    },
+    {
+      "num_ctx": 16384,
+      "unload_before": {
+        "unloaded": true,
+        "already_empty": true
+      },
+      "baseline_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 5.89,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 10.09
+      },
+      "peak_memory": {
+        "samples": 46,
+        "min_available_ram_gb": 1.96,
+        "min_available_commit_gb": 4.92
+      },
+      "load": {
+        "ok": true,
+        "wall_seconds": 22.96,
+        "content": "收到！我已经准备好了。请问有什么任务需要我协助？",
+        "tool_calls": [],
+        "done_reason": "stop",
+        "prompt_eval_count": 16,
+        "eval_count": 13,
+        "load_seconds": 20.59,
+        "prompt_eval_seconds": 0.7,
+        "eval_seconds": 1.63,
+        "total_seconds": 22.93,
+        "total_wall_seconds": 22.96
+      },
+      "ps": {
+        "name": "qwen3.5:4b",
+        "model": "qwen3.5:4b",
+        "size": 3673486785,
+        "digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "qwen35",
+          "families": [
+            "qwen35"
+          ],
+          "parameter_size": "4.2B",
+          "quantization_level": "Q4_K_M"
+        },
+        "expires_at": "2026-11-02T22:07:03.1151913+08:00",
+        "size_vram": 166985728,
+        "context_length": 16384,
+        "runner": "llamacpp"
+      },
+      "after_load_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 1.98,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 4.98
+      },
+      "estimated_kv_cache_gb": 0.5,
+      "harness_task": {
+        "status": "completed",
+        "error_code": null,
+        "answer": "计算结果如下：  \n**37 × 19 = 703**",
+        "tool_ok": true,
+        "model_calls": 2,
+        "trace": [
+          "model:completed",
+          "tool:completed",
+          "model:completed",
+          "run:completed"
+        ],
+        "wall_seconds": 58.18,
+        "memory": {
+          "samples": 115,
+          "min_available_ram_gb": 1.76,
+          "min_available_commit_gb": 4.45
+        }
+      },
+      "long_probe": {
+        "requested_chars": 15405,
+        "expected_code": "ZX-7391-KQ",
+        "status": "stop",
+        "answer": "ZX-7391-KQ",
+        "correct": true,
+        "usage": [
+          {
+            "request": 1,
+            "prompt_eval_count": 7940,
+            "eval_count": 9,
+            "total_duration": 79705780800,
+            "load_duration": 10521800,
+            "prompt_eval_duration": 77742634000,
+            "eval_duration": 1715089000
+          }
+        ],
+        "wall_seconds": 79.72,
+        "memory": {
+          "samples": 157,
+          "min_available_ram_gb": 1.69,
+          "min_available_commit_gb": 3.8
+        }
+      },
+      "unload_after": {
+        "unloaded": true,
+        "context_length": 16384
+      },
+      "recovered_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 6.55,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 10.08
+      }
+    },
+    {
+      "num_ctx": 32768,
+      "unload_before": {
+        "unloaded": true,
+        "already_empty": true
+      },
+      "baseline_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 6.55,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 10.08
+      },
+      "peak_memory": {
+        "samples": 49,
+        "min_available_ram_gb": 1.86,
+        "min_available_commit_gb": 4.25
+      },
+      "load": {
+        "ok": true,
+        "wall_seconds": 24.73,
+        "content": "收到！我已经准备好了。请问有什么任务需要我协助？",
+        "tool_calls": [],
+        "done_reason": "stop",
+        "prompt_eval_count": 16,
+        "eval_count": 13,
+        "load_seconds": 21.63,
+        "prompt_eval_seconds": 0.91,
+        "eval_seconds": 2.16,
+        "total_seconds": 24.71,
+        "total_wall_seconds": 24.73
+      },
+      "ps": {
+        "name": "qwen3.5:4b",
+        "model": "qwen3.5:4b",
+        "size": 4344575425,
+        "digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "qwen35",
+          "families": [
+            "qwen35"
+          ],
+          "parameter_size": "4.2B",
+          "quantization_level": "Q4_K_M"
+        },
+        "expires_at": "2026-11-02T22:09:47.3348679+08:00",
+        "size_vram": 284426240,
+        "context_length": 32768,
+        "runner": "llamacpp"
+      },
+      "after_load_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 1.93,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 4.26
+      },
+      "estimated_kv_cache_gb": 1.0,
+      "harness_task": {
+        "status": "completed",
+        "error_code": null,
+        "answer": "计算结果如下：  \n**37 × 19 = 703**",
+        "tool_ok": true,
+        "model_calls": 2,
+        "trace": [
+          "model:completed",
+          "tool:completed",
+          "model:completed",
+          "run:completed"
+        ],
+        "wall_seconds": 52.37,
+        "memory": {
+          "samples": 103,
+          "min_available_ram_gb": 1.38,
+          "min_available_commit_gb": 3.27
+        }
+      },
+      "long_probe": {
+        "requested_chars": 24045,
+        "expected_code": "ZX-7391-KQ",
+        "status": "stop",
+        "answer": "ZX-7391-KQ",
+        "correct": true,
+        "usage": [
+          {
+            "request": 1,
+            "prompt_eval_count": 12384,
+            "eval_count": 9,
+            "total_duration": 131827205000,
+            "load_duration": 10908500,
+            "prompt_eval_duration": 129261041000,
+            "eval_duration": 2315172000
+          }
+        ],
+        "wall_seconds": 131.85,
+        "memory": {
+          "samples": 259,
+          "min_available_ram_gb": 0.96,
+          "min_available_commit_gb": 3.05
+        }
+      },
+      "unload_after": {
+        "unloaded": true,
+        "context_length": 32768
+      },
+      "recovered_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 6.62,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 10.17
+      }
+    },
+    {
+      "num_ctx": 65536,
+      "unload_before": {
+        "unloaded": true,
+        "already_empty": true
+      },
+      "baseline_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 6.62,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 10.17
+      },
+      "peak_memory": {
+        "samples": 49,
+        "min_available_ram_gb": 1.11,
+        "min_available_commit_gb": 3.11
+      },
+      "load": {
+        "ok": true,
+        "wall_seconds": 24.63,
+        "content": "收到！我已经准备好了。请问有什么任务需要我协助？",
+        "tool_calls": [],
+        "done_reason": "stop",
+        "prompt_eval_count": 16,
+        "eval_count": 13,
+        "load_seconds": 21.63,
+        "prompt_eval_seconds": 1.04,
+        "eval_seconds": 1.92,
+        "total_seconds": 24.62,
+        "total_wall_seconds": 24.63
+      },
+      "ps": {
+        "name": "qwen3.5:4b",
+        "model": "qwen3.5:4b",
+        "size": 5686752705,
+        "digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "qwen35",
+          "families": [
+            "qwen35"
+          ],
+          "parameter_size": "4.2B",
+          "quantization_level": "Q4_K_M"
+        },
+        "expires_at": "2026-11-02T22:13:17.873163+08:00",
+        "size_vram": 519307264,
+        "context_length": 65536,
+        "runner": "llamacpp"
+      },
+      "after_load_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 1.14,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 3.11
+      },
+      "estimated_kv_cache_gb": 2.0,
+      "harness_task": {
+        "status": "completed",
+        "error_code": null,
+        "answer": "计算结果如下：  \n**37 × 19 = 703**",
+        "tool_ok": true,
+        "model_calls": 2,
+        "trace": [
+          "model:completed",
+          "tool:completed",
+          "model:completed",
+          "run:completed"
+        ],
+        "wall_seconds": 53.3,
+        "memory": {
+          "samples": 105,
+          "min_available_ram_gb": 0.68,
+          "min_available_commit_gb": 2.72
+        }
+      },
+      "long_probe": {
+        "requested_chars": 24045,
+        "expected_code": "ZX-7391-KQ",
+        "status": "stop",
+        "answer": "ZX-7391-KQ",
+        "correct": true,
+        "usage": [
+          {
+            "request": 1,
+            "prompt_eval_count": 12384,
+            "eval_count": 9,
+            "total_duration": 130973413100,
+            "load_duration": 14353700,
+            "prompt_eval_duration": 128631130000,
+            "eval_duration": 2081643000
+          }
+        ],
+        "wall_seconds": 130.99,
+        "memory": {
+          "samples": 258,
+          "min_available_ram_gb": 0.04,
+          "min_available_commit_gb": 1.98
+        }
+      },
+      "unload_after": {
+        "unloaded": true,
+        "context_length": 65536
+      },
+      "recovered_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 6.22,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 10.03
+      }
+    },
+    {
+      "num_ctx": 262144,
+      "unload_before": {
+        "unloaded": true,
+        "already_empty": true
+      },
+      "baseline_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 6.23,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 10.03
+      },
+      "peak_memory": {
+        "samples": 86,
+        "min_available_ram_gb": 0.0,
+        "min_available_commit_gb": 0.07
+      },
+      "load": {
+        "ok": true,
+        "wall_seconds": 43.51,
+        "content": "收到！我已经准备好了。请问有什么任务需要我协助？",
+        "tool_calls": [],
+        "done_reason": "stop",
+        "prompt_eval_count": 16,
+        "eval_count": 13,
+        "load_seconds": 40.6,
+        "prompt_eval_seconds": 0.9,
+        "eval_seconds": 1.81,
+        "total_seconds": 43.39,
+        "total_wall_seconds": 43.54
+      },
+      "ps": {
+        "name": "qwen3.5:4b",
+        "model": "qwen3.5:4b",
+        "size": 13739816385,
+        "digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "qwen35",
+          "families": [
+            "qwen35"
+          ],
+          "parameter_size": "4.2B",
+          "quantization_level": "Q4_K_M"
+        },
+        "expires_at": "2026-11-02T22:17:07.542115+08:00",
+        "size_vram": 1928593408,
+        "context_length": 262144,
+        "runner": "llamacpp"
+      },
+      "after_load_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 0.17,
+        "commit_limit_gb": 30.81,
+        "available_commit_gb": 0.85
+      },
+      "estimated_kv_cache_gb": 8.0,
+      "skipped": "加载后可用物理内存低于0.6GB，为避免系统抖动跳过后续任务",
+      "unload_after": {
+        "unloaded": true,
+        "context_length": 262144
+      },
+      "recovered_memory": {
+        "total_ram_gb": 13.86,
+        "available_ram_gb": 10.31,
+        "commit_limit_gb": 25.72,
+        "available_commit_gb": 10.39
+      }
+    }
+  ],
+  "finished_at": "2026-11-02T21:47:09+08:00",
+  "all_loaded": true
+}

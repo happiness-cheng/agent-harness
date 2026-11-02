@@ -47,10 +47,18 @@ class Evidence(_Parameters):
 
 
 class ResearchService:
-    def __init__(self, model, search, reader, artifacts):
+    def __init__(self, model, search, reader, artifacts, *, input_window=None):
         self.model, self.search, self.reader, self.artifacts = model, search, reader, artifacts
+        from min_agent.model_context import context_window, output_reserve
+        self.input_window = context_window(model, override=input_window)
+        self.output_reserve = output_reserve(model)
 
-    def run(self, objective, parent_budget, *, constraints=(), control=None, trace_context=None, trace=None):
+    def run(self, objective, parent_budget, *, constraints=(), control=None, trace_context=None, trace=None,
+            permission_check=None, observation=None):
+        if permission_check is not None and not callable(permission_check):
+            raise TypeError("研究许可检查必须是可调用对象")
+        if observation is not None and not hasattr(observation, "note_read"):
+            raise TypeError("研究观察器接口无效")
         if not isinstance(objective, str) or not objective.strip() or len(objective) > 2000:
             raise ValueError("研究目标无效")
         execution = {}
@@ -61,21 +69,39 @@ class ResearchService:
         budget = parent_budget.child(BudgetLimits(model_calls=min(6, parent_remaining.model_calls),
                                                   tool_calls=min(8, parent_remaining.tool_calls)), purpose="research")
         tools = ToolRegistry(); read_ids = set()
+        def check_permission():
+            if permission_check is not None:
+                permission_check()
         def search(query):
+            check_permission()
             return json.dumps(self.search.search(query), ensure_ascii=False)
         def read(url=None, question="", artifact_id=None, start=0, max_chars=4000):
+            check_permission()
             if artifact_id is not None:
                 if url is not None or artifact_id not in read_ids: raise PermissionError("只能补读本轮已获取原文")
-                result = self.reader.read_artifact(artifact_id, start=start, limit=max_chars)
+                try:
+                    result = self.reader.read_artifact(artifact_id, start=start, limit=max_chars)
+                except BaseException:
+                    if observation is not None:
+                        observation.note_read_failure()
+                    raise
             elif url is not None:
-                result = self.reader.read(url, question=question, max_chars=max_chars)
+                try:
+                    result = self.reader.read(url, question=question, max_chars=max_chars)
+                except BaseException:
+                    if observation is not None:
+                        observation.note_read_failure()
+                    raise
             else:
                 raise ValueError("需要公开URL或当前原文引用")
+            if observation is not None:
+                observation.note_read(result)
             read_ids.add(result["artifact_id"])
             return json.dumps(result, ensure_ascii=False)
         tools.register(ToolDefinition("search", "公开网络搜索；摘要不是已读正文；可自主改查询补查。", SearchParameters, search))
         tools.register(ToolDefinition("read_webpage", "首次用url读取公开来源；后续可设url=null、提供本轮artifact_id与start补读原文。返回位置和截断标记，保留反例与限制。", ReadParameters, read))
         underlying = self.model
+        input_window, reserve = self.input_window, self.output_reserve
         prompt = files("min_agent").joinpath("prompts/research.md").read_text(encoding="utf-8")
         class IsolatedModel:
             def generate(self, messages, **kwargs):
@@ -89,19 +115,29 @@ class ResearchService:
                 if closing:
                     kwargs["tools"] = None
                     visible.append(Message(role="user", content="已到研究收尾预留，不再搜索或读网页。仅依据实际已读原文返回最终Evidence JSON；证据不够必须写limitations，不捏造引用。"))
-                if request_bound(visible, kwargs.get("tools")) + 4096 + 1024 > 32768:
+                if request_bound(visible, kwargs.get("tools"), model=underlying) + reserve + 1024 > input_window:
                     raise ContextLimit("研究上下文超过保守窗口，暂停")
                 response = underlying.generate(visible, **kwargs)
                 if closing and response.finish_reason == "tool_calls":
                     raise ContextLimit("研究收尾阶段不能继续调用工具")
                 return response
-        result = Runtime(IsolatedModel(), tools, budget=budget, max_tool_error_rounds=1,
-                         progress_guard=ProgressGuard(), control=control, trace=trace).run(
-            json.dumps({"objective": objective, "constraints": list(constraints)}, ensure_ascii=False),
-            trace_context=trace_context, **execution,
-        )
+        try:
+            result = Runtime(IsolatedModel(), tools, budget=budget, max_tool_error_rounds=1,
+                             progress_guard=ProgressGuard(), control=control, trace=trace).run(
+                json.dumps({"objective": objective, "constraints": list(constraints)}, ensure_ascii=False),
+                trace_context=trace_context, **execution,
+            )
+        except BaseException:
+            if observation is not None:
+                observation.finish_error()
+            raise
+
+        def finished(value):
+            if observation is not None:
+                observation.finish(value)
+            return value
         if result.status != "completed":
-            return {"status": result.status, "error": result.error_code or "research_incomplete", "evidence": None}
+            return finished({"status": result.status, "error": result.error_code or "research_incomplete", "evidence": None})
         try:
             evidence = Evidence.model_validate_json(result.response.content)
             for citation in evidence.citations:
@@ -115,8 +151,11 @@ class ResearchService:
                     if position < 0 or original["content"].find(citation.quote, position + 1) >= 0:
                         raise ValueError("引文不存在或位置有歧义")
                     citation.start, citation.end, citation.offset_normalized = position, position + len(citation.quote), True
+                if observation is not None and not observation.note_citation(
+                        citation.artifact_id, citation.start, citation.end):
+                    raise ValueError("引文不属于本轮成功读取区间")
             if not evidence.citations and not evidence.limitations:
                 raise ValueError("无证据时必须说明限制")
-            return {"status": "completed", "evidence": evidence.model_dump(mode="json"), "error": None}
+            return finished({"status": "completed", "evidence": evidence.model_dump(mode="json"), "error": None})
         except (ValueError, TypeError):
-            return {"status": "partial", "error": "invalid_evidence", "evidence": None}
+            return finished({"status": "partial", "error": "invalid_evidence", "evidence": None})

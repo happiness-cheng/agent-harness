@@ -1,0 +1,15 @@
+{
+  "version": "skill-compaction-integration-v1",
+  "status": "frozen-before-production-changes",
+  "scope": "离线固定选择判断，通过真实上下文入口验证接线；不是模型判断准确率或盲测",
+  "cases": [
+    {"id":"I01","group":"development","scenario":"mixed","expected":{"model_called":true,"body_counts":[1,0,1],"selector_calls":1,"raw_unchanged":true}},
+    {"id":"I02","group":"development","scenario":"release_all","expected":{"model_called":true,"body_counts":[0,0,0],"selector_calls":1,"raw_unchanged":true}},
+    {"id":"I03","group":"acceptance","scenario":"reopen","expected":{"model_called":true,"body_counts":[1,0,1],"selector_calls":1,"raw_unchanged":true}},
+    {"id":"I04","group":"acceptance","scenario":"reload","expected":{"model_called":true,"body_counts":[1,1,1],"selector_calls":1,"raw_unchanged":true}},
+    {"id":"I05","group":"acceptance","scenario":"invalid","expected":{"model_called":true,"body_counts":[1,1,1],"selector_calls":1,"raw_unchanged":true}},
+    {"id":"I06","group":"acceptance","scenario":"budget","expected":{"model_called":false,"selector_calls":1,"raw_unchanged":true}},
+    {"id":"I07","group":"acceptance","scenario":"no_pressure","expected":{"model_called":true,"body_counts":[1,1,1],"selector_calls":0,"raw_unchanged":true}},
+    {"id":"I08","group":"acceptance","scenario":"preparation_failure","expected":{"model_called":false,"selector_calls":1,"raw_unchanged":true,"selection_committed":false}}
+  ]
+}

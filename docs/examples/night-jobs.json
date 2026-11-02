@@ -1,0 +1,206 @@
+[
+  {
+    "id": "01-project-tests",
+    "goal": "运行现有计算器回归并保留真实退出码",
+    "kind": "program",
+    "task": {
+      "id": "project-calculator-tests",
+      "category": "runtime",
+      "prompt": "运行现有计算器回归并保留真实退出码",
+      "evaluation": "deterministic",
+      "data_classification": "synthetic",
+      "profile": "plain",
+      "parameters": {},
+      "mode": "plan",
+      "actions": [],
+      "tools": [],
+      "fixture": "empty",
+      "max_model_calls": 8,
+      "segment_model_calls": 8,
+      "max_tool_calls": 12,
+      "max_rounds": 8,
+      "timeout_seconds": 180.0,
+      "recovery": false,
+      "live_eligible": false,
+      "model": "deepseek-flash",
+      "reasoning_effort": "high",
+      "output_tokens": null,
+      "checks": [
+        {
+          "id": "pytest",
+          "layer": "outcome",
+          "kind": "test_exit",
+          "expected": 0,
+          "hard_safety": false
+        }
+      ],
+      "expected_verdict": "PASS"
+    },
+    "priority": 0,
+    "dependencies": [],
+    "requires_confirmation": false,
+    "risk": "low",
+    "max_retries": 0,
+    "allow_escalation": false,
+    "max_deepseek_usd": 0.75,
+    "allowed_paths": [],
+    "operation": "regression",
+    "test_paths": [
+      "tests/unit/test_calculator.py"
+    ]
+  },
+  {
+    "id": "02-review-draft",
+    "goal": "产生分析草案，语义质量等用户回来审阅",
+    "kind": "analysis",
+    "task": {
+      "id": "public-code-analysis",
+      "category": "runtime",
+      "prompt": "请解释以下公开计算函数的边界并提出测试建议：def add(a,b): return a+b。不要声称已运行测试。",
+      "evaluation": "human",
+      "data_classification": "synthetic",
+      "profile": "plain",
+      "parameters": {},
+      "mode": "plan",
+      "actions": [],
+      "tools": [],
+      "fixture": "empty",
+      "max_model_calls": 3,
+      "segment_model_calls": 8,
+      "max_tool_calls": 12,
+      "max_rounds": 3,
+      "timeout_seconds": 180.0,
+      "recovery": false,
+      "live_eligible": true,
+      "model": "deepseek-flash",
+      "reasoning_effort": "high",
+      "output_tokens": null,
+      "checks": [
+        {
+          "id": "semantic",
+          "layer": "semantic",
+          "kind": "semantic_support",
+          "expected": null,
+          "hard_safety": false
+        }
+      ],
+      "expected_verdict": "PASS"
+    },
+    "priority": 0,
+    "dependencies": [],
+    "requires_confirmation": false,
+    "risk": "low",
+    "max_retries": 0,
+    "allow_escalation": false,
+    "max_deepseek_usd": 0.75,
+    "allowed_paths": [],
+    "operation": "evaluation",
+    "test_paths": []
+  },
+  {
+    "id": "03-controlled-repair",
+    "goal": "隔离worktree的计算器故障注入及自动修复演示，不合并",
+    "kind": "code",
+    "task": {
+      "id": "runtime.calc",
+      "category": "runtime",
+      "prompt": "请使用计算工具计算2+3，给出结果。",
+      "evaluation": "deterministic",
+      "data_classification": "synthetic",
+      "profile": "calculator",
+      "parameters": {
+        "expression": "2+3"
+      },
+      "mode": "plan",
+      "actions": [],
+      "tools": [
+        "calculator"
+      ],
+      "fixture": "empty",
+      "max_model_calls": 8,
+      "segment_model_calls": 8,
+      "max_tool_calls": 12,
+      "max_rounds": 8,
+      "timeout_seconds": 240.0,
+      "recovery": false,
+      "live_eligible": false,
+      "model": "deepseek-flash",
+      "reasoning_effort": "high",
+      "output_tokens": null,
+      "checks": [
+        {
+          "id": "answer",
+          "layer": "outcome",
+          "kind": "calculator_value",
+          "expected": "5",
+          "hard_safety": false
+        }
+      ],
+      "expected_verdict": "PASS"
+    },
+    "priority": 0,
+    "dependencies": [],
+    "requires_confirmation": false,
+    "risk": "low",
+    "max_retries": 0,
+    "allow_escalation": false,
+    "max_deepseek_usd": 0.75,
+    "allowed_paths": [
+      "src/min_agent/tools/calculator.py"
+    ],
+    "operation": "calculator_repair",
+    "test_paths": []
+  },
+  {
+    "id": "04-approval",
+    "goal": "部署事项只挂起，不执行",
+    "kind": "program",
+    "task": {
+      "id": "runtime.calc",
+      "category": "runtime",
+      "prompt": "请使用计算工具计算2+3，给出结果。",
+      "evaluation": "deterministic",
+      "data_classification": "synthetic",
+      "profile": "calculator",
+      "parameters": {
+        "expression": "2+3"
+      },
+      "mode": "plan",
+      "actions": [],
+      "tools": [
+        "calculator"
+      ],
+      "fixture": "empty",
+      "max_model_calls": 8,
+      "segment_model_calls": 8,
+      "max_tool_calls": 12,
+      "max_rounds": 8,
+      "timeout_seconds": 40.0,
+      "recovery": false,
+      "live_eligible": false,
+      "model": "deepseek-flash",
+      "reasoning_effort": "high",
+      "output_tokens": null,
+      "checks": [
+        {
+          "id": "answer",
+          "layer": "outcome",
+          "kind": "calculator_value",
+          "expected": "5",
+          "hard_safety": false
+        }
+      ],
+      "expected_verdict": "PASS"
+    },
+    "priority": 0,
+    "dependencies": [],
+    "requires_confirmation": false,
+    "risk": "deployment",
+    "max_retries": 1,
+    "allow_escalation": false,
+    "max_deepseek_usd": 0.75,
+    "allowed_paths": [],
+    "operation": "evaluation",
+    "test_paths": []
+  }
+]

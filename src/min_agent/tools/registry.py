@@ -32,6 +32,11 @@ class ToolDefinition:
     description: str
     parameters: type[BaseModel]
     handler: Callable[..., object]
+    managed_execution: bool = False
+
+    def __post_init__(self) -> None:
+        if type(self.managed_execution) is not bool:
+            raise TypeError("managed_execution 必须是bool")
 
 
 class ToolRegistry:
@@ -43,6 +48,7 @@ class ToolRegistry:
         self._tools: dict[str, ToolDefinition] = {}
         self._sessions = sessions
         self._context = sessions.check_access(context) if sessions is not None else None
+        self._long_memory_builder = None
 
     @property
     def is_bound(self) -> bool:
@@ -56,6 +62,15 @@ class ToolRegistry:
         if not self.is_bound:
             return None
         return self._sessions.work_state(self._context)
+
+    def state_bar(self, messages, budget=None):
+        if not self.is_bound:
+            return None
+        from min_agent.state_bar import StatusBuilder
+        return StatusBuilder(self._sessions, self._context, budget).build(messages)
+
+    def memory_view(self,messages):
+        return self._long_memory_builder(messages) if self._long_memory_builder is not None else None
 
     def register(self, tool: ToolDefinition) -> None:
         if not isinstance(tool.name, str) or not tool.name.strip():
@@ -83,7 +98,13 @@ class ToolRegistry:
     def execute(self, call: ToolCall, *, operation_id=None) -> dict[str, object]:
         if operation_id is not None and self.is_bound and call.name.startswith(("todo_", "reminder_")) and call.name not in {"todo_list", "reminder_list"}:
             from min_agent.operations import execute_once
-            return execute_once(self._sessions, self._context, call, operation_id, self._execute)
+            # 只对实际取出且显式受审计的内置写定义发放本调用资格；
+            # 未注册/自定义/替换 handler 一律没有资格。
+            definition = self._tools.get(call.name)
+            authority = (object() if definition is not None
+                         and definition.managed_execution is True else None)
+            return execute_once(self._sessions, self._context, call, operation_id, self._execute,
+                                cleanup_authority=authority)
         return self._execute(call)
 
     def _execute(self, call: ToolCall) -> dict[str, object]:

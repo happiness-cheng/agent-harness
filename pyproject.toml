@@ -7,7 +7,7 @@ name = "agent-harness"
 version = "0.1.0"
 description = "以小步测试构建的 Python Agent Harness"
 requires-python = ">=3.13"
-dependencies = ["pydantic==2.14.1", "tzdata==2026.5", "httpx==0.28.1", "ddgs==9.16.0", "trafilatura==2.3.1", "fastapi==0.148.0", "uvicorn==0.54.0", "windows-toasts==1.3.1; sys_platform == 'win32'"]
+dependencies = ["pydantic==2.14.1", "tzdata==2026.5", "httpx==0.28.1", "ddgs==9.16.0", "trafilatura==2.3.1", "fastapi==0.148.0", "uvicorn==0.54.0", "PyYAML==6.0.3", "windows-toasts==1.3.1; sys_platform == 'win32'"]
 
 [project.optional-dependencies]
 dev = ["pytest==9.1.1", "playwright==1.64.0"]

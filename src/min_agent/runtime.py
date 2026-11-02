@@ -15,6 +15,18 @@ from min_agent.sessions import ExecutionContext, SessionStore
 from min_agent.task_state import AuthorizationRequired
 from min_agent.tools.registry import InvalidToolResultError, ToolRegistry
 from min_agent.trace import TraceContext, TraceRecorder
+from min_agent.state_bar import RuntimeContextMessage
+
+
+_ADMISSION_CODES = {
+    "task_not_active", "confirmation_grant_missing", "confirmation_mismatch",
+    "logical_task_mismatch", "attempt_mismatch", "confirmation_not_bound", "budget_mismatch",
+}
+
+
+def _trace_error_code(code: str | None) -> str | None:
+    """trace.py 的 error_code 是固定 Literal；精确 admission code 留在 RunResult/工具消息。"""
+    return "waiting_user" if code in _ADMISSION_CODES else code
 
 
 class Model(Protocol):
@@ -43,6 +55,7 @@ class Runtime:
         checkpoint_policy: CheckpointPolicy | None = None,
         control=None, progress_guard=None,
         recover_unknown_writes: bool = False,
+        before_execute=None,
     ) -> None:
         if type(max_tool_error_rounds) is not int:
             raise TypeError("工具错误修正轮数必须是整数")
@@ -62,7 +75,10 @@ class Runtime:
         self._control, self._progress_guard = control, progress_guard
         if type(recover_unknown_writes) is not bool:
             raise TypeError("未知写入恢复开关必须为布尔值")
+        if before_execute is not None and not callable(before_execute):
+            raise TypeError("before_execute必须是可调用钩子")
         self._recover_unknown_writes = recover_unknown_writes
+        self._before_execute = before_execute
         self._tools = tools
         self._system_prompt = (
             files("min_agent").joinpath("prompts/system.md").read_text(encoding="utf-8")
@@ -104,18 +120,32 @@ class Runtime:
 
     def run_session(
         self, text: str, *, store: SessionStore, context: ExecutionContext,
-        resume_checkpoint_id: UUID | None = None,
+        resume_checkpoint_id: UUID | None = None, resume_task_id: UUID | None = None,
     ) -> RunResult:
         self._validate_input(text)
+        if resume_checkpoint_id is not None and resume_task_id is not None:
+            raise ValueError("checkpoint_id 与 resume_task_id 不能同时指定")
+        if resume_task_id is not None and not isinstance(resume_task_id, UUID):
+            raise TypeError("resume_task_id 必须是UUID")
         if self._tools is not None:
             self._tools.check_context(context, store)
         store.check_budget_binding(context, self._budget)
         if self._control is not None:
             if self._control.sessions is not store or self._control.context != context:
                 raise PermissionError("控制入口不属于当前会话")
-        task = store.begin(context, checkpoint_id=resume_checkpoint_id, budget=self._budget)
+        task = store.begin(context, checkpoint_id=resume_checkpoint_id,
+                           resume_task_id=resume_task_id, budget=self._budget)
         if self._control is not None:
             self._control.started(task.task_id)
+        if self._before_execute is not None:
+            try:
+                self._before_execute(store, context, task)
+            except BaseException:
+                # 冻结/执行前钩子失败也必须闭合任务，不能留下 running 假状态。
+                store.finish(context, task.task_id, status="failed", error_code="unexpected_error")
+                if self._control is not None:
+                    self._control.finished("failed")
+                raise
         messages = store.snapshot(context).messages
         original_length = len(messages)
         messages.append(Message(role="user", content=text))
@@ -153,7 +183,7 @@ class Runtime:
     ) -> RunResult:
         with self.trace.span("run", run_id=run_id, context=context) as run_span:
             result = self._run(text, context, run_id, run_span.call_id, messages)
-            run_span.finish(result.status, result.error_code)
+            run_span.finish(result.status, _trace_error_code(result.error_code))
             return replace(result, run_id=run_id)
 
     def _run(
@@ -167,15 +197,18 @@ class Runtime:
         had_request_errors = False
         progress_correction = False
         while True:
+            #用户控制，stop/steer 仅在模型请求前检查，工具请求中不再中断。
             if self._control is not None:
                 stopped, steers = self._control.poll(context.task_id)
                 if stopped:
                     return RunResult(status="cancelled", error_code="user_stopped")
                 messages.extend(Message(role="user", content="用户显式引导：" + text) for text in steers)
+            #预算检查
             if self._checkpoint_policy is not None and (
                 self._budget.remaining.model_calls <= self._checkpoint_policy.reserve_model_calls
             ):
                 return self._close_checkpoint(messages, context, run_id, parent_call_id, "model_reserve")
+            #模型请求
             with self.trace.span(
                 "model", run_id=run_id, context=context, parent_call_id=parent_call_id,
             ) as model_span:
@@ -188,16 +221,7 @@ class Runtime:
                         model_span.finish(status, code, "not_started")
                         return RunResult(status=status, error_code=code)
                 try:
-                    model_messages = [message.model_copy(deep=True) for message in messages]
-                    if self._system_prompt is not None:
-                        state = self._tools.work_state()
-                        model_messages = [
-                            Message(role="system", content=self._system_prompt),
-                            Message(role="user", content=json.dumps(
-                                {"application_state": {**state.model_dump(mode="json"), "current_date": Clock().today().isoformat()}},
-                                ensure_ascii=False, allow_nan=False,
-                            )),
-                        ] + model_messages
+                    model_messages = self._model_messages(messages)
                     if self._tools is None:
                         response = self._model.generate(model_messages)
                     else:
@@ -212,7 +236,7 @@ class Runtime:
                     # 异常正文不进入返回值或 trace。
                     model_span.finish("failed", "model_call_failed")
                     return RunResult(status="failed", error_code="model_call_failed")
-
+                #模型响应校验
                 if not isinstance(response, ModelResponse):
                     model_span.finish("failed", "invalid_model_response")
                     return RunResult(status="failed", error_code="invalid_model_response")
@@ -236,6 +260,7 @@ class Runtime:
                 ))
             if response.finish_reason != "tool_calls" and self._control is not None and self._control.snapshot()["stop"]:
                 return RunResult(status="cancelled", response=response, error_code="user_stopped")
+            #   根据模型响应类型处理
             match response.finish_reason:
                 case "stop":
                     if self._tools is not None and self._tools.is_bound:
@@ -332,7 +357,7 @@ class Runtime:
                                 outcome = self._tools.execute(call, operation_id=identity + ":" + call.id)
                                 output = json.dumps(outcome, ensure_ascii=False, allow_nan=False)
                             except AuthorizationRequired as error:
-                                tool_span.finish("waiting_user", error.code, "not_started")
+                                tool_span.finish("waiting_user", _trace_error_code(error.code), "not_started")
                                 # 停止整个批次；为当前及其余未执行请求配齐确定的结果。
                                 for blocked in response.tool_calls[index:]:
                                     messages.append(Message(
@@ -376,6 +401,7 @@ class Runtime:
                             else:
                                 code = outcome["error"]["code"]
                                 tool_span.finish("failed", code, "not_started")
+                        #传回工具结果
                         messages.append(Message(role="tool", content=output, tool_call_id=call.id))
                         if call.name == "propose_goal":
                             for blocked in response.tool_calls[index + 1:]:
@@ -408,6 +434,30 @@ class Runtime:
                 case _:
                     return RunResult(status="failed", response=response, error_code="model_error")
 
+    def _model_messages(self, messages):
+        result = [message.model_copy(deep=True) for message in messages]
+        if self._system_prompt is None:
+            return result
+
+        def payload():
+            try:
+                state = self._tools.work_state()
+                status = self._tools.state_bar(messages, self._budget)
+                mode = status.get("execution", {}).get("mode", state.mode) if status is not None else state.mode
+                view = {"application_state": {"mode": mode, "current_date": Clock().today().isoformat()}}
+                if status is not None:
+                    view["agent_status"] = status
+                memory_view = self._tools.memory_view(messages)
+                if memory_view:
+                    view['untrusted_user_memory'] = memory_view
+                return json.dumps(view, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
+            except Exception as error:
+                raise ContextLimit("当前状态投影不可用，停止本次模型请求") from error
+
+        tail = RuntimeContextMessage(role="user", content=payload())
+        tail._refresh = payload
+        return [Message(role="system", content=self._system_prompt)] + result + [tail]
+
     def _close_checkpoint(self, messages, context, run_id, parent_call_id, reason) -> RunResult:
         """仅一次收尾尝试；额度/协议失败也保留真实结果引用，不执行收尾工具。"""
         note, response = None, None
@@ -424,17 +474,7 @@ class Runtime:
                 span.finish("failed", closing_error, "not_started")
             else:
                 try:
-                    model_messages = [message.model_copy(deep=True) for message in messages]
-                    if self._system_prompt is not None:
-                        state = self._tools.work_state()
-                        model_messages = [
-                            Message(role="system", content=self._system_prompt),
-                            Message(role="user", content=json.dumps(
-                                {"application_state": {**state.model_dump(mode="json"), "current_date": Clock().today().isoformat()}},
-                                ensure_ascii=False, allow_nan=False,
-                            )),
-                        ] + model_messages
-                    model_messages.append(Message(role="user", content=CLOSING_INSTRUCTION))
+                    model_messages = self._model_messages(messages + [Message(role="user", content=CLOSING_INSTRUCTION)])
                     response = self._model.generate(model_messages)
                 except Exception:
                     closing_status, closing_error = "failed", "model_call_failed"

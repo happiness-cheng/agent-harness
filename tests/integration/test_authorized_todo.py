@@ -89,6 +89,7 @@ def test_real_todo_entry_runs_confirmed_crud_and_preserves_omitted_patch_fields(
     controller = TaskController(sessions)
     registry = registry_for(todos, controller, context)
     approve(controller, context, ActionSpec(operation="todo.add", parameters={"title": "周报", "due_date": "2026-10-21"}))
+    task = sessions.begin(context)
     added = execute(registry, "todo_add", title="周报", due_date="2026-10-21")
     item_id = added["id"]
     approve(controller, context,
@@ -108,6 +109,7 @@ def test_real_todo_entry_runs_confirmed_crud_and_preserves_omitted_patch_fields(
     assert execute(registry, "todo_complete", item_id=item_id)["changed"] is False
     assert execute(registry, "todo_delete", item_id=item_id)["changed"] is True
     assert execute(registry, "todo_delete", item_id=item_id)["changed"] is False
+    sessions.finish(context, task.task_id, status="completed")
     assert todos.list_items(context) == []
 
 
@@ -162,7 +164,9 @@ def test_runtime_waits_stops_remaining_calls_and_pairs_all_results_before_resume
             ModelResponse(finish_reason="tool_calls", tool_calls=[ToolCall(id="new", name="todo_add", arguments={"title": "周报"})]),
             ModelResponse(finish_reason="stop", content="已记录"),
         ])
-        result = Runtime(model, tools=registry_for(todos, controller, context)).run_session("按确认继续", store=sessions, context=context)
+        result = Runtime(model, tools=registry_for(todos, controller, context)).run_session(
+            "按确认继续", store=sessions, context=context,
+            resume_task_id=sessions.snapshot(context).task.task_id)
         assert result.status == "completed"
         assert [item.title for item in todos.list_items(context)] == ["周报"]
 
@@ -194,8 +198,10 @@ def test_bound_runtime_supplies_system_prompt_and_live_state_without_saving_proj
     assert result.status == "completed"
     messages = model.calls[0]
     assert messages[0].role == "system" and "Plan" in messages[0].content
-    assert messages[1].role == "user"
-    assert json.loads(messages[1].content)["application_state"]["mode"] == "plan"
+    assert messages[1].content == "普通问题" and messages[-1].role == "user"
+    payload = json.loads(messages[-1].content)
+    assert payload["application_state"]["mode"] == "plan"
+    assert "agent_status" not in payload
     assert [message.content for message in sessions.snapshot(context).messages] == ["普通问题", "直接回答"]
 
 
@@ -263,10 +269,12 @@ def test_relative_date_and_uuid_are_normalized_before_scope_check():
     controller = TaskController(sessions)
     registry = registry_for(todos, controller, context)
     approve(controller, context, ActionSpec(operation="todo.add", parameters={"title": "明天做", "due_date": "2026-10-21"}))
+    task = sessions.begin(context)
     added = execute(registry, "todo_add", title="明天做", due_date="明天")
     assert added["due_date"] == "2026-10-21"
     approve(controller, context, ActionSpec(operation="todo.complete", parameters={"item_id": added["id"]}))
     assert execute(registry, "todo_complete", item_id=added["id"].replace("-", ""))["changed"] is True
+    sessions.finish(context, task.task_id, status="completed")
 
 
 def test_matching_scope_still_cannot_modify_other_sessions_record():
@@ -277,8 +285,10 @@ def test_matching_scope_still_cannot_modify_other_sessions_record():
     controller = TaskController(sessions)
     registry = registry_for(todos, controller, first)
     approve(controller, first, ActionSpec(operation="todo.delete", parameters={"item_id": str(foreign_item.id)}))
+    task = sessions.begin(first)
     with pytest.raises(KeyError):
         execute(registry, "todo_delete", item_id=str(foreign_item.id))
+    sessions.finish(first, task.task_id, status="failed")
     assert todos.list_items(second) == [foreign_item] and todos.list_items(first) == []
 
 
@@ -324,6 +334,7 @@ def test_mode_switch_waits_for_already_authorized_business_commit():
     todos = BlockingTodos(sessions)
     registry = registry_for(todos, controller, context)
     approve(controller, context, ActionSpec(operation="todo.add", parameters={"title": "先提交", "due_date": None}))
+    task = sessions.begin(context)
 
     def switch():
         attempted.set()
@@ -341,6 +352,7 @@ def test_mode_switch_waits_for_already_authorized_business_commit():
             release.set()
         writing.result(timeout=5)
         switching.result(timeout=5)
+    sessions.finish(context, task.task_id, status="completed")
     assert [item.title for item in todos.list_items(context)] == ["先提交"]
     assert controller.snapshot(context).mode == "plan"
 
@@ -370,11 +382,13 @@ def test_legacy_snapshot_without_work_state_defaults_to_plan_and_bad_present_sta
         context = sessions.create(uuid4())
         data = sessions.snapshot(context).model_dump(mode="json")
     data.pop("work_state")
+    data["revision"] += 1  # 合成损坏夹具遵循新存储版本约束。
     with sqlite3.connect(path) as connection:
         connection.execute("UPDATE sessions SET snapshot_json = ?", (json.dumps(data),))
     with SQLiteStorage.open(path) as storage:
         assert TaskController(SessionStore(storage=storage)).snapshot(context).mode == "plan"
     data["work_state"] = {"mode": "build", "status": "ready"}
+    data["revision"] += 1
     with sqlite3.connect(path) as connection:
         connection.execute("UPDATE sessions SET snapshot_json = ?", (json.dumps(data),))
     with SQLiteStorage.open(path) as storage:
@@ -393,6 +407,7 @@ def test_actual_tool_sql_failure_never_reports_success_or_changes_business_memor
         controller = TaskController(sessions)
         registry = registry_for(todos, controller, context)
         approve(controller, context, ActionSpec(operation="todo.add", parameters={"title": "已确认", "due_date": None}))
+        sessions.begin(context)
         before = sessions.snapshot(context)
         table, event = ("todos", "INSERT") if failure == "business_write" else ("sessions", "UPDATE")
         with sqlite3.connect(path) as connection:
@@ -413,6 +428,7 @@ def test_scope_waiting_survives_restart_without_replaying_or_losing_previous_tod
         controller = TaskController(sessions)
         registry = registry_for(todos, controller, context)
         proposal = approve(controller, context, action)
+        task = sessions.begin(context)
         execute(registry, "todo_add", title="原范围")
         with pytest.raises(PermissionError):
             execute(registry, "todo_add", title="越界")
@@ -430,4 +446,5 @@ def test_scope_waiting_survives_restart_without_replaying_or_losing_previous_tod
         assert controller.authorize(context, action).code == "action_already_consumed"
         approve(controller, context, action)
         assert controller.authorize(context, action).allowed is True
+        sessions.finish(context, task.task_id, status="completed")
         assert [item.title for item in todos.list_items(context)] == ["原范围"]

@@ -56,6 +56,42 @@ class GoalProposal(BaseModel):
         return str(uuid5(self.proposal_id, f"action:{index}"))
 
 
+class ConfirmationGrant(BaseModel):
+    """一次用户确认的持久身份；绑定逻辑任务、attempt 与预算。"""
+
+    model_config = ConfigDict(strict=True, frozen=True, extra="forbid")
+    grant_id: UUID
+    owner_id: UUID
+    session_id: UUID
+    proposal_id: UUID
+    issued_revision: int = Field(ge=0)
+    status: Literal["pending_first_start", "bound", "paused", "closed"]
+    logical_task_id: UUID | None = None
+    attempt_id: UUID | None = None
+    budget_id: UUID | None = None
+
+    @model_validator(mode="after")
+    def check_shape(self):
+        if self.status == "pending_first_start":
+            if (self.logical_task_id, self.attempt_id, self.budget_id) != (None, None, None):
+                raise ValueError("pending grant 不能携带旧逻辑任务/attempt/预算")
+        elif self.logical_task_id is None or self.attempt_id is None:
+            raise ValueError("已绑定 grant 必须有逻辑任务与 attempt")
+        return self
+
+
+class WorkStateTransition(BaseModel):
+    """可信入口声明的授权状态转换；由 storage 对照 previous/candidate 校验。"""
+
+    model_config = ConfigDict(strict=True, frozen=True, extra="forbid")
+    kind: Literal["propose", "confirm", "select_mode", "scope_waiting",
+                  "bind_first_start", "resume", "finish"]
+    grant_id: UUID | None = None
+    logical_task_id: UUID | None = None
+    attempt_id: UUID | None = None
+    budget_id: UUID | None = None
+
+
 class WorkState(BaseModel):
     model_config = ConfigDict(strict=True, frozen=True, extra="forbid")
     mode: Literal["plan", "build"] = "plan"
@@ -63,6 +99,7 @@ class WorkState(BaseModel):
     proposal: GoalProposal | None = None
     confirmed_goal_id: UUID | None = None
     waiting_reason: Literal["goal_unconfirmed", "scope_not_confirmed"] | None = None
+    grant: ConfirmationGrant | None = None
 
     @model_validator(mode="after")
     def check_consistency(self):
@@ -75,6 +112,11 @@ class WorkState(BaseModel):
         if self.confirmed_goal_id is None and (self.proposal is not None or self.mode == "build"):
             if self.status != "waiting_user":
                 raise ValueError("未确认目标不能进入可执行状态")
+        if self.grant is not None:
+            if self.proposal is None or self.confirmed_goal_id is None:
+                raise ValueError("grant 必须对应当前已确认提案")
+            if self.grant.proposal_id != self.proposal.proposal_id or self.confirmed_goal_id != self.grant.proposal_id:
+                raise ValueError("grant 与当前确认提案不一致")
         return self
 
 
@@ -96,6 +138,11 @@ class AuthorizationRequired(PermissionError):
         self.code = code
 
 
+def derive_logical_task_id(task_id: UUID) -> UUID:
+    """旧 task 缺 logical 时仅在可信 confirm/resume 使用的稳定派生值。"""
+    return uuid5(task_id, "adrian-logical-task-v1")
+
+
 class TaskController:
     def __init__(self, sessions: "SessionStore") -> None:
         self._sessions = sessions
@@ -103,24 +150,70 @@ class TaskController:
     def snapshot(self, context: "ExecutionContext") -> WorkState:
         return self._sessions.work_state(context)
 
+    def _admit(self, context: "ExecutionContext", action: ActionSpec, decision: AuthorizationDecision) -> dict:
+        """严格执行准入：running task + 当前 bound grant + 精确 logical/attempt/budget。"""
+        self._sessions.check_access(context)
+        session = self._sessions.snapshot(context)
+        state = session.work_state
+        task = session.task
+        if task is None or task.status != "running":
+            raise AuthorizationRequired("task_not_active")
+        grant = state.grant
+        if grant is None:
+            raise AuthorizationRequired("confirmation_grant_missing")
+        if (state.proposal is None or state.confirmed_goal_id is None
+                or grant.proposal_id != state.proposal.proposal_id
+                or state.confirmed_goal_id != grant.proposal_id):
+            raise AuthorizationRequired("confirmation_mismatch")
+        if grant.logical_task_id != task.logical_task_id:
+            raise AuthorizationRequired("logical_task_mismatch")
+        if grant.attempt_id != task.task_id:
+            raise AuthorizationRequired("attempt_mismatch")
+        if grant.status != "bound":
+            raise AuthorizationRequired("confirmation_not_bound")
+        if grant.budget_id != session.active_budget_id:
+            raise AuthorizationRequired("budget_mismatch")
+        from min_agent.operations import operation_id
+        resource = (str(uuid5(context.session_id, decision.instance_id))
+                    if action.operation.endswith(".add")
+                    else action.parameters.get("item_id", action.parameters.get("reminder_id")))
+        return {
+            "instance_id": decision.instance_id,
+            "grant_id": str(grant.grant_id),
+            "proposal_id": str(state.confirmed_goal_id),
+            "owner_id": str(context.owner_id),
+            "session_id": str(context.session_id),
+            "task_id": str(task.task_id),
+            "attempt_id": str(task.task_id),
+            "logical_task_id": str(task.logical_task_id),
+            "budget_id": str(session.active_budget_id) if session.active_budget_id is not None else None,
+            "authorization_revision": session.revision,
+            "operation": action.operation,
+            "signature": action.signature(),
+            "resource_id": resource,
+            "request_id": operation_id.get(),
+        }
+
     @contextmanager
     def guard(self, context: "ExecutionContext", action: ActionSpec):
-        """授权检查至真实业务提交保持同一会话锁，不发放可缓存的许可。"""
+        """scope 判定后做执行准入，并在同一会话锁内保持到业务提交。"""
         with self._sessions.control(context):
+            from min_agent.operations import (action_scope, mark_business_not_started,
+                                              mark_business_started, operation_id, stamp_action)
             decision = self.authorize(context, action)
             if not decision.allowed:
+                mark_business_not_started(operation_id.get(), decision.code)
                 raise AuthorizationRequired(decision.code)
             if decision.instance_id is None:
+                mark_business_started(operation_id.get())
                 yield
                 return
-            from min_agent.operations import action_scope, operation_id, stamp_action
-            state = self.snapshot(context)
-            resource = (str(uuid5(context.session_id, decision.instance_id)) if action.operation.endswith(".add")
-                        else action.parameters.get("item_id", action.parameters.get("reminder_id")))
-            record = {"instance_id": decision.instance_id, "proposal_id": str(state.confirmed_goal_id),
-                "owner_id": str(context.owner_id), "session_id": str(context.session_id),
-                "operation": action.operation, "signature": action.signature(),
-                "resource_id": resource, "request_id": operation_id.get()}
+            try:
+                record = self._admit(context, action, decision)
+            except AuthorizationRequired as error:
+                mark_business_not_started(operation_id.get(), error.code)
+                raise
+            mark_business_started(operation_id.get())
             with action_scope(record):
                 yield
                 # 无变化操作没有业务提交，也必须消费一次确认；异常路径不执行这里。
@@ -137,7 +230,8 @@ class TaskController:
             if mode == "build" and state.confirmed_goal_id is None:
                 data.update(status="waiting_user", waiting_reason="goal_unconfirmed")
             candidate = WorkState.model_validate(data)
-            self._sessions.set_work_state(context, candidate)
+            self._sessions.set_work_state(
+                context, candidate, transition=WorkStateTransition(kind="select_mode"))
             return candidate.model_copy(deep=True)
 
     def propose(self, context: "ExecutionContext", goal: GoalSpec) -> GoalProposal:
@@ -152,7 +246,8 @@ class TaskController:
                 mode=state.mode, status="waiting_user", proposal=proposal,
                 waiting_reason="goal_unconfirmed",
             )
-            self._sessions.set_work_state(context, candidate)
+            self._sessions.set_work_state(
+                context, candidate, transition=WorkStateTransition(kind="propose"))
             return proposal.model_copy(deep=True)
 
     def confirm(self, context: "ExecutionContext", proposal_id: UUID) -> WorkState:
@@ -161,14 +256,38 @@ class TaskController:
         if not isinstance(proposal_id, UUID):
             raise TypeError("proposal_id必须是UUID")
         with self._sessions.control(context):
-            state = self.snapshot(context)
+            session = self._sessions.snapshot(context)
+            state = session.work_state
             if state.proposal is None or state.proposal.proposal_id != proposal_id:
                 raise PermissionError("确认不属于当前目标版本")
+            task = session.task
+            logical = attempt = budget = None
+            status = "pending_first_start"
+            task_update = None
+            if task is not None and task.status == "running":
+                logical = task.logical_task_id or derive_logical_task_id(task.task_id)
+                attempt, budget, status = task.task_id, session.active_budget_id, "bound"
+                if task.logical_task_id is None:
+                    task_update = task.model_copy(update={"logical_task_id": logical})
+            elif task is not None and task.status != "completed":
+                logical = task.logical_task_id or derive_logical_task_id(task.task_id)
+                attempt, budget, status = task.task_id, session.active_budget_id, "paused"
+                if task.logical_task_id is None:
+                    task_update = task.model_copy(update={"logical_task_id": logical})
+            grant = ConfirmationGrant(
+                grant_id=uuid4(), owner_id=context.owner_id, session_id=context.session_id,
+                proposal_id=proposal_id, issued_revision=session.revision + 1, status=status,
+                logical_task_id=logical, attempt_id=attempt, budget_id=budget,
+            )
             candidate = WorkState(
                 mode=state.mode, status="ready", proposal=state.proposal,
-                confirmed_goal_id=proposal_id,
+                confirmed_goal_id=proposal_id, grant=grant,
             )
-            self._sessions.set_work_state(context, candidate)
+            transition = WorkStateTransition(
+                kind="confirm", grant_id=grant.grant_id, logical_task_id=logical,
+                attempt_id=attempt, budget_id=budget,
+            )
+            self._sessions.set_work_state(context, candidate, transition=transition, task=task_update)
             return candidate.model_copy(deep=True)
 
     def authorize(self, context: "ExecutionContext", action: ActionSpec) -> AuthorizationDecision:
@@ -176,6 +295,7 @@ class TaskController:
         if not isinstance(action, ActionSpec):
             raise TypeError("action必须是ActionSpec")
         action = ActionSpec.model_validate(action.model_dump(warnings=False))
+        self._sessions.assert_current(context)
         if action.operation in {"todo.list", "reminder.list"}:
             return AuthorizationDecision(allowed=True, code="allowed")
         with self._sessions.control(context):
@@ -199,7 +319,9 @@ class TaskController:
                 return AuthorizationDecision(allowed=False, code="action_already_consumed")
             candidate = WorkState(
                 mode=state.mode, status="waiting_user", proposal=state.proposal,
-                confirmed_goal_id=state.confirmed_goal_id, waiting_reason="scope_not_confirmed",
+                confirmed_goal_id=state.confirmed_goal_id, grant=state.grant,
+                waiting_reason="scope_not_confirmed",
             )
-            self._sessions.set_work_state(context, candidate)
+            self._sessions.set_work_state(
+                context, candidate, transition=WorkStateTransition(kind="scope_waiting"))
             return AuthorizationDecision(allowed=False, code="scope_not_confirmed")

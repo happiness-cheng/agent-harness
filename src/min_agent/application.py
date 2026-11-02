@@ -29,6 +29,7 @@ from min_agent.runtime import Runtime
 from min_agent.scheduler import Scheduler
 from min_agent.sessions import SessionStore, ExecutionContext
 from min_agent.skills import SkillCatalog
+from min_agent.skill_retention import SkillRetentionSelector
 from min_agent.storage import SQLiteStorage
 from min_agent.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
 from min_agent.tools.calculator import CALCULATOR_TOOL
@@ -85,14 +86,46 @@ class DemoModel:
 
 class HarnessApplication:
     def __init__(self, database, *, model=None, model_factory=None, proxy=None, desktop=None,
-                 total_models=40, segment_models=6, window=32768, owner_id=None):
+                 total_models=40, segment_models=6, total_tools=60, segment_tools=12, window=None, owner_id=None,
+                 memory_strategy='GOAL_VALUE', memory_budget=4096, memory_policy=None, memory_mode='legacy',
+                 public_goals_enabled=False, research_observation_enabled=False):
+        if memory_strategy not in {'NONE','RECENCY','FREQUENCY','GOAL_VALUE'}:
+            raise ValueError('无效Memory策略')
+        if type(memory_budget) is not int or memory_budget<0: raise ValueError('无效Memory预算')
+        self.memory_strategy,self.memory_budget,self.memory_policy=memory_strategy,memory_budget,memory_policy
+        if memory_mode not in {'legacy','active','off'}: raise ValueError('无效Memory使用模式')
+        self.memory_mode = memory_mode
         path = Path(database).resolve(); path.parent.mkdir(parents=True, exist_ok=True)
         self.storage = SQLiteStorage.open(path) if path.exists() else SQLiteStorage.create_new(path)
         self.sessions = SessionStore(storage=self.storage)
+        if type(research_observation_enabled) is not bool:
+            raise TypeError("研究观察开关必须为布尔值")
+        self.research_observation_enabled = research_observation_enabled
+        self.research_observations = None
+        if research_observation_enabled:
+            from min_agent.research_observation import ResearchObservationStore
+            self.research_observations = ResearchObservationStore(self.sessions)
+        if type(public_goals_enabled) is not bool:
+            raise TypeError("公开目标开关必须为布尔值")
+        self.public_goals_enabled = public_goals_enabled
+        self.public_goal_registry = None
+        self.public_goal_adapter = None
+        if public_goals_enabled:
+            from min_agent.public_goal_adapter import PublicGoalAdapter
+            from min_agent.public_goal_registry import PublicGoalRegistry
+            from min_agent.todo_observation import TodoObserver
+            self.public_goal_registry = PublicGoalRegistry(self.sessions)
+            self.public_goal_adapter = PublicGoalAdapter(
+                self.public_goal_registry, TodoObserver(self.storage))
+        from min_agent.long_memory import LongMemory
+        self.memory = LongMemory(self.sessions)
         self.owner_id = owner_id or uuid5(NAMESPACE_URL, "agent-harness-local:" + str(path))
         self.model = model or DemoModel(); self.model_factory = model_factory
         self.demo = isinstance(self.model, DemoModel) and model_factory is None
         self.proxy, self.total_models, self.segment_models, self.window = proxy, total_models, segment_models, window
+        BudgetLimits(model_calls=total_models,tool_calls=total_tools)
+        BudgetLimits(model_calls=segment_models,tool_calls=segment_tools)
+        self.total_tools,self.segment_tools=total_tools,segment_tools
         self._lock, self._running, self._errors, self._fetchers = RLock(), {}, {}, {}
         self._pool = ThreadPoolExecutor(max_workers=4, thread_name_prefix="agent-session")
         self._closing = Event(); self._scheduler_thread = None
@@ -136,19 +169,27 @@ class HarnessApplication:
             "trace_runs": [{key: value for key, value in record.items() if key != "events"}
                 for record in self.sessions.extension(context, "trace_runs", [])],
             "allow_web": self.sessions.extension(context, "allow_public_web", False),
-            "error": self._errors.get(str(context.session_id)), "demo": self.demo}
+            "error": self._errors.get(str(context.session_id)), "demo": self.demo,
+            "long_memory": self.memory_status(context)}
 
-    def submit(self, session_id, text):
+    def submit(self, session_id, text, *, public_goals=None, proposal_id=None):
         context = self.context(session_id)
+        if public_goals is not None:
+            if proposal_id is None:
+                proposal_id = self.sessions.work_state(context).confirmed_goal_id
+            if proposal_id is None:
+                raise PermissionError("公开目标需要当前已确认提案")
+            self.register_public_goals(session_id, proposal_id, public_goals)
         with self._lock:
             SessionEvents(self.sessions, context).enqueue(text)
             self._launch(context)
 
-    def _launch(self, context, *, text=None, checkpoint_id=None):
+    def _launch(self, context, *, text=None, checkpoint_id=None, resume_task_id=None):
         identity = str(context.session_id)
         if identity in self._running: return False
         if self._closing.is_set(): raise RuntimeError("应用正在关闭")
-        self._running[identity] = self._pool.submit(self._worker, context, text, checkpoint_id)
+        self._running[identity] = self._pool.submit(
+            self._worker, context, text, checkpoint_id, resume_task_id)
         return True
 
     def wait(self, session_id, timeout=20):
@@ -156,17 +197,29 @@ class HarnessApplication:
         if future: future.result(timeout=timeout)
 
     def resume(self, session_id, *, checkpoint_id=None, task_id=None, text="继续已确认任务"):
+        if checkpoint_id is not None and task_id is not None:
+            raise ValueError("checkpoint_id 与 task_id 不能同时指定")
         context = self.context(session_id)
         with self._lock:
             if str(context.session_id) in self._running: raise RuntimeError("会话正在执行")
             snapshot = self.sessions.snapshot(context)
             pending = snapshot.checkpoint is not None and snapshot.checkpoint.resumed_by is None
             if pending:
-                if str(snapshot.checkpoint.checkpoint.checkpoint_id) != str(checkpoint_id): raise PermissionError("恢复必须指定当前检查点")
-            elif snapshot.task is None or str(snapshot.task.task_id) != str(task_id) or snapshot.task.status == "completed":
-                raise PermissionError("恢复必须定向指定暂停/等待任务")
+                if checkpoint_id is None or str(snapshot.checkpoint.checkpoint.checkpoint_id) != str(checkpoint_id):
+                    raise PermissionError("恢复必须指定当前检查点")
+                target_checkpoint = UUID(str(checkpoint_id))
+                target_task = None
+            else:
+                if task_id is None or snapshot.task is None:
+                    raise PermissionError("恢复必须定向指定暂停/等待任务")
+                if (str(snapshot.task.task_id) != str(task_id)
+                        or snapshot.task.status in {"completed", "running"}):
+                    raise PermissionError("恢复必须定向指定暂停/等待任务")
+                target_checkpoint = None
+                target_task = UUID(str(task_id))
             SessionEvents(self.sessions, context).resume_dispatch()
-            self._launch(context, text=text, checkpoint_id=UUID(str(checkpoint_id)) if pending else None)
+            self._launch(context, text=text, checkpoint_id=target_checkpoint,
+                         resume_task_id=target_task)
 
     def propose(self, context, parameters):
         validated = GoalParameters.model_validate(parameters)
@@ -194,6 +247,35 @@ class HarnessApplication:
                 raise RuntimeError("运行中不能确认目标，请使用显式引导")
             TaskController(self.sessions).confirm(context, UUID(str(proposal_id)))
 
+    def register_public_goals(self, session_id, proposal_id, goals):
+        """仅可信 host 调用；模型/普通请求不能登记公开目标。"""
+        if not self.public_goals_enabled or self.public_goal_registry is None:
+            raise RuntimeError("公开目标反馈未启用")
+        return self.public_goal_registry.register(self.context(session_id), proposal_id, goals)
+
+    # 明确别名，避免 host 入口名称差异造成误用。
+    configure_public_goals = register_public_goals
+
+    def _freeze_public_goals(self, store, context, task):
+        if not self.public_goals_enabled or self.public_goal_registry is None:
+            return
+        if self.public_goal_registry.pending(context) is not None:
+            self.public_goal_registry.freeze(context, task)
+
+    def public_feedback(self, session_id):
+        """受信 host 的只读影子结果；关闭时返回 None。"""
+        if not self.public_goals_enabled or self.public_goal_adapter is None:
+            return None
+        return self.public_goal_adapter.feedback(self.context(session_id))
+
+    def public_score(self, session_id):
+        if not self.public_goals_enabled or self.public_goal_adapter is None:
+            return None
+        return self.public_goal_adapter.score(self.context(session_id))
+
+    public_goal_feedback = public_feedback
+    public_goal_score = public_score
+
     def dispatch(self, session_id, text=""):
         context = self.context(session_id)
         with self._lock:
@@ -214,11 +296,69 @@ class HarnessApplication:
         if type(enabled) is not bool: raise ValueError("公开网络开关必须为布尔值")
         self.sessions.set_extension(self.context(session_id), "allow_public_web", enabled)
 
-    def _registry(self, context, segment, raw_model, control, trace=None):
+    def get_research_observation(self, session_id, run_ref=None):
+        if not self.research_observation_enabled or self.research_observations is None:
+            raise PermissionError("research_observation_disabled")
+        try:
+            context = self.context(session_id)
+        except Exception as error:
+            from min_agent.storage import VersionConflict
+            # 陈旧会话可能已被assert_current标记失效；对host只暴露无可信结果。
+            if not isinstance(error, (PermissionError, ValueError, TypeError, VersionConflict)):
+                raise
+            from min_agent.research_observation import ResearchObservation
+            return ResearchObservation(run_ref="withheld", status="WITHHELD",
+                                       reason_code="UNVERIFIED_RESEARCH_RUN")
+        return self.research_observations.get(context, run_ref)
+
+    def effective_memory_mode(self, context):
+        if self.memory_strategy == 'NONE': return 'off'
+        preferences = self.sessions.extension(context, 'long_memory_preferences', None)
+        if preferences is None: return self.memory_mode
+        return 'active' if preferences['enabled'] else 'off'
+
+    def memory_status(self, context):
+        mode = self.effective_memory_mode(context)
+        preferences = self.sessions.extension(context, 'long_memory_preferences', {})
+        doc = self.memory.document(context)
+        return dict(enabled=mode!='off', mode=mode, scenario_ids=preferences.get('scenario_ids', []),
+            scenarios=[dict(id=s.id,label=s.label) for s in doc.scenarios.values() if s.created_at<=self.memory.clock()],
+            receipt=self.sessions.extension(context, 'long_memory_delivery', None),
+            citation=self.sessions.extension(context, 'long_memory_citation', None))
+
+    def configure_memory(self, session_id, enabled, scenario_ids=None):
+        context = self.context(session_id)
+        with self._lock:
+            snapshot = self.sessions.snapshot(context)
+            if str(context.session_id) in self._running or (snapshot.task and snapshot.task.status=='running'):
+                raise RuntimeError('运行中不能切换Memory范围')
+            if type(enabled) is not bool: raise ValueError('Memory开关必须为布尔值')
+            if enabled and self.memory_strategy=='NONE': raise ValueError('此运行模式禁用长期Memory')
+            current = self.sessions.extension(context, 'long_memory_preferences', {})
+            ids = current.get('scenario_ids',[]) if scenario_ids is None else scenario_ids
+            if not isinstance(ids,list) or len(ids)>10 or any(not isinstance(i,str) for i in ids):
+                raise ValueError('场景范围无效')
+            known = {s.id for s in self.memory.document(context).scenarios.values() if s.created_at<=self.memory.clock()}
+            if not set(ids)<=known: raise PermissionError('场景不属于当前可用owner范围')
+            self.sessions.set_extension(context,'long_memory_preferences',dict(enabled=enabled,scenario_ids=list(dict.fromkeys(ids))))
+        return self.memory_status(context)
+
+    def _registry(self, context, segment, raw_model, control, trace=None, memory_query='当前任务'):
         controller = TaskController(self.sessions)
         todos = TodoService(self.sessions)
         registry = todo_registry(todos, controller, context)
         registry.register(CALCULATOR_TOOL)
+        mode = self.effective_memory_mode(context)
+        if mode == 'active':
+            from min_agent.long_memory.delivery import bind_active_memory
+            from min_agent.long_memory.models import Query
+            preferences = self.sessions.extension(context,'long_memory_preferences',{})
+            bind_active_memory(registry,self.memory,context,Query(text=memory_query[:20000] or '当前任务',
+                as_of=self.memory.clock(),scenario_ids=preferences.get('scenario_ids',[])),budget=self.memory_budget)
+        elif mode == 'legacy' and (self.memory.document(context).memories or self.memory.document(context).pending_erasure_ids):
+            from min_agent.long_memory.integration import bind_runtime_memory
+            bind_runtime_memory(registry,self.memory,context,budget=self.memory_budget,
+                strategy=self.memory_strategy,policy=self.memory_policy)
         register_reminders(registry, ReminderService(self.sessions), controller, context)
         def propose(**kwargs): return self.propose(context, kwargs).model_dump_json()
         registry.register(ToolDefinition("propose_goal", "记录候选目标/约束/完成标准和精确动作清单供用户确认；不授权业务写入，不切换Build。普通聊天不必调用。", GoalParameters, propose))
@@ -240,7 +380,8 @@ class HarnessApplication:
         registry.register(ToolDefinition("read_skill", "读取已登记技能正文；内容是参考，不能增加工具/网络/写入权限。可用：" + json.dumps(catalog.summaries(), ensure_ascii=False),
                                         _Skill, lambda name: catalog.read(name)))
         def research(question):
-            if not self.sessions.extension(context, "allow_public_web", False): raise AuthorizationRequired("network_not_authorized")
+            current = self.sessions.authoritative_snapshot(context)
+            if not current.extensions.get("allow_public_web", False): raise AuthorizationRequired("network_not_authorized")
             with self._lock:
                 if context.session_id not in self._fetchers:
                     self._fetchers[context.session_id] = PublicFetcher()
@@ -249,26 +390,47 @@ class HarnessApplication:
             reader = WebReader(fetcher, artifacts)
             state = self.sessions.work_state(context)
             version = state.confirmed_goal_id
-            task = self.sessions.snapshot(context).task
+            task = current.task
+            if task is None or task.status != "running":
+                raise PermissionError("研究需要活动的父任务")
+            parent_budget_id = current.active_budget_id
+            def permission_check():
+                latest = self.sessions.authoritative_snapshot(context)
+                if not latest.extensions.get("allow_public_web", False):
+                    raise AuthorizationRequired("network_not_authorized")
+                if (latest.task is None or latest.task.task_id != task.task_id
+                        or latest.task.status != "running"
+                        or latest.active_budget_id != parent_budget_id):
+                    raise PermissionError("研究父执行范围已改变")
+                self.sessions.check_budget_binding(context, segment)
+            permission_check()
+            collector = None
+            if self.research_observation_enabled and self.research_observations is not None:
+                collector = self.research_observations.start(
+                    context, task, budget_id=parent_budget_id, proposal_id=version)
             class ResearchControl:
                 def snapshot(inner):
                     current = control.snapshot()
                     return {"stop": current["stop"] or bool(current["steers"]), "steers": []}
                 def poll(inner, task_id):
                     return inner.snapshot()["stop"], []
-            result = ResearchService(raw_model, search, reader, artifacts).run(question, segment,
+            result = ResearchService(raw_model, search, reader, artifacts, input_window=self.window).run(question, segment,
                 constraints=state.proposal.goal.constraints if state.proposal else (), control=ResearchControl(),
-                trace_context=TraceContext(session_id=context.session_id, task_id=task.task_id), trace=trace)
+                trace_context=TraceContext(session_id=context.session_id, task_id=task.task_id), trace=trace,
+                permission_check=permission_check, observation=collector)
             if self.sessions.work_state(context).confirmed_goal_id != version:
+                if collector is not None:
+                    collector.invalidate("stale_goal_version")
                 result = {"status": "partial", "error": "stale_goal_version", "evidence": None}
             return json.dumps(result, ensure_ascii=False)
         registry.register(ToolDefinition("research", "针对已允许的公开问题自主搜索、阅读与补查，返回有原文位置/限制/冲突的证据包；不复制私人聊天、不写业务或递归委派。", _Question, research))
         return registry
 
-    def _worker(self, context, text=None, checkpoint_id=None):
+    def _worker(self, context, text=None, checkpoint_id=None, resume_task_id=None):
         identity = str(context.session_id)
         try:
             while not self._closing.is_set():
+                self.memory.reconcile_deletions(context)
                 events = SessionEvents(self.sessions, context)
                 new_input = text is None
                 if new_input: text = events.next_input()
@@ -280,28 +442,43 @@ class HarnessApplication:
                 # 普通新输入开启新逻辑任务；定向续跑仅新建片段，复用原任务账本。
                 budget_id = snapshot.active_budget_id
                 if new_input or budget_id is None:
-                    budget_id = budgets.create(context, BudgetLimits(model_calls=self.total_models, tool_calls=60))
+                    budget_id = budgets.create(context, BudgetLimits(model_calls=self.total_models, tool_calls=self.total_tools))
                 ledger = budgets.open(context, budget_id)
-                segment = ledger.start_segment(BudgetLimits(model_calls=self.segment_models, tool_calls=12))
+                segment = ledger.start_segment(BudgetLimits(model_calls=self.segment_models, tool_calls=self.segment_tools))
                 raw_model = self.model_factory(context) if self.model_factory is not None else self.model
-                compactor = Compactor(raw_model, self.sessions, context, segment, input_window=self.window, control=events)
+                from min_agent.model_context import context_window, output_reserve
+                window = context_window(raw_model, override=self.window)
+                compactor = Compactor(raw_model, self.sessions, context, segment, input_window=window, control=events)
                 manager = ContextManager(self.sessions, context, ArtifactStore(self.sessions, context),
-                    window=self.window, compactor=compactor,
-                    selector=GroundedSelector(raw_model, segment, input_window=self.window, control=events),
-                    state_reader=SessionStateTable(self.sessions, context, TodoService(self.sessions)).read)
+                    window=window, output_reserve=output_reserve(raw_model), compactor=compactor, model=raw_model,
+                    selector=GroundedSelector(raw_model, segment, input_window=window, control=events),
+                    skill_selector=SkillRetentionSelector(raw_model, segment, input_window=window, control=events))
                 trace = TraceRecorder()
-                runtime = Runtime(ManagedModel(raw_model, manager, control=events), self._registry(context, segment, raw_model, events, trace),
+                memory_query = text
+                work = self.sessions.work_state(context)
+                if not new_input and work.proposal:
+                    memory_query = work.proposal.goal.objective+'\n'+text
+                registry = self._registry(context, segment, raw_model, events, trace, memory_query=memory_query)
+                primary_model = raw_model
+                if getattr(registry, '_memory_delivery', None) is not None:
+                    from min_agent.long_memory.delivery import MemoryDeliveryModel
+                    primary_model = MemoryDeliveryModel(raw_model, registry._memory_delivery)
+                runtime = Runtime(ManagedModel(primary_model, manager, control=events), registry,
                     budget=segment, checkpoint_policy=CheckpointPolicy(), control=events,
-                    progress_guard=ProgressGuard(self.sessions, context), recover_unknown_writes=True, trace=trace)
+                    progress_guard=ProgressGuard(self.sessions, context), recover_unknown_writes=True, trace=trace,
+                    before_execute=self._freeze_public_goals if self.public_goals_enabled else None)
                 if checkpoint_id is not None:
                     result = runtime.resume_session(checkpoint_id, store=self.sessions, context=context, text=text)
+                elif resume_task_id is not None:
+                    result = runtime.run_session(
+                        text, store=self.sessions, context=context, resume_task_id=resume_task_id)
                 else:
                     result = runtime.run_session(text, store=self.sessions, context=context)
                 record_run_trace(self.sessions, context, runtime.trace, run_id=result.run_id,
                     budget_id=budget_id, status=result.status)
                 if result.status in {"partial", "failed", "cancelled"} and result.checkpoint is None:
                     self._save_factual_checkpoint(context, segment, result.error_code)
-                text, checkpoint_id = None, None
+                text, checkpoint_id, resume_task_id = None, None, None
                 if result.status != "completed": break
         except Exception:
             self._errors[identity] = "execution_paused_reload_required"

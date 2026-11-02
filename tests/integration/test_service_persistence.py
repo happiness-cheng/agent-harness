@@ -274,7 +274,7 @@ def test_corrupt_database_refuses_business_startup_instead_of_empty_fallback(tmp
     with SQLiteStorage.create_new(path) as storage:
         SessionStore(storage=storage).create(uuid4())
     with sqlite3.connect(path) as connection:
-        connection.execute("UPDATE sessions SET snapshot_json = '{}' ")
+        connection.execute("UPDATE sessions SET snapshot_json = '{\"revision\":1}' ")
     with SQLiteStorage.open(path) as storage:
         with pytest.raises(ValueError):
             SessionStore(storage=storage)

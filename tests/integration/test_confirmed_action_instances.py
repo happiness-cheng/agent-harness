@@ -57,6 +57,7 @@ def test_two_explicit_same_content_instances_create_two_distinct_records():
 def test_reconfirming_same_proposal_does_not_refill_consumed_instances():
     store=SessionStore();context=store.create(uuid4());todos=TodoService(store);controller=TaskController(store)
     proposal=confirm(controller,context);registry=todo_registry(todos,controller,context)
+    task=store.begin(context)
     registry.execute(call("first"))
     controller.confirm(context,proposal.proposal_id)
     with pytest.raises(AuthorizationRequired):registry.execute(call("second"))
@@ -64,18 +65,24 @@ def test_reconfirming_same_proposal_does_not_refill_consumed_instances():
     confirm(controller,context)
     registry.execute(call("independent-confirmation"))
     assert len(todos.list_items(context))==2
+    store.finish(context,task.task_id,status="completed")
 
 
 def test_consumption_survives_restart_and_changed_call_id(tmp_path):
     path=tmp_path/"actions.sqlite3"
     with SQLiteStorage.create_new(path) as storage:
         store=SessionStore(storage=storage);context=store.create(uuid4());controller=TaskController(store)
-        confirm(controller,context)
+        proposal=confirm(controller,context)
+        task=store.begin(context)
         todo_registry(TodoService(store),controller,context).execute(call("before"),operation_id="model-before")
+        store.finish(context,task.task_id,status="completed")
     with SQLiteStorage.open(path) as storage:
         store=SessionStore(storage=storage);controller=TaskController(store);todos=TodoService(store)
+        controller.confirm(context,proposal.proposal_id)
+        task=store.begin(context)
         with pytest.raises(AuthorizationRequired):
             todo_registry(todos,controller,context).execute(call("after"),operation_id="model-after")
+        store.finish(context,task.task_id,status="failed")
         assert len(todos.list_items(context))==1
 
 
@@ -83,6 +90,7 @@ def test_sqlite_failure_rolls_back_business_and_authorization_together(tmp_path)
     with SQLiteStorage.create_new(tmp_path/"rollback.sqlite3") as storage:
         store=SessionStore(storage=storage);context=store.create(uuid4());controller=TaskController(store)
         confirm(controller,context);todos=TodoService(store)
+        task=store.begin(context)
         storage._connection.execute("CREATE TRIGGER reject_new_todo BEFORE INSERT ON todos "
                                     "BEGIN SELECT RAISE(ABORT,'synthetic failure'); END")
         with pytest.raises(sqlite3.IntegrityError):
@@ -92,6 +100,7 @@ def test_sqlite_failure_rolls_back_business_and_authorization_together(tmp_path)
         saved=storage.load(context).snapshot
         assert saved.extensions.get("action_receipts",{})=={}
         assert store.extension(context,"action_receipts",{})=={}
+        store.finish(context,task.task_id,status="failed")
 
 
 def test_lost_response_after_commit_cannot_reexecute_after_restart(tmp_path):
@@ -99,12 +108,14 @@ def test_lost_response_after_commit_cannot_reexecute_after_restart(tmp_path):
     with SQLiteStorage.create_new(path) as storage:
         store=SessionStore(storage=storage);context=store.create(uuid4());controller=TaskController(store)
         confirm(controller,context);todos=TodoService(store);original=todos.add
+        task=store.begin(context)
         def lost(*args,**kwargs):
             original(*args,**kwargs)
             raise TimeoutError("synthetic lost response")
         todos.add=lost
         with pytest.raises(TimeoutError):
             todo_registry(todos,controller,context).execute(call("before"),operation_id="unknown-before")
+        store.finish(context,task.task_id,status="failed")
     with SQLiteStorage.open(path) as storage:
         store=SessionStore(storage=storage);controller=TaskController(store);todos=TodoService(store)
         with pytest.raises(AuthorizationRequired):
@@ -115,12 +126,14 @@ def test_lost_response_after_commit_cannot_reexecute_after_restart(tmp_path):
 def test_simultaneous_different_ids_cannot_consume_one_instance_twice():
     store=SessionStore();context=store.create(uuid4());todos=TodoService(store);controller=TaskController(store)
     confirm(controller,context);registry=todo_registry(todos,controller,context)
+    task=store.begin(context)
     def execute(index):
         try:return registry.execute(call(str(index)))
         except AuthorizationRequired:return None
     with ThreadPoolExecutor(max_workers=2) as pool:results=list(pool.map(execute,range(2)))
     assert sum(value is not None for value in results)==1
     assert len(todos.list_items(context))==1
+    store.finish(context,task.task_id,status="completed")
 
 
 def test_reminder_add_also_consumes_the_action_instance():
@@ -135,10 +148,12 @@ def test_reminder_add_also_consumes_the_action_instance():
     controller.select_mode(context,"build");controller.confirm(context,proposal.proposal_id)
     registry=todo_registry(TodoService(store),controller,context)
     register_reminders(registry,service,controller,context)
+    task=store.begin(context)
     registry.execute(ToolCall(id="first",name="reminder_add",arguments=parameters),operation_id="first")
     with pytest.raises(AuthorizationRequired):
         registry.execute(ToolCall(id="second",name="reminder_add",arguments=parameters),operation_id="second")
     assert len(service.list_items(context))==1
+    store.finish(context,task.task_id,status="completed")
 
 
 def test_unknown_same_request_recovers_receipt_instead_of_taking_second_instance(tmp_path):
@@ -146,20 +161,24 @@ def test_unknown_same_request_recovers_receipt_instead_of_taking_second_instance
     with SQLiteStorage.create_new(path) as storage:
         store=SessionStore(storage=storage);context=store.create(uuid4());controller=TaskController(store)
         confirm(controller,context,2);todos=TodoService(store);original=todos.add
+        task=store.begin(context)
         def lost(*args,**kwargs):
             original(*args,**kwargs)
             raise TimeoutError("synthetic lost response")
         todos.add=lost
         with pytest.raises(TimeoutError):
             todo_registry(todos,controller,context).execute(call("same-request"),operation_id="same-request")
+        store.finish(context,task.task_id,status="failed")
     with SQLiteStorage.open(path) as storage:
         store=SessionStore(storage=storage);todos=TodoService(store);controller=TaskController(store)
         registry=todo_registry(todos,controller,context)
         recovered=registry.execute(call("same-request"),operation_id="same-request")
         assert json.loads(recovered["result"])["id"]==str(todos.list_items(context)[0].id)
         assert len(todos.list_items(context))==1
+        resumed=store.begin(context,resume_task_id=task.task_id)
         registry.execute(call("second-instance"),operation_id="second-instance")
         assert len(todos.list_items(context))==2
+        store.finish(context,resumed.task_id,status="completed")
 
 
 def test_legacy_confirmation_stays_readable_but_requires_new_proposal_for_writes():
@@ -168,7 +187,8 @@ def test_legacy_confirmation_stays_readable_but_requires_new_proposal_for_writes
     proposal=confirm(controller,context)
     legacy=controller.snapshot(context).model_dump(mode="json")
     legacy["proposal"].pop("authorization_version")
-    store.set_work_state(context,WorkState.model_validate_json(json.dumps(legacy)))
+    legacy.pop("grant",None)
+    store._sessions[context.session_id].work_state=WorkState.model_validate_json(json.dumps(legacy))
     controller.confirm(context,proposal.proposal_id)
     assert controller.authorize(context,ActionSpec(operation="todo.list")).allowed
     assert controller.authorize(context,ACTION).code=="legacy_confirmation_requires_new_proposal"

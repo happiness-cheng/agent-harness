@@ -1,6 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0.."
+set "PYTHONPATH=%CD%\src"
 if not exist ".venv\Scripts\python.exe" (
     echo Please install the project by following README.md first.
     pause

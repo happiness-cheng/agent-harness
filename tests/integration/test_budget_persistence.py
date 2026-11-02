@@ -11,7 +11,12 @@ from min_agent.budget_persistence import SessionBudgets
 from min_agent.models import ModelResponse, ToolCall
 from min_agent.runtime import Runtime
 from min_agent.sessions import ExecutionContext, SessionStore
-from min_agent.storage import SQLiteStorage
+from min_agent.storage import SQLiteStorage, _SESSION_COMMIT
+
+
+def trusted_storage_save(storage, *args, **kwargs):
+    """模拟受信 SessionStore 调用，原存储不变量断言保持不变。"""
+    return storage.save(*args, _session_commit=_SESSION_COMMIT, **kwargs)
 from min_agent.task_state import ActionSpec, GoalSpec, TaskController
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry
@@ -199,7 +204,7 @@ def test_ordinary_snapshot_save_cannot_erase_or_rewind_budget(tmp_path):
         candidate.budgets.clear()
         candidate.active_budget_id = None
         with pytest.raises(ValueError):
-            storage.save(context, candidate, original.todos)
+            trusted_storage_save(storage, context, candidate, original.todos)
         assert storage.load(context) == original
 
 
@@ -234,6 +239,7 @@ def test_corrupt_persistent_budget_refuses_startup_instead_of_reset(tmp_path, co
             data["budgets"][str(budget_id)]["state"]["usage"]["model_calls"] = 0
         else:
             data["active_budget_id"] = None
+        data["revision"] += 1  # 合成损坏夹具遵循新存储版本约束。
         connection.execute("UPDATE sessions SET snapshot_json=?", (json.dumps(data),))
     with SQLiteStorage.open(path) as storage:
         with pytest.raises(ValueError):
@@ -276,6 +282,7 @@ def test_old_snapshot_without_budget_fields_remains_compatible(tmp_path):
         data = json.loads(connection.execute("SELECT snapshot_json FROM sessions").fetchone()[0])
         data.pop("budgets")
         data.pop("active_budget_id")
+        data["revision"] += 1
         connection.execute("UPDATE sessions SET snapshot_json=?", (json.dumps(data),))
     with SQLiteStorage.open(path) as storage:
         sessions = SessionStore(storage=storage)

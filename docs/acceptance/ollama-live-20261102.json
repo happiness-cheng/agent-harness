@@ -1,0 +1,242 @@
+{
+  "started_at": "2026-11-02T20:59:10+08:00",
+  "model": "qwen3.5:4b",
+  "base_url": "http://127.0.0.1:11434",
+  "num_ctx": 8192,
+  "stream": false,
+  "think": false,
+  "cases": {
+    "A": {
+      "case": "A-plain-chat",
+      "status": "completed",
+      "error_code": null,
+      "duration_seconds": 11.93,
+      "answer": "Agent 是一种能够感知环境、自主决策并执行行动的智能体，它通过接收输入数据来规划任务并生成相应的输出。与传统的自动化脚本不同，Agent 具备独立思考和适应变化的能力，能够在复杂动态环境中持续优化其行为以实现目标。",
+      "model_calls": 1,
+      "usage": [
+        {
+          "request": 1,
+          "prompt_eval_count": 19,
+          "eval_count": 54,
+          "total_duration": 11919731800,
+          "load_duration": 8704300,
+          "prompt_eval_duration": 355393000,
+          "eval_duration": 11214683000
+        }
+      ],
+      "passed": true
+    },
+    "B": {
+      "status": "completed",
+      "error_code": null,
+      "duration_seconds": 19.93,
+      "model_calls": 2,
+      "usage": [
+        {
+          "request": 1,
+          "prompt_eval_count": 4132,
+          "eval_count": 30,
+          "total_duration": 11393132100,
+          "load_duration": 7766400,
+          "prompt_eval_duration": 4124394000,
+          "eval_duration": 7112233000
+        },
+        {
+          "request": 2,
+          "prompt_eval_count": 4188,
+          "eval_count": 19,
+          "total_duration": 8212823000,
+          "load_duration": 9058100,
+          "prompt_eval_duration": 4692572000,
+          "eval_duration": 3444422000
+        }
+      ],
+      "tool_calls": [
+        [
+          "calculator:{\"expression\": \"37*19\"}"
+        ]
+      ],
+      "tool_results": [
+        {
+          "name": "calculator",
+          "arguments": {
+            "expression": "37*19"
+          },
+          "ok": true,
+          "result": "703"
+        }
+      ],
+      "answer": "计算结果如下：  \n**37 × 19 = 703**",
+      "trace": [
+        {
+          "operation": "model",
+          "status": "completed",
+          "error_code": null
+        },
+        {
+          "operation": "tool",
+          "status": "completed",
+          "error_code": null
+        },
+        {
+          "operation": "model",
+          "status": "completed",
+          "error_code": null
+        },
+        {
+          "operation": "run",
+          "status": "completed",
+          "error_code": null
+        }
+      ],
+      "budget_usage": {
+        "model_calls": 2,
+        "tool_calls": 1,
+        "by_purpose": {
+          "main": {
+            "model_calls": 2,
+            "tool_calls": 1
+          }
+        }
+      },
+      "executed_calculator": [
+        {
+          "name": "calculator",
+          "arguments": {
+            "expression": "37*19"
+          },
+          "ok": true,
+          "result": "703"
+        }
+      ],
+      "passed": true,
+      "case": "B-calculator-tool"
+    },
+    "C": {
+      "status": "completed",
+      "error_code": null,
+      "duration_seconds": 39.95,
+      "model_calls": 3,
+      "usage": [
+        {
+          "request": 1,
+          "prompt_eval_count": 4168,
+          "eval_count": 50,
+          "total_duration": 15383939900,
+          "load_duration": 8657700,
+          "prompt_eval_duration": 4781094000,
+          "eval_duration": 10533475000
+        },
+        {
+          "request": 2,
+          "prompt_eval_count": 4243,
+          "eval_count": 53,
+          "total_duration": 16340668100,
+          "load_duration": 11087300,
+          "prompt_eval_duration": 4822313000,
+          "eval_duration": 11433215000
+        },
+        {
+          "request": 3,
+          "prompt_eval_count": 4321,
+          "eval_count": 15,
+          "total_duration": 7901954800,
+          "load_duration": 11895400,
+          "prompt_eval_duration": 5241523000,
+          "eval_duration": 2566091000
+        }
+      ],
+      "tool_calls": [
+        [
+          "calculator:{\"expression\": \"12+30\"}"
+        ],
+        [
+          "calculator:{\"expression\": \"42*2\"}"
+        ]
+      ],
+      "tool_results": [
+        {
+          "name": "calculator",
+          "arguments": {
+            "expression": "12+30"
+          },
+          "ok": true,
+          "result": "42"
+        },
+        {
+          "name": "calculator",
+          "arguments": {
+            "expression": "42*2"
+          },
+          "ok": true,
+          "result": "84"
+        }
+      ],
+      "answer": "好的，第一步和第二步都已完成。最终结果是 84。",
+      "trace": [
+        {
+          "operation": "model",
+          "status": "completed",
+          "error_code": null
+        },
+        {
+          "operation": "tool",
+          "status": "completed",
+          "error_code": null
+        },
+        {
+          "operation": "model",
+          "status": "completed",
+          "error_code": null
+        },
+        {
+          "operation": "tool",
+          "status": "completed",
+          "error_code": null
+        },
+        {
+          "operation": "model",
+          "status": "completed",
+          "error_code": null
+        },
+        {
+          "operation": "run",
+          "status": "completed",
+          "error_code": null
+        }
+      ],
+      "budget_usage": {
+        "model_calls": 3,
+        "tool_calls": 2,
+        "by_purpose": {
+          "main": {
+            "model_calls": 3,
+            "tool_calls": 2
+          }
+        }
+      },
+      "executed_calculator": [
+        {
+          "name": "calculator",
+          "arguments": {
+            "expression": "12+30"
+          },
+          "ok": true,
+          "result": "42"
+        },
+        {
+          "name": "calculator",
+          "arguments": {
+            "expression": "42*2"
+          },
+          "ok": true,
+          "result": "84"
+        }
+      ],
+      "passed": true,
+      "case": "C-multi-round-tools"
+    }
+  },
+  "finished_at": "2026-11-02T21:00:22+08:00",
+  "passed": true
+}

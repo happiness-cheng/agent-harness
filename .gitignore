@@ -9,6 +9,7 @@ dist/
 agent-harness-credentials.json
 *.log
 /data/
+/reports/
 
 # 本机恢复记录与工具配置不属于公开提交材料。
 /.codex/

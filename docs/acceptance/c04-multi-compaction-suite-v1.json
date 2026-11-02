@@ -1,0 +1,15 @@
+{
+  "version": "multi-compaction-regression-v1",
+  "status": "frozen-before-regression",
+  "scope": "只验证主上下文A→B→C连续压缩；无Skill，无外部模型请求。模型选择使用离线规则，不评价语义理解准确率。",
+  "cases": [
+    {"id":"R01","group":"development","purpose":"A→B新增100轮，中间第50轮约束与旧约束都在主模型输入可见","expected":true},
+    {"id":"R02","group":"acceptance","purpose":"B→C再增加100轮，中间新约束与A/B约束都在主模型输入可见","expected":true},
+    {"id":"R03","group":"acceptance","purpose":"covered单调推进，新增压缩范围精确衔接且原文归档覆盖完整已压缩前缀","expected":true},
+    {"id":"R04","group":"acceptance","purpose":"最终摘要引用校验回原始内容，原始会话与近期消息均未删改","expected":true},
+    {"id":"R05","group":"acceptance","purpose":"重建管理器复用同一压缩状态，不额外调用压缩模型","expected":true},
+    {"id":"R06","group":"acceptance","purpose":"已覆盖历史被修改或删除时阻断，不静默复用不匹配摘要","expected":true},
+    {"id":"R07","group":"acceptance","purpose":"下一次压缩响应无效时保持C点上下文状态，原历史完整且不调用主模型","expected":true},
+    {"id":"R08","group":"acceptance","purpose":"压缩额度不足不启动部分模型调用，不提交新摘要或丢弃原历史","expected":true}
+  ]
+}
