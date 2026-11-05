@@ -47,3 +47,15 @@
 - 已实际核对公开证据的 5 个源码 SHA256 与工作区完全一致；A–E 报告均 true；45 个相关文档本地链接存在。新增材料常见凭据模式未命中，人工审阅两份设计原文无私人对话正文；三份早期调查只归档去标识摘要，不上传原附件全文。
 - 首次失败运行遗留独立合成目录 `adrian-m1-ww1gnk37`：已列出仅 5 个合成 db。拟执行含绝对路径/文件白名单/reparse 检查的 PowerShell 清理命令，被自动策略拒绝（blocked by policy），命令未执行；保留目录，不尝试其他工具绕过。此清理 NOT DONE，不影响成功重跑的隔离库结果。
 - 自审：需求范围 PASS（M1 profile）；边界/损坏 PASS（限定测试）；安全 PASS（没有外部数据/生产入口）；可回滚 PASS（新增独立模块，无迁移）；完整生产/Connector 能力 NOT VERIFIED。无独立第二审查，不称独立审核通过。
+
+### Git 与精确提交版本复验（追加纠正）
+- 本地代码提交已创建：`aee274753071f65bb3e1f9d981d7ba7d22637466` — `feat: implement Phase 0B M1 identity stores and rebuild validation`，16 文件。
+- 提交前暂存指纹检查实际 FAIL：`scripts/activity_m1_experiment.py`（及进一步核对的 test_activity_store.py）工作区 CRLF 与 Git blob LF 不同。前面“工作区指纹匹配”仍属实，但不能写成 Git blob 字节一致。执行流程错误：同一 PowerShell 命令在 Python 失败后仍继续 commit；未满足该项门禁就本地提交，明确保留此失败，不改历史。
+- 定位验证：逐个读取 5 个 Git blob 与工作区字节比较，2 个文件仅 CRLF→LF 差异，另外 3 个完全相同；代码语义无差异。将工作区两文件按已提交 blob 的 LF 字节规范化，没有产生 Git 内容修改。
+- 精确提交源码复验：同一 4 文件 pytest 命令再次 63 passed / 0 failed / 0 skipped（3.07s）；演示 `--report docs/acceptance/activity-m1-20261105-committed.json` exit 0，A–E 全 true，10 个 ID 一致。新报告绑定实际 `aee2747` 与 5 个提交 blob 的 SHA256，原运行报告保留。
+- `git push -u origin adrian/phase0b-m1`：FAIL，经 127.0.0.1 代理连接 GitHub 443 失败；没有远端同步成功证据，未强推、未改凭据/代理、未合并 main。
+- 后续提交命令单独执行；门禁命令失败时不再通过同一 PowerShell 脚本继续 commit。此次仅追加精确版本证据和失败说明，不改写提交历史。
+
+### 最终门禁
+- 实际验证成功：新证据绑定 aee2747；5 个工作区源码与提交 blob 字节完全相同，SHA256 全匹配；10 个重建 ID 比较相同，A–E 全通过，损坏均无写入；新增引用存在。`git diff --check` 通过。
+- 补充提交仅包含精确版本证据、来源说明、阶段卡与本次实施/验证记录；原 AGENTS 工程制度修改及无关资料继续保留，不暂存。
