@@ -77,3 +77,8 @@
 - 独立演示实际创建/消费/转换/重开/消费：旧 closed、新 active、新位点初始 0，最终 4 条事件/新位点 4。公开证据 docs/acceptance/activity-m2-20261105.json 绑定运行时 HEAD 和 6 个源码字节 SHA256；运行时 HEAD 尚不包含新代码，不能将其当代码提交。
 - compileall 对 activity_store.py、activity_m2.py、test_activity_m2.py exit 0。全仓测试、独立 lint/type 工具 NOT RUN（范围为隔离实验模块）；生产/真实数据/断电行为 NOT VERIFIED。无独立第三方审核。
 - 主要限制：单对象/member/stream、完整换行记录固定键、旧代全部消费后才能转换、新代从 0 开始；不支持旧库迁移。持久不一致采用拒绝打开与拒绝写入的冻结策略；不擅自修复。哈希链不是防恶意回滚签名。满足本轮 M2 机制门槛，不等于生产准入。
+
+### 提交门禁与 Git 实际结果
+- 精确 10 个本轮文件暂存；6 个公开证据源码 SHA256 同时匹配工作区和暂存 Git blob。diff --check、文档本地链接与常见凭据模式检查 PASS；AGENTS 与原无关文件未暂存。
+- 代码提交 `29af4000354c2dbfbcf278328ba088fa22953b65`，`feat: implement M2 crash recovery and atomic generation transitions`。普通 `git push -u origin adrian/phase0b-m1` exit 0；git ls-remote 返回同一哈希，GitHub 同步已确认，含之前未推送的 M1 历史。未强推、未合并 main。
+- 后续仅补齐此 Git 结果、实施记录与阶段卡，源代码没有再次变化；相关测试证据继续适用。
