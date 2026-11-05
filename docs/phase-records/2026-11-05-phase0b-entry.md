@@ -26,3 +26,8 @@
 - [验证分卷](../engineering-log/VALIDATION_LOG-2026-11-phase0b.md) → ADR-ARCHIVE-001，记录实际检查、提交与推送结果；未跑项目测试，不沿用旧测试数。
 - **启动条件**：提供冻结设计及相关阶段文档路径。**第一步**：核对 ID 输入/规范化、Manifest revision/hash/parent、StateEvent 合法转换及哪些持久状态不可丢失；然后冻结 A–E 合成输入、运行现状基线、最小实现并验证。
 - 当前不满足进入 M2 的条件。需要用户提供的是缺失的设计文件位置，不是再次批准已授权工作。
+
+## 本地提交与同步结果
+
+归档提交：`35aa2da` — `docs: archive Adrian evolution and establish work-branch sync rule`。
+普通 push 已尝试，因 GitHub 443 经本机 127.0.0.1 代理无法连接而失败；未强推、未修改代理/凭据、未合并 main。提交保留于本地 `adrian/phase0b-m1`。连接恢复后可执行 `git push -u origin adrian/phase0b-m1`。本段及工程日志为随后追加的同步结果记录。
