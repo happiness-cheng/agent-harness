@@ -24,3 +24,24 @@
 - 归档已独立提交；推送结果见 VALIDATION_LOG-2026-11-phase0b 同 Task ID 的 Git 执行结果。
 - 实际追加文件：本实施分卷、验证分卷、阶段短记录。用于记录同步失败和续接动作，未改其他源码或规则。
 - 整体仍为 PARTIAL：需要冻结设计文件才能继续 M1；需要 Git 连接恢复才能同步 GitHub。没有需要用户重新审批的设计或权限变化。
+
+## ADR-M1-001 · 2026-11-05 · Phase: 0B M1
+
+### 执行前
+- 状态 IN PROGRESS。目标：按用户确认的 144814 Final Errata 实现独立三层存储实验，验收 A–E 后停止，不开展 M2/M3。
+- 基线 HEAD `3400eb2`，分支 `adrian/phase0b-m1`；既存修改 ` M AGENTS.md` 与 .workbuddy*/职业资料/旧工程日志/技术审计未跟踪目录均保留，不整体提交。fetch 再次因本机代理不可连接失败，远端状态 UNKNOWN。
+- 用户已确认五份输入中的 144814 为最终基线，不再等待另一个 Errata 2。143536 为被修正的上一版；其他三份为历史调查材料，其原执行结果不当成本轮复验。
+- 预期模块：新增 `src/min_agent/activity_identity.py`（确定性 ID 与受限 JCS）；`src/min_agent/activity_store.py`（三层实验存储与重建）；`tests/unit/test_activity_identity.py`、`tests/unit/test_activity_store.py`（固定合成验收）；`scripts/activity_m1_experiment.py`（可重现 ID/损坏展示）；必要设计来源、阶段记录、状态及现有三册分卷。
+- 设计依据与取舍：DECISION_LOG-2026-11-phase0b → ADR-M1-001。验收输入/限制将固定在测试和阶段记录；首次运行缺实现应 FAIL，再实现同一判据。
+- 禁止：读源平台私人历史/凭据、修改生产 schema/数据库、Hook/插件、模型调用、M2/M3 完整实现、合并 main。仅用户明确授权的独立合成数据库创建/重建。
+
+### 执行中与收尾
+- 实际实现：`src/min_agent/activity_identity.py`（JCS 子集与域隔离 ID）；`src/min_agent/activity_store.py`（Manifest/Observation/Checkpoint 三层、恢复验证）；两个 `tests/unit/test_activity_*.py`（固定验收与反例）；`scripts/activity_m1_experiment.py`（独立演示）。无生产模块接线。
+- 归档文件：`docs/activity-connector/README.md`（五份来源指纹、调查因果摘要、实现 profile）；`uem-v0.2.4.2.md` 与 `uem-v0.2.4.2-final.md`（用户提供的设计原文原样存档，不复制原始私人活动日志）；`docs/ADRIAN_EVOLUTION.md`（追加材料补齐与实际编码结果）；`docs/PROJECT_STATUS.md`（最新状态）；`docs/phase-records/2026-11-05-phase0b-entry.md`（解除旧阻塞）；`docs/phase-records/2026-11-05-phase0b-m1.md`（交接）；`docs/acceptance/activity-m1-20261105.json`（可公开合成证据）；本周期三册追加本 Task ID。
+- 实施偏差：初始采用默认 JSON 解析与宽松整数相等比较，发现与规范输入约束不一致；按已复现反例收紧。实验脚本显式关闭 sqlite 连接以支持 Windows 自动清理。设计依据/取舍见 DECISION 同 Task ID，具体失败及结果见 VALIDATION，同一事实不抄录测试明细。
+- 未做：完整 Connector、多代 transition、业务事件与 locator、M2/M3、物理 instance/Fork/压缩、Memory 集成、模型效果。未声称完整 UEM 已实现。
+- 副作用：独立临时合成数据库、一个公开 JSON 报告和上述源码/文档；测试缓存/pyc 由工具生成，不提交。首次演示清理失败遗留一个独立合成临时目录，后续成功运行已自动清理自身目录；未删除用户文件。原工作区未提交资料保留。无凭据、Hook、插件、原始历史、生产 schema 或依赖变更。
+- 阶段状态：M1 限定 profile COMPLETED；可进入下一批 M2，本轮停止。GitHub 同步状态待实际普通 push，失败则保留本地提交，不视为同步完成。
+
+### 副作用续记
+- 首次演示失败遗留的独立合成目录清理未执行（自动策略拒绝）；保留 5 个合成数据库。具体检查/拒绝见 VALIDATION 同 Task ID。不影响之后成功运行，其他目录未动。

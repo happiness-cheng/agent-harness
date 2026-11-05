@@ -1,5 +1,12 @@
 ﻿# Adrian：继续工作先读这里
 
+## 2026-11-05 续接：Phase 0B M1 已完成
+
+- 用户已提供五份历史报告，并确认 **144814 Final Errata 为最终基线**；此前材料缺失阻塞解除。冻结设计原文、来源指纹及历史纠错见 [设计来源](activity-connector/README.md)，不是本轮重新扫描私人历史。
+- **M1 限定合成验收通过**：三层独立 SQLite 存储、确定性 ID、Snapshot root/latest 分离、StateEvent fold/冲突、Checkpoint CAS、持久 JSON 重建；A–E 演示全部通过，重建前后 10 个身份 ID 一致，相关回归 63 passed。
+- 已修复重复 JSON 键、boolean revision 和 Windows 演示连接未关闭问题。未改生产库、未接入真实数据或 Connector、未执行 M2/M3、未调用模型。实现 profile 与限制见 [M1 阶段交付](phase-records/2026-11-05-phase0b-m1.md)。
+- **可进入下一批 M2，本轮停止**；M1 通过不等于正式事件持久化准入，后者仍需 M2/M3。当前工作分支 `adrian/phase0b-m1`；Git 同步结果见本批工程验证记录。下方 0B 入口是同日较早快照，保留为历史。
+
 ## 2026-11-05：设计演变归档与 Phase 0B 入口
 
 - 新增 [设计演变归档](ADRIAN_EVOLUTION.md)，区分最初构想、共同决策、实现与未来目标；后续 Phase 历史来自本次用户说明，原阶段材料尚未找到。

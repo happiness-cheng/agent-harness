@@ -31,3 +31,7 @@
 
 归档提交：`35aa2da` — `docs: archive Adrian evolution and establish work-branch sync rule`。
 普通 push 已尝试，因 GitHub 443 经本机 127.0.0.1 代理无法连接而失败；未强推、未修改代理/凭据、未合并 main。提交保留于本地 `adrian/phase0b-m1`。连接恢复后可执行 `git push -u origin adrian/phase0b-m1`。本段及工程日志为随后追加的同步结果记录。
+
+## 2026-11-05 续接更正
+
+用户已提供五份设计/调查报告，并确认 144814 Final Errata 为最终基线；本记录中的缺失材料阻塞已解除。M1 已在独立合成环境完成，实际结果、代码与未做范围见 [M1 阶段交付](2026-11-05-phase0b-m1.md)。上文保留为当时状态，不再作为当前阻塞结论。
