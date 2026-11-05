@@ -243,14 +243,15 @@ class M1Store:
 
     @classmethod
     def create(cls, path, *, collector_namespace, manifest_epoch, platform, object_namespace,
-               logical_id, object_role, native_branch_key, root_evidence, first_content):
+               logical_id, object_role, native_branch_key, root_evidence, first_content,
+               seq_namespace="synthetic.ordinal"):
         if root_evidence not in {"native_branch_key", "platform_explicit"}:
             raise ValueError("root_unresolved: definitive initialization refused")
         if not all(type(s) is str and s for s in (collector_namespace, manifest_epoch, native_branch_key)):
             raise ValueError("missing_identity_input")
         obj = {"kind": "object", **object_identity(platform, object_namespace, logical_id, object_role)}
         member = _entry("member", dict(source_object_id=obj["id"], native_branch_key=native_branch_key, branch_epoch="ROOT_EPOCH"))
-        stream = _entry("stream", dict(source_member_id=member["id"], seq_namespace="synthetic.ordinal"))
+        stream = _entry("stream", dict(source_member_id=member["id"], seq_namespace=seq_namespace))
         gen = _entry("generation", dict(source_member_id=member["id"], generation_epoch="INITIAL"))
         snapshot = _snapshot(gen["id"], first_content)
         gen.update(snapshot_chain_root_id=snapshot["id"], first_snapshot_content_sha256=snapshot["fields"]["content_sha256"])

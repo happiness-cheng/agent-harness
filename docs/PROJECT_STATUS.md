@@ -1,5 +1,12 @@
 ﻿# Adrian：继续工作先读这里
 
+## 2026-11-05 最新续接：Phase 0B M3 实施完成，等待独立审核
+
+- 三种 Locator Profile、独立三层 Fingerprint、记录幂等/持久冲突冻结、Provisional 显式映射已实现；多候选只返回集合，不自动合并。
+- 相关回归 **141 passed / 0 failed / 0 skipped**（M3 41 + 既有相关回归 100），含 M3 新增 10 个进程强退和 1 个异常回滚用例。[M3 阶段卡](phase-records/2026-11-05-phase0b-m3.md)、[公开证据](acceptance/activity-m3-20261105.json)。
+- 仅隔离合成数据；DSH seq/seq0 两条 stream 分别使用独立实验库；不等于真实 Connector/生产准入。本轮停止等待独立审核，不启动 M4–M6。旧 M1/M2 入口保留为历史。
+
+
 ## 2026-11-05 最新续接：Phase 0B M2 已完成
 
 - 事件先提交后 Checkpoint；Generation Transition 在单一 SQLite 事务内提交，保留追加式身份与状态历史。

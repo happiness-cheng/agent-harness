@@ -76,3 +76,7 @@ JCS 仅实现本轮需要的字符串/整数子集，拒绝 float、大于安全
 ## M2 增量实现（2026-11-05）
 
 上述 M1 profile 保留为历史。M2 使用独立实验格式复用 M1 身份与链校验，新增固定合成事件键、先事件后位点、单 SQLite 事务多代转换和启动冻结策略。只创建新合成库，不迁移旧库。100 项相关回归通过，详见 [M2 阶段卡](../phase-records/2026-11-05-phase0b-m2.md)及[源码指纹与逐项证据](../acceptance/activity-m2-20261105.json)。完整 Locator/Fingerprint 留待 M3，本轮不启动。
+
+## M3 增量实现（2026-11-05）
+
+三种冻结 Locator Profile、独立 Fingerprint、幂等/持久冲突和显式映射已在独立合成库实现。DSH old seq/seq0 各自独立 stream/checkpoint 数据库，输入为合成 envelope，不解析真实平台历史。相关测试 141 项通过；[M3 阶段卡](../phase-records/2026-11-05-phase0b-m3.md)记录具体范围与审核入口，[验收 JSON](../acceptance/activity-m3-20261105.json)绑定源码指纹。本轮停止等待独立审核，未启动 M4–M6。

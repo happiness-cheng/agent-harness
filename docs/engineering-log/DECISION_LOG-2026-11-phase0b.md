@@ -29,3 +29,11 @@
 - 合成事件：使用当前快照中完整换行记录的 ordinal 固定键及字节区间，按 generation 隔离；只验证重读幂等，不实现 M3 通用 Locator Profile。新代默认位点 0，不继承旧位点；非零迁移计划暂拒绝。
 - 故障证据：包括 SQL 写中途异常、提交前中断、提交后未返回，以及子进程 os._exit 强制退出。独立读连接应只见全旧或全新状态，不见转换中间状态；不将进程终止测试宣称为掉电/磁盘损坏验证。
 - Git 代理：本仓库 http/https.proxy 设置 7897，优先于全局旧 7890；不改全局，避免影响用户其他仓库。提交/推送依旧精确路径与普通 push。
+
+## ADR-M3-001 · 2026-11-05 · Phase 0B M3
+
+- Locator 身份只包含冻结规定的 member/stream/generation、format_version、seq_namespace、seq_value、line_index、解压偏移；fingerprint 独立 struct/payload/record 哈希。optional metadata 不进入身份；DSH old 可选偏移未知用 null，不伪造零。缺 required 时用 observation_run_id 与顺序占位派生 provisional。
+- 复用 M2 单 stream 多代事务模型：一个独立 M3 库对应一个命名 stream；DSH old seq 与 seq0 显式创建两个库/stream/checkpoint，不能混写。使用合成 JSONL envelope 作为测试传输，不编写真实 Connector/解压器。M3 新 application_id 阻止 M1/M2 旧入口绕过。
+- 冲突在事件批次预检发现，整个事件批次不落盘；同一写锁事务仅追加冲突证据，提交后报告 record_conflict。任何后续写入检查持久冲突记录，重启也冻结。不是只设置 Python 标志，也不在回滚后另开无锁事务标记。
+- 映射仅对同 member/stream/generation 的内容候选，唯一候选还需调用方显式 native_id/lineage/phase0b_confirmation 证据（绑定 source/target/reference），追加 IdentityTransition；多个候选返回无序集合，不选第一条。保留原记录，映射不删除、覆盖或合并。
+- 不迁移旧数据库；新库初始化复用已有结构，新表限定本轮隔离合成库。选择独立扩展而非改变 M2 固定键协议，保持旧测试有效。

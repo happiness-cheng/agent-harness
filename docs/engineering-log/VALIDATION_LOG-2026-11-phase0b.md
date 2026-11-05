@@ -82,3 +82,17 @@
 - 精确 10 个本轮文件暂存；6 个公开证据源码 SHA256 同时匹配工作区和暂存 Git blob。diff --check、文档本地链接与常见凭据模式检查 PASS；AGENTS 与原无关文件未暂存。
 - 代码提交 `29af4000354c2dbfbcf278328ba088fa22953b65`，`feat: implement M2 crash recovery and atomic generation transitions`。普通 `git push -u origin adrian/phase0b-m1` exit 0；git ls-remote 返回同一哈希，GitHub 同步已确认，含之前未推送的 M1 历史。未强推、未合并 main。
 - 后续仅补齐此 Git 结果、实施记录与阶段卡，源代码没有再次变化；相关测试证据继续适用。
+
+## ADR-M3-001 · 2026-11-05 · Phase 0B M3
+
+- 固定验收：三种 profile（含 seq/seq0 分离）、同定位同/异指纹、异定位同指纹、多候选不映射、缺字段 provisional；显式证据映射、批次回滚、进程中断和重开后位点冻结，M1/M2 相关回归。仅本地合成数据，其他范围 NOT RUN。
+
+### 实际结果与门槛
+- 编码前 M1/M2 基线：`.venv/Scripts/python.exe -X utf8 -m pytest tests/unit/test_activity_identity.py tests/unit/test_activity_store.py tests/unit/test_activity_m2.py -q` → 68 passed，9.62s。
+- M3 首次固定样本运行：1 collection ERROR（activity_records 尚未实现），不是已实现功能 PASS。首批实现合跑 76 passed；扩展 M3 单跑 35 passed。没有修改冻结判据来消除失败。
+- 最终命令及逐项结果：docs/acceptance/activity-m3-20261105.json；pytest M3/M1/M2/既有 Checkpoint 六测试文件：141 passed / 0 failed / 0 skipped，20.77s；M3 41 项，原相关回归 100 项。Python 3.13.16、SQLite 3.50.4、Windows 项目 .venv。原 JUnit 在忽略的 reports 目录，公开 JSON 不含主机名/路径。
+- M3 新增真实 os._exit(73) 进程中断 10 项：事件 SQL/记录日志/事件提交前后/位点 SQL与提交前后 7 项，冲突日志/冲突提交前后 3 项。关闭/重新打开数据库后验证回滚、完整提交、重放与位点冻结；另 1 项 Python 异常回滚完整导出相等。均 PASS。
+- 五类 M3 场景 PASS；同定位不同 structure 亦冲突；seq/seq0 两库 stream/checkpoint 独立；跨代不凭 fingerprint 映射；M2 generation transition 在 M3 中正常且幂等；旧入口应用标记隔离/直接 base persist 的记录覆盖校验、已有连接冻结、冻结恢复包重建均 PASS。
+- compileall 对 4 个新增/修改源码及 M3 测试 exit 0。仓库 pyproject 无独立 type/lint 配置，Type/Lint NOT RUN；全仓测试 NOT RUN（本次扩展了相关 Checkpoint 回归）。外部规则引用的 review-checklist.md 不存在，采用当前需求/事务/边界/数据隔离/差异手工自审；未调用子代理，不称独立审核通过。
+- 证据 JSON 绑定 9 个源码 SHA256；运行时 HEAD 仍是 M2 文档提交，不声称该旧 HEAD 包含新源码。提交前核对 Git blob 指纹后再提交。
+- 风险/边界：合成 envelope 非原生平台解析器；一个库一个 namespace；整个冲突 stream 库保守冻结，无解除冻结入口；映射证据仅校验结构与绑定，不证明外部事实真实；多候选不做自动消歧；哈希链不等于恶意回滚保护。只满足 M3 合成机制验收，独立审核及生产准入未执行。

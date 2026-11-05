@@ -72,16 +72,16 @@ def _fold_m2(state, payload):
         _fold(state, payload)
 
 
-def _validate(bundle):
+def _validate(bundle, seq_namespace="synthetic.ordinal"):
     try:
-        return _validate_inner(bundle)
+        return _validate_inner(bundle, seq_namespace)
     except (IntegrityError, StateConflict):
         raise
     except (KeyError, TypeError, ValueError, IndexError, UnicodeError) as exc:
         raise IntegrityError("invalid_m2_structure") from exc
 
 
-def _validate_inner(bundle):
+def _validate_inner(bundle, seq_namespace="synthetic.ordinal"):
     _require(set(bundle) == {"format", "head", "manifest", "observations", "checkpoints", "events"}, "m2_fields")
     _require(bundle["format"] == "adrian-m2/1", "m2_format")
     canonical(bundle)
@@ -93,7 +93,7 @@ def _validate_inner(bundle):
     _require(obj == {"kind": "object", **object_identity(**obj["fields"])}, "object_fields")
     _require(obj["id"] == bundle["manifest"][0]["body"]["source_object_id"], "object_binding")
     _require(member["fields"] == dict(source_object_id=obj["id"], native_branch_key=member["fields"]["native_branch_key"], branch_epoch="ROOT_EPOCH"), "member_fields")
-    _require(stream["fields"] == dict(source_member_id=member["id"], seq_namespace="synthetic.ordinal"), "stream_fields")
+    _require(stream["fields"] == dict(source_member_id=member["id"], seq_namespace=seq_namespace), "stream_fields")
     generations = {g["id"]: g for g in kinds["generation"]}
     initial = kinds["generation"][0]
     _require(initial["fields"] == dict(source_member_id=member["id"], generation_epoch="INITIAL"), "initial_generation")
@@ -223,6 +223,10 @@ def _operational(model):
 
 
 class M2Store(M1Store):
+    application_id = M2_APP_ID
+    schema_version = 2
+    _validate_bundle = staticmethod(_validate)
+
     def __init__(self, path, *, fault=None):
         super().__init__(path)
         self.fault = fault
@@ -319,16 +323,16 @@ class M2Store(M1Store):
             conn = sqlite3.connect(self.path.as_uri() + "?mode=rw", uri=True, timeout=5)
             conn.execute("PRAGMA synchronous=FULL")
             conn.execute("BEGIN IMMEDIATE" if write else "BEGIN")
-            _require(conn.execute("PRAGMA application_id").fetchone()[0] == M2_APP_ID
-                     and conn.execute("PRAGMA user_version").fetchone()[0] == 2, "not_m2_database")
+            _require(conn.execute("PRAGMA application_id").fetchone()[0] == self.application_id
+                     and conn.execute("PRAGMA user_version").fetchone()[0] == self.schema_version, "not_m2_database")
             bundle = self._load(conn)
-            model = _validate(bundle)
+            model = self._validate_bundle(bundle)
             if not recovery:
                 _operational(model)
             previous = _parse_json(canonical(bundle)) if write else None
             yield bundle, model
             if write:
-                _operational(_validate(bundle))
+                _operational(self._validate_bundle(bundle))
                 self._persist_m2(conn, bundle, previous, operation)
                 self._hit(operation + ".before_commit")
             conn.commit()

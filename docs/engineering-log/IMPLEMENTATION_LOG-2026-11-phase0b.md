@@ -69,3 +69,19 @@
 
 ### Git 收尾
 - M2 代码已提交为 `29af400`，工作分支普通推送完成；远端核对见 VALIDATION 同 Task ID。此次补记仅追加本分卷、验证分卷和阶段卡，不改代码。M2 状态 COMPLETED；本轮停止，不启动 M3。
+
+## ADR-M3-001 · 2026-11-05 · Phase 0B M3
+
+### 执行前
+- 目标：三种 Locator Profile、独立三层 Fingerprint、幂等/持久冲突冻结和显式身份映射。仅合成独立库；不做 M4–M6、生产 Connector、真实历史或模型调用。
+- 基线 HEAD 300d45f49e0fa90cca3b0f92faecfe239e8d92b0，分支 adrian/phase0b-m1。既存 AGENTS.md 修改、.workbuddy*、职业/技术审计和旧工程日志六文件均保留，不纳入提交。
+- 预期修改：新 activity_records.py、activity_m3.py 和 M3 测试；M1/M2 仅必要的 stream namespace 参数与校验复用；阶段卡、状态、验收证据与本周期日志。
+- 依据 Final Errata P1-1/P1-2/M3，原 v0.2.4.2 的定位字段公式。设计取舍见 DECISION 同 Task ID。执行顺序：现状基线→固定失败样本→实现→故障与回归→记录→精确提交/普通推送。
+
+### 实际实施与收尾
+- activity_records.py：三种冻结 Profile、DSH seq/seq0 区分、required 缺失降级、三层 Fingerprint 与确定性记录 ID；activity_m3.py：复用 M2 事务的记录/映射/冲突追加日志、启动校验、批次预检、持久冻结、恢复包；test_activity_m3.py：固定正反例及真实进程中断验收。
+- activity_store.py 仅给初始 stream namespace 增加默认参数；activity_m2.py 仅将应用标记/版本/校验函数作为可覆写入口，并给内部校验增加 namespace 参数。默认 M1/M2 行为与固定键协议保持原样；不复制事务实现。设计理由见 DECISION 同 Task ID。
+- 新增公开验收 JSON 和 M3 阶段卡，更新 PROJECT_STATUS、设计来源 README 和本周期三册。未修改 AGENTS.md，也未提交既有无关资料。实际结果与证据见 VALIDATION 同 Task ID。
+- 实施偏差：无架构偏离；DSH 两条 stream 复用已有单流模型，分别使用独立实验库。Codex jsonl/zst 只接收已解压坐标的合成 envelope，不实现读取/解压器。缺少可选 old offset 使用 null；恢复 offset 后可能产生另一个 locator，保留历史，不隐式重写。
+- 未做：真实格式解析、生产/旧库迁移、证据真实性外部验证、自动多候选消歧、M4–M6、吞吐/断电验证。冲突冻结该库全部写入，范围比单 locator 保守。独立审核待用户执行；本轮完成后停止。
+- 副作用：隔离测试 DB、pytest/编译缓存、忽略的 reports/activity-m3-20261105/junit.xml 和公开 JSON；无真实历史、Memory、生产配置、模型或新依赖操作。未修改代理配置。
