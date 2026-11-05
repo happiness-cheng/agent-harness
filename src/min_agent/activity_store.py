@@ -117,10 +117,8 @@ def _validate(bundle):
         raise IntegrityError("invalid_store_structure") from exc
 
 
-def _validate_inner(bundle):
-    _require(set(bundle) == {"format", "head", "manifest", "observations", "checkpoints"}, "bundle_fields")
-    _require(bundle["format"] == "adrian-m1/1", "bundle_format")
-    canonical(bundle)
+def _validate_manifest(bundle):
+    """共用不可变注册与修订链校验，M1/M2 各自限定运行模型。"""
     revisions = bundle["manifest"]
     _require(bool(revisions), "missing_manifest")
     first = revisions[0]["body"]
@@ -157,13 +155,22 @@ def _validate_inner(bundle):
     _require(type(bundle["head"]["seq"]) is int and bundle["head"] == {
         "manifest_id": manifest_id, "seq": len(revisions), "hash": previous_hash}, "manifest_head")
 
+    return first, manifest_id, root, registry
+
+
+def _validate_inner(bundle):
+    _require(set(bundle) == {"format", "head", "manifest", "observations", "checkpoints"}, "bundle_fields")
+    _require(bundle["format"] == "adrian-m1/1", "bundle_format")
+    canonical(bundle)
+    first, manifest_id, root, registry = _validate_manifest(bundle)
+
     by_kind = {kind: [e for e in registry.values() if e["kind"] == kind]
                for kind in ("object", "member", "stream", "generation")}
     _require(sum(map(len, by_kind.values())) == len(registry), "unknown_registration")
     _require(all(len(by_kind[k]) == 1 for k in ("object", "member", "generation")) and bool(by_kind["stream"]), "m1_profile")
     obj, member, generation = (by_kind[k][0] for k in ("object", "member", "generation"))
     _require(obj == {"kind": "object", **object_identity(**obj["fields"])}, "object_fields")
-    _require(obj["id"] == binding["source_object_id"], "object_binding")
+    _require(obj["id"] == first["source_object_id"], "object_binding")
     _require(member["fields"] == dict(source_object_id=obj["id"], native_branch_key=member["fields"]["native_branch_key"], branch_epoch="ROOT_EPOCH"), "member_fields")
     _require(type(member["fields"]["native_branch_key"]) is str and bool(member["fields"]["native_branch_key"]), "missing_branch")
     _require(generation["fields"] == dict(source_member_id=member["id"], generation_epoch="INITIAL"), "generation_fields")

@@ -59,3 +59,21 @@
 ### 最终门禁
 - 实际验证成功：新证据绑定 aee2747；5 个工作区源码与提交 blob 字节完全相同，SHA256 全匹配；10 个重建 ID 比较相同，A–E 全通过，损坏均无写入；新增引用存在。`git diff --check` 通过。
 - 补充提交仅包含精确版本证据、来源说明、阶段卡与本次实施/验证记录；原 AGENTS 工程制度修改及无关资料继续保留，不暂存。
+
+## ADR-M2-001 · 2026-11-05 · Phase: 0B M2
+
+- 现状基线：`.venv/Scripts/python.exe -X utf8 -m pytest tests/unit/test_activity_identity.py tests/unit/test_activity_store.py -q` → 31 passed / 0 failed / 0 skipped。
+- Git 代理检查发现全局 http.proxy/https.proxy 均为 http://127.0.0.1:7890；按授权设置本仓库两项为 7897 后 `git fetch origin` exit 0。未改全局配置/凭据。
+- 固定验收：快照 `one\ntwo\nthree\n` 的完整换行记录；先提交事件、位点后提交；新代 `new\n` 从 0 开始。事件 insert/before commit/after commit 与 checkpoint write/before commit/after commit 注入异常或进程强退后重新 open。转换 manifest/pending/旧closed/新active/checkpoint/commit 前后注入强退。另构造 pending、零/一/多 active、committed 不匹配、重复 transition_id 固定异常样本。
+- 边界：真实 SQLite 文件/独立连接/子进程，不调用外部模型；不证明断电硬件或生产吞吐。
+
+### 实际验证与失败记录
+- 环境 Windows / 项目 .venv Python 3.13.16 / SQLite 3.50.4；全部合成输入，0 模型调用。
+- 首次 M2 测试：1 collection ERROR，模块尚不存在。提取 M1 共用校验后首次合跑：46 failed / 10 passed，原因是遗漏局部变量 binding 的替换；改用 first["source_object_id"] 后同范围 56 passed。保留失败，不改变冻结设计或验收判据。
+- 增补故障样本后 M2 33 passed；再补并发和迟到写入等回归后最终 M2 37 项。
+- 最终命令：`.venv/Scripts/python.exe -X utf8 -m pytest tests/unit/test_activity_m2.py tests/unit/test_activity_identity.py tests/unit/test_activity_store.py tests/unit/test_checkpoint_resume.py tests/integration/test_checkpoint_persistence.py -q --tb=short --junitxml=docs/acceptance/activity-m2-20261105.junit.xml`：100 passed / 0 failed / 0 skipped，15.19s（M2 37、M1 31、既有 checkpoint 32）。原始 JUnit 随后移动至忽略的 reports/activity-m2-20261105/，公开 JSON 保留所有用例名和结果，剔除主机信息。
+- 13 个 os._exit(73) 子进程用例：事件/位点 6 个、转换 7 个；7 个异常注入用例。每次通过新连接重新打开实际文件再断言。转换提交前完整导出等于原状态，提交后为完整新状态；独立读者未见中间状态。
+- 重放、相同 transition_id、不同 transition_id 并发 CAS、旧代迟到写入、连续多代追加历史、恢复包重建均 PASS。Pending 未动旧代安全 aborted；初代零位点 root/backfill=0；有转换证据零 active、多 active、committed 错配均拒绝重开/写入且文件不变；篡改位点超前事件报 IntegrityError。
+- 独立演示实际创建/消费/转换/重开/消费：旧 closed、新 active、新位点初始 0，最终 4 条事件/新位点 4。公开证据 docs/acceptance/activity-m2-20261105.json 绑定运行时 HEAD 和 6 个源码字节 SHA256；运行时 HEAD 尚不包含新代码，不能将其当代码提交。
+- compileall 对 activity_store.py、activity_m2.py、test_activity_m2.py exit 0。全仓测试、独立 lint/type 工具 NOT RUN（范围为隔离实验模块）；生产/真实数据/断电行为 NOT VERIFIED。无独立第三方审核。
+- 主要限制：单对象/member/stream、完整换行记录固定键、旧代全部消费后才能转换、新代从 0 开始；不支持旧库迁移。持久不一致采用拒绝打开与拒绝写入的冻结策略；不擅自修复。哈希链不是防恶意回滚签名。满足本轮 M2 机制门槛，不等于生产准入。

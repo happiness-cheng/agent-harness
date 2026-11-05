@@ -50,3 +50,19 @@
 - 代码提交已创建，随后补齐提交 blob 对应的复验；实际验证及提交门禁失败纠正详见 VALIDATION 同 Task ID。
 - 新增 `docs/acceptance/activity-m1-20261105-committed.json`，追加阶段记录与本分卷/验证分卷；设计来源 README 补充原始文件与 Git 换行规范化边界。保留旧证据，不覆写。
 - 未完成项更新：GitHub 未同步；首次失败实验的独立合成目录清理被策略拒绝，仍保留。核心 M1 范围已完成，其他既定排除项不变。
+
+## ADR-M2-001 · 2026-11-05 · Phase: 0B M2
+
+### 执行前
+- 状态 IN PROGRESS；目标：合成事件先持久化后位点、真实 SQLite 原子 Generation Transition、重开连接及进程中断恢复，完成 M2 后停止。
+- 基线 HEAD `3c3d82f5aa81ebd374708964a2b991a273e7a3c8`；分支 `adrian/phase0b-m1`。既存 ` M AGENTS.md`；未跟踪 .workbuddy-ai/、.workbuddy/、career-positioning、tech-audit、旧 engineering-log 六文件，均非本轮所有，不清理/暂存。
+- 预期模块：M1 Store 必要的多代校验复用、新 M2 Store、合成故障注入测试、阶段证据及三册；activity_identity 保持现有 ID 规则。Git 仓库级代理按用户授权 7890→7897，禁止改凭据或全局网络行为。
+- 依据：Final Errata P0-6 和 M2 表、M1 阶段卡和当前源码；取舍见 DECISION 同 Task ID。先实际跑现状 M1，再写失败 M2 样本。
+- 范围：只新建独立合成库；不自动迁移既有 M1/生产库，不读平台历史，不改 Hook/插件/Memory，不做 M3 Locator/Fingerprint、多用户、真实模型；不合 main，不强推。
+
+### 实施与收尾
+- 实际源码：activity_m2.py 新增独立 M2Store、事件消费、SQL 事务转换及启动恢复；activity_store.py 仅提取共用 Manifest 校验；test_activity_m2.py 新增合成重开连接/子进程故障和非法状态样本。修改为满足事件提交先行与原子转换，不接入 Runtime。
+- 记录：新增 docs/acceptance/activity-m2-20261105.json、M2 阶段卡；更新 PROJECT_STATUS、activity-connector/README 和本周期三册。设计理由及替代方案见 DECISION 同 Task ID；验证与失败见 VALIDATION 同 Task ID。
+- 实施偏差：共用校验提取时遗漏变量引用，已最小修复；没有据此修改冻结架构。自审由当前助手执行，无独立第二审核。
+- 未做：M3–M6、完整 Locator/Fingerprint、旧库迁移、多对象/多流、真实 Connector、生产负载与掉电验证。阶段功能完成，Git 执行结果另补记。
+- 副作用：隔离测试数据库/pytest 缓存，公开脱敏 JSON，原始 JUnit 保留于忽略的 reports/activity-m2-20261105/；仓库级代理改为 7897。无全局配置、凭据、生产数据或 Memory 修改；既有无关文件保留。

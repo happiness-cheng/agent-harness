@@ -1,5 +1,13 @@
 ﻿# Adrian：继续工作先读这里
 
+## 2026-11-05 最新续接：Phase 0B M2 已完成
+
+- 事件先提交后 Checkpoint；Generation Transition 在单一 SQLite 事务内提交，保留追加式身份与状态历史。
+- 相关回归 **100 passed / 0 failed / 0 skipped**：M2 37、M1 31、既有 Checkpoint 32；包含 13 个进程中断和 7 个异常注入用例。重放幂等、原子性、非法状态冻结通过。
+- [M2 阶段交付](phase-records/2026-11-05-phase0b-m2.md)与[公开证据](acceptance/activity-m2-20261105.json)。仅隔离合成数据库，不迁移旧库/生产库；可进入下一批 M3，本轮停止。下方 M1 与更早记录保留为历史。
+- 工作分支仍为 adrian/phase0b-m1；仓库级代理 7897 已验证 fetch 成功，最终提交/推送状态见 M2 阶段记录。
+
+
 ## 2026-11-05 续接：Phase 0B M1 已完成
 
 - 用户已提供五份历史报告，并确认 **144814 Final Errata 为最终基线**；此前材料缺失阻塞解除。冻结设计原文、来源指纹及历史纠错见 [设计来源](activity-connector/README.md)，不是本轮重新扫描私人历史。

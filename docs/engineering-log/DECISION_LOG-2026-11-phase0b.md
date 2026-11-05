@@ -20,3 +20,12 @@
 - 状态范围：支持 identity_status 的 provisional→definitive、checkpoint_status 的 active→closed、root_status 的 root_unresolved→root_resolved；终态逆转/未知状态拒绝并冻结本 Store 实例写入。状态只有 Observation 事件，不改身份。其他维度及 provisional→definitive 映射不在 M1 profile，不提供未经验证的入口。
 - 恢复/写入校验：每次事务读取最新哈希链与归属，损坏则报错，不写入；并发写依赖 SQLite BEGIN IMMEDIATE + Checkpoint revision/hash CAS。M2 代际转换/故障注入留待后续，不把此处普通事务测试冒充 M2。
 - 追溯：同周期 IMPLEMENTATION_LOG / VALIDATION_LOG → ADR-M1-001。
+
+## ADR-M2-001 · 2026-11-05 · Phase: 0B M2
+
+- 复用选择：M2 使用现有 ID/JCS、Manifest/Observation/Checkpoint 结构，扩展多代校验；独立 M2 Store 增加合成事件表与转换操作。新建 M2 实验库使用单独格式/应用标记，M1 API 不能绕过 M2 事件先提交门；不迁移生产或旧实验库。
+- 事务：事件幂等入库独立事务提交；Checkpoint 后续事务校验覆盖区间事件已存在。Generation Transition 在一个 BEGIN IMMEDIATE/COMMIT 中注册新代、写 root snapshot、追加 transition pending、旧代/位点 closed、新代/位点 active、transition committed；故障注入点位于真实 SQL 写之后。
+- 恢复：正常转换不产生持久 pending/部分状态；单独构造自洽的遗留/异常状态检验启动策略。pending 且旧 active 无变更则追加 aborted；有转换证据但零 active、或多个 active、committed 与 active 不一致则明确冻结，不猜测恢复。无转换且初代未初始化时从 root 位点 0 初始化，标 backfill。选择保守冻结替代不充分证据的自动修复，符合本轮异常状态期望。
+- 合成事件：使用当前快照中完整换行记录的 ordinal 固定键及字节区间，按 generation 隔离；只验证重读幂等，不实现 M3 通用 Locator Profile。新代默认位点 0，不继承旧位点；非零迁移计划暂拒绝。
+- 故障证据：包括 SQL 写中途异常、提交前中断、提交后未返回，以及子进程 os._exit 强制退出。独立读连接应只见全旧或全新状态，不见转换中间状态；不将进程终止测试宣称为掉电/磁盘损坏验证。
+- Git 代理：本仓库 http/https.proxy 设置 7897，优先于全局旧 7890；不改全局，避免影响用户其他仓库。提交/推送依旧精确路径与普通 push。
