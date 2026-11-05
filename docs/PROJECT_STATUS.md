@@ -1,5 +1,12 @@
 ﻿# Adrian：继续工作先读这里
 
+## 2026-11-05：设计演变归档与 Phase 0B 入口
+
+- 新增 [设计演变归档](ADRIAN_EVOLUTION.md)，区分最初构想、共同决策、实现与未来目标；后续 Phase 历史来自本次用户说明，原阶段材料尚未找到。
+- 本轮起点实际 HEAD 为 `50b27bfab099e7e4b3f085a9468d0b8bc6b44c4b`；下面旧 HEAD/未提交描述保留为历史，不代表当前状态。工作分支 `adrian/phase0b-m1`。
+- **M1 BLOCKED（输入缺失）**：尚未取得 `Unified Event Model v0.2.4.2-final + Errata 2` 正文，未编码、未运行 A–E，不满足进入 M2 的条件。第一步是取得设计文件路径并核对 ID、revision、StateEvent、恢复规则；不重新设计模型。
+- Git fetch 因本机代理连接失败，远端最新进度未确认。归档、提交范围、续接条件及验证见 [阶段短记录](phase-records/2026-11-05-phase0b-entry.md)。
+
 更新：2026-11-02，Asia/Shanghai。此页是续接入口；代码和最新证据仍需核对。
 
 整个Adrian的能力范围、目标架构、长期依赖与分批计划见[完整总计划](MASTER_PLAN.md)。V1.4 B2/C/D只是其中的近期任务闭环，不代表Context、Memory、长任务、多Agent及持续改进等全部设计已经完成；总计划中的建议批次不等于已获执行授权。
