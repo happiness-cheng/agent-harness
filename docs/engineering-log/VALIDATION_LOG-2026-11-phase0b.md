@@ -96,3 +96,7 @@
 - compileall 对 4 个新增/修改源码及 M3 测试 exit 0。仓库 pyproject 无独立 type/lint 配置，Type/Lint NOT RUN；全仓测试 NOT RUN（本次扩展了相关 Checkpoint 回归）。外部规则引用的 review-checklist.md 不存在，采用当前需求/事务/边界/数据隔离/差异手工自审；未调用子代理，不称独立审核通过。
 - 证据 JSON 绑定 9 个源码 SHA256；运行时 HEAD 仍是 M2 文档提交，不声称该旧 HEAD 包含新源码。提交前核对 Git blob 指纹后再提交。
 - 风险/边界：合成 envelope 非原生平台解析器；一个库一个 namespace；整个冲突 stream 库保守冻结，无解除冻结入口；映射证据仅校验结构与绑定，不证明外部事实真实；多候选不做自动消歧；哈希链不等于恶意回滚保护。只满足 M3 合成机制验收，独立审核及生产准入未执行。
+
+### 提交门禁与同步结果
+- 12 个精确本轮文件；9 个源码 SHA256 同时匹配工作区与暂存 Git blob；git diff --cached --check、文档本地引用、常见凭据模式检查 PASS。fetch 后本地与远端分支 0/0，既有 AGENTS 等未暂存。
+- 代码提交 `75bec9dc75a7fb58f17f05f7049204fe4c5e8bb9`；普通 push 到 origin/adrian/phase0b-m1 exit 0；git ls-remote 返回相同哈希。无强推、main 合并或新配置变更。后续仅追加同步记录，源码与已验证字节未改变。

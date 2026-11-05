@@ -85,3 +85,6 @@
 - 实施偏差：无架构偏离；DSH 两条 stream 复用已有单流模型，分别使用独立实验库。Codex jsonl/zst 只接收已解压坐标的合成 envelope，不实现读取/解压器。缺少可选 old offset 使用 null；恢复 offset 后可能产生另一个 locator，保留历史，不隐式重写。
 - 未做：真实格式解析、生产/旧库迁移、证据真实性外部验证、自动多候选消歧、M4–M6、吞吐/断电验证。冲突冻结该库全部写入，范围比单 locator 保守。独立审核待用户执行；本轮完成后停止。
 - 副作用：隔离测试 DB、pytest/编译缓存、忽略的 reports/activity-m3-20261105/junit.xml 和公开 JSON；无真实历史、Memory、生产配置、模型或新依赖操作。未修改代理配置。
+
+### Git 收尾
+- 代码提交 75bec9d 已普通推送，精确门禁与远端证据见 VALIDATION 同 Task ID；本补记仅三份文档。实施/本地验收 COMPLETED，独立审核 PENDING，本轮停止，不启动 M4–M6。
