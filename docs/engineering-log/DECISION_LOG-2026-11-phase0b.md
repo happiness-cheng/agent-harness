@@ -37,3 +37,11 @@
 - 冲突在事件批次预检发现，整个事件批次不落盘；同一写锁事务仅追加冲突证据，提交后报告 record_conflict。任何后续写入检查持久冲突记录，重启也冻结。不是只设置 Python 标志，也不在回滚后另开无锁事务标记。
 - 映射仅对同 member/stream/generation 的内容候选，唯一候选还需调用方显式 native_id/lineage/phase0b_confirmation 证据（绑定 source/target/reference），追加 IdentityTransition；多个候选返回无序集合，不选第一条。保留原记录，映射不删除、覆盖或合并。
 - 不迁移旧数据库；新库初始化复用已有结构，新表限定本轮隔离合成库。选择独立扩展而非改变 M2 固定键协议，保持旧测试有效。
+
+## ADR-M4-001 · 2026-11-05 · Phase 0B M4
+
+- 分类器比较两次完整读取证据和已接受基线，按 unstable→truncation→migration→compression→append→rewrite，无法证明时 unresolved。Schema 是 format_version、结构键集合、seq_namespace 的显式结构，不将 compression/物理长度混入。
+- 读取层提供 physical/logical bytes、完整性和写入中标记；本模块据 bytes 独立计算两种长度/hash，比较两次读取。不是生产 reader/zstd 解压器，输入证据真实性由调用方负责。重写允许明确平台标记，或完整换行记录多重集相同但顺序改变的可计算合成证据。
+- 独立不可变合成状态执行器复用 M1 derive/object_identity，执行真实 ID 注册、快照追加、代际派生与 Checkpoint 关闭/新建，不接入 M3 Store。原因：现有 Store 为单 Member/未压缩；接入将扩大到生产式多成员/压缩持久化，不是 M4 最小边界。测试不只检查分类字符串，也逐项比较状态历史和身份/位点。
+- 分类本身不推进消费位点；append/compression 保留 Checkpoint，migration/rewrite 新 Checkpoint 从 0 开始、保留关闭的旧 Checkpoint。旧代/成员未消费完时仅返回分类和阻塞观察，不执行替换，防止漏消费。unstable/truncation 持有阻塞原因，后续不得自动切换身份；解冻机制不在本轮。
+- 合成执行采用不可变值一次返回：错误/陈旧基线不修改原对象。状态仅内存，不声称 SQLite/跨进程持久冻结或新的 M2 原子性证明；M2/M3 持久机制由其既有回归验证。

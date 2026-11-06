@@ -80,3 +80,7 @@ JCS 仅实现本轮需要的字符串/整数子集，拒绝 float、大于安全
 ## M3 增量实现（2026-11-05）
 
 三种冻结 Locator Profile、独立 Fingerprint、幂等/持久冲突和显式映射已在独立合成库实现。DSH old seq/seq0 各自独立 stream/checkpoint 数据库，输入为合成 envelope，不解析真实平台历史。相关测试 141 项通过；[M3 阶段卡](../phase-records/2026-11-05-phase0b-m3.md)记录具体范围与审核入口，[验收 JSON](../acceptance/activity-m3-20261105.json)绑定源码指纹。本轮停止等待独立审核，未启动 M4–M6。
+
+## M4 增量实现（2026-11-05）
+
+冻结六类顺序已由独立分类器实现，并在不可变内存合成状态上验证身份/位点实际变化。没有改造 M1–M3 Store；不声称完成真实 reader、解压或持久采集集成。相关 182 项测试通过；[M4 阶段卡](../phase-records/2026-11-05-phase0b-m4.md)和[逐项证据](../acceptance/activity-m4-20261105.json)包含边界与失败修复历史。本轮停止等待独立审查。

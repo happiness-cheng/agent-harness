@@ -100,3 +100,16 @@
 ### 提交门禁与同步结果
 - 12 个精确本轮文件；9 个源码 SHA256 同时匹配工作区与暂存 Git blob；git diff --cached --check、文档本地引用、常见凭据模式检查 PASS。fetch 后本地与远端分支 0/0，既有 AGENTS 等未暂存。
 - 代码提交 `75bec9dc75a7fb58f17f05f7049204fe4c5e8bb9`；普通 push 到 origin/adrian/phase0b-m1 exit 0；git ls-remote 返回相同哈希。无强推、main 合并或新配置变更。后续仅追加同步记录，源码与已验证字节未改变。
+
+## ADR-M4-001 · 2026-11-05 · Phase 0B M4
+
+- 固定验收：六类与 unresolved、两次读取抖动/不完整、schema 与 rewrite/append/压缩优先级、物理/逻辑长度分离、明确重排证据；检查 member/generation/snapshot ID、Checkpoint 位点与状态、观察历史和重复执行。M1–M3 及既有 Checkpoint 回归。真实 reader/解压器、生产接入、M5/M6 NOT RUN。
+
+### 实际测试、失败与边界
+- 基线：M1–M3 四个测试文件 109 passed，18.64s。M4 首次测试 1 collection ERROR（activity_changes 尚未实现）；首批实现 10 passed。
+- 自审新增压缩→原表示回归后 1 failed / 10 passed：latest_snapshot_id 仍指向压缩快照。原因是错误地用最后注册项推断 latest；修复为独立指针，保持注册去重和 root 不变。扩展后 39 passed；加入固定 zstd raw-block 和未结束流样本。
+- 最终七文件 pytest 精确命令、11 源码 SHA256 与逐项结果见 docs/acceptance/activity-m4-20261105.json：182 passed / 0 failed / 0 skipped，21.15s（M4 41、既有相关回归 141）。Windows / 项目 .venv Python 3.13.16。运行时 HEAD 是 M3 文档提交，不能据此声称该旧提交包含 M4。
+- 六类分类及 unresolved、Schema 三维变化分别压过 append/rewrite/compression、unstable 压过 truncation/migration、物理长度收缩但逻辑 append、物理增长但逻辑 truncation、双读抖动/流不完整、重排多重集与缺证据均 PASS。
+- 副作用断言 PASS：member/generation/snapshot 注册与派生、旧身份保留、Checkpoint 关闭/新建从 0、append/compression 不前进位点、未知/截断/不稳定不建身份、后续写入仍受阻、旧代未消费完不替换、重复 observation 幂等和陈旧基线拒绝、旧快照复用时 latest 正确。M1 未压缩 Snapshot ID 精确一致。
+- compileall 对新增模块与测试 exit 0。独立 type/lint 未配置，NOT RUN；全仓测试 NOT RUN，按隔离模块边界运行完整相关回归。环境无 zstandard，未新增依赖；固定 raw-block 输入与已解压内容对照不等于已验证解压库。
+- 自审由当前助手执行，无子代理或独立审核。限制：输入 Schema/完整性/重写标记来自调用方；纯内存合成状态，不证明持久原子性、实际 reader 稳定性、生产恢复或吞吐。M1–M3 存储/恢复/冲突由既有回归验证，未改这些模块。

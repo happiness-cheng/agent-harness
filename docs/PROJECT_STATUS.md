@@ -1,5 +1,12 @@
 ﻿# Adrian：继续工作先读这里
 
+## 2026-11-05 最新续接：Phase 0B M4 实施完成，等待独立审查
+
+- 冻结六类变化分类器与不可变合成执行器已实现；验证实际身份、Snapshot/root/latest 和 Checkpoint 副作用。未改 M1–M3 Store，不代表已接入持久化采集。
+- **182 passed / 0 failed / 0 skipped**（M4 41 + 既有回归 141）；[M4 阶段卡](phase-records/2026-11-05-phase0b-m4.md)、[公开证据](acceptance/activity-m4-20261105.json)。压缩往返 latest 回归问题已修复，失败记录保留。
+- 本轮停止等待独立审查，不启动 M5/M6。仅合成数据；reader/解压、M3 多 Member 持久集成和自动解冻不在本轮。
+
+
 ## 2026-11-05 最新续接：Phase 0B M3 实施完成，等待独立审核
 
 - 三种 Locator Profile、独立三层 Fingerprint、记录幂等/持久冲突冻结、Provisional 显式映射已实现；多候选只返回集合，不自动合并。

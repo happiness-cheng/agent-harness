@@ -88,3 +88,17 @@
 
 ### Git 收尾
 - 代码提交 75bec9d 已普通推送，精确门禁与远端证据见 VALIDATION 同 Task ID；本补记仅三份文档。实施/本地验收 COMPLETED，独立审核 PENDING，本轮停止，不启动 M4–M6。
+
+## ADR-M4-001 · 2026-11-05 · Phase 0B M4
+
+### 执行前
+- 目标：冻结六类变化顺序、证据不足 unresolved、独立合成执行验证身份/Checkpoint 副作用。基线 fc8d76cfe75b52df28534db0bcdeffc45d91d39f，分支 adrian/phase0b-m1；既有 AGENTS.md 与 .workbuddy*/职业/审计/旧日志等未提交资料保留。
+- 预期新增 activity_changes.py、test_activity_m4.py、验收 JSON 和阶段记录；更新本周期三册、PROJECT_STATUS 和来源 README。无需改 M1–M3 Store；依据 Final Errata 六类变化与 M4。
+- 仅合成 bytes/临时路径，不读取真实历史、不改生产 schema/数据库/Hook/插件/Memory、不调用模型、不做 M5/M6。不修改已有未提交资料。验收先跑 M1–M3 基线，然后固定样本与副作用测试。
+
+### 实施与收尾
+- 新增 src/min_agent/activity_changes.py：显式 Schema/两次读取证据、六类优先分类、Snapshot 物理/逻辑字段、不可变合成状态执行器；新增 tests/unit/test_activity_m4.py：固定样本、组合优先级和身份/位点副作用。
+- 未修改 M1–M3 任何源码。新增 M4 阶段卡与验收 JSON；更新 PROJECT_STATUS、activity-connector/README 及本周期三册。设计取舍见 DECISION 同 Task ID；实际测试与失败见 VALIDATION 同 Task ID。
+- 自审发现压缩表示切回旧表示时 latest 不能从最后注册的 Snapshot 推断；独立保存 latest_snapshot_id，复用旧快照身份并保留观察历史，不改写根快照。不是冻结架构矛盾；符合 root/latest 分离。
+- 未做：M3 Store 集成、多 Member 持久化、消费/位点推进 API、自动解冻、真实 reader/解压器、M5/M6、外部模型和生产入口。合成状态仅内存，不能把本模块的冻结说成跨进程持久冻结。
+- 副作用：只在 pytest 独立临时路径写合成原始/编码样本；源码、文档、公开 JSON、忽略的 reports JUnit 与编译缓存。未改生产 schema/数据库、原文件、代理或依赖；既有无关未提交内容保留。
