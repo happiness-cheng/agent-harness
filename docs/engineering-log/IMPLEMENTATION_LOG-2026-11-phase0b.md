@@ -105,3 +105,18 @@
 
 ### Git 收尾
 - 代码提交 70d57dd，工作分支普通推送成功，门禁/网络失败和最终核对见 VALIDATION 同 Task ID。补记仅三份文档。M4 实施及限定合成验收 COMPLETED，独立审查 PENDING；本轮停止，不进入 M5。
+
+## ADR-RO-001 · 2026-11-06 · 最小只读 Activity Connector
+
+### 执行前
+- 用户本轮明确授权少量真实 Codex/DSH 历史只读验证，覆盖先前合成限定；不授权 Event Store/Memory/Checkpoint 写路径。HEAD 2a3d3a1854453ca59238806f84dce9fdbaa0440b，adrian/phase0b-m1；既有 AGENTS 和无关未提交资料保留。
+- 搜索 src/scripts/依赖未找到平台读取或 zstd 解压复用代码；现有 compression_* 为语义压缩，不是文件 codec。已确认 Codex .zst magic 为 zstd，DSH sessions 文件实际扩展 .zstd；仅打印字段结构，未导出历史正文。
+- 预期新增只读 reader/parser/report CLI 和合成测试；添加必要的可选 zstandard 依赖，复用 identity/records 规则；阶段卡、脱敏统计和日志。不修改 M1–M4 Store、原文件/配置/数据库，不做 M5/M6、Hook、模型或上传私人数据。
+
+### 实施与收尾
+- activity_reader.py 新增 rb 流式读取、zstd 帧结束/串联校验、有界行切分、双遍物理 hash/stat 稳定检查；activity_connector.py 新增实际格式适配、元数据脱敏统计/时间线、provisional/unresolved 标记和 CLI。test_activity_connector.py 新增固定合成验收。
+- pyproject.toml 新增 activity 可选 zstandard==0.25.0；dev 同版本用于验收。项目 .venv 安装该必要依赖，无全局环境修改。M1–M4 源码未改，没有接入真实持久写路径。
+- 新增 readonly-cli.md、阶段卡、公开脱敏验收 JSON；更新 README/PROJECT_STATUS 和本周期三册。设计取舍见 DECISION 同 Task ID，失败与实际测试见 VALIDATION 同 Task ID。
+- 真实结构核对发现 Codex 还有 world_state/token_usage_record，补白名单仅统计其记录类型；DSH 流式帧解压窗口限制错误已按合成反例修复。未据此推断调用次数或完成状态。
+- 未做：复杂 Fork/副本确认、共享 Checkpoint、生产 Event Store/Memory、模型调用、Hook/服务、M5/M6、完整平台兼容或大规模性能验证。未知类型/字段保守输出错误，全部记录保持 provisional；对象 native id 可证明时仅派生 object ID。
+- 副作用：新代码/文档、可选依赖、隔离合成临时文件/测试缓存、忽略的 reports 验证结果。真实目录只读 rb；未复制或保存真实历史正文，公开证据不含真实路径、原生 ID、原始 hash、时间线或对话。原用户未提交资料保留。

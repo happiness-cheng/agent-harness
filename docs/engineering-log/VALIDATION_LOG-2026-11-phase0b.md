@@ -117,3 +117,16 @@
 ### 提交门禁与 Git 结果
 - 精确 9 个本轮文件暂存；11 个源码 SHA256 与工作区及暂存 blob 全匹配，diff --check、本地文档引用和常见凭据模式检查 PASS。M1–M3 源码无修改；原 AGENTS 与无关资料未暂存。
 - fetch 首次 FAIL：TLS unexpected EOF；未改网络配置。代码本地提交 `70d57dd9cd231a5f4e6fea2aebf22db79672af55` 后普通 push 成功；git ls-remote 返回相同哈希。无强推、无 main 合并。后续只补记同步记录，不改已测源码。
+
+## ADR-RO-001 · 2026-11-06 · 最小只读 Activity Connector
+
+- 固定合成验收：Codex JSONL/zstd、DSH v4/old、seq/seq0、损坏/不完整流/缺字段、流式限制、脱敏输出、路径变化与重复扫描、原文件 hash 不变；M1–M4 回归。通过后才进行小批真实只读验收，公开证据仅统计与代码指纹。
+
+### 实际验证与失败记录
+- M1–M4 编码前基线五文件 150 passed，19.82s。Connector 初次测试 1 collection ERROR（模块尚未实现）；初始 8 passed，扩展 31 passed。
+- 首轮真实只读样本：Codex JSONL 27 parsed/4 failed（world_state/token_usage_record 不在适配列表），Codex zstd 7 parsed/0 failed；DSH v4/old 均在解压阶段拒绝，非正常 EOF。原因：max_window_size=65536 实际限制拒绝样本 2 MiB 窗口；原源码不适用未知 content_size 流式帧。四文件均前后 hash 不变，重复结果相同。保留初始脱敏统计，不覆盖失败。
+- 将问题转成固定合成反例：3 failed / 31 passed（未知大小 zstd 流、两个 Codex 元数据类型）。最小修复窗口设置和已观察类型白名单后 34 passed，再扩展资源/元数据稳定性/只读读长/隐私边界样本。
+- 最终八测试文件：222 passed / 0 failed / 0 skipped，22.66s（Connector 40、既有相关回归 182）；命令、逐项结果、15 个代码/配置指纹见 docs/acceptance/activity-readonly-20261106.json。环境 Windows，项目 Python 3.13.16，zstandard 0.25.0。compileall 新两模块与测试 exit 0。
+- 最终真实小批：4 文件 264 parsed / 0 failed；Codex JSONL 31、Codex zstd 7、DSH v4 7、DSH old 219。全部完整/双遍稳定/重复扫描一致/前后 SHA256 不变；old 的 seq 59、seq0 159。260 个非头记录全部 provisional。公开证据仅脱敏统计，未导出正文、Token、真实路径、原生 ID、原始文件 hash 或时间线。结构发现另读少量头部，不以旧报告替代当前文件证据。
+- 合成验收包含 JSONL/zstd 逻辑一致、串联帧与未结束流、损坏/重复 JSON 键、缺字段/未知格式、seq/seq0 冲突、编码窗口、资源上限、双读之间文件变化、未知敏感 type 脱敏、输出路径重叠/拒绝覆盖、只读且所有 read 有界、路径变化 object ID 稳定、副本不合并。实际 subprocess CLI 测试通过。
+- Type/Lint 无独立配置，NOT RUN；全仓测试 NOT RUN（隔离模块，已有相关回归全部运行）。本助手自审，未启动独立子代理审核。无真实写路径、M5/M6、性能或持续跟踪证明。采集稳定是双遍观察结论，不是 OS 锁定快照保证。

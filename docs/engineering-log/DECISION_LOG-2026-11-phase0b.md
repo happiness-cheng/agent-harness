@@ -45,3 +45,12 @@
 - 独立不可变合成状态执行器复用 M1 derive/object_identity，执行真实 ID 注册、快照追加、代际派生与 Checkpoint 关闭/新建，不接入 M3 Store。原因：现有 Store 为单 Member/未压缩；接入将扩大到生产式多成员/压缩持久化，不是 M4 最小边界。测试不只检查分类字符串，也逐项比较状态历史和身份/位点。
 - 分类本身不推进消费位点；append/compression 保留 Checkpoint，migration/rewrite 新 Checkpoint 从 0 开始、保留关闭的旧 Checkpoint。旧代/成员未消费完时仅返回分类和阻塞观察，不执行替换，防止漏消费。unstable/truncation 持有阻塞原因，后续不得自动切换身份；解冻机制不在本轮。
 - 合成执行采用不可变值一次返回：错误/陈旧基线不修改原对象。状态仅内存，不声称 SQLite/跨进程持久冻结或新的 M2 原子性证明；M2/M3 持久机制由其既有回归验证。
+
+## ADR-RO-001 · 2026-11-06 · 最小只读 Activity Connector
+
+- Adopt python-zstandard 可选依赖（项目 Python 3.13 无标准库 zstd），Build 薄层格式适配/报告；不使用一口气解压大型文件，不自写 codec。参考官方 Decompression APIs / ZstdDecompressionObj 的 eof/unused_data，显式验证帧结束；https://python-zstandard.readthedocs.io/en/latest/decompressor.html#zstandard.ZstdDecompressionObj 。
+- 实际读取器两遍流式 hash/元数据核对，逐行有界解析；报告只输出白名单类型、合法时间、位置、计数、匿名来源引用和确定性派生标识，不输出原生正文、任意字段值或异常原文。只读不能提供 OS 锁定快照保证，变化则标 unstable，不作为正常末尾。
+- 不执行 M4 内存状态机、不接 M3 真实写入。只读不能证明 root/generation/fork 时保持 provisional/unresolved，物理副本分开统计，不按路径或 NTFS ID 判逻辑身份。可证明的 object/locator 组件复用既有 derive；M5/M6 相关决策跳过。
+
+- M4 当前接口接收整份 physical/logical bytes；为保持大文件流式读取，不强行调用其内存执行器。沿用 unstable 优先原则；无持久前态时变更类型明确 unresolved_no_persistent_baseline，不猜 append/rewrite，也不产生身份变更。复用 activity_records 的 Locator Profile 与受限 Fingerprint；浮点超出既有 JCS 子集时明确 unsupported_canonical_value，不篡改原始值求哈希。
+- DSH 当前实际头部 version=4/0，旧版确有 seq/time 和 seq0/time0。以头部结构识别来源，不按文件名猜；重复 session 头停止后续身份归属，多个文件同 object 仅报告关联 unresolved，不做合并。报告类型采用白名单，未知原始 type 不直接回显。

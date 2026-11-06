@@ -1,5 +1,12 @@
 ﻿# Adrian：继续工作先读这里
 
+## 2026-11-06 最新续接：最小只读 Activity Connector 已完成
+
+- 真实 Codex JSONL/zstd、DSH v4/old 只读 CLI 已实现，流式解析、元数据报告、seq/seq0 分离；不接 M3 写路径或 Memory，M5/M6 暂缓。
+- **222 passed / 0 failed / 0 skipped**；真实小批 4 文件 264 parsed/0 failed，双遍稳定、重复一致且原文件 hash 不变。所有记录身份保守 provisional，无 Fork/副本合并。
+- [CLI 使用](activity-connector/readonly-cli.md)、[阶段交付](phase-records/2026-11-06-readonly-activity-connector.md)、[脱敏证据](acceptance/activity-readonly-20261106.json)。完成后停止，等待独立审核；不自动进入持久化或 Memory。
+
+
 ## 2026-11-05 最新续接：Phase 0B M4 实施完成，等待独立审查
 
 - 冻结六类变化分类器与不可变合成执行器已实现；验证实际身份、Snapshot/root/latest 和 Checkpoint 副作用。未改 M1–M3 Store，不代表已接入持久化采集。

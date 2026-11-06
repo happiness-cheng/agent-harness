@@ -84,3 +84,7 @@ JCS 仅实现本轮需要的字符串/整数子集，拒绝 float、大于安全
 ## M4 增量实现（2026-11-05）
 
 冻结六类顺序已由独立分类器实现，并在不可变内存合成状态上验证身份/位点实际变化。没有改造 M1–M3 Store；不声称完成真实 reader、解压或持久采集集成。相关 182 项测试通过；[M4 阶段卡](../phase-records/2026-11-05-phase0b-m4.md)和[逐项证据](../acceptance/activity-m4-20261105.json)包含边界与失败修复历史。本轮停止等待独立审查。
+
+## 最小只读 Connector（2026-11-06）
+
+用户明确授权真实历史的只读小批验证。本批新增 [CLI](readonly-cli.md)，支持当前实际 Codex JSONL/zstd、DSH session v4/old(version 0)，只输出脱敏元数据，不接持久 Event Store/Checkpoint/Memory。M5/M6 暂缓，所有记录身份仍 provisional，副本不合并。222 项测试通过，真实四文件 264 条记录解析、原文件 hash 不变；见[阶段交付](../phase-records/2026-11-06-readonly-activity-connector.md)。此前 M1–M4 合成边界为历史记录，不构成自动生产写入授权。
