@@ -120,3 +120,6 @@
 - 真实结构核对发现 Codex 还有 world_state/token_usage_record，补白名单仅统计其记录类型；DSH 流式帧解压窗口限制错误已按合成反例修复。未据此推断调用次数或完成状态。
 - 未做：复杂 Fork/副本确认、共享 Checkpoint、生产 Event Store/Memory、模型调用、Hook/服务、M5/M6、完整平台兼容或大规模性能验证。未知类型/字段保守输出错误，全部记录保持 provisional；对象 native id 可证明时仅派生 object ID。
 - 副作用：新代码/文档、可选依赖、隔离合成临时文件/测试缓存、忽略的 reports 验证结果。真实目录只读 rb；未复制或保存真实历史正文，公开证据不含真实路径、原生 ID、原始 hash、时间线或对话。原用户未提交资料保留。
+
+### Git 收尾
+- 代码提交 586b249 已普通推送工作分支，精确检查见 VALIDATION 同 Task ID；本补记只追加三份文档。本批只读 Connector COMPLETED，独立审核 PENDING。停止，不进入持久化或 Memory，不启动 M5/M6。
