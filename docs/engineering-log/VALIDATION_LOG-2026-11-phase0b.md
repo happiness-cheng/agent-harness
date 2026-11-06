@@ -113,3 +113,7 @@
 - 副作用断言 PASS：member/generation/snapshot 注册与派生、旧身份保留、Checkpoint 关闭/新建从 0、append/compression 不前进位点、未知/截断/不稳定不建身份、后续写入仍受阻、旧代未消费完不替换、重复 observation 幂等和陈旧基线拒绝、旧快照复用时 latest 正确。M1 未压缩 Snapshot ID 精确一致。
 - compileall 对新增模块与测试 exit 0。独立 type/lint 未配置，NOT RUN；全仓测试 NOT RUN，按隔离模块边界运行完整相关回归。环境无 zstandard，未新增依赖；固定 raw-block 输入与已解压内容对照不等于已验证解压库。
 - 自审由当前助手执行，无子代理或独立审核。限制：输入 Schema/完整性/重写标记来自调用方；纯内存合成状态，不证明持久原子性、实际 reader 稳定性、生产恢复或吞吐。M1–M3 存储/恢复/冲突由既有回归验证，未改这些模块。
+
+### 提交门禁与 Git 结果
+- 精确 9 个本轮文件暂存；11 个源码 SHA256 与工作区及暂存 blob 全匹配，diff --check、本地文档引用和常见凭据模式检查 PASS。M1–M3 源码无修改；原 AGENTS 与无关资料未暂存。
+- fetch 首次 FAIL：TLS unexpected EOF；未改网络配置。代码本地提交 `70d57dd9cd231a5f4e6fea2aebf22db79672af55` 后普通 push 成功；git ls-remote 返回相同哈希。无强推、无 main 合并。后续只补记同步记录，不改已测源码。
