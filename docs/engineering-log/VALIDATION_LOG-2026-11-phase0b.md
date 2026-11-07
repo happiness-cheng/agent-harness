@@ -147,3 +147,7 @@
 - PM 事前允许的 12 个文档/插件/非健康已审核笔记前后 SHA256 全部相同，无 .git；未扫描或读取健康目录/真实平台原始历史。范围不是整个 Vault 的字节审计，不把合成哨兵当成真实历史 hash 验证。
 - 实际 Obsidian 启动 FAIL：WinError 2，注册表路径对应可执行文件不存在，当前无 Obsidian 进程；仅临时配置准备完成。实际链接跳转/界面显示 NOT VERIFIED，结构检查 PASS 不替代 UI；整批 PARTIAL。无下载/安装或正式 Vault 改动。
 - 风险：不是正式 PM Activity schema 准入，缺消息证据且 eligible_for_import=false；不接插件队列；并发恶意路径置换/多文件崩溃事务未实现。停止在合成原型边界。
+
+### 提交门禁与同步
+- 暂存 9 文件与本轮清单相符，两个新增源码/测试 SHA256 与暂存 blob 一致；diff --cached --check、阶段本地链接、常见凭据模式检查 PASS。fetch 成功且提交前 0/0。
+- c556a515ac303e50596e466f20d58171bb6503a5 已普通 push，ls-remote 返回同一哈希；无强推/合并/无关暂存。后续只补记 Git 结果。

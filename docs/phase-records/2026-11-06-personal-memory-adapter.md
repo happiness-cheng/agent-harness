@@ -21,3 +21,7 @@
 仅在独立审核或恢复隔离 Obsidian 实机环境后继续本批：先重跑合成 CLI，再用独立配置打开生成的临时 vault 验证 draft、时间和链接，不打开正式 Vault。禁止自动进入正式同步、Memory 导入或仓库合并。
 
 代码：`src/min_agent/activity_memory_adapter.py`；测试：`tests/unit/test_activity_memory_adapter.py`。工程三册使用 Task ID ADR-PM-ADAPTER-001。提交版本见 Git 日志与本阶段后续追加记录。
+
+## 提交与停止
+
+源码提交 `c556a515ac303e50596e466f20d58171bb6503a5` 已同步 GitHub `adrian/phase0b-m1`，远端哈希核对一致。259 passed/0 failed/0 skipped（37 Adapter + 222 回归）；本追加不改已测源码。整批 PARTIAL：仅 Obsidian 实机显示验收尚未完成；等待独立审核，不启动正式导入。
