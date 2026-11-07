@@ -134,3 +134,16 @@
 ### 精确提交与 Git 同步
 - 精确暂存 12 个本轮文件；15 个代码/配置 SHA256 同时匹配工作区和暂存 blob。diff --check、本地链接、常见凭据模式和真实统计字段白名单检查 PASS。原 AGENTS/其他资料未暂存，reports 原始运行文件未提交。
 - fetch 成功且提交前分支 0/0；代码提交 `586b24970f7924859020f58816a28d3a36620a46`，普通 push 成功，ls-remote 核对同哈希。没有强推或 main 合并。后续仅补记此同步结果，不改已测源码。
+
+## ADR-PM-ADAPTER-001 · 2026-11-06 · 跨项目集成第一批
+
+- 固定验收：相同输入幂等、四平台命名空间 ID 分离、Source 摘录字节 hash 与引用锚有效、缺原始 Locator 未验证、Agent 输出不升级现实事实、审核笔记不覆盖、隔离源文件不变、健康/正文不复制、跨目录写入拒绝。另验证真实 Obsidian 隔离实例渲染，不改正式 Vault。
+
+### 实际验证、失败与边界
+- 编码前 Connector 基线 40 passed；模块未创建时首次新增测试 1 collection ERROR，实现后最初 3 passed。
+- 扩展首次 22 passed/9 failed：链接检查对尚未创建路径调用 lstat，导致首次写入失败；改用 lexists 后 30 passed/1 failed，剩余为 Windows 子进程编码不一致；测试子进程显式 UTF-8 后修复。没有修改验收判据。
+- 最终相关九文件 259 passed/0 failed/0 skipped，19.98s（Adapter 37、既有回归 222）；完整命令/用例/源码指纹见 docs/acceptance/personal-memory-adapter-20261106.json。compileall 两文件 exit 0。Type/Lint 无独立配置 NOT RUN；全仓测试 NOT RUN；无独立子代理审核。
+- 覆盖重复 CLI 写入0、四平台身份隔离、摘录真实 hash、映射和链接块锚、缺 Locator 不伪造消息、AI 断言不升级事实、confirmed/corrected/draft 均不覆盖、敏感正文/隔离标记不导出、意外输入拒绝、链接输出拒绝、四平台合成哨兵及输入不变。链接输出测试为注入模拟，不声称所有真实 NTFS 重解析类型已测。
+- PM 事前允许的 12 个文档/插件/非健康已审核笔记前后 SHA256 全部相同，无 .git；未扫描或读取健康目录/真实平台原始历史。范围不是整个 Vault 的字节审计，不把合成哨兵当成真实历史 hash 验证。
+- 实际 Obsidian 启动 FAIL：WinError 2，注册表路径对应可执行文件不存在，当前无 Obsidian 进程；仅临时配置准备完成。实际链接跳转/界面显示 NOT VERIFIED，结构检查 PASS 不替代 UI；整批 PARTIAL。无下载/安装或正式 Vault 改动。
+- 风险：不是正式 PM Activity schema 准入，缺消息证据且 eligible_for_import=false；不接插件队列；并发恶意路径置换/多文件崩溃事务未实现。停止在合成原型边界。

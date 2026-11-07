@@ -1,5 +1,12 @@
 ﻿# Adrian：继续工作先读这里
 
+## 2026-11-06 最新续接：Personal Memory Adapter 第一批 PARTIAL
+
+- 合成只读报告→隔离 Markdown 候选/报告证据卡/显式映射已实现；全部 draft/unknown，不创建正式 Memory，不改 Personal Memory Vault 或插件。
+- 报告缺消息证据，候选禁止正式导入；ChatGPT/DeepSeek 仅有 ID 命名空间。Obsidian 注册可执行路径不存在，实机渲染未验证，不能宣称整批验收完成。
+- [字段契约与 CLI](activity-connector/personal-memory-contract-v0.1.md)、[阶段记录](phase-records/2026-11-06-personal-memory-adapter.md)、[测试证据](acceptance/personal-memory-adapter-20261106.json)。本批停止，等待独立审核与隔离 UI 验证，不进入同步、Memory 或 M5/M6。
+
+
 ## 2026-11-06 最新续接：最小只读 Activity Connector 已完成
 
 - 真实 Codex JSONL/zstd、DSH v4/old 只读 CLI 已实现，流式解析、元数据报告、seq/seq0 分离；不接 M3 写路径或 Memory，M5/M6 暂缓。

@@ -123,3 +123,17 @@
 
 ### Git 收尾
 - 代码提交 586b249 已普通推送工作分支，精确检查见 VALIDATION 同 Task ID；本补记只追加三份文档。本批只读 Connector COMPLETED，独立审核 PENDING。停止，不进入持久化或 Memory，不启动 M5/M6。
+
+## ADR-PM-ADAPTER-001 · 2026-11-06 · 跨项目集成第一批
+
+### 执行前
+- 目标：Adrian 合成只读报告→PM Agent 活动观察候选，先字段对照/不兼容清单，再 Adapter/隔离 Markdown/Obsidian 显示验证。基线 86b69a9，adrian/phase0b-m1；原 AGENTS/无关资料保留。
+- PM 仍是 Vault、无 .git；只读用户指定模型/导入设计、插件及 Pilot 01 报告/用户决定，不初始化 Git、不读健康隔离目录或原始私人历史。允许清单内设计/插件/三份已审核非健康笔记作前后指纹检查。
+- 预期新增字段契约、activity_memory_adapter.py、合成测试和演示/UI 验证脚本；仅 Adrian 与新临时沙盒写入。不改 Vault/插件、不创建正式 Memory、不自动同步或启动 M5/M6。
+
+### 实际实施与未完成
+- 新增 activity_memory_adapter.py：内置合成报告 CLI、白名单元数据转换、Source 摘录 hash、独立 Activity ID、显式映射、draft 候选和报告证据卡；仅新临时沙盒可写，既有不同候选全部保护。直接复用 Connector 和 canonical，不改旧模块。
+- 新增 test_activity_memory_adapter.py、字段契约、阶段卡、公开验收 JSON；更新 PROJECT_STATUS，三册关联本 Task ID。设计依据与取舍见 DECISION 同 ID，验证和失败记录见 VALIDATION 同 ID。
+- 实施偏差：计划中的实际 Obsidian 渲染未完成，未生成 UI 证据脚本/截图；环境中已登记的程序文件不存在。整批状态 PARTIAL，不能声称完成实机验收。
+- 副作用仅 Adrian 代码/文档和新的临时合成沙盒、测试缓存、忽略的 reports；未写 PM Vault/插件/配置，无 Git 初始化，无私人历史读取、Memory 或模型调用。尝试启动使用新临时配置，进程创建失败。
+- 未做：正式 Activity/Memory 导入、插件审核队列、ChatGPT/DeepSeek 输入适配、原始消息证据补齐、复杂 Fork、M5/M6、跨进程事务；停止等待审核及隔离 UI 验证。

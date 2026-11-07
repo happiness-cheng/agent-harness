@@ -54,3 +54,10 @@
 
 - M4 当前接口接收整份 physical/logical bytes；为保持大文件流式读取，不强行调用其内存执行器。沿用 unstable 优先原则；无持久前态时变更类型明确 unresolved_no_persistent_baseline，不猜 append/rewrite，也不产生身份变更。复用 activity_records 的 Locator Profile 与受限 Fingerprint；浮点超出既有 JCS 子集时明确 unsupported_canonical_value，不篡改原始值求哈希。
 - DSH 当前实际头部 version=4/0，旧版确有 seq/time 和 seq0/time0。以头部结构识别来源，不按文件名猜；重复 session 头停止后续身份归属，多个文件同 object 仅报告关联 unresolved，不做合并。报告类型采用白名单，未知原始 type 不直接回显。
+
+## ADR-PM-ADAPTER-001 · 2026-11-06 · 跨项目集成第一批
+
+- PM Source 是文件字节 src_sha256，Adrian object/record 是不同身份；建立显式映射，绝不互换。Source 取隔离生成的白名单报告摘录文件，原始历史引用始终未验证；PM message_index/role/quote 不凭 JSONL line_index 推造。
+- 没有消息正文的报告只能生成 Agent 活动观察候选：draft、status unknown、event_at/conversation_at 留空，source_recorded_at 与 observed_at 分离。conversation 作为候选 kind，并标正式导入受缺消息证据阻塞；不生成真实活动/偏好/知识/Memory。
+- Pilot 01 用户最终决定明确不追认旧自动 confirmed 和所谓 100% 人工通过率；本轮不使用旧标记作为确认来源。插件队列使用另一组字段/状态，原样列为不兼容，不修改插件或写其队列。
+- CLI 仅合成 demo：自己生成报告并读取；输出只允许自身新建、带标记的 OS 临时沙盒，不接受正式 Vault 输出路径。Markdown 只白名单元数据，原文/健康/私有扩展不复制。既有任何不同内容均保留，不覆盖 confirmed/corrected，甚至不覆盖 draft。

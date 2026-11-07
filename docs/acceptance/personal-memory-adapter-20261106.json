@@ -1,0 +1,192 @@
+{
+  "task_id": "ADR-PM-ADAPTER-001",
+  "status": "PARTIAL_UI_NOT_VERIFIED",
+  "baseline": "86b69a9a3b54ba80887f476469651141b53f3030",
+  "python": "3.13.16",
+  "command": ".venv/Scripts/python.exe -X utf8 -m pytest tests/unit/test_activity_memory_adapter.py tests/unit/test_activity_connector.py tests/unit/test_activity_m4.py tests/unit/test_activity_m3.py tests/unit/test_activity_identity.py tests/unit/test_activity_store.py tests/unit/test_activity_m2.py tests/unit/test_checkpoint_resume.py tests/integration/test_checkpoint_persistence.py -q --tb=short --junitxml=reports/personal-memory-adapter-20261106/junit.xml",
+  "totals": {
+    "passed": 259,
+    "failed": 0,
+    "skipped": 0,
+    "adapter": 37,
+    "regressions": 222,
+    "seconds": 19.98
+  },
+  "source_sha256": {
+    "src/min_agent/activity_memory_adapter.py": "d1bdea47629c2666b3417e43cd328df1ab2dcdd50f7f826bb7b614e8b66d7292",
+    "tests/unit/test_activity_memory_adapter.py": "1e13c9a42ab14dccbbc598af29ac1666dcae8f03a21aff537ce04d2249633caa"
+  },
+  "cases": [
+    {
+      "name": "test_conversion_is_observation_not_real_event",
+      "status": "PASS"
+    },
+    {
+      "name": "test_idempotent_demo_and_valid_links",
+      "status": "PASS"
+    },
+    {
+      "name": "test_platform_ids_do_not_collide",
+      "status": "PASS"
+    },
+    {
+      "name": "test_source_hash_mapping_and_block_links",
+      "status": "PASS"
+    },
+    {
+      "name": "test_missing_locator_never_fabricates_message_evidence[source_ref]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_missing_locator_never_fabricates_message_evidence[line_index]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_missing_locator_never_fabricates_message_evidence[seq_value]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_missing_locator_never_fabricates_message_evidence[seq_namespace]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_missing_locator_never_fabricates_message_evidence[logical_byte_offset]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_isolated_metadata_not_exported[flag0-report]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_isolated_metadata_not_exported[flag0-file]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_isolated_metadata_not_exported[flag0-record]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_isolated_metadata_not_exported[flag1-report]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_isolated_metadata_not_exported[flag1-file]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_isolated_metadata_not_exported[flag1-record]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_isolated_metadata_not_exported[flag2-report]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_isolated_metadata_not_exported[flag2-file]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_isolated_metadata_not_exported[flag2-record]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_untrusted_claims_body_paths_and_review_state_are_not_copied",
+      "status": "PASS"
+    },
+    {
+      "name": "test_existing_notes_never_overwritten[confirmed]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_existing_notes_never_overwritten[corrected]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_existing_notes_never_overwritten[draft]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_evidence_conflict_preflight_does_not_create_candidates",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unsupported_platform_does_not_guess[chatgpt/export]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unsupported_platform_does_not_guess[deepseek/export]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unsupported_platform_does_not_guess[profile2]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unstable_incomplete_and_seq0_remain_explicit",
+      "status": "PASS"
+    },
+    {
+      "name": "test_outside_sandbox_rejected_without_write",
+      "status": "PASS"
+    },
+    {
+      "name": "test_unexpected_input_is_rejected_before_scan",
+      "status": "PASS"
+    },
+    {
+      "name": "test_four_platform_original_sentinels_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "test_cli_replay",
+      "status": "PASS"
+    },
+    {
+      "name": "test_linked_output_refused_before_write",
+      "status": "PASS"
+    },
+    {
+      "name": "test_missing_or_unzoned_time_not_promoted[None]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_missing_or_unzoned_time_not_promoted[not-a-date]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_missing_or_unzoned_time_not_promoted[2026-01-01T00:00:00]",
+      "status": "PASS"
+    },
+    {
+      "name": "test_missing_observation_time_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "test_known_limits_preserved_without_free_text_leak",
+      "status": "PASS"
+    }
+  ],
+  "protected_pm_allowlist": {
+    "allowlisted_files": 12,
+    "unchanged": 12,
+    "git_created": false
+  },
+  "checks": {
+    "compileall": "PASS",
+    "yaml_and_internal_link_targets": "PASS",
+    "obsidian_actual_render": "NOT_VERIFIED_EXECUTABLE_MISSING",
+    "private_original_history": "NOT_READ",
+    "health_isolated_history": "NOT_READ",
+    "formal_vault_writes": false,
+    "external_model_calls": false
+  },
+  "limits": [
+    "synthetic_only",
+    "no_formal_import",
+    "missing_original_message_evidence",
+    "chatgpt_deepseek_input_adapters_not_implemented",
+    "no_plugin_queue_integration",
+    "no_concurrent_filesystem_transaction",
+    "no_independent_review"
+  ]
+}
