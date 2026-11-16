@@ -10,7 +10,8 @@
 - **实测成本**：连接 everything 后工具 schema 约 **8.8 KB / 约 9.9k tokens** 估算；小窗口模型不应连接大服务器。
 - **边界**：只做 stdio；未做 HTTP/SSE、OAuth、resources/prompts/sampling、`confirm` 交互审批、同一任务热重连、MCP 单独预算；**未用真实模型跑 MCP 对话**（会消耗模型调用，未授权）；skills / memory 的组件提示词段尚未接（这次只落了 `SystemPrompt` 机制与 MCP 段）。
 - **过程缺陷（如实）**：`connect_mcp` 最初用 `Enum + strict` 导致参数全失败；连接结果回传全部工具说明超过 2000 字节触发摘要/`context_limit`；`EvalApplication._registry` 签名未同步导致 10 项评测 `UNKNOWN`。均已修复，失败证据在 `reports/mcp-20261117/`。
-- **未提交、未推送**；[决策](engineering-log/DECISION_LOG.md)（MCP-001 D1–D8）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md)；配置与测试说明见 [MCP](MCP.md)。
+- **提交状态**：已推送 GitHub 分支 `review/20261117-runtime-mcp`（提交 `72fef51`，父提交 `3dfd707`）；本地私有材料（`docs/interview-*`、`docs/career-positioning-*`、`docs/tech-audit-*`、`.workbuddy*`）未提交。外部审查建议直接看该分支相对 `3dfd707` 的单个提交。
+- [决策](engineering-log/DECISION_LOG.md)（MCP-001 D1–D8）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md)；配置与测试说明见 [MCP](MCP.md)。
 
 ## 2026-11-15 最新续接：Runtime 瘦身 + 包结构分类（RUNTIME-SLIM-001 / PKG-LAYOUT-001）
 
@@ -19,7 +20,7 @@
 - **边界（重要）**：**未跑**真实模型、Ollama/DeepSeek/千问、浏览器 UI、live 用例；`verify_release.py` 的 wheel 分离环境验证 **NOT RUN**（本机无离线 wheelhouse）；`manager.py` 的 Worker 循环未拆；历史 `docs/steps/*` 旧路径不改；不证明未覆盖语义的等价性与性能。
 - **对外可见变化**：`-m min_agent.activity_connector` / `-m min_agent.activity_memory_adapter` → `-m min_agent.activity.connector` / `-m min_agent.activity.memory_adapter`；`min_agent.web`、`min_agent.evaluation`、`min_agent.application` 不变。
 - **过程缺陷（如实）**：首轮 3 个表征测试是我写错（非产品缺陷）；迁移脚本漏了 `from min_agent import activity_*` 形式导致 4 failed；补规则时二次重写又造成 52 文件 / 101 处重复映射，已精确修复并补审计。失败证据与修复脚本都在 `reports/refactor-20261115/`。
-- **未提交、未推送**；工作区含前序未提交改动，本批只追加自己的部分。
+- **提交状态**：已随 `review/20261117-runtime-mcp`（commit `72fef51`）提交并推送。
 - [决策](engineering-log/DECISION_LOG.md)（RUNTIME-SLIM-001 D1–D5、PKG-LAYOUT-001 D6–D10）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md)。
 
 ## 2026-11-15 最新续接：FS-MUTATE-001 文件工具族 + SHELL-004 外壳诚实化
