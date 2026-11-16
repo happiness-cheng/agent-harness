@@ -5,10 +5,10 @@ import httpx
 
 from min_agent.llm.client import OpenAIResponsesModel
 from min_agent.llm.config import OpenAISettings
-from min_agent.models import Message
+from min_agent.contracts.models import Message
 from min_agent.runtime import Runtime
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolRegistry
 from tests.unit.test_llm_adapter import text_output, wire_response

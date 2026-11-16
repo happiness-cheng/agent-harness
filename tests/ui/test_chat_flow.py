@@ -10,7 +10,7 @@ import uvicorn
 from playwright.sync_api import sync_playwright, expect
 
 from min_agent.application import HarnessApplication
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.tools.reminder import ReminderService
 from min_agent.web.app import create_app
 from tests.fakes.model import ScriptedModel
@@ -42,7 +42,7 @@ def test_browser_confirm_build_todo_two_sessions_notification_and_mobile(tmp_pat
         browser = p.chromium.launch(channel='msedge', headless=True)
         page = browser.new_page(viewport={'width':1440,'height':1000})
         errors=[]; page.on('pageerror',lambda error: errors.append(str(error)))
-        page.goto(base); page.wait_for_load_state('networkidle')
+        page.goto(base + '/legacy'); page.wait_for_load_state('networkidle')
         page.locator('#message').fill('请记录合成周报'); page.locator('#send').click()
         expect(page.locator('#task-status')).to_have_text('等待确认', timeout=15000)
         expect(page.locator('#todos')).to_contain_text('还没有待办')
@@ -92,12 +92,22 @@ def test_browser_queue_stop_and_directed_resume_keep_messages_separate(tmp_path)
             browser = p.chromium.launch(channel="msedge", headless=True)
             page = browser.new_page()
             errors = []; page.on("pageerror", lambda error: errors.append(str(error)))
-            page.goto(base); page.wait_for_load_state("networkidle")
+            page.goto(base + "/legacy"); page.wait_for_load_state("networkidle")
             page.locator("#message").fill("当前任务"); page.locator("#send").click()
             assert entered.wait(10)
             page.locator("#message").fill("稍后处理的消息"); page.locator("#send").click()
             expect(page.locator("#queue-status")).to_contain_text("1 条")
             page.locator("#stop").click()
+            # QWEN-UX-001：前端轮询加快后，"stop 请求"与"模型返回"的先后不再被慢轮询掩盖。
+            # 这里显式等后端真正记录 stop，再放行模型，避免测试依赖竞态时序。
+            session_id = harness.list_sessions()[0]["session_id"]
+            context = harness.context(session_id)
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline:
+                if harness.sessions.extension(context, "events", {}).get("stop"):
+                    break
+                time.sleep(0.02)
+            assert harness.sessions.extension(context, "events", {}).get("stop") is True
             release.set()
             expect(page.locator("#task-status")).to_have_text("已停止", timeout=15000)
             assert len(calls) == 1
@@ -111,3 +121,22 @@ def test_browser_queue_stop_and_directed_resume_keep_messages_separate(tmp_path)
             browser.close()
     finally:
         release.set(); harness.close()
+
+
+def test_sent_message_does_not_leave_pending_bubble(tmp_path):
+    """回归：一轮结束后最后一条是 assistant，"发送中"气泡必须消失且只剩一条用户消息。"""
+    model = ScriptedModel([ModelResponse(finish_reason="stop", content="收到")])
+    harness = HarnessApplication(tmp_path / "pending-bubble.sqlite3", model=model)
+    try:
+        with server(harness) as base, sync_playwright() as p:
+            browser = p.chromium.launch(channel="msedge", headless=True)
+            page = browser.new_page()
+            page.goto(base + "/legacy"); page.wait_for_load_state("networkidle")
+            page.locator("#message").fill("你好")
+            page.locator("#send").click()
+            expect(page.locator("#messages")).to_contain_text("收到", timeout=15000)
+            expect(page.locator("#messages .message.user.pending")).to_have_count(0, timeout=10000)
+            expect(page.locator("#messages .message.user")).to_have_count(1)
+            browser.close()
+    finally:
+        harness.close()

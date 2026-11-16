@@ -7,8 +7,8 @@ import sys
 import pytest
 import zstandard
 
-from min_agent.activity_connector import scan
-from min_agent.activity_connector import main
+from min_agent.activity.connector import scan
+from min_agent.activity.connector import main
 
 
 def codex():
@@ -171,7 +171,7 @@ def test_timeline_limit_preserves_counts(tmp_path):
 
 
 def test_mutation_between_passes_marks_unstable(tmp_path,monkeypatch):
-    from min_agent import activity_reader
+    from min_agent.activity import reader as activity_reader
     p=write(tmp_path/'race.jsonl',codex());original=activity_reader.hash_readonly
     def altered(path,limit):
         with p.open('ab') as f:f.write(b'\n')
@@ -197,14 +197,14 @@ def test_cli_does_not_overwrite_or_write_into_inputs(tmp_path,capsys):
 
 def test_cli_module_runs_in_subprocess(tmp_path):
     p=write(tmp_path/'x.zst',codex(),True)
-    result=subprocess.run([sys.executable,'-m','min_agent.activity_connector',str(p)],capture_output=True,timeout=20)
+    result=subprocess.run([sys.executable,'-m','min_agent.activity.connector',str(p)],capture_output=True,timeout=20)
     assert result.returncode==0,result.stderr
     assert json.loads(result.stdout)['parsed_records']==2
     assert b'PRIVATE_SECRET' not in result.stdout+result.stderr
 
 
 def test_symlink_or_reparse_not_followed(tmp_path,monkeypatch):
-    from min_agent import activity_connector
+    from min_agent.activity import connector as activity_connector
     p=write(tmp_path/'link.jsonl',codex())
     monkeypatch.setattr(activity_connector,'is_link',lambda path:True)
     r=scan(p)
@@ -253,7 +253,7 @@ def test_missing_session_id_and_float_fingerprint_are_not_invented(tmp_path):
 
 
 def test_metadata_change_with_identical_bytes_is_unstable(tmp_path,monkeypatch):
-    from min_agent import activity_reader
+    from min_agent.activity import reader as activity_reader
     p=write(tmp_path/'x.jsonl',codex())
     original=activity_reader.hash_readonly
     monkeypatch.setattr(activity_reader,'hash_readonly',lambda path,limit:(original(path,limit)[0],False))

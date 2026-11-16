@@ -3,12 +3,12 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.budget import BudgetLedger, BudgetLimits
-from min_agent.compression_selector import GroundedSelector
-from min_agent.compression_text import tool_summary
-from min_agent.models import Message, ModelResponse, ToolCall
-from min_agent.sessions import SessionStore
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+from min_agent.compression.selector import GroundedSelector
+from min_agent.compression.text import tool_summary
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
+from min_agent.session.store import SessionStore
 from tests.fakes.model import ScriptedModel
 
 
@@ -34,7 +34,7 @@ def fixture(script, calls=10):
 
 
 def test_long_selected_tool_material_becomes_short_summary_with_original_evidence():
-    from min_agent.compression_evidence import read_evidence
+    from min_agent.compression.evidence import read_evidence
     store, context, artifacts, model, ledger, selector = fixture([selected(), summary()])
     text = material()
     value = json.loads(tool_summary(text, "退款条件和办理步骤", artifacts, selector, max_bytes=1600))
@@ -57,7 +57,7 @@ def test_normal_short_excerpts_do_not_make_a_semantic_model_call():
 
 
 def test_semantic_context_projection_is_frozen_and_original_stays_unchanged():
-    from min_agent.context import ContextManager
+    from min_agent.context.manager import ContextManager
     store, context, artifacts, model, _, selector = fixture([selected(), summary()])
     manager = ContextManager(store, context, artifacts, selector=selector)
     text = material()
@@ -71,7 +71,7 @@ def test_semantic_context_projection_is_frozen_and_original_stays_unchanged():
 
 
 def test_semantic_evidence_cannot_be_read_from_another_session():
-    from min_agent.compression_evidence import read_evidence
+    from min_agent.compression.evidence import read_evidence
     store, _, artifacts, _, _, selector = fixture([selected(), summary()])
     value = json.loads(tool_summary(material(), "退款", artifacts, selector))
     other = ArtifactStore(store, store.create(uuid4()))
@@ -80,8 +80,8 @@ def test_semantic_evidence_cannot_be_read_from_another_session():
 
 
 def test_history_and_recompressed_memory_preserve_original_evidence_not_rewritten_offsets():
-    from min_agent.compaction import Compactor, CompactionBlocked
-    from min_agent.compression_evidence import read_evidence
+    from min_agent.compression.compaction import Compactor, CompactionBlocked
+    from min_agent.compression.evidence import read_evidence
     store, context, artifacts, model, ledger, selector = fixture([selected(), summary(), selected(), summary()])
     compressor = Compactor(model, store, context, selector.budget)
     compressor.objective = "退款条件和办理步骤"
@@ -106,7 +106,7 @@ def test_history_and_recompressed_memory_preserve_original_evidence_not_rewritte
 
 
 def test_history_keeps_complete_excerpts_when_final_json_fits_even_if_body_exceeds_old_cap():
-    from min_agent.compaction import Compactor
+    from min_agent.compression.compaction import Compactor
     store, context, _, model, ledger, selector = fixture([selected()])
     compressor = Compactor(model, store, context, selector.budget)
     initial = {"version": 1, "summary": None, "covered": 0, "covered_hashes": [], "projections": {}}
@@ -130,7 +130,7 @@ def test_model_selected_noncritical_long_sentence_is_compressed_instead_of_skipp
 
 
 def test_failed_semantic_repairs_do_not_publish_and_same_source_opens_circuit():
-    from min_agent.context import ContextLimit, ContextManager
+    from min_agent.context.manager import ContextLimit, ContextManager
     bad = ModelResponse(finish_reason="stop", content='{"items":[{"text":"不完整摘要","source_ids":[0]}]}')
     store, context, artifacts, model, ledger, selector = fixture([selected(), bad, bad] * 2)
     manager = ContextManager(store, context, artifacts, selector=selector)
@@ -144,7 +144,7 @@ def test_failed_semantic_repairs_do_not_publish_and_same_source_opens_circuit():
 
 
 def test_tampered_evidence_index_is_rejected():
-    from min_agent.compression_evidence import read_evidence
+    from min_agent.compression.evidence import read_evidence
     _, _, artifacts, _, _, selector = fixture([selected(), summary()])
     value = json.loads(tool_summary(material(), "退款", artifacts, selector))
     value["evidence"]["sha256"] = "bad"
@@ -161,7 +161,7 @@ def test_metadata_budget_failure_does_not_launch_summary_model():
 
 def test_application_semantic_summary_uses_parent_budget_and_freezes_projection(tmp_path):
     from min_agent.application import HarnessApplication
-    from min_agent.budget_persistence import SessionBudgets
+    from min_agent.ledger.budget_persistence import SessionBudgets
     class Model:
         def __init__(self): self.selection = 0; self.semantic = 0; self.main = 0
         def generate(self, messages, *, tools=None):

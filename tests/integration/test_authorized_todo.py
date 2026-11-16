@@ -7,12 +7,12 @@ from threading import Event
 
 import pytest
 
-from min_agent.models import ModelResponse, ToolCall
-from min_agent.clock import Clock
+from min_agent.contracts.models import ModelResponse, ToolCall
+from min_agent.contracts.clock import Clock
 from min_agent.runtime import Runtime
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
-from min_agent.task_state import ActionSpec, GoalSpec, TaskController
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
+from min_agent.session.task_state import ActionSpec, GoalSpec, TaskController
 from min_agent.tools.todo import TodoService
 from tests.fakes.model import ScriptedModel
 

@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from min_agent.budget import BudgetLedger, BudgetLimits
-from min_agent.models import ModelResponse
+from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+from min_agent.contracts.models import ModelResponse
 from tests.fakes.model import ScriptedModel
 
 
@@ -13,7 +13,7 @@ def result(text="收货7天内且未拆封可退款。", ids=None):
 
 
 def fixture(script, *, calls=8, **kwargs):
-    from min_agent.compression_summary import SemanticCompressor
+    from min_agent.compression.summary import SemanticCompressor
     model = ScriptedModel(script)
     ledger = BudgetLedger(BudgetLimits(model_calls=calls, tool_calls=0))
     budget = ledger.start_segment(BudgetLimits(model_calls=calls, tool_calls=0))
@@ -81,7 +81,7 @@ def test_user_stop_does_not_launch_semantic_compression():
 
 @pytest.mark.parametrize("strict_render", [False, True])
 def test_long_selected_input_is_fully_chunked_then_merged_with_original_ids(strict_render):
-    from min_agent.compression_summary import SemanticCompressor
+    from min_agent.compression.summary import SemanticCompressor
     class Model:
         def __init__(self): self.seen = []; self.calls = 0; self.merges = 0
         def generate(self, messages):

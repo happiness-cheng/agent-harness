@@ -3,8 +3,8 @@ from uuid import uuid4
 import pytest
 
 from min_agent.application import HarnessApplication
-from min_agent.models import ToolCall
-from min_agent.task_state import ActionSpec, GoalSpec, TaskController
+from min_agent.contracts.models import ToolCall
+from min_agent.session.task_state import ActionSpec, GoalSpec, TaskController
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry
 

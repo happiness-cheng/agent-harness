@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from min_agent.models import Message, ModelResponse
+from min_agent.contracts.models import Message, ModelResponse
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -24,7 +24,7 @@ def test_fixed_integration_acceptance(case):
 
 
 def test_ordinary_history_compression_receives_records_without_skill_bodies():
-    from min_agent.sessions import SessionStore
+    from min_agent.session.store import SessionStore
     from uuid import uuid4
 
     class Inspect(PROBE.OfflineCompactor):
@@ -70,7 +70,7 @@ def candidate():
 
 
 def test_selection_is_no_tool_and_uses_shared_budget():
-    from min_agent.skill_retention import SkillRetentionSelector
+    from min_agent.compression.skill_retention import SkillRetentionSelector
 
     model, budget = SelectorModel(), Budget()
     selector = SkillRetentionSelector(model, budget)
@@ -82,9 +82,9 @@ def test_selection_is_no_tool_and_uses_shared_budget():
 
 @pytest.mark.parametrize("kind", ["budget", "window", "error", "invalid_json", "tool_call"])
 def test_selection_failure_does_not_retry_or_drop_skills(kind):
-    from min_agent.skill_retention import SkillRetentionSelector, normalize_selection
+    from min_agent.compression.skill_retention import SkillRetentionSelector, normalize_selection
 
-    from min_agent.models import ToolCall
+    from min_agent.contracts.models import ToolCall
     model, budget, window = SelectorModel(), Budget(), 32768
     if kind == "budget":
         budget = Budget(1)
@@ -104,8 +104,8 @@ def test_selection_failure_does_not_retry_or_drop_skills(kind):
 
 
 def test_stop_prevents_selection_call():
-    from min_agent.context import ContextLimit
-    from min_agent.skill_retention import SkillRetentionSelector
+    from min_agent.context.manager import ContextLimit
+    from min_agent.compression.skill_retention import SkillRetentionSelector
 
     control = SimpleNamespace(snapshot=lambda: {"stop": True})
     model, budget = SelectorModel(), Budget()
@@ -122,14 +122,14 @@ def test_stop_prevents_selection_call():
     {"keep": ["p"], "release": [], "uncertain": [], "permissions": ["write"]},
 ])
 def test_invalid_partition_preserves_whole_candidate(selection):
-    from min_agent.skill_retention import normalize_selection
+    from min_agent.compression.skill_retention import normalize_selection
 
     assert normalize_selection(selection, candidate()) == {"decisions": {"p": "uncertain"}, "fallback": True}
 
 
 def test_application_wires_selection_to_same_model_budget_and_final_input(tmp_path):
     from min_agent.application import HarnessApplication
-    from min_agent.skill_retention import PROMPT
+    from min_agent.compression.skill_retention import PROMPT
 
     class OfflineApplicationModel:
         def __init__(self):
@@ -166,7 +166,7 @@ def test_application_wires_selection_to_same_model_budget_and_final_input(tmp_pa
                 Message(role="assistant", content="继续处理")]
         # 历史压缩请求自身能装下，但加上主提示和完整工具清单的主请求超窗。
         # 公开分支旧压缩器不支持长输入分块，本用例只验证应用接线。
-        from min_agent.context import request_bound
+        from min_agent.context.manager import request_bound
         harness.window = request_bound(old) + 8192
         harness.sessions.append(context, task.task_id, old)
         harness.sessions.finish(context, task.task_id, status="completed")

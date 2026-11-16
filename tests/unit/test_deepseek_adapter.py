@@ -6,7 +6,7 @@ import pytest
 from min_agent.llm.client import LLMError, OpenAIResponsesModel
 from min_agent.llm.config import OpenAISettings
 from min_agent.llm.deepseek import DeepSeekResponsesModel, DeepSeekSettings
-from min_agent.models import Message
+from min_agent.contracts.models import Message
 from min_agent.runtime import Runtime
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolRegistry

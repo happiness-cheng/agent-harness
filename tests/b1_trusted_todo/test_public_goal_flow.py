@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 
 from min_agent.application import HarnessApplication
-from min_agent.models import ModelResponse, ToolCall
-from min_agent.public_feedback import PublicGoal, PublicGoalSpec
+from min_agent.contracts.models import ModelResponse, ToolCall
+from min_agent.goals.public_feedback import PublicGoal, PublicGoalSpec
 
 
 class Scripted:

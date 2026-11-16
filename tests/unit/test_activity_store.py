@@ -7,8 +7,8 @@ from contextlib import closing
 
 import pytest
 
-from min_agent.activity_store import IntegrityError, M1Store, StateConflict, StoreConflict
-from min_agent.activity_identity import digest
+from min_agent.activity.store import IntegrityError, M1Store, StateConflict, StoreConflict
+from min_agent.activity.identity import digest
 
 
 def make_store(path):

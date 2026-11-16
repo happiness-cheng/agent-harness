@@ -12,9 +12,9 @@ from min_agent.evaluation.verifier import verify
 from min_agent.long_memory.delivery import EvidenceSession
 from min_agent.long_memory.models import Query
 from min_agent.long_memory.store import LongMemory
-from min_agent.models import Message
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
+from min_agent.contracts.models import Message
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
 from tests.integration.test_long_memory_runtime import seed
 
 

@@ -14,7 +14,7 @@ from min_agent.evaluation.contracts import Observation,TaskSpec,digest
 from min_agent.evaluation.verifier import verify
 from min_agent.evaluation.worker import source_version,tool_records
 from min_agent.evaluation.processes import start_owned,stop_owned
-from min_agent.models import Message
+from min_agent.contracts.models import Message
 
 ROOT=Path(__file__).resolve().parents[3]
 

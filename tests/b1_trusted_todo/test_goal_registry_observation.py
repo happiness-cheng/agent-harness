@@ -4,14 +4,14 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from min_agent.models import ToolCall
-from min_agent.public_feedback import PublicGoal
-from min_agent.public_goal_adapter import PublicGoalAdapter
-from min_agent.public_goal_registry import PublicGoalRegistry
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
-from min_agent.task_state import ActionSpec, GoalSpec, TaskController
-from min_agent.todo_observation import TodoObserver
+from min_agent.contracts.models import ToolCall
+from min_agent.goals.public_feedback import PublicGoal
+from min_agent.goals.public_goal_adapter import PublicGoalAdapter
+from min_agent.goals.public_goal_registry import PublicGoalRegistry
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
+from min_agent.session.task_state import ActionSpec, GoalSpec, TaskController
+from min_agent.goals.todo_observation import TodoObserver
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry
 
@@ -176,7 +176,7 @@ def test_two_stores_stale_extension_write_conflicts(tmp_path):
     second = SessionStore(storage=storage)
     # second 装载了当前快照；first 先提交后，second 的旧 revision 不能覆盖。
     first.set_extension(ctx, "stale_probe", 1)
-    from min_agent.storage import VersionConflict
+    from min_agent.session.storage import VersionConflict
     with pytest.raises(VersionConflict):
         second.set_extension(ctx, "stale_probe", 2)
     storage.close()

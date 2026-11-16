@@ -1,10 +1,10 @@
 from uuid import uuid4
 
-from min_agent.events import SessionEvents
-from min_agent.progress_guard import ProgressGuard
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.session.events import SessionEvents
+from min_agent.runtime.progress_guard import ProgressGuard
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.runtime import Runtime
-from min_agent.sessions import SessionStore
+from min_agent.session.store import SessionStore
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolRegistry
 from tests.fakes.model import ScriptedModel

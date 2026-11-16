@@ -2,8 +2,8 @@
 import pytest
 from uuid import uuid4
 
-from min_agent.sessions import SessionStore,ExecutionContext
-from min_agent.storage import SQLiteStorage, _SESSION_COMMIT
+from min_agent.session.store import SessionStore,ExecutionContext
+from min_agent.session.storage import SQLiteStorage, _SESSION_COMMIT
 
 
 def test_batch_save_rolls_back_first_snapshot_if_second_owner_is_invalid(tmp_path):

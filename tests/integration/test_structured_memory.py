@@ -3,10 +3,10 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.memory import MemoryJournal
-from min_agent.models import Message, ToolCall
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
+from min_agent.memory.journal import MemoryJournal
+from min_agent.contracts.models import Message, ToolCall
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
 
 
 def completed_turn(store, context, text="周报原文：不要删除原始材料"):
@@ -91,7 +91,7 @@ def test_original_reference_survives_later_turn_and_restart(tmp_path):
 
 
 def test_constructed_model_cannot_skip_source_range_validation():
-    from min_agent.memory_records import SourceReference
+    from min_agent.memory.records import SourceReference
     store = SessionStore(); context = store.create(uuid4())
     source = completed_turn(store, context)["events"][0]["source"]
     valid = SourceReference.model_validate(source).model_dump()

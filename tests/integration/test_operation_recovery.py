@@ -2,9 +2,9 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.operations import operation_scope
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
+from min_agent.session.operations import operation_scope
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
 from min_agent.tools.todo import TodoService
 
 
@@ -23,8 +23,8 @@ def test_add_recovery_after_commit_and_lost_response_uses_same_operation_id(tmp_
 
 
 def test_changed_correction_without_new_evidence_pauses():
-    from min_agent.progress_guard import ProgressGuard
-    from min_agent.models import ToolCall
+    from min_agent.runtime.progress_guard import ProgressGuard
+    from min_agent.contracts.models import ToolCall
     guard = ProgressGuard(); call = ToolCall(id="a", name="search", arguments={"q": "a"})
     for _ in range(3): guard.observe(call, {"result": "no results"})
     changed = ToolCall(id="b", name="search", arguments={"q": "different"})

@@ -6,10 +6,10 @@ from uuid import uuid4
 import pytest
 from pydantic import BaseModel, ConfigDict
 
-from min_agent.models import ToolCall
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
-from min_agent.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
+from min_agent.contracts.models import ToolCall
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
+from min_agent.session.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
 from min_agent.tools.registry import ToolDefinition
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry
@@ -155,7 +155,7 @@ def test_nested_managed_and_unmanaged_operations_do_not_cross(tmp_path):
         assert "inner" not in operations
         assert final["todos"] == []
         assert final["sessions"][0]["extensions"]["outer_entered"] == 1
-        from min_agent.operations import operation_phase
+        from min_agent.session.operations import operation_phase
         assert operation_phase.get() is None
     finally:
         storage.close()

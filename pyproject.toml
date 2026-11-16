@@ -18,7 +18,7 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-min_agent = ["prompts/*.md", "skills/*.md", "web/static/*"]
+min_agent = ["prompts/*.md", "skills/*.md", "web/static/*", "web/shell/*", "web/shell/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

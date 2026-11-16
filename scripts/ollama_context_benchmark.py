@@ -21,10 +21,10 @@ from zoneinfo import ZoneInfo
 import httpx
 
 from min_agent.application import HarnessApplication
-from min_agent.context import ContextLimit
+from min_agent.context.manager import ContextLimit
 from min_agent.llm.client import LLMError
 from min_agent.llm.ollama import OllamaModel, OllamaSettings, require_model
-from min_agent.models import Message
+from min_agent.contracts.models import Message
 
 
 MODEL = "qwen3.5:4b"

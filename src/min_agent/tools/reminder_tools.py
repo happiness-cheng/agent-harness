@@ -2,7 +2,7 @@
 
 import json
 from pydantic import BaseModel, ConfigDict, Field
-from min_agent.task_state import ActionSpec, AuthorizationRequired
+from min_agent.session.task_state import ActionSpec, AuthorizationRequired
 from min_agent.tools.registry import ToolDefinition
 
 

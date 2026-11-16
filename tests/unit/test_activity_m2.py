@@ -9,9 +9,9 @@ import sys
 
 import pytest
 
-from min_agent.activity_identity import canonical, derive, digest
-from min_agent.activity_store import IntegrityError, M1Store, StoreConflict
-from min_agent.activity_m2 import M2Store
+from min_agent.activity.identity import canonical, derive, digest
+from min_agent.activity.store import IntegrityError, M1Store, StoreConflict
+from min_agent.activity.m2 import M2Store
 
 
 def make(path):
@@ -86,7 +86,7 @@ def test_ingest_exception_recovery(tmp_path, stage, event_count, position):
 def crash_child(path, stage, action):
     code = '''
 import os, sys
-from min_agent.activity_m2 import M2Store
+from min_agent.activity.m2 import M2Store
 s=M2Store.open(sys.argv[1])
 def fault(point):
     if point == sys.argv[2]: os._exit(73)

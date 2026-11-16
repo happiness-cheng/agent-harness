@@ -6,8 +6,8 @@ from uuid import UUID, uuid4
 import pytest
 from pydantic import ValidationError
 
-from min_agent.trace import TraceContext, TraceEvent, TraceRecorder
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.contracts.trace import TraceContext, TraceEvent, TraceRecorder
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.runtime import Runtime
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolRegistry

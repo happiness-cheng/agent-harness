@@ -5,11 +5,11 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.runtime import Runtime
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
-from min_agent.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
+from min_agent.session.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry
 from tests.fakes.model import ScriptedModel
@@ -182,7 +182,7 @@ def test_unknown_same_request_recovers_receipt_instead_of_taking_second_instance
 
 
 def test_legacy_confirmation_stays_readable_but_requires_new_proposal_for_writes():
-    from min_agent.task_state import WorkState
+    from min_agent.session.task_state import WorkState
     store=SessionStore();context=store.create(uuid4());controller=TaskController(store)
     proposal=confirm(controller,context)
     legacy=controller.snapshot(context).model_dump(mode="json")

@@ -5,7 +5,7 @@ import json
 import pytest
 import yaml
 
-from min_agent.activity_memory_adapter import create_sandbox, demo, convert_report, candidate_id, write_bundle
+from min_agent.activity.memory_adapter import create_sandbox, demo, convert_report, candidate_id, write_bundle
 
 
 def convert(value=None):
@@ -138,7 +138,7 @@ def test_outside_sandbox_rejected_without_write(tmp_path):
 def test_unexpected_input_is_rejected_before_scan(monkeypatch):
     root=create_sandbox(); inputs=root/'synthetic-inputs'; inputs.mkdir()
     (inputs/'private.jsonl').write_bytes(b'synthetic sentinel')
-    monkeypatch.setattr('min_agent.activity_memory_adapter.scan',lambda _: pytest.fail('must not scan unexpected input'))
+    monkeypatch.setattr('min_agent.activity.memory_adapter.scan',lambda _: pytest.fail('must not scan unexpected input'))
     with pytest.raises(ValueError,match='unexpected_synthetic_input'):
         demo(root)
 
@@ -157,7 +157,7 @@ def test_four_platform_original_sentinels_unchanged(tmp_path):
 def test_cli_replay():
     import subprocess
     import sys
-    command=[sys.executable,'-X','utf8','-m','min_agent.activity_memory_adapter']
+    command=[sys.executable,'-X','utf8','-m','min_agent.activity.memory_adapter']
     first=subprocess.run(command,capture_output=True,text=True,encoding='utf-8',check=True)
     root=json.loads(first.stdout)['sandbox']
     second=subprocess.run(command+['--sandbox',root],capture_output=True,text=True,encoding='utf-8',check=True)
@@ -165,7 +165,7 @@ def test_cli_replay():
 
 
 def test_linked_output_refused_before_write(monkeypatch):
-    from min_agent import activity_memory_adapter as adapter
+    from min_agent.activity import memory_adapter as adapter
     root=create_sandbox(); target=root/'vault'; target.mkdir()
     original=adapter.is_link
     monkeypatch.setattr(adapter,'is_link',lambda path: path==target or original(path))
@@ -187,7 +187,7 @@ def test_missing_observation_time_rejected():
 
 
 def test_known_limits_preserved_without_free_text_leak():
-    from min_agent.activity_connector import LIMITS
+    from min_agent.activity.connector import LIMITS
     value=report(); value['known_limits']=[*LIMITS, 'SECRET_SYNTHETIC']
     item=convert(value)['candidates'][0]
     assert item['upstream_known_limits']==LIMITS

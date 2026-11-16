@@ -5,11 +5,11 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from uuid import uuid4
 
-from min_agent.clock import Clock
+from min_agent.contracts.clock import Clock
 from min_agent.llm.client import LLMError
 from min_agent.runtime import Runtime
-from min_agent.sessions import SessionStore
-from min_agent.task_state import ActionSpec, GoalSpec, TaskController
+from min_agent.session.store import SessionStore
+from min_agent.session.task_state import ActionSpec, GoalSpec, TaskController
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry
 

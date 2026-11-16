@@ -7,15 +7,15 @@ from uuid import uuid4
 import json
 
 from min_agent.application import HarnessApplication
-from min_agent.artifacts import ArtifactStore
-from min_agent.budget import BudgetLedger,BudgetLimits
-from min_agent.compaction import Compactor
-from min_agent.context import request_bound
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.ledger.budget import BudgetLedger,BudgetLimits
+from min_agent.compression.compaction import Compactor
+from min_agent.context.manager import request_bound
 from min_agent.llm.client import LLMError
 from min_agent.llm.deepseek import DeepSeekResponsesModel,DeepSeekSettings
-from min_agent.models import Message
-from min_agent.research import ResearchService
-from min_agent.sessions import SessionStore
+from min_agent.contracts.models import Message
+from min_agent.research.service import ResearchService
+from min_agent.session.store import SessionStore
 from min_agent.tools.search import SearchService
 from min_agent.tools.read_webpage import PublicFetcher,WebReader
 

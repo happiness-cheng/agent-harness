@@ -7,12 +7,12 @@ import json
 from pathlib import Path
 from uuid import uuid4
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.budget import BudgetLedger, BudgetLimits
-from min_agent.context import ContextManager, ManagedModel
-from min_agent.models import Message, ModelResponse, ToolCall
-from min_agent.sessions import SessionStore
-from min_agent.skill_retention import SkillRetentionSelector
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+from min_agent.context.manager import ContextManager, ManagedModel
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
+from min_agent.session.store import SessionStore
+from min_agent.compression.skill_retention import SkillRetentionSelector
 
 
 BODY = "接口测试规程全文：保持事实。BODY_C05_UNIQUE"

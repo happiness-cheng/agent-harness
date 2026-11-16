@@ -7,10 +7,10 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.context import ContextManager, ManagedModel, request_bound
-from min_agent.models import Message, ModelResponse, ToolCall
-from min_agent.sessions import SessionStore
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.context.manager import ContextManager, ManagedModel, request_bound
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
+from min_agent.session.store import SessionStore
 
 
 BODY = "# 润色\n保持原始事实。SKILL_BODY_UNIQUE"
@@ -195,7 +195,7 @@ def test_user_claim_and_failed_result_never_become_restored_skill():
 
 
 def test_restored_full_body_is_included_in_window_budget():
-    from min_agent.context import ContextLimit
+    from min_agent.context.manager import ContextLimit
 
     store, context, manager, capture = setup()
     old = [Message(role="user", content="旧任务")] + read("a", body=BODY * 1000)

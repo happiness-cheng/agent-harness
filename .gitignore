@@ -10,6 +10,8 @@ agent-harness-credentials.json
 *.log
 /data/
 /reports/
+/shell/node_modules/
+/shell/dist/
 
 # 本机恢复记录与工具配置不属于公开提交材料。
 /.codex/
@@ -26,3 +28,6 @@ agent-harness-credentials.json
 .idea/
 .vscode/
 .DS_Store
+
+# 文件工具内部目录（写锁与回收站）
+.adrian/

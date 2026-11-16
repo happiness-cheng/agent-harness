@@ -1,11 +1,11 @@
 import json
 from uuid import uuid4
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.budget import BudgetLedger, BudgetLimits
-from min_agent.models import ModelResponse, ToolCall
-from min_agent.research import ResearchService
-from min_agent.sessions import SessionStore
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+from min_agent.contracts.models import ModelResponse, ToolCall
+from min_agent.research.service import ResearchService
+from min_agent.session.store import SessionStore
 from tests.fakes.model import ScriptedModel
 
 

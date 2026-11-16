@@ -6,11 +6,11 @@ import sqlite3
 
 import pytest
 
-from min_agent.models import Message, ModelResponse, ToolCall
-from min_agent.clock import Clock
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
+from min_agent.contracts.clock import Clock
 from min_agent.runtime import Runtime
-from min_agent.sessions import ExecutionContext, SessionStore
-from min_agent.storage import SQLiteStorage
+from min_agent.session.store import ExecutionContext, SessionStore
+from min_agent.session.storage import SQLiteStorage
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolRegistry
 from min_agent.tools.todo import TodoService
@@ -100,7 +100,7 @@ def test_session_write_failure_keeps_memory_and_disk_at_previous_commit(tmp_path
         before = sessions.snapshot(context)
         candidate_context = ExecutionContext(owner_id=context.owner_id, session_id=uuid4())
         if operation == "create":
-            monkeypatch.setattr("min_agent.sessions.uuid4", lambda: candidate_context.session_id)
+            monkeypatch.setattr("min_agent.session.store.uuid4", lambda: candidate_context.session_id)
         install_failure(path, "sessions", "INSERT" if operation == "create" else "UPDATE")
 
         with pytest.raises(sqlite3.IntegrityError, match="injected write failure"):

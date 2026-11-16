@@ -82,7 +82,7 @@ def test_existing_report_is_preserved_before_credentials(command, monkeypatch):
 @pytest.mark.parametrize("fail", [False, True])
 def test_live_limit_no_tools_and_no_retry(command, monkeypatch, fail):
     from min_agent.llm.client import LLMError
-    from min_agent.models import ModelResponse
+    from min_agent.contracts.models import ModelResponse
     main, args, report = command
     def settings(path, **options):
         assert path == "OFFLINE_ONLY" and options["max_requests"] == 12

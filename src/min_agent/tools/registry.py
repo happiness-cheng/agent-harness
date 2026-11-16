@@ -5,8 +5,8 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel, ValidationError
 
-from min_agent.models import ToolCall
-from min_agent.sessions import ExecutionContext, SessionStore
+from min_agent.contracts.models import ToolCall
+from min_agent.session.store import ExecutionContext, SessionStore
 
 
 class InvalidToolResultError(TypeError):
@@ -33,10 +33,16 @@ class ToolDefinition:
     parameters: type[BaseModel]
     handler: Callable[..., object]
     managed_execution: bool = False
+    raw_schema: dict[str, object] | None = None
 
     def __post_init__(self) -> None:
         if type(self.managed_execution) is not bool:
             raise TypeError("managed_execution 必须是bool")
+        if self.raw_schema is not None:
+            if not isinstance(self.raw_schema, dict):
+                raise TypeError("raw_schema 必须是字典")
+            if self.raw_schema.get("type", "object") != "object":
+                raise ValueError("raw_schema 顶层必须是对象")
 
 
 class ToolRegistry:
@@ -66,7 +72,7 @@ class ToolRegistry:
     def state_bar(self, messages, budget=None):
         if not self.is_bound:
             return None
-        from min_agent.state_bar import StatusBuilder
+        from min_agent.context.state_bar import StatusBuilder
         return StatusBuilder(self._sessions, self._context, budget).build(messages)
 
     def memory_view(self,messages):
@@ -97,7 +103,7 @@ class ToolRegistry:
 
     def execute(self, call: ToolCall, *, operation_id=None) -> dict[str, object]:
         if operation_id is not None and self.is_bound and call.name.startswith(("todo_", "reminder_")) and call.name not in {"todo_list", "reminder_list"}:
-            from min_agent.operations import execute_once
+            from min_agent.session.operations import execute_once
             # 只对实际取出且显式受审计的内置写定义发放本调用资格；
             # 未注册/自定义/替换 handler 一律没有资格。
             definition = self._tools.get(call.name)
@@ -139,7 +145,10 @@ class ToolRegistry:
             {
                 "name": tool.name,
                 "description": tool.description,
-                "parameters": tool.parameters.model_json_schema(),
+                "parameters": (
+                    tool.raw_schema if tool.raw_schema is not None
+                    else tool.parameters.model_json_schema()
+                ),
             }
             for tool in self._tools.values()
         ]

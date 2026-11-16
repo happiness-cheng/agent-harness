@@ -5,7 +5,7 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from min_agent.application import HarnessApplication
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.web.app import create_app
 
 
@@ -65,7 +65,7 @@ def test_child_search_read_trace_is_linked_persistent_and_not_overwritten(tmp_pa
 
 
 def test_trace_run_history_has_an_explicit_retention_bound(tmp_path):
-    from min_agent.trace import TraceRecorder,TraceContext,record_run_trace
+    from min_agent.contracts.trace import TraceRecorder,TraceContext,record_run_trace
     harness=HarnessApplication(tmp_path/"retention.sqlite3")
     try:
         identity=harness.create_session()["session_id"];context=harness.context(identity)
@@ -81,10 +81,10 @@ def test_trace_run_history_has_an_explicit_retention_bound(tmp_path):
 
 def test_bound_child_research_rejects_other_session_before_model_or_budget_use(tmp_path):
     import pytest
-    from min_agent.artifacts import ArtifactStore
-    from min_agent.budget import BudgetLimits
-    from min_agent.budget_persistence import SessionBudgets
-    from min_agent.research import ResearchService
+    from min_agent.session.artifacts import ArtifactStore
+    from min_agent.ledger.budget import BudgetLimits
+    from min_agent.ledger.budget_persistence import SessionBudgets
+    from min_agent.research.service import ResearchService
     from tests.fakes.model import ScriptedModel
     harness=HarnessApplication(tmp_path/"ownership.sqlite3")
     try:
@@ -104,10 +104,10 @@ def test_bound_child_research_rejects_other_session_before_model_or_budget_use(t
 
 def test_bound_isolated_runtime_requires_an_active_matching_parent(tmp_path):
     import pytest
-    from min_agent.budget import BudgetLimits
-    from min_agent.budget_persistence import SessionBudgets
+    from min_agent.ledger.budget import BudgetLimits
+    from min_agent.ledger.budget_persistence import SessionBudgets
     from min_agent.runtime import Runtime
-    from min_agent.trace import TraceContext
+    from min_agent.contracts.trace import TraceContext
     from tests.fakes.model import ScriptedModel
     harness=HarnessApplication(tmp_path/"parent.sqlite3")
     try:

@@ -9,8 +9,8 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from min_agent.application import HarnessApplication
-from min_agent.models import ModelResponse, ToolCall
-from min_agent.skills import SkillCatalog
+from min_agent.contracts.models import ModelResponse, ToolCall
+from min_agent.compression.skills import SkillCatalog
 
 
 def main():

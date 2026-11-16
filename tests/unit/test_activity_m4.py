@@ -3,8 +3,8 @@ from dataclasses import replace
 
 import pytest
 
-from min_agent.activity_changes import Schema, ReadSample, classify, initial_state, apply_change
-from min_agent.activity_store import StoreConflict, _snapshot as m1_snapshot
+from min_agent.activity.changes import Schema, ReadSample, classify, initial_state, apply_change
+from min_agent.activity.store import StoreConflict, _snapshot as m1_snapshot
 
 
 SCHEMA = Schema("v1", ("kind", "payload"), "synthetic.ordinal")

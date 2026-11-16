@@ -9,7 +9,7 @@ from contextlib import closing
 import subprocess
 import tempfile
 
-from min_agent.activity_store import IntegrityError, M1Store, StateConflict
+from min_agent.activity.store import IntegrityError, M1Store, StateConflict
 
 
 def run():

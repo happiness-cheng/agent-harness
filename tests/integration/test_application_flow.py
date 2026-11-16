@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 from min_agent.application import HarnessApplication
 from min_agent.web.app import create_app
-from min_agent.models import ModelResponse
+from min_agent.contracts.models import ModelResponse
 from tests.fakes.model import ScriptedModel
 
 
@@ -26,13 +26,18 @@ def test_web_sessions_owner_boundary_csrf_and_background_answer(tmp_path):
         saved = client.get(f'/api/sessions/{first}').json()
         assert saved['messages'][-1]['content'] == '真实应用链路答复'
         assert client.get(f'/api/sessions/{second}').json()['messages'] == []
+        # SHELL-005：默认入口是 DSH 外壳，旧界面退到 /legacy。
+        root = client.get('/', follow_redirects=False)
+        assert root.status_code == 307
+        assert root.headers['location'] == '/app/'
         assert client.get('/').status_code == 200
+        assert client.get('/legacy').status_code == 200
     finally:
         harness.close()
 
 
 def test_explicit_dispatch_kicks_existing_queue_without_new_text(tmp_path):
-    from min_agent.events import SessionEvents
+    from min_agent.session.events import SessionEvents
     harness = HarnessApplication(tmp_path / "dispatch.sqlite3", model=ScriptedModel([
         ModelResponse(finish_reason="stop", content="已处理队列"),
     ]))

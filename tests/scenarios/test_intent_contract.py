@@ -5,7 +5,7 @@ from importlib import import_module
 
 import pytest
 
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.contracts.models import ModelResponse, ToolCall
 from tests.fakes.model import ScriptedModel
 from tests.scenarios.intent_cases import CASES, run_case
 

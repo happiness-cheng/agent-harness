@@ -1,0 +1,100 @@
+{
+  "task_id": "MFAB-20261109",
+  "captured_on": "2026-11-09",
+  "purpose": "Model × Framework × Adapter controlled benchmark",
+  "policy": {
+    "approval_status": "PROVIDER_CREDENTIAL_AND_BUDGET_PENDING",
+    "cloud_max_requests_before_approval": 0,
+    "cloud_max_spend_usd_before_approval": 0,
+    "forbid_paid_fallback": true,
+    "forbid_automatic_cross_provider_fallback": true,
+    "allow_only_synthetic_test_data": true,
+    "forbid_real_business_side_effects": true,
+    "forbidden_external_tools": [
+      "browser_search",
+      "code_interpreter",
+      "grounding_search"
+    ],
+    "require_source_and_effect_oracles": true,
+    "require_request_counters_and_caps": true,
+    "keep_existing_repo_and_reports_unchanged": true
+  },
+  "models": [
+    {
+      "experiment_id": "M0",
+      "provider": "ollama-local",
+      "model_id": "qwen3.5:4b",
+      "protocol": "ollama-native-chat",
+      "endpoint": "http://127.0.0.1:11434/api/chat",
+      "credential_env": null,
+      "credential_status": "NOT_NEEDED",
+      "availability": "PREVIOUSLY_VERIFIED_ON_DEVICE",
+      "runtime_constraints": "RAM >=3 GiB before load, stop future cases if <1 GiB",
+      "approved_max_requests": null
+    },
+    {
+      "experiment_id": "M1",
+      "provider": "google-gemini",
+      "model_id": "gemini-3.8-flash",
+      "protocol": "gemini-native-generateContent",
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+      "credential_env": "GEMINI_API_KEY",
+      "credential_status": "USER_SAYS_CREATED_NOT_PRESENT_IN_WINDOWS_ENV",
+      "availability": "OFFICIAL_DOC_VERIFIED_ONLY",
+      "function_calling": true,
+      "structured_outputs": true,
+      "max_input_tokens_documented": 1048576,
+      "account_rate_limits": "CHECK_CURRENT_AI_STUDIO_PER_PROJECT",
+      "free_tier_data_use": "MAY_BE_USED_TO_IMPROVE_GOOGLE_PRODUCTS",
+      "approved_max_requests": 0
+    },
+    {
+      "experiment_id": "M1b",
+      "provider": "google-gemini",
+      "model_id": "gemini-3.8-flash",
+      "protocol": "openai-compatible-chat",
+      "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+      "credential_env": "GEMINI_API_KEY",
+      "credential_status": "USER_SAYS_CREATED_NOT_PRESENT_IN_WINDOWS_ENV",
+      "availability": "ADAPTER_ABLATION_ONLY_NOT_IN_MODEL_RANKING",
+      "approved_max_requests": 0
+    },
+    {
+      "experiment_id": "M2",
+      "provider": "groq",
+      "model_id": "openai/gpt-oss-120b",
+      "protocol": "openai-compatible-chat",
+      "endpoint": "https://api.groq.com/openai/v1/chat/completions",
+      "credential_env": "GROQ_API_KEY",
+      "credential_status": "USER_SAYS_NOT_CREATED_AND_NOT_PRESENT_IN_WINDOWS_ENV",
+      "availability": "OFFICIAL_DOC_VERIFIED_ONLY",
+      "function_calling": true,
+      "structured_outputs": true,
+      "parallel_tool_calls_supported": false,
+      "builtin_tools_enabled": false,
+      "documented_free_tier_limits": {
+        "rpm": 30,
+        "rpd": 1000,
+        "tpm": 8000,
+        "tpd": 200000
+      },
+      "account_rate_limits": "CHECK_CURRENT_GROQ_CONSOLE_PER_ORGANIZATION",
+      "approved_max_requests": 0
+    }
+  ],
+  "adapter_notes": [
+    "Current min_agent.models.ProviderState supports only openai.responses and deepseek.responses",
+    "Gemini multi-turn thought signatures may require a native adapter or a controlled state sidecar; never silently discard",
+    "Groq temperature=0 is translated by provider; report effective setting",
+    "Run separate adapter-compatibility experiments before attributing model errors"
+  ],
+  "citations": [
+    "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash",
+    "https://ai.google.dev/gemini-api/docs/rate-limits",
+    "https://ai.google.dev/gemini-api/docs/pricing",
+    "https://ai.google.dev/gemini-api/docs/openai",
+    "https://console.groq.com/docs/model/openai/gpt-oss-120b",
+    "https://console.groq.com/docs/rate-limits",
+    "https://console.groq.com/docs/openai"
+  ]
+}

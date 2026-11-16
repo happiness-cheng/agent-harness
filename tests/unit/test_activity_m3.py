@@ -6,11 +6,11 @@ from pathlib import Path
 import subprocess
 import sys
 
-from min_agent.activity_records import make_record
-from min_agent.activity_m3 import M3Store
-from min_agent.activity_identity import canonical, derive, digest
-from min_agent.activity_store import StoreConflict, IntegrityError, M1Store
-from min_agent.activity_m2 import M2Store
+from min_agent.activity.records import make_record
+from min_agent.activity.m3 import M3Store
+from min_agent.activity.identity import canonical, derive, digest
+from min_agent.activity.store import StoreConflict, IntegrityError, M1Store
+from min_agent.activity.m2 import M2Store
 
 
 def envelope(seq=1, payload="same", *, profile="codex/rollout", namespace="codex.ordinal", missing=False, run="run1"):
@@ -216,7 +216,7 @@ def test_process_crashes_reopen_and_replay(tmp_path, point, committed, advanced)
     store = make(tmp_path / "s.db", row)
     script = """
 import os,sys
-from min_agent.activity_m3 import M3Store
+from min_agent.activity.m3 import M3Store
 s=M3Store.open(sys.argv[1])
 s.fault=lambda point: os._exit(73) if point==sys.argv[2] else None
 s.consume()
@@ -239,7 +239,7 @@ def test_conflict_commit_crash_has_no_checkpoint_escape(tmp_path, point, durable
     store = make(tmp_path / "s.db", envelope(), envelope(payload="changed"))
     script = """
 import os,sys
-from min_agent.activity_m3 import M3Store
+from min_agent.activity.m3 import M3Store
 s=M3Store.open(sys.argv[1])
 s.fault=lambda point: os._exit(73) if point==sys.argv[2] else None
 s.consume()

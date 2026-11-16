@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 from min_agent.application import HarnessApplication
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.web.app import create_app
 from tests.integration.test_long_memory_runtime import seed
 

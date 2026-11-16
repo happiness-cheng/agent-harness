@@ -16,8 +16,8 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from min_agent.llm.client import LLMError
 from min_agent.llm.openai_protocol import load_json
-from min_agent.model_context import ModelContextLimits
-from min_agent.models import Message, ModelResponse, ToolCall
+from min_agent.context.model_context import ModelContextLimits
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
 
 
 _LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
@@ -313,7 +313,7 @@ class OllamaModel:
             raise LLMError("invalid_request") from None
         # 与ContextManager使用同一保守字节窗口；宁可明确失败，也不让Ollama静默截断。
         if len(encoded) > self._settings.num_ctx * BYTES_PER_TOKEN:
-            from min_agent.context import ContextLimit
+            from min_agent.context.manager import ContextLimit
             raise ContextLimit("请求超过本机模型的保守字节窗口；未发送该请求")
         if len(encoded) > _MAX_REQUEST_BYTES:
             raise LLMError("request_too_large")
@@ -338,7 +338,7 @@ class OllamaModel:
             prompt_tokens = raw.get("prompt_eval_count") if isinstance(raw, dict) else None
             if type(prompt_tokens) is int and prompt_tokens > self._settings.num_ctx - TRUNCATION_MARGIN:
                 # 宁可明确失败，也不把被截断的回答当成有效结果。
-                from min_agent.context import ContextLimit
+                from min_agent.context.manager import ContextLimit
                 raise ContextLimit("当前输入超出本机模型上下文，Ollama可能已截断；未采用该响应")
             result = parse_chat_response(raw)
             usage: dict[str, object] = {"request": request_number}

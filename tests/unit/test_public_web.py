@@ -2,8 +2,8 @@ import httpx
 import pytest
 from uuid import uuid4
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.sessions import SessionStore
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.session.store import SessionStore
 from min_agent.tools.search import SearchService
 from min_agent.tools.read_webpage import PublicFetcher, WebReader
 

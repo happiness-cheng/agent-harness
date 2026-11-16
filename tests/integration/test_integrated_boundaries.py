@@ -1,11 +1,11 @@
 from uuid import uuid4
 import pytest
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.events import SessionEvents
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.session.events import SessionEvents
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.runtime import Runtime
-from min_agent.sessions import SessionStore
+from min_agent.session.store import SessionStore
 from min_agent.tools.registry import ToolDefinition, ToolRegistry
 from min_agent.tools.calculator import CalculatorArguments
 
@@ -68,7 +68,7 @@ def test_invalid_return_is_paired_and_failed_task_can_be_resumed_without_replay(
 
 
 def test_stop_during_context_preparation_prevents_the_following_model_request():
-    from min_agent.context import ManagedModel
+    from min_agent.context.manager import ManagedModel
     from tests.fakes.model import ScriptedModel
     store=SessionStore();context=store.create(uuid4());events=SessionEvents(store,context)
     class Preparation:

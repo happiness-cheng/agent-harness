@@ -70,7 +70,7 @@ def test_model_visible_search_response_stays_below_generic_tool_summary_threshol
         commit(memory,context,memory.propose(context,f'Python合成条目{i}',source_indices=[0]))
     from min_agent.long_memory.integration import bind_runtime_memory
     from min_agent.tools.registry import ToolRegistry
-    from min_agent.models import ToolCall
+    from min_agent.contracts.models import ToolCall
     registry=ToolRegistry(sessions=sessions,context=context)
     bind_runtime_memory(registry,memory,context)
     result=registry.execute(ToolCall(id='bounded-search',name='search_long_memory',arguments={'question':'Python','top_k':30}))

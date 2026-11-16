@@ -2,12 +2,12 @@ from uuid import uuid4
 import json
 import pytest
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.context import ContextManager, ContextLimit
-from min_agent.memory import MemoryJournal
-from min_agent.skills import SkillCatalog
-from min_agent.models import Message, ToolCall
-from min_agent.sessions import SessionStore
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.context.manager import ContextManager, ContextLimit
+from min_agent.memory.journal import MemoryJournal
+from min_agent.compression.skills import SkillCatalog
+from min_agent.contracts.models import Message, ToolCall
+from min_agent.session.store import SessionStore
 
 
 def setup():

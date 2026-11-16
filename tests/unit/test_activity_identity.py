@@ -4,7 +4,7 @@ import hashlib
 
 import pytest
 
-from min_agent.activity_identity import canonical, derive, object_identity
+from min_agent.activity.identity import canonical, derive, object_identity
 
 
 def test_jcs_subset_has_exact_bytes_and_utf16_sorting():

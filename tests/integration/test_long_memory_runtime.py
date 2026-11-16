@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 import json
 
 from min_agent.application import HarnessApplication
-from min_agent.models import Message, ModelResponse
-from min_agent.task_state import TaskController, GoalSpec
+from min_agent.contracts.models import Message, ModelResponse
+from min_agent.session.task_state import TaskController, GoalSpec
 from min_agent.web.app import create_app
 from fastapi.testclient import TestClient
 

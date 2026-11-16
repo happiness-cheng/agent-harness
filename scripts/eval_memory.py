@@ -118,7 +118,7 @@ def score_retrieval(case, returned):
 
 
 def seed_history(store, context, history):
-    from min_agent.models import Message
+    from min_agent.contracts.models import Message
     task = store.begin(context)
     store.append(context, task.task_id, [Message(role=m['role'], content=m['content'])
                                           for m in history['messages']])
@@ -127,8 +127,8 @@ def seed_history(store, context, history):
 
 def legacy_retrieve(request):
     """走当前真实归档/召回路径。不会把其他会话资料偷偷并入当前会话。"""
-    from min_agent.memory import MemoryJournal
-    from min_agent.sessions import SessionStore
+    from min_agent.memory.journal import MemoryJournal
+    from min_agent.session.store import SessionStore
     store = SessionStore()
     contexts = {}
     for h in request['histories']:
@@ -163,7 +163,7 @@ def full_history_retrieve(request):
 
 
 def run_baselines(data):
-    import min_agent.memory
+    import min_agent.memory.journal
     validate_suite(data)
     results = []
     adapters = dict(no_memory=lambda request: dict(returned=[], material=[]),
@@ -188,8 +188,8 @@ def run_baselines(data):
             hard_failures=sum(r['hard_failure'] for r in rows),
             retrieved_utf8_bytes=sum(r['returned_utf8_bytes'] for r in rows))
     return dict(suite_version=data['version'], split_note=data['split_note'],
-        live_model_requests=0, token_usage=None, runtime_source=str(Path(min_agent.memory.__file__).resolve()),
-        runtime_source_sha256=hashlib.sha256(Path(min_agent.memory.__file__).read_bytes()).hexdigest(),
+        live_model_requests=0, token_usage=None, runtime_source=str(Path(min_agent.memory.journal.__file__).resolve()),
+        runtime_source_sha256=hashlib.sha256(Path(min_agent.memory.journal.__file__).read_bytes()).hexdigest(),
         stages=dict(write='raw_archive_only_not_semantic_memory', retrieval='executed',
                     delivery='not_run', answer='not_run', judge='not_run'),
         measurement_note='UTF-8正文大小不等于token；耗时包含建库/归档，不是纯检索延迟。安全硬失败按来源暴露计，不代表已生成泄漏回答。',
@@ -197,9 +197,9 @@ def run_baselines(data):
 
 
 def run_controls(directory):
-    from min_agent.memory import MemoryJournal
-    from min_agent.sessions import SessionStore
-    from min_agent.storage import SQLiteStorage
+    from min_agent.memory.journal import MemoryJournal
+    from min_agent.session.store import SessionStore
+    from min_agent.session.storage import SQLiteStorage
     path = Path(directory) / 'synthetic-memory-control.sqlite3'
     with SQLiteStorage.create_new(path) as storage:
         store = SessionStore(storage=storage)

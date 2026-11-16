@@ -10,7 +10,7 @@ import httpx
 
 from min_agent.llm.config import OpenAISettings
 from min_agent.llm.openai_protocol import build_input, build_tools, load_json, parse_response
-from min_agent.models import Message
+from min_agent.contracts.models import Message
 
 
 _PROTOCOL_ISSUES = {

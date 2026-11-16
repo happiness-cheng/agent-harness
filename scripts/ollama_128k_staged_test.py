@@ -24,10 +24,10 @@ from zoneinfo import ZoneInfo
 
 import httpx
 
-from min_agent.context import ContextLimit
+from min_agent.context.manager import ContextLimit
 from min_agent.llm.client import LLMError
 from min_agent.llm.ollama import OllamaModel, OllamaSettings, require_model
-from min_agent.models import Message
+from min_agent.contracts.models import Message
 from min_agent.runtime import Runtime
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolDefinition, ToolRegistry

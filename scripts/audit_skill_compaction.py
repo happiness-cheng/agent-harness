@@ -7,11 +7,11 @@ import json
 from pathlib import Path
 from uuid import uuid4
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.compaction import Compactor
-from min_agent.context import ContextLimit, ContextManager, ManagedModel
-from min_agent.models import Message, ModelResponse, ToolCall
-from min_agent.sessions import SessionStore
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.compression.compaction import Compactor
+from min_agent.context.manager import ContextLimit, ContextManager, ManagedModel
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
+from min_agent.session.store import SessionStore
 
 
 BODIES = ["润色规程：不得新增事实。POLISH_FULL_S07",

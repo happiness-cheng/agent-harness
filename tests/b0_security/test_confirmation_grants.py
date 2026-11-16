@@ -8,14 +8,14 @@ from uuid import uuid4
 import pytest
 
 from min_agent.application import HarnessApplication
-from min_agent.budget import BudgetLimits
-from min_agent.budget_persistence import SessionBudgets
-from min_agent.checkpoints import CheckpointPolicy
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.ledger.budget import BudgetLimits
+from min_agent.ledger.budget_persistence import SessionBudgets
+from min_agent.ledger.checkpoints import CheckpointPolicy
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.runtime import Runtime
-from min_agent.sessions import ExecutionContext, SessionSnapshot, SessionStore
-from min_agent.storage import SQLiteStorage, _SESSION_COMMIT, VersionConflict
-from min_agent.task_state import (ActionSpec, AuthorizationRequired, GoalProposal, GoalSpec,
+from min_agent.session.store import ExecutionContext, SessionSnapshot, SessionStore
+from min_agent.session.storage import SQLiteStorage, _SESSION_COMMIT, VersionConflict
+from min_agent.session.task_state import (ActionSpec, AuthorizationRequired, GoalProposal, GoalSpec,
                                   TaskController, WorkState, WorkStateTransition)
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry

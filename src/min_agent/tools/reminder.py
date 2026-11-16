@@ -7,7 +7,7 @@ from typing import Literal
 import json
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from min_agent.operations import operation_id
+from min_agent.session.operations import operation_id
 
 
 class Reminder(BaseModel):

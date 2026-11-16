@@ -7,9 +7,9 @@ from threading import Barrier
 
 from pydantic import ValidationError
 
-from min_agent.sessions import ExecutionContext, SessionStore
-from min_agent.task_state import ActionSpec, TaskController
-import min_agent.task_state as task_state
+from min_agent.session.store import ExecutionContext, SessionStore
+from min_agent.session.task_state import ActionSpec, TaskController
+import min_agent.session.task_state as task_state
 
 
 def goal_for(*actions):
@@ -194,7 +194,7 @@ def test_goal_input_and_returned_nested_payloads_cannot_mutate_confirmed_state()
 
 
 def test_run_busy_state_and_chat_messages_do_not_confirm_work_or_change_mode():
-    from min_agent.models import Message
+    from min_agent.contracts.models import Message
 
     sessions, context, controller = setup_controller()
     controller.select_mode(context, "build")

@@ -2,10 +2,10 @@ import json
 from uuid import uuid4
 import pytest
 
-from min_agent.compaction import Compactor, CompactionBlocked
-from min_agent.budget import BudgetLedger, BudgetLimits
-from min_agent.models import Message, ModelResponse
-from min_agent.sessions import SessionStore
+from min_agent.compression.compaction import Compactor, CompactionBlocked
+from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+from min_agent.contracts.models import Message, ModelResponse
+from min_agent.session.store import SessionStore
 from tests.fakes.model import ScriptedModel
 
 
@@ -41,8 +41,8 @@ def test_two_failed_compactions_open_persistent_circuit_without_more_calls():
 
 
 def test_valid_summary_that_cannot_fit_window_also_opens_circuit():
-    from min_agent.artifacts import ArtifactStore
-    from min_agent.context import ContextManager, ContextLimit
+    from min_agent.session.artifacts import ArtifactStore
+    from min_agent.context.manager import ContextManager, ContextLimit
     summary = {"selections": [{"unit_id": index, "category": "facts"} for index in range(6)]}
     model = ScriptedModel([ModelResponse(finish_reason="stop", content=json.dumps(summary))] * 3)
     compactor, store, context, ledger = fixture(model)
@@ -59,8 +59,8 @@ def test_valid_summary_that_cannot_fit_window_also_opens_circuit():
 
 
 def test_stopped_compaction_does_not_consume_budget_or_count_as_failed_summary():
-    from min_agent.context import ContextLimit
-    from min_agent.events import SessionEvents
+    from min_agent.context.manager import ContextLimit
+    from min_agent.session.events import SessionEvents
     model=ScriptedModel([])
     compactor,store,context,ledger=fixture(model)
     events=SessionEvents(store,context);events.stop()

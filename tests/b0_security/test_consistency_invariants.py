@@ -6,10 +6,10 @@ from uuid import UUID, uuid4
 import pytest
 
 from min_agent.application import HarnessApplication
-from min_agent.models import ToolCall
-from min_agent.sessions import ExecutionContext
-from min_agent.storage import VersionConflict
-from min_agent.task_state import ActionSpec, GoalSpec, TaskController
+from min_agent.contracts.models import ToolCall
+from min_agent.session.store import ExecutionContext
+from min_agent.session.storage import VersionConflict
+from min_agent.session.task_state import ActionSpec, GoalSpec, TaskController
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry
 

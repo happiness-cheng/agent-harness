@@ -223,8 +223,8 @@ class MemoryDeliveryModel:
         self.state.memory.sessions.set_extension(self.state.context, 'long_memory_delivery', value)
 
     def generate(self, messages, *, tools=None):
-        from min_agent.context import ContextLimit
-        from min_agent.models import ModelResponse
+        from min_agent.context.manager import ContextLimit
+        from min_agent.contracts.models import ModelResponse
         try:
             receipt = self.state.before_send(messages)
         except (PermissionError, ValueError, KeyError) as error:

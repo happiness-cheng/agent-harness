@@ -8,16 +8,16 @@ from pathlib import Path
 from tempfile import mkdtemp
 from uuid import uuid4
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.budget import BudgetLedger, BudgetLimits
-from min_agent.budget_persistence import SessionBudgets
-from min_agent.checkpoints import CheckpointPolicy
-from min_agent.context import ContextManager, ManagedModel
-from min_agent.models import Message, ModelResponse, ToolCall
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+from min_agent.ledger.budget_persistence import SessionBudgets
+from min_agent.ledger.checkpoints import CheckpointPolicy
+from min_agent.context.manager import ContextManager, ManagedModel
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
 from min_agent.runtime import Runtime
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
-from min_agent.task_state import ActionSpec, GoalSpec, TaskController
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
+from min_agent.session.task_state import ActionSpec, GoalSpec, TaskController
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolDefinition
 from min_agent.tools.todo import TodoService

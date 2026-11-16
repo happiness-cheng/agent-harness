@@ -15,11 +15,11 @@ from uuid import uuid4
 import httpx
 import min_agent
 from min_agent.application import HarnessApplication
-from min_agent.models import ModelResponse,ToolCall
+from min_agent.contracts.models import ModelResponse,ToolCall
 from min_agent.tools.calculator import calculate
 from min_agent.tools.read_webpage import WebReader
-from min_agent.sessions import SessionStore
-from min_agent.artifacts import ArtifactStore
+from min_agent.session.store import SessionStore
+from min_agent.session.artifacts import ArtifactStore
 root=Path(sys.prefix)
 assert Path(min_agent.__file__).is_relative_to(root)
 assert calculate("0.1+0.2")=="0.3"

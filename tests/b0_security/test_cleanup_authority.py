@@ -6,9 +6,9 @@ from uuid import uuid4
 import pytest
 from pydantic import BaseModel, ConfigDict
 
-from min_agent.models import ToolCall
-from min_agent.sessions import SessionStore
-from min_agent.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
+from min_agent.contracts.models import ToolCall
+from min_agent.session.store import SessionStore
+from min_agent.session.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
 from min_agent.tools.registry import ToolDefinition, ToolRegistry
 from min_agent.tools.reminder_tools import register_reminders
 from min_agent.tools.todo import TodoService

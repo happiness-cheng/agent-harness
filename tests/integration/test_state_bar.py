@@ -35,7 +35,7 @@ def test_repairable_tool_failure_is_blocked_not_waiting_for_user_confirmation():
 
 
 def test_oversized_projection_pauses_without_dropping_constraints_or_calling_model():
-    from min_agent.task_state import GoalSpec
+    from min_agent.session.task_state import GoalSpec
     env = PROBE.Environment()
     proposal = env.controller.propose(env.context, GoalSpec(objective="较大约束集",
         constraints=tuple("约束" * 400 for _ in range(20)), completion_criteria=("逐项检查",)))

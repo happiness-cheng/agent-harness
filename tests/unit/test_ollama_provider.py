@@ -16,7 +16,7 @@ from min_agent.llm.ollama import (
     parse_chat_response,
     require_model,
 )
-from min_agent.models import Message, ProviderState, ToolCall
+from min_agent.contracts.models import Message, ProviderState, ToolCall
 from min_agent.runtime import Runtime
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolDefinition, ToolRegistry
@@ -297,7 +297,7 @@ def test_timeout_is_explicit_and_never_falls_back():
     with model_with(handle) as model:
         runtime = Runtime(model)
         result = runtime.run("测试超时")
-    assert result.status == "failed" and result.error_code == "model_call_failed"
+    assert result.status == "failed" and result.error_code == "network_error"
     assert model.request_count == 1 and len(requests) == 1
     assert "private-body" not in runtime.trace.to_json()
 
@@ -369,7 +369,7 @@ def test_truncated_prompt_fails_explicitly_and_keeps_full_system_message():
 
 
 def test_long_request_is_over_derived_window_before_any_model_call():
-    from min_agent.context import request_bound
+    from min_agent.context.manager import request_bound
 
     with model_with(lambda request: None, num_ctx=8192) as model:
         limits = model.context_limits()
@@ -390,7 +390,7 @@ def test_context_window_is_configurable_up_to_model_limit_but_default_stays_safe
 
 
 def test_truncation_guard_follows_configured_window_at_max_context():
-    from min_agent.context import ContextLimit
+    from min_agent.context.manager import ContextLimit
 
     truncated = chat_response(content="被截断前的半句", prompt=262130)  # > 262144-16
     complete = chat_response(content="完整回答", prompt=262100)
@@ -402,7 +402,7 @@ def test_truncation_guard_follows_configured_window_at_max_context():
 
 
 def test_byte_budget_and_output_reserve_align_at_max_window():
-    from min_agent.context import request_bound
+    from min_agent.context.manager import request_bound
 
     with model_with(lambda request: None, num_ctx=262144) as model:
         limits = model.context_limits()
@@ -413,7 +413,7 @@ def test_byte_budget_and_output_reserve_align_at_max_window():
 
 
 def test_provider_refuses_requests_over_conservative_byte_window():
-    from min_agent.context import ContextLimit
+    from min_agent.context.manager import ContextLimit
 
     called = []
 

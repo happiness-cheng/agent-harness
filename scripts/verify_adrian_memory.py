@@ -8,9 +8,9 @@ from uuid import uuid4
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
 from min_agent.long_memory import LongMemory,Query,SearchHit
 from min_agent.long_memory.retrieval import fuse_hits
-from min_agent.models import Message
-from min_agent.sessions import SessionStore
-from min_agent.task_state import TaskController,GoalSpec
+from min_agent.contracts.models import Message
+from min_agent.session.store import SessionStore
+from min_agent.session.task_state import TaskController,GoalSpec
 
 
 def run():

@@ -1,6 +1,6 @@
 import pytest
 
-from min_agent.models import Message, ModelResponse, ToolCall
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
 from min_agent.runtime import Runtime
 from tests.fakes.model import ScriptedModel
 

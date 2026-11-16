@@ -5,12 +5,12 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.budget import BudgetLedger, BudgetLimits
-from min_agent.compression_selector import GroundedSelector
-from min_agent.compression_text import tool_summary
-from min_agent.models import ModelResponse
-from min_agent.sessions import SessionStore
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+from min_agent.compression.selector import GroundedSelector
+from min_agent.compression.text import tool_summary
+from min_agent.contracts.models import ModelResponse
+from min_agent.session.store import SessionStore
 from tests.fakes.model import ScriptedModel
 
 
@@ -99,7 +99,7 @@ def test_reviewed_condition_and_all_model_selected_material_are_semantically_com
             "source_ids": [0, 1, 2], "category": "constraints"}]})])
     text = "退款流程见帮助中心。\n" + "产品背景" * 235 + "。\n但已经拆封的商品不支持退款。"
     summary = json.loads(tool_summary(text, "退款", artifacts, selector))
-    from min_agent.compression_evidence import read_evidence
+    from min_agent.compression.evidence import read_evidence
     assert summary["method"] == "task_aware_semantic_summary"
     assert summary["semantic_summary"][0]["source_ids"] == [0, 1, 2]
     evidence = read_evidence(summary["evidence"], [0, 1, 2], artifacts)
@@ -121,8 +121,8 @@ def test_model_selected_constraint_is_never_a_review_deletion_candidate():
 
 
 def test_history_compaction_can_release_unrelated_dated_footer_with_review_provenance():
-    from min_agent.compaction import Compactor
-    from min_agent.models import Message
+    from min_agent.compression.compaction import Compactor
+    from min_agent.contracts.models import Message
     artifacts, model, ledger, selector = setup([
         response({"selections": [{"unit_id": 0}]}),
         response({"decisions": [{"unit_id": 1, "decision": "drop"}]})])
@@ -149,7 +149,7 @@ def test_review_checks_whole_input_window_before_consuming_budget():
 
 
 def test_review_honors_user_stop_before_model_call():
-    from min_agent.events import SessionEvents
+    from min_agent.session.events import SessionEvents
     artifacts, model, ledger, selector = setup([])
     control = SessionEvents(artifacts.sessions, artifacts.context)
     control.stop()
@@ -160,7 +160,7 @@ def test_review_honors_user_stop_before_model_call():
 
 
 def test_deterministic_structured_excerpt_does_not_claim_model_selection():
-    from min_agent.compression_text import choose_excerpts, text_units
+    from min_agent.compression.text import choose_excerpts, text_units
     units, _ = text_units("不删除原文。")
     selected = choose_excerpts(units, "原文")
     assert selected[0]["model_selected"] is False
