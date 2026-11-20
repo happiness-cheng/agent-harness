@@ -22,8 +22,23 @@ _ENV_ALLOWLIST = (
 )
 
 
+_SUPPORTED_VERSIONS = ("2025-06-18", "2024-11-05")
+
+
 class MCPError(RuntimeError):
     """MCP 连接、协议或工具调用失败；消息只含可安全展示的诊断。"""
+
+
+class MCPRequestError(MCPError):
+    """服务器返回 JSON-RPC error；``rpc_code`` 用于区分版本不兼容。"""
+
+    def __init__(self, message: str, *, rpc_code: int | None = None) -> None:
+        super().__init__(message)
+        self.rpc_code = rpc_code
+
+
+class MCPProtocolVersionError(MCPError):
+    """服务器返回的 ``protocolVersion`` 不在客户端支持范围内。"""
 
 
 def _child_environment(spec: MCPServerSpec) -> dict[str, str]:
@@ -95,6 +110,11 @@ class StdioMCPClient:
                 process.kill()
             except OSError:
                 pass
+            # kill 之后仍必须 wait 回收句柄，否则 Windows 上会留下僵尸进程。
+            try:
+                process.wait(timeout=5)
+            except (OSError, subprocess.TimeoutExpired):
+                pass
         for stream in (process.stdout, process.stderr):
             try:
                 if stream is not None:
@@ -102,24 +122,35 @@ class StdioMCPClient:
             except OSError:
                 pass
         self._inbox.put({"_eof": True})
+        for thread in self._threads:
+            if thread.is_alive():
+                thread.join(timeout=2)
 
     # ---------------------------------------------------------------- protocol
     def initialize(self) -> dict:
         last_error: MCPError | None = None
-        for version in ("2025-06-18", "2024-11-05"):
+        for version in _SUPPORTED_VERSIONS:
             try:
                 result = self.request("initialize", {
                     "protocolVersion": version,
                     "capabilities": {},
                     "clientInfo": {"name": "adrian-harness", "version": "0.1.0"},
                 })
-            except MCPError as error:
+            except MCPRequestError as error:
                 last_error = error
-                if "protocol" not in str(error).lower():
+                # 只有 -32602（Invalid params）才是「不认识这个版本」的标准拒绝码；
+                # 其他错误不靠自由文本猜，直接失败。
+                if error.rpc_code != -32602:
                     raise
                 continue
+            reported = result.get("protocolVersion")
+            if not isinstance(reported, str):
+                raise MCPProtocolVersionError("MCP 初始化响应缺少 protocolVersion")
+            if reported not in _SUPPORTED_VERSIONS:
+                shown = reported[:40] if reported.isprintable() else "不可打印版本"
+                raise MCPProtocolVersionError(f"MCP 协议版本不受支持：{shown}")
             self.notify("notifications/initialized")
-            return result if isinstance(result, dict) else {}
+            return result
         raise MCPError(f"MCP 初始化失败：{last_error}")
 
     def request(self, method: str, params: dict | None = None, *, timeout: float | None = None) -> dict:
@@ -158,7 +189,11 @@ class StdioMCPClient:
                 if "error" in message:
                     error = message.get("error") or {}
                     detail = str(error.get("message", "unknown error"))[:300]
-                    raise MCPError(f"MCP 返回错误：{detail}")
+                    code = error.get("code")
+                    raise MCPRequestError(
+                        f"MCP 返回错误：{detail}",
+                        rpc_code=code if isinstance(code, int) and not isinstance(code, bool) else None,
+                    )
                 result = message.get("result")
                 if not isinstance(result, dict):
                     raise MCPError("MCP 返回格式无效：result 不是对象")

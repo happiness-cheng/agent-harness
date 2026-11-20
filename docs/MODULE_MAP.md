@@ -30,7 +30,7 @@
 |---|---|---|
 | `loop.py` | `Runtime` 类、构造校验、会话任务闭合、约 20 行主循环 | 不判断错误、不拼工具消息 |
 | `state.py` | `RunResult`、`Model`、`RunState`、`ModelRound`、`ToolRequest` | 不调用模型、不执行工具 |
-| `stages.py` | `ControlGate` → `ReserveGate` → `ModelCall` → `ResponseRouter` | 不执行工具、不做收尾 |
+| `stages.py` | `ControlGate` → `RoundLimit` → `ReserveGate` → `ModelCall` → `ResponseRouter` | 不执行工具、不做收尾 |
 | `tool_loop.py` | 工具批次：门控、执行、错误映射、进度纠错、`propose_goal` | 不组装提示词、不写会话存储 |
 | `errors.py` | trace 错误码映射 + 所有工具结果/错误消息构造（纯函数） | 不读全局状态 |
 | `prompt.py` | `PromptView`：系统提示词 + 历史副本 + 可刷新状态尾部 | 不缓存、不写历史 |

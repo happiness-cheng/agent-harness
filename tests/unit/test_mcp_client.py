@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from min_agent.mcp.client import MCPError, StdioMCPClient
+from min_agent.mcp.client import MCPError, MCPProtocolVersionError, StdioMCPClient
 from min_agent.mcp.spec import MCPServerSpec
 
 SERVER = Path(__file__).resolve().parents[1] / "fakes" / "mcp_server.py"
@@ -71,3 +71,88 @@ def test_client_rejects_non_object_tool_schema():
             client.list_tools()
     finally:
         client.close()
+
+
+def initialize_script(body: str) -> str:
+    """只处理 initialize 的最小服务器；body 与 ``v=...`` 同缩进（一个空格）。"""
+    return (
+        "import json,sys\n"
+        "for line in sys.stdin:\n"
+        " m=json.loads(line)\n"
+        " if m.get('method')!='initialize': continue\n"
+        " v=m.get('params',{}).get('protocolVersion')\n"
+        + body
+    )
+
+
+def test_client_rejects_unknown_protocol_version():
+    script = initialize_script(
+        " print(json.dumps({'jsonrpc':'2.0','id':m['id'],"
+        "'result':{'protocolVersion':'1999-01-01'}}),flush=True)\n"
+    )
+    client = StdioMCPClient(fake_spec(args=["-u", "-c", script]))
+    try:
+        with pytest.raises(MCPProtocolVersionError, match="协议版本"):
+            client.start()
+    finally:
+        client.close()
+
+
+def test_client_falls_back_to_older_version_on_invalid_params():
+    script = initialize_script(
+        " if v=='2025-06-18':\n"
+        "  out={'jsonrpc':'2.0','id':m['id'],'error':"
+        "{'code':-32602,'message':'Unsupported protocol version'}}\n"
+        " else:\n"
+        "  out={'jsonrpc':'2.0','id':m['id'],'result':{'protocolVersion':v}}\n"
+        " print(json.dumps(out),flush=True)\n"
+    )
+    client = StdioMCPClient(fake_spec(args=["-u", "-c", script]))
+    try:
+        info = client.start()
+        assert info["protocolVersion"] == "2024-11-05"
+    finally:
+        client.close()
+
+
+def test_client_does_not_fall_back_on_unrelated_rpc_error():
+    script = initialize_script(
+        " if v=='2025-06-18':\n"
+        "  out={'jsonrpc':'2.0','id':m['id'],'error':"
+        "{'code':-32601,'message':'method not found'}}\n"
+        " else:\n"
+        "  out={'jsonrpc':'2.0','id':m['id'],'result':{'protocolVersion':v}}\n"
+        " print(json.dumps(out),flush=True)\n"
+    )
+    client = StdioMCPClient(fake_spec(args=["-u", "-c", script]))
+    try:
+        with pytest.raises(MCPError, match="method not found"):
+            client.start()
+    finally:
+        client.close()
+
+
+def test_client_rejects_non_string_protocol_version():
+    script = initialize_script(
+        " print(json.dumps({'jsonrpc':'2.0','id':m['id'],"
+        "'result':{'protocolVersion':2025}}),flush=True)\n"
+    )
+    client = StdioMCPClient(fake_spec(args=["-u", "-c", script]))
+    try:
+        with pytest.raises(MCPProtocolVersionError):
+            client.start()
+    finally:
+        client.close()
+
+
+def test_client_close_reaps_process_and_joins_reader_threads():
+    client = StdioMCPClient(fake_spec())
+    client.start()
+    process = client._process
+    threads = list(client._threads)
+
+    client.close()
+
+    assert process.poll() is not None
+    assert all(not thread.is_alive() for thread in threads)
+    assert not client.healthy

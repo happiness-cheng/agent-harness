@@ -11,7 +11,7 @@ from min_agent.mcp.spec import prefixed_tool_name
 
 
 class _MCPArguments(BaseModel):
-    """MCP 参数由服务器自己校验；这里只保证是对象并原样透传。"""
+    """MCP 参数原样透传；本地只补 raw_schema 中 required/简单类型的校验。"""
 
     model_config = ConfigDict(extra="allow")
 

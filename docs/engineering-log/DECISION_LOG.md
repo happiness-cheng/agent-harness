@@ -709,3 +709,15 @@
 - **不保证**：远程 HTTP/SSE、OAuth、resources/prompts/sampling；同一任务内服务器崩溃后的自动无缝重连（下一任务会重连，当前 registry 里的旧工具不会热替换）；`confirm` 的交互审批；MCP 工具单独预算；其他第三方服务器兼容性。
 - **实施记录**：[IMPLEMENTATION_LOG.md](IMPLEMENTATION_LOG.md) → MCP-001
 - **验证与自检**：[VALIDATION_LOG.md](VALIDATION_LOG.md) → MCP-001
+
+## REVIEW-FIX-001 · 2026-11-20 · Phase: RUNTIME / MCP
+
+主题：外部审查的 4 项非阻塞修复；不扩大 MCP 能力范围。
+
+- **D1 · 轮数上限放进阶段链，而不是在 `_run` 里加 `if`**：新增 `RoundLimit` 阶段放在阶段链首位，`RunState.rounds` 自增并在超过 `max_rounds` 时返回 `partial/round_limit`。替代方案「在 `_run` 的 `while True` 里判断计数」被否决：`test_runtime_shape` 明确限制 `_run` 的 `If` 数量与行数，且会把终止策略重新塞回主循环；阶段链是现有扩展点，也便于单独测试。默认 `64` 轮：高于现有测试最长工具链，又能在无预算时兜底；生产路径仍以预算为主约束，轮数上限只是第二道闸。
+- **D2 · `close()` 采用 terminate → wait → kill → wait → join**：kill 后必须 `wait()` 回收进程，再关闭管道并 join reader/stderr 线程；join 有超时且线程是 daemon，避免服务器卡死时关闭流程被无限阻塞。替代方案「只 kill 不 wait」会留僵尸；「无超时 join」可能让应用退出挂住。
+- **D3 · `raw_schema` 做保守的本地校验，不追求完整 JSON Schema**：新增 `tools/schema.py`，只校验顶层 `required` 是否存在、`properties` 中 `type` 为单一简单类型（string/number/integer/boolean/array/object/null）时的类型；遇到 `anyOf/oneOf/allOf/$ref/类型数组` 就跳过该字段，避免误拒服务器可接受的输入。校验失败返回现有 `invalid_arguments` 请求错误，和内置工具的参数错误走同一恢复路径。替代方案「动态转 Pydantic」被否决（嵌套 schema 转换不可靠，且会造出第二套标准）；「完全不校验只写文档」也能满足审查底线，但会继续让明显缺参的调用打到服务器，故选保守校验 + 文档标注边界。
+- **D4 · 协议版本以响应字段为准，降级只认 JSON-RPC `-32602`**：`request()` 遇到 JSON-RPC error 时抛带 `rpc_code` 的 `MCPRequestError`；`initialize()` 只有 `-32602`（Invalid params，服务器拒绝未知版本的标准码）才尝试旧版本，其他错误直接失败；成功响应必须带受支持的 `protocolVersion`（`2025-06-18` / `2024-11-05`），否则报 `MCPProtocolVersionError`。替代方案「继续用错误文本含 `protocol` 判断」被否决：文本是服务器自由文案，不可靠；「任意版本都接受」会让后续消息格式在未知版本上静默错配。
+- **不保证**：完整 JSON Schema 校验（嵌套对象/数组元素/`additionalProperties`/`pattern`/数值范围仍由服务器校验）；`-32602` 之外的非标准版本拒绝码不会触发降级；轮数上限不区分“有效长任务”和“死循环”，只提供可预测的上界。
+- **实施记录**：[IMPLEMENTATION_LOG.md](IMPLEMENTATION_LOG.md) → REVIEW-FIX-001
+- **验证与自检**：[VALIDATION_LOG.md](VALIDATION_LOG.md) → REVIEW-FIX-001

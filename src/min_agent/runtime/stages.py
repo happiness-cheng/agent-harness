@@ -11,6 +11,19 @@ from min_agent.runtime.errors import model_error_code
 from min_agent.runtime.state import ModelRound, RunResult, RunState, ToolRequest
 
 
+class RoundLimit:
+    """无预算运行的第二道闸：超过轮数上限就收束，避免模型无限请求工具。"""
+
+    def __init__(self, max_rounds: int) -> None:
+        self._max_rounds = max_rounds
+
+    def __call__(self, state: RunState) -> RunResult | None:
+        state.rounds += 1
+        if state.rounds > self._max_rounds:
+            return RunResult(status="partial", error_code="round_limit")
+        return None
+
+
 class ControlGate:
     """模型请求前消费用户控制：停止即取消，引导变成显式用户消息。"""
 

@@ -1570,3 +1570,29 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 **未运行**：真实模型 + MCP 的端到端对话（会消耗模型调用，未授权）；浏览器 UI；HTTP/SSE 与 OAuth 服务器；`server-everything` 之外的第三方 MCP；服务器崩溃后的同一任务热重连。
 
 **边界**：只证明 stdio 协议、渐进式披露、应用接线与失败可见性；不证明其他 MCP 服务器兼容性、远程传输、鉴权、自然语言选择质量或并发安全。`confirm` 目前只拒绝、不提供审批 UI。MCP 工具 schema 会在连接后进入每次请求，9.9k tokens 的实测成本对小窗口模型不可忽略。
+
+## REVIEW-FIX-001 · 2026-11-20 · Phase: RUNTIME / MCP
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / Node v24.14.1 + npx；离线用例不发网络、不调用模型；真实 MCP 只用 npx 启动 `@modelcontextprotocol/server-everything`，应用层 live 用 `ScriptedModel`，**未调用任何真实模型**。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 目标用例 | `pytest tests/unit/test_runtime_shape.py tests/unit/test_runtime_rounds.py tests/unit/test_tool_schema.py tests/unit/test_mcp_client.py tests/integration/test_mcp_runtime.py tests/unit/test_trace.py tests/unit/test_runtime_components.py -q` | **67 passed** |
+| 终版全量 | `pytest --junitxml reports\review-fix-20261120\full-final.xml -q` | **1991 passed / 5 deselected / 0 failed / 214.89s（exit 0）** |
+| 轮数上限 | `tests/unit/test_runtime_rounds.py`（10 个脚本工具响应、`max_rounds=3`） | 只发起 **3 次**模型调用；`partial / round_limit`；run trace 同一错误码 |
+| 子进程回收 | `tests/unit/test_mcp_client.py::test_client_close_reaps_process_and_joins_reader_threads` | `close()` 后 `poll()` 非 None；reader/stderr 线程均退出；`healthy=False` |
+| 本地参数校验 | `tests/unit/test_tool_schema.py`；`tests/integration/test_mcp_runtime.py::test_mcp_arguments_are_rejected_locally_before_reaching_server` | 缺 `b` / `b` 类型错 → `invalid_arguments`，**未触达服务器**（结果无 `MCP error`）；`anyOf/$ref/enum/类型数组` 不误拒 |
+| 协议版本 | `tests/unit/test_mcp_client.py` 4 项 | 未知版本 / 非字符串版本 → `MCPProtocolVersionError`；`-32602` → 降级到 `2024-11-05` 成功；`-32601` 不降级、直接失败 |
+| 真实 MCP 发现（改动后） | `scripts\mcp_probe.py --config ... --server everything` | `ok=true`，**16 个工具** |
+| 真实 MCP 应用（改动后） | `MCP_LIVE_CONFIG=... pytest tests/live/test_mcp_live.py -m live -q` | **1 passed / 6.55s**（连接前无 MCP 工具、连接后出现、`echo` 结果落库） |
+
+**失败/作废证据（如实）**：
+- 新增 inline MCP 服务器脚本首次缩进错误，4 个协议版本用例报 `MCP 服务器已关闭连接`；改测试脚本缩进后全绿（测试缺陷，非产品缺陷）。
+- 本轮开始后启动的“改动前基线”全量运行，因编辑期间继续执行、可能导入新旧混合代码，已主动 kill 并**作废，不作为证据**；基线改用同一提交 `169155c` 的 fresh clone 结果 **1977 passed**（`reports\mcp-20261117\clone-full.xml`）。
+- 首轮终版全量 **1991 passed / 205.12s** 在最后一处错误消息清洗（`client.py` 的 `isprintable`）之前完成，**不作最终证据**；终版源码下重跑为 **1991 passed / 214.89s**。
+
+**基线口径**：改动前源码 = `169155c`；测试数 1977 → 1991（+14：轮数 2、schema 6、MCP client 5、MCP 集成 1）。`test_runtime_shape.py` 只把新关键字参数加入公开签名期望，未改任何行为断言。
+
+**未运行**：真实模型 + MCP 对话（未授权，会消耗模型调用）；浏览器 UI；HTTP/SSE/OAuth 服务器；`server-everything` 之外的第三方 MCP；服务器卡死时 kill 路径的现场复现（Windows `terminate` 通常直接结束进程，kill 分支未单独构造）。
+
+**边界**：只证明这 4 项修复的离线契约与 `server-everything` stdio 兼容性；不证明完整 JSON Schema 校验、其他服务器兼容性、远程传输、并发安全或自然语言效果。

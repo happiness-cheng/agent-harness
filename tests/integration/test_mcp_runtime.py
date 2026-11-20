@@ -73,3 +73,36 @@ def test_messages_show_server_name_and_description_before_connect():
     # 第三轮：MCP 工具结果按原顺序回到历史
     tool_messages = [message for message in model.calls[2] if message.role == "tool"]
     assert json.loads(tool_messages[-1].content) == {"ok": True, "result": "echo:hello"}
+
+
+def test_mcp_arguments_are_rejected_locally_before_reaching_server():
+    catalog = MCPServerCatalog((fake_spec(),))
+    store = SessionStore()
+    context = store.create(uuid4())
+    registry = ToolRegistry(sessions=store, context=context)
+    model = ScriptedModel([
+        ModelResponse(finish_reason="tool_calls", tool_calls=[
+            ToolCall(id="c1", name="connect_mcp", arguments={"name": "fake"}),
+        ]),
+        ModelResponse(finish_reason="tool_calls", tool_calls=[
+            ToolCall(id="c2", name="mcp__fake__add", arguments={"a": 1}),
+            ToolCall(id="c3", name="mcp__fake__add", arguments={"a": 1, "b": "3"}),
+        ]),
+        ModelResponse(finish_reason="stop", content="done"),
+    ])
+    try:
+        register_mcp_tools(registry, catalog)
+        result = Runtime(model, registry).run_session(
+            "请连接 fake 并计算", store=store, context=context)
+    finally:
+        catalog.close()
+
+    assert result.status == "partial" and result.error_code == "tool_request_failed"
+    tool_messages = [message for message in model.calls[2] if message.role == "tool"]
+    missing, wrong_type = (json.loads(message.content) for message in tool_messages[-2:])
+    assert missing["error"]["code"] == "invalid_arguments"
+    assert missing["error"]["issues"] == [{"field": "b", "reason": "缺少必需参数"}]
+    assert wrong_type["error"]["code"] == "invalid_arguments"
+    assert wrong_type["error"]["issues"] == [{"field": "b", "reason": "类型应为 integer"}]
+    assert "MCP error" not in tool_messages[-2].content
+    assert "MCP error" not in tool_messages[-1].content

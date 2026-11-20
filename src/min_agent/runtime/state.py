@@ -53,6 +53,7 @@ class RunState:
     parent_call_id: UUID
     messages: list[Message]
     seen_call_ids: set[str] = field(default_factory=set)
+    rounds: int = 0
     error_rounds: int = 0
     had_request_errors: bool = False
     progress_correction: bool = False

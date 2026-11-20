@@ -15,7 +15,7 @@ from min_agent.contracts.models import Message
 from min_agent.runtime.closing import CheckpointCloser
 from min_agent.runtime.errors import trace_error_code
 from min_agent.runtime.prompt import PromptView
-from min_agent.runtime.stages import ControlGate, ModelCall, ReserveGate, ResponseRouter
+from min_agent.runtime.stages import ControlGate, ModelCall, ReserveGate, ResponseRouter, RoundLimit
 from min_agent.runtime.state import Model, RunResult, RunState
 from min_agent.runtime.tool_loop import ToolBatch
 from min_agent.session.store import ExecutionContext, SessionStore
@@ -27,6 +27,7 @@ class Runtime:
 
     def __init__(
         self, model: Model, tools=None, *, max_tool_error_rounds: int = 2,
+        max_rounds: int = 64,
         trace: TraceRecorder | None = None, budget: BudgetSegment | None = None,
         checkpoint_policy: CheckpointPolicy | None = None,
         control=None, progress_guard=None,
@@ -38,6 +39,10 @@ class Runtime:
             raise TypeError("工具错误修正轮数必须是整数")
         if max_tool_error_rounds < 0:
             raise ValueError("工具错误修正轮数不能为负")
+        if type(max_rounds) is not int:
+            raise TypeError("轮数上限必须是整数")
+        if max_rounds < 1:
+            raise ValueError("轮数上限必须为正")
         if budget is not None and not isinstance(budget, BudgetSegment):
             raise TypeError("budget必须是可信调用方提供的BudgetSegment")
         if checkpoint_policy is not None:
@@ -67,6 +72,7 @@ class Runtime:
         closer = CheckpointCloser(budget, control, model, self.trace, prompt)
         self._stages = (
             ControlGate(control),
+            RoundLimit(max_rounds),
             ReserveGate(budget, checkpoint_policy, closer),
             ModelCall(model, tools, budget, control, self.trace, prompt),
             ResponseRouter(control, tools),

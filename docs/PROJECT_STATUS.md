@@ -2,6 +2,18 @@
 
 > **交付规则（AEF-003 第 11 行 + AEF-004 第 12 行，2026-11-14 定稿）**：每次交付必须附核心文件路径、四件事代码讲解与「长度按需、但必须能独立看懂」的关键片段（带文件与行号）；**片段之后还要逐行/分块讲解参数、每步动作、为什么这样写、明确不保证什么**。详见 [AGENTS.md](../AGENTS.md) 第 11–12 行。
 
+## 2026-11-20 最新续接：外部审查 4 项修复（REVIEW-FIX-001）
+
+外部 agent 对 `review/20261117-runtime-mcp` 给出 Approve with fixes；本轮按顺序修 4 项，未扩大 MCP 能力范围。
+
+- **① 轮数上限**：`Runtime(max_rounds=64)`；新增 `RoundLimit` 阶段，超限返回 `partial/round_limit`，不再只依赖预算。覆盖 `budget=None` 的 `llm/smoke.py`、`evaluation/improvement.py` 路径。
+- **② 子进程回收**：`StdioMCPClient.close()` 改为 terminate→wait→kill→wait→close→join（线程各 2 s）；测试断言 close 后 `poll()` 非 None、reader/stderr 线程退出。
+- **③ 参数本地校验**：新增 `tools/schema.py`，只校验 `required` 与单一简单类型；`anyOf/$ref/enum` 等跳过，避免误拒；失败返回 `invalid_arguments`，不触达服务器。完整 JSON Schema 仍由服务器校验。
+- **④ 协议版本**：`initialize` 只接受 `2025-06-18`/`2024-11-05`；只有 JSON-RPC `-32602` 才降级重试，删除“错误文本含 protocol”的猜测。
+- **验证**：目标用例 **67 passed**；终版全量 **1991 passed / 5 deselected / 0 failed / 214.89s**（+14 项，前值 1977）；真实 `server-everything` 改动后仍发现 **16 个工具**，应用层 live **1 passed / 6.55s**（ScriptedModel，无真实模型调用）。
+- **未做/边界**：完整 schema 校验、`-32602` 之外的版本拒绝、远程 MCP、skills/memory 提示词段。
+- [决策](engineering-log/DECISION_LOG.md)（REVIEW-FIX-001 D1–D4）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md)。
+
 ## 2026-11-17 最新续接：渐进式 MCP 接入（MCP-001）
 
 - **做了什么**：新增 `src/min_agent/mcp/`（配置、stdio JSON-RPC 客户端、目录、工具构造）。对话开始时 system 段只列 MCP 服务器 **name + description**，tools 里只有 `connect_mcp`；模型选择后连接服务器、发现工具，并以 `mcp__<server>__<tool>` 并入同一个 `ToolRegistry`，**下一轮**模型请求才看到这些工具。新增 `context/SystemPrompt` 组件提示词段机制，`Runtime` 支持每个请求重新生成系统提示词。

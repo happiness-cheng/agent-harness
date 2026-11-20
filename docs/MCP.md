@@ -23,7 +23,8 @@
 ```
 
 - **工具 schema 原样透传**：`ToolDefinition.raw_schema` 保存服务器返回的 `inputSchema`，
-  `ToolRegistry.schemas()` 直接使用它；调用参数由服务器自己校验（本地只要求是 JSON 对象）。
+  `ToolRegistry.schemas()` 直接使用它；本地只补可判定的 `required`/简单类型校验，
+  其余仍由服务器校验（边界见下节）。
 - **连接是会话级的**：同一会话跨任务复用连接；应用 `close()` 时统一终止子进程。
 - **连接结果只回名称**：避免把几十个工具的说明塞进 tool result 触发工具摘要/额外模型调用。
 
@@ -79,6 +80,34 @@
 6. **不自动重连**：服务器进程退出后连接标记损坏；重新连接需要再次调用 `connect_mcp`
    （本版不自动重启）。
 
+## 参数校验与协议版本（REVIEW-FIX-001）
+
+**本地参数校验只做保守子集**（`src/min_agent/tools/schema.py`）：
+
+- 校验 `required` 里的字段是否存在；
+- 当 `properties.<name>.type` 是单一简单类型（`string/integer/number/boolean/object/
+  array/null`）时校验类型；
+- 遇到 `anyOf/oneOf/allOf/$ref/enum`、类型数组等无法无歧义判定的规则就跳过该字段，
+  宁可放行也不误拒服务器可接受的输入；
+- 嵌套对象/数组元素、`additionalProperties`、`pattern`、数值范围等**本地不校验**，
+  仍由服务器负责。
+
+本地判定失败时返回和内置工具一致的 `invalid_arguments`（`issues` + `expected_schema`），
+不启动服务器调用；模型可据此修正后重试。
+
+**协议版本**：
+
+- 客户端支持 `2025-06-18` 和 `2024-11-05`；`initialize` 成功响应里的
+  `protocolVersion` 必须属于这个集合，否则 `MCPProtocolVersionError`，不会带着未知
+  版本继续 `tools/list` / `tools/call`。
+- 只有服务器返回 JSON-RPC `-32602`（Invalid params）时才会尝试旧版本；
+  其他错误码直接失败，不再按错误文本里是否含 `protocol` 猜测。
+- 不保证：服务器用非标准错误码拒绝版本时不会降级；也不支持这两个版本之外的协议。
+
+**子进程回收**：`close()` 先 `terminate()` + `wait()`，超时才 `kill()` 并再次
+`wait()`，然后关闭管道并 join reader/stderr 线程（各 2 s 上限）。线程是 daemon，
+服务器卡死不会让应用退出无限挂住。
+
 ## 上下文成本（实测）
 
 `@modelcontextprotocol/server-everything` 连接后：16 个工具、schema 约 **8.8 KB**、
@@ -93,7 +122,7 @@
 离线（真实子进程协议、假服务器，不联网、不调用模型）：
 
 ```powershell
-.venv\Scripts\python.exe -X utf8 -m pytest tests/unit/test_mcp_spec.py tests/unit/test_mcp_client.py tests/unit/test_mcp_catalog.py tests/integration/test_mcp_runtime.py tests/integration/test_mcp_application.py -q
+.venv\Scripts\python.exe -X utf8 -m pytest tests/unit/test_mcp_spec.py tests/unit/test_mcp_client.py tests/unit/test_mcp_catalog.py tests/unit/test_tool_schema.py tests/integration/test_mcp_runtime.py tests/integration/test_mcp_application.py -q
 ```
 
 真实 MCP（npx，需网络/包缓存；**不调用模型**）：

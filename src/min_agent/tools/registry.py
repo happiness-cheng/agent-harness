@@ -7,6 +7,7 @@ from pydantic import BaseModel, ValidationError
 
 from min_agent.contracts.models import ToolCall
 from min_agent.session.store import ExecutionContext, SessionStore
+from min_agent.tools.schema import validate_arguments
 
 
 class InvalidToolResultError(TypeError):
@@ -122,6 +123,15 @@ class ToolRegistry:
                 "unknown_tool", "工具未注册，请选择可用工具。",
                 available_tools=list(self._tools),
             )
+        if tool.raw_schema is not None:
+            # MCP 参数模型是 extra="allow"，只保证「是对象」；这里补本地能判定的
+            # required/简单类型，其余仍由服务器校验。
+            issues = validate_arguments(tool.raw_schema, call.arguments)
+            if issues:
+                return _request_error(
+                    "invalid_arguments", "参数校验失败，请按 Schema 修正。",
+                    issues=issues, expected_schema=tool.raw_schema,
+                )
         try:
             arguments = tool.parameters.model_validate(call.arguments)
         except ValidationError as error:

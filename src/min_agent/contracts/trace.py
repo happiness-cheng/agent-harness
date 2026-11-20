@@ -24,7 +24,7 @@ ErrorCode = Literal[
     "action_already_consumed", "legacy_confirmation_requires_new_proposal",
     "budget_exhausted",
     "budget_persistence_failed",
-    "budget_checkpoint", "checkpoint_invalid_response",
+    "budget_checkpoint", "checkpoint_invalid_response", "round_limit",
     "user_stopped", "no_progress",
     "reminder_time_required", "context_limit", "network_not_authorized",
     "steer_pending",

@@ -37,7 +37,7 @@ def test_main_loop_stays_short():
 
 @pytest.mark.parametrize(("method", "expected"), [
     (Runtime.__init__, [
-        "self", "model", "tools", "max_tool_error_rounds", "trace", "budget",
+        "self", "model", "tools", "max_tool_error_rounds", "max_rounds", "trace", "budget",
         "checkpoint_policy", "control", "progress_guard", "recover_unknown_writes",
         "before_execute", "system_prompt",
     ]),

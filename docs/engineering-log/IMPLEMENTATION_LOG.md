@@ -1283,3 +1283,31 @@
 3. **未完成**：远程 HTTP/SSE 与 OAuth；MCP resources/prompts/sampling；`confirm` 的交互审批；同一任务内崩溃后的热重连/工具替换；MCP 工具单独预算；skills/memory 的组件提示词段（只留了 `SystemPrompt` 段机制）。
 4. **副作用**：`HarnessApplication` 新增可选参数，默认不启动任何 MCP 子进程（默认行为不变）；MCP 连接是会话级子进程，应用关闭时回收；真实 MCP 连接后每次请求增加约 8.8 KB schema（约 9.9k tokens 估算）。
 5. **最终状态**：功能完成（限 stdio + allow/confirm-refuse 范围）；边界见 VALIDATION_LOG。
+
+## REVIEW-FIX-001 · 2026-11-20 · Phase: RUNTIME / MCP
+
+### 执行前
+
+1. **Task ID / 目标**：`REVIEW-FIX-001`；按外部审查的 Approve-with-fixes 修 4 项：① 主循环加轮数上限（防 `budget=None` 时模型持续返回工具调用而无法终止）；② `close()` kill 后补 `wait()` 并 join reader 线程；③ MCP `raw_schema` 补本地 required/类型校验（至少可判定部分），并标注不校验的边界；④ `initialize` 校验服务器返回的协议版本，去掉按错误文本含 `protocol` 判断降级的启发式。
+2. **基线**：HEAD `169155c`（`review/20261117-runtime-mcp`），工作区除未跟踪私有目录外干净；分支全量 `1977 passed / 5 deselected`（fresh clone 证据 `reports/mcp-20261117/clone-full.xml`）。改动前重跑本地全量作为本轮基线。
+3. **预期修改**：`runtime/loop.py`、`runtime/stages.py`、`runtime/state.py`、`contracts/trace.py`、`mcp/client.py`、`mcp/tools.py`、`tools/registry.py`、新增 `tools/schema.py`；对应 unit/integration 测试；`docs/MCP.md`、工程日志与 `PROJECT_STATUS`。
+4. **判据**：① `max_rounds` 耗尽返回 `partial/round_limit`，模型调用次数不超过上限；② close 后子进程已回收（`poll() is not None`），reader/stderr 线程在超时内结束；③ 缺 required / 顶层类型错误的 MCP 调用在本地返回 `invalid_arguments` 且不触达服务器，`anyOf` 等无法判定的 schema 不被误拒；④ 服务器返回未知 `protocolVersion` 时初始化失败；仅 JSON-RPC `-32602` 触发降级重试，其他错误不再按文本重试。
+5. **风险与禁止**：轮数上限不能误伤长任务（默认值需高于现有测试最长链）；参数校验不能把服务器可接受的合法输入（`anyOf`/`$ref`/联合类型）误判为非法；协议版本校验不能把 `2024-11-05` 降级路径弄坏；不改现有测试断言，只做必要的契约扩展（`Runtime` 签名、`ErrorCode` 字面量）；不提交未授权私有材料。
+
+### REVIEW-FIX-001 执行后（2026-11-20）
+
+1. **实际完成**：
+   - `runtime/state.py`：`RunState.rounds`。
+   - `runtime/stages.py`：新增 `RoundLimit` 阶段；每次循环自增，超过上限返回 `partial/round_limit`。
+   - `runtime/loop.py`：`max_rounds: int = 64` 关键字参数与类型/正数校验；阶段链改为 `ControlGate → RoundLimit → ReserveGate → ModelCall → ResponseRouter → ToolBatch`。
+   - `contracts/trace.py`：`ErrorCode` 增加 `round_limit`。
+   - `mcp/client.py`：`_SUPPORTED_VERSIONS`、`MCPRequestError(rpc_code)`、`MCPProtocolVersionError`；`initialize` 校验响应里的 `protocolVersion`，只有 `-32602` 才尝试旧版本；`close()` 在 `kill()` 后再次 `wait()`，并 join reader/stderr 线程（各 2 s）。
+   - `tools/schema.py`（新）：保守的 `validate_arguments`；`tools/registry.py` 对带 `raw_schema` 的工具先做本地校验；`mcp/tools.py` 更新参数模型说明。
+   - 测试：`tests/unit/test_runtime_rounds.py`（2）、`tests/unit/test_tool_schema.py`（6）、`tests/unit/test_mcp_client.py`（+5）、`tests/integration/test_mcp_runtime.py`（+1）；`tests/unit/test_runtime_shape.py` 的签名期望加入 `max_rounds`（公开契约扩展）。共 +14：1977 → 1991。
+   - 文档：`docs/MCP.md`（参数校验/协议版本/回收边界）、`docs/MODULE_MAP.md`（阶段链）、三份工程日志、`docs/PROJECT_STATUS.md`。
+2. **与计划的偏差（如实）**：
+   - 计划中“改动前重跑本地全量作为基线”未成立：基线任务启动后我继续编辑源码，运行期间可能导入新旧混合代码，结果不可信；已 kill 并作废该次运行。基线改用同一提交 `169155c` 的 fresh clone 证据（1977 passed）。
+   - 新增 inline MCP 服务器脚本第一次缩进写错（body 与 `v=...` 不同级），4 个协议版本用例报“服务器已关闭连接”；改成同一缩进基准后全绿。这是测试脚本问题，不是产品缺陷。
+3. **未完成**：完整 JSON Schema 校验（嵌套/数组元素/`additionalProperties`/范围）；非 `-32602` 版本拒绝码的降级；轮数上限按任务类型自适应；skills/memory 的组件提示词段仍待接。
+4. **副作用**：`Runtime` 公开签名新增关键字参数（默认 64，旧调用不受影响）；trace 增加一个允许错误码；MCP 工具现在会先本地拒绝缺参/明显类型错误（行为变化）；`close()` 正常情况下立即返回，异常服务器最多多等约 4 s（两个线程各 2 s）。
+5. **最终状态**：外部审查 4 项全部修复并有回归覆盖；完整 schema 校验与远程 MCP 仍未做。
