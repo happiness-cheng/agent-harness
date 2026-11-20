@@ -1,5 +1,7 @@
 # Adrian 夜间模式：最小实施设计
 
+> **WIRING-004（2026-11-20）**：`min_agent.evaluation.night*`、`night-adrian.cmd` 与相关测试已删除（生产零调用）。本文保留历史设计记录，命令示例不再可运行。
+
 本需求接续统一验证V1。队列负责调度，不另建Agent Loop或业务状态库；任务通过现有Harness执行、独立Verifier验收。夜间任务状态与Runtime单次执行状态分别保存，不能将模型completed直接当夜间任务完成。
 
 ## 当前能力与限制

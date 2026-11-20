@@ -64,6 +64,6 @@
 ## 对外可见变化
 
 - `python -m min_agent.activity_connector` / `-m min_agent.activity_memory_adapter`
-  → `python -m min_agent.activity.connector` / `-m min_agent.activity.memory_adapter`。
+  → `python -m min_agent.activity.connector` / `-m min_agent.activity.memory_adapter`（**WIRING-004 已删除 `activity/` 包**，此处仅保留历史路径说明）。
 - `min_agent.web`、`min_agent.evaluation`、`min_agent.application` 等入口路径不变。
 - 新增可选 `--mcp-config path.json`（MCP-001）；不提供时不启动任何 MCP 子进程，默认行为不变。
