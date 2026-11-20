@@ -29,49 +29,38 @@ def tool_names(schemas):
     return [schema["name"] for schema in schemas]
 
 
-def test_messages_show_server_name_and_description_before_connect():
+def test_messages_show_tool_metadata_in_prompt_but_not_in_tools_array():
     catalog = MCPServerCatalog((fake_spec(),))
     store = SessionStore()
     context = store.create(uuid4())
     registry = ToolRegistry(sessions=store, context=context)
     model = ScriptedModel([
         ModelResponse(finish_reason="tool_calls", tool_calls=[
-            ToolCall(id="c1", name="connect_mcp", arguments={"name": "fake"}),
-        ]),
-        ModelResponse(finish_reason="tool_calls", tool_calls=[
-            ToolCall(id="c2", name="mcp__fake__echo", arguments={"message": "hello"}),
+            ToolCall(id="c1", name="mcp__fake__echo", arguments={"message": "hello"}),
         ]),
         ModelResponse(finish_reason="stop", content="done"),
     ])
     try:
+        catalog.connect("fake")  # 模拟后台连接已完成
         register_mcp_tools(registry, catalog)
         runtime = Runtime(model, registry, system_prompt=SystemPrompt(
             "BASE_RULES", (catalog.prompt_section,)))
-        result = runtime.run_session("请连接 fake 并回显", store=store, context=context)
+        result = runtime.run_session("请用 fake 回显 hello", store=store, context=context)
     finally:
         catalog.close()
 
     assert result.status == "completed", result.error_code
-    assert len(model.calls) == 3
+    assert len(model.calls) == 2
 
-    # 第一轮：system 只公开服务器名和说明；tools 里没有 MCP 工具
+    # system 只公开工具名和说明；tools 数组里没有 MCP 工具，也没有 command/env。
     system = model.calls[0][0]
     assert system.role == "system" and system.content.startswith("BASE_RULES")
-    assert "fake" in system.content and "Fake MCP server for tests." in system.content
-    assert "Echo the message back." not in system.content
-    assert tool_names(model.tool_schemas[0]) == ["connect_mcp"]
-    assert "fake" in json.dumps(model.tool_schemas[0][0]["parameters"], ensure_ascii=False)
+    assert "mcp__fake__echo" in system.content and "Echo the message back." in system.content
+    assert sys.executable not in system.content and str(SERVER) not in system.content
+    assert tool_names(model.tool_schemas[0]) == []
 
-    # 第二轮：connect 结果回填，工具已并入
-    assert tool_names(model.tool_schemas[1]) == [
-        "connect_mcp", "mcp__fake__echo", "mcp__fake__add"]
+    # MCP 工具结果按原顺序回到历史。
     tool_messages = [message for message in model.calls[1] if message.role == "tool"]
-    connected = json.loads(tool_messages[0].content)
-    assert connected["ok"] is True
-    assert json.loads(connected["result"])["connected"] == "fake"
-
-    # 第三轮：MCP 工具结果按原顺序回到历史
-    tool_messages = [message for message in model.calls[2] if message.role == "tool"]
     assert json.loads(tool_messages[-1].content) == {"ok": True, "result": "echo:hello"}
 
 

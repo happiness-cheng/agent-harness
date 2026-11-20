@@ -1356,3 +1356,31 @@
 4. **未完成**：任务 2–5 未开始；真实模型 live 只覆盖「读全文」，子文档路径的 live 读取未单独构造（离线集成已覆盖）；未做浏览器 UI 验证。
 5. **副作用**：默认路径每次模型请求新增技能清单段（约 750 字节）与 read_skill 工具 schema；`trace_runs` 记录新增 `prompt_sections` 键（附加式，旧记录无此键不受影响）；无数据库 schema 变化（扩展 JSON）。
 6. **最终状态**：COMPLETED。验证见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → WIRING-001。
+
+## WIRING-002 · 2026-11-20 · Phase: MCP（任务 2 · 后台默认连接 + 元数据披露 + confirm 真排队）
+
+### 执行前
+
+1. **Task ID / 目标**：`WIRING-002`；① 启动时后台连接 `--mcp-config` 指定的服务器（无配置不做任何事）；② list_tools 后只把工具 name + description 拼进 SystemPrompt 的 MCP 段（token 上限，超了只放名字）；③ 模型调 `mcp__*` 工具时再按完整 schema 校验（schema 连接时发现并保存，校验在执行入口）；④ command/args/env 仍只来自 host 配置；⑤ confirm 从「直接拒绝（且包成 ok:true）」改为真排队：调用挂起、记入会话持久事件、等 web 界面批准/拒绝后再执行并回填；拒绝明确返回 ok:false。
+2. **基线**：`review/20261120-wiring-fix` @ `6e686cb`（WIRING-001 已提交），工作区干净；全量 2009 passed / 5 deselected。现状：连接由模型调 `connect_mcp` 触发（mcp/tools.py:59）；工具连接后以完整 raw_schema 进 tools 数组（registry.schemas）；confirm 策略 handler 返回拒绝字符串被包成 ok:true（mcp/tools.py:27-28）；MCP 段只列服务器名不列工具（catalog.py:160-178）。
+3. **预期修改**：`tools/registry.py`（prompt_only 披露标记 + ToolRefusedError 明确拒绝契约）、`mcp/confirm.py`（新，排队协调器）、`mcp/catalog.py`（后台连接 + 状态 + 工具级元数据段）、`mcp/tools.py`（prompt_only 绑定 + confirm 排队 handler + connect_mcp 只留未连接服务器）、`application.py`（create_session 触发后台连接、snapshot 增 mcp 状态与待确认、mcp_confirm 入口）、`web/app.py` + `web/static/`（确认端点与 legacy 界面按钮）；更新既有 MCP 测试中断言旧披露流程的部分（行为按清单改变，安全断言保留），新增排队/上限/后台连接测试；重写 `tests/live/test_mcp_live.py` 为新流程。
+4. **判据**：A 离线——后台连接（假工厂/假服务器）状态机 connecting/connected/failed；MCP 段只含 name+description、无 command/env、超上限降级；prompt_only 工具不进 schemas 但可 execute；confirm 调用挂起为 waiting_user、批准后执行回填、拒绝返回 ok:false 且不包 ok:true、批准一次性消费。B 离线集成——ScriptedModel 走 echo→confirm 挂起→批准→恢复→完成。C live——server-everything（allow+confirm 两个配置名）+ 真实模型（本机 Ollama qwen3.5:4b）跑 连接→发现→echo→confirm 工具确认后执行，全程 trace；`tests/live/test_mcp_live.py -m live` 通过。
+5. **风险与禁止**：不改 command/args/env 来源；不读服务器 annotations 当授权；批准必须绑定精确工具名+参数签名且一次性消费；拒绝不得包成 ok:true；不动 skill/记忆/多 Agent；真实模型限本机 Ollama；npx server-everything 用本机包缓存。已探针验证 qwen3.5:4b 能按提示词段调用不在 tools 数组里的工具（1 次请求，名字与参数正确）。
+6. **已知边界（先记）**：默认 DSH 外壳（shell/）没有任何确认 UI（连既有 goal 确认也没有），确认界面在 /legacy；本任务把 MCP 确认做进 legacy 界面与 API，外壳缺口如实记录不扩范围补。
+
+### 执行后
+
+1. **实际修改文件**（`git status` 核对，14 个文件；源码 7 + 测试 5 + 日志 2）：
+   - 新增 `src/min_agent/mcp/confirm.py`（89 行）：`MCPConfirmations` 持久排队协调器（登记去重 / 定向决定 / 原子消费 / 容量清理）。
+   - `src/min_agent/mcp/catalog.py`：新增 `connect_background()`（daemon 线程逐个连接、状态机 idle→connecting→connected/failed、失败只记固定码或 `MCPError` 文本）、`status()`、`prompt_section()` 改为只列 `mcp__server__tool：description`（600 token 上限，超限先降级只放名字、再按序截断并标注）、`bind()` 支持 `prompt_only`。
+   - `src/min_agent/mcp/tools.py`：`build_mcp_tool(..., confirmations)` 的 confirm handler 改为「查已批准→消费执行 / 已拒绝→`ToolRefusedError` / 无记录→登记 pending 后 `AuthorizationRequired("waiting_user")`」；`connect_mcp` 只列未连接服务器。
+   - `src/min_agent/tools/registry.py`：新增 `ToolRefusedError` 与 `ToolDefinition.prompt_only`；`schemas()` 排除 prompt_only；`_execute` 捕获拒绝并返回 `_request_error("tool_request_failed", ..., refused_by_user=True, recovery="do_not_retry_refused_call")`。
+   - `src/min_agent/application.py`：`create_session` 触发 `connect_background()`；快照新增 `mcp` 状态与 `mcp_confirmations`；新增 `mcp_confirm()` 定向入口（运行中拒绝、决定后按当前任务 resume）；`_registry` 把 `MCPConfirmations` 传给 `register_mcp_tools`；SystemPrompt 组装在配置了服务器时追加 MCP 段并记录 `prompt_sections["mcp"].sha256`。
+   - `src/min_agent/web/app.py`、`src/min_agent/web/static/app.js`：`POST /api/sessions/{id}/mcp-confirm`（`decision: approve|refuse`，CSRF 由既有中间件约束）；legacy 任务面板渲染待确认卡片与批准/拒绝按钮。
+   - 新增 `tests/unit/test_mcp_confirm.py`（8 例）；`tests/unit/test_mcp_catalog.py`（8→14 例）；`tests/integration/test_mcp_application.py`（1→4 例）；`tests/integration/test_mcp_runtime.py`（2 例，按新披露口径更新断言）；`tests/live/test_mcp_live.py`（改为后台连接 + prompt-only 调用 + confirm 排队/批准两条真实服务器用例）。
+2. **实现要点**：后台连接只在 `create_session` 且配置了服务器时启动，失败不回显命令/环境细节；工具连接成功后以 `prompt_only=True` 注册——`execute` 可调用、`schemas()` 不导出，模型只在 SystemPrompt 看到 name+description；schema 在连接时随 `list_tools` 保存，`registry.execute` 入口按 required/简单类型校验；confirm 复用 Runtime 既有 `waiting_user` 挂起与定向 resume，pending 与批准/拒绝记录落在会话扩展 `mcp_confirmations`（JSON），进程重启后仍在；批准按「工具名 + 规范化参数」签名一次性消费，拒绝返回 `ok:false` 并带 `refused_by_user`。
+3. **子项清单核对**：a 后台连接 **已完成**（离线状态机 + 真实服务器 live）；b 只传 name+description + token 上限 **已完成**（含降级/截断测试）；c 调用时完整 schema 校验 **已完成**（schema 连接时保存、执行入口校验，缺参不到服务器）；d confirm 真排队 **已完成**（挂起 → pending 持久记录 → web 批准/拒绝 → 定向恢复/明确拒绝；拒绝 `ok:false`）；e command/args/env 仍只来自 host 配置 **未改**（MCP 段断言不含命令路径/解释器）；f 测试 **通过**（目标 28 例、全量 2026 例）；g live **通过**（`tests/live/test_mcp_live.py -m live` 2 passed；真实模型验证脚本 PASS）。
+4. **与计划的偏差 / 发现的不一致**：① `connect_mcp` 未删除，保留为「未连接/失败服务器」的手动重试入口——后台连接失败不自动重试，这是刻意保留的恢复路径；② 拒绝记录保留在扩展中（status=refused）供审计，`pending()` 只返回 pending，界面不显示已拒绝项；③ live 真实模型第三轮（拒绝）未重发同一调用，`refuse_ok_false_on_retry` 证据为空，拒绝的 `ok:false` 契约由离线集成用例覆盖（见 VALIDATION_LOG）；④ 测试文件中原本断言「连接后工具进 tools 数组」的用例按新披露口径改写，安全断言（不泄露命令、未执行、拒绝不伪装成功）全部保留并加强。
+5. **未完成 / 边界**：/legacy 确认按钮只做了 API + DOM 接线，未做浏览器点击人工验证；DSH 默认外壳（shell/）仍无任何确认 UI（既有缺口，不扩范围）；后台连接无自动重试、同任务热重连沿用 MCP-001 边界；未接入其他模型验证 prompt-only 调用（只验证 qwen3.5:4b）；MCP 工具不单独计预算（外层工具调用预算照常）。
+6. **副作用**：快照新增 `mcp` / `mcp_confirmations` 两个键（附加式，旧前端忽略即可）；`trace_runs` 的 `prompt_sections` 新增 `mcp` 键（仅配置了服务器时）；会话扩展新增 `mcp_confirmations`（JSON，无数据库 schema 变更）；新增一个 POST 端点；会话创建时可能启动后台子进程（仅配置了 MCP 时）。
+7. **最终状态**：**COMPLETED**（离线全量与 live 自验通过，待用户验收；提交后工作分支保留，不推远端、不合 main）。验证明细见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → WIRING-002。

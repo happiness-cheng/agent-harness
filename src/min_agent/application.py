@@ -201,6 +201,36 @@ class HarnessApplication:
                 self._mcp_catalogs[identity] = catalog
             return catalog
 
+    def _mcp_status(self, context):
+        catalog = self._mcp_catalogs.get(str(context.session_id))
+        return catalog.status() if catalog is not None else {}
+
+    def _mcp_pending(self, context):
+        if not self.mcp_servers:
+            return []
+        from min_agent.mcp.confirm import MCPConfirmations
+        return MCPConfirmations(self.sessions, context).pending()
+
+    def mcp_confirm(self, session_id, pending_id, decision, *, continue_task=True):
+        """web 定向入口：批准/拒绝一次挂起的 MCP 调用，可随决定恢复任务。"""
+        if decision not in {"approve", "refuse"}:
+            raise ValueError("decision 只能是 approve 或 refuse")
+        context = self.context(session_id)
+        with self._lock:
+            if str(context.session_id) in self._running:
+                raise RuntimeError("运行中不能处理 MCP 确认")
+            from min_agent.mcp.confirm import MCPConfirmations
+            record = MCPConfirmations(self.sessions, context).decide(
+                UUID(str(pending_id)), decision == "approve")
+            if continue_task:
+                saved = self.sessions.snapshot(context)
+                if saved.task is not None and saved.task.status not in {"completed", "running"}:
+                    verb = "批准" if decision == "approve" else "拒绝"
+                    self.resume(session_id, task_id=str(saved.task.task_id),
+                                text=f"用户已{verb} MCP 调用 {record['prefixed']}；"
+                                     "按该决定继续，保留先前结果；被拒绝的调用不要重试。")
+            return record
+
     def create_session(self, label="新会话", model=None, mode=None):
         """新建会话；model/mode 可在创建时指定，避免“第一条消息发出前无法选择”。"""
         if not isinstance(label, str) or not label.strip() or len(label) > 60: raise ValueError("会话名需要1到60字符")
@@ -215,6 +245,8 @@ class HarnessApplication:
             self.sessions.set_extension(context, "model_choice", model)
         if mode is not None:
             TaskController(self.sessions).select_mode(context, mode)
+        if self.mcp_servers:
+            self._mcp_catalog(context).connect_background()
         return {"session_id": str(context.session_id), "label": label,
                 "mode": mode or "plan",
                 "model": model if model is not None else (catalog.default_model if catalog is not None else None)}
@@ -306,7 +338,9 @@ class HarnessApplication:
             "model": self.model_status(context),
             "pending_input": self.sessions.extension(context, "pending_input", None),
             "error": self._errors.get(str(context.session_id)), "demo": self.demo,
-            "long_memory": self.memory_status(context)}
+            "long_memory": self.memory_status(context),
+            "mcp": self._mcp_status(context),
+            "mcp_confirmations": self._mcp_pending(context)}
 
     def submit(self, session_id, text, *, public_goals=None, proposal_id=None):
         context = self.context(session_id)
@@ -592,8 +626,9 @@ class HarnessApplication:
                 "需符合各 worker 的 verification，可能返回 partial / failed / cancelled。",
                 _DelegateTask, delegate_task))
         if mcp_catalog is not None:
+            from min_agent.mcp.confirm import MCPConfirmations
             from min_agent.mcp.tools import register_mcp_tools
-            register_mcp_tools(registry, mcp_catalog)
+            register_mcp_tools(registry, mcp_catalog, MCPConfirmations(self.sessions, context))
         return registry
 
     def _worker(self, context, text=None, checkpoint_id=None, resume_task_id=None):

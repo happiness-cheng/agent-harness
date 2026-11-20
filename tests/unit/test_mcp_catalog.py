@@ -1,13 +1,15 @@
-"""MCP 目录与 ToolRegistry 的合并契约：连接前不泄露工具、连接后可用。"""
+"""MCP 目录契约：后台连接、prompt_only 披露、调用时校验、confirm 无入口即拒绝。"""
 
 import json
 import sys
+import time
 from pathlib import Path
 
 import pytest
 
 from min_agent.contracts.models import ToolCall
-from min_agent.mcp.catalog import MCPServerCatalog
+from min_agent.ledger.resource_budget import estimate_tokens
+from min_agent.mcp.catalog import MCP_SECTION_TOKEN_LIMIT, MCPServerCatalog
 from min_agent.mcp.client import MCPError
 from min_agent.mcp.spec import MCPServerSpec
 from min_agent.mcp.tools import register_mcp_tools
@@ -23,11 +25,49 @@ def fake_spec(**overrides):
     return MCPServerSpec(**payload)
 
 
-def catalog_with(*specs):
-    return MCPServerCatalog(tuple(specs))
+def catalog_with(*specs, **kwargs):
+    return MCPServerCatalog(tuple(specs), **kwargs)
 
 
-def test_before_connect_only_meta_tool_is_exposed_after_connect_tools_merge():
+class FakeClient:
+    """不起子进程的假客户端；用于状态机与提示词上限测试。"""
+
+    def __init__(self, tools=(), *, fail=None):
+        self._tools = list(tools)
+        self._fail = fail
+        self.healthy = True
+        self.closed = False
+
+    def start(self):
+        if self._fail is not None:
+            raise self._fail
+
+    def list_tools(self):
+        return self._tools
+
+    def close(self):
+        self.closed = True
+        self.healthy = False
+
+    def call_tool(self, name, arguments):
+        return f"called:{name}"
+
+
+def fake_discovered(count, description="short"):
+    return [{"name": f"tool_{index}", "description": description,
+             "inputSchema": {"type": "object"}} for index in range(count)]
+
+
+def wait_state(catalog, name, state, timeout=5.0):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if catalog.status()[name]["state"] == state:
+            return
+        time.sleep(0.02)
+    raise AssertionError(f"{name} 未在 {timeout}s 内进入 {state}：{catalog.status()}")
+
+
+def test_prompt_only_tools_are_executable_but_absent_from_schemas():
     catalog = catalog_with(fake_spec())
     registry = ToolRegistry()
     try:
@@ -45,13 +85,12 @@ def test_before_connect_only_meta_tool_is_exposed_after_connect_tools_merge():
         assert connected["tool_count"] == 2
         assert connected["tools"] == ["mcp__fake__echo", "mcp__fake__add"]
 
-        names = [schema["name"] for schema in registry.schemas()]
-        assert names == ["connect_mcp", "mcp__fake__echo", "mcp__fake__add"]
-        echo_schema = next(schema for schema in registry.schemas()
-                           if schema["name"] == "mcp__fake__echo")
-        assert echo_schema["parameters"]["required"] == ["message"]
-        assert echo_schema["parameters"]["properties"]["message"]["type"] == "string"
-        assert echo_schema["description"].startswith("[MCP fake]")
+        # 连接后工具仍不进 tools 数组：元数据只在 SystemPrompt 段披露。
+        assert [schema["name"] for schema in registry.schemas()] == ["connect_mcp"]
+        assert registry.get("mcp__fake__echo").prompt_only is True
+        section = catalog.prompt_section()
+        assert "mcp__fake__echo" in section and "Echo the message back." in section
+        assert sys.executable not in section and str(SERVER) not in section
 
         result = registry.execute(ToolCall(id="c2", name="mcp__fake__echo",
                                            arguments={"message": "hi"}))
@@ -59,6 +98,11 @@ def test_before_connect_only_meta_tool_is_exposed_after_connect_tools_merge():
         assert registry.execute(ToolCall(id="c3", name="mcp__fake__add",
                                          arguments={"a": 2, "b": 4})) == {
             "ok": True, "result": "6"}
+
+        # 完整 schema 在调用入口校验：缺 required 参数本地拒绝，不到服务器。
+        bad = registry.execute(ToolCall(id="c4", name="mcp__fake__echo", arguments={}))
+        assert bad["ok"] is False
+        assert bad["error"]["code"] == "invalid_arguments"
     finally:
         catalog.close()
 
@@ -73,13 +117,15 @@ def test_connect_is_idempotent_and_bind_is_repeatable():
         assert first is second
         catalog.bind(registry)
         catalog.bind(registry)
-        assert len([schema for schema in registry.schemas()
-                    if schema["name"].startswith("mcp__fake__")]) == 2
+        assert [schema["name"] for schema in registry.schemas()] == ["connect_mcp"]
+        assert registry.execute(ToolCall(id="c1", name="mcp__fake__echo",
+                                         arguments={"message": "once"})) == {
+            "ok": True, "result": "echo:once"}
     finally:
         catalog.close()
 
 
-def test_confirm_policy_refuses_without_calling_server():
+def test_confirm_policy_without_session_entry_refuses_without_calling_server():
     catalog = catalog_with(fake_spec(policy="confirm"))
     registry = ToolRegistry()
     try:
@@ -87,8 +133,10 @@ def test_confirm_policy_refuses_without_calling_server():
         registry.execute(ToolCall(id="c1", name="connect_mcp", arguments={"name": "fake"}))
         result = registry.execute(ToolCall(id="c2", name="mcp__fake__echo",
                                            arguments={"message": "hi"}))
-        assert result["ok"] is True
-        assert "需要宿主确认" in result["result"]
+        assert result["ok"] is False
+        assert result["error"]["code"] == "tool_request_failed"
+        assert result["error"]["refused_by_user"] is True
+        assert "未执行" in result["error"]["message"]
     finally:
         catalog.close()
 
@@ -115,8 +163,8 @@ def test_catalog_rebinds_connected_tools_into_a_new_registry():
         register_mcp_tools(first, catalog)
         first.execute(ToolCall(id="c1", name="connect_mcp", arguments={"name": "fake"}))
         register_mcp_tools(second, catalog)
-        names = [schema["name"] for schema in second.schemas()]
-        assert names == ["connect_mcp", "mcp__fake__echo", "mcp__fake__add"]
+        # 全部已连接：新 registry 无需 connect_mcp，工具可调用但不进 schemas。
+        assert second.schemas() == []
         assert second.execute(ToolCall(id="c2", name="mcp__fake__echo",
                                        arguments={"message": "again"})) == {
             "ok": True, "result": "echo:again"}
@@ -166,5 +214,98 @@ def test_name_collision_is_rejected_before_partial_registration():
         with pytest.raises(MCPError):
             catalog.bind(registry)
         assert [schema["name"] for schema in registry.schemas()] == ["mcp__fake__echo"]
+    finally:
+        catalog.close()
+
+
+def test_background_connect_reaches_connected_and_reports_tools():
+    client = FakeClient(fake_discovered(2, description="Echo the message back."))
+    catalog = catalog_with(fake_spec(), client_factory=lambda spec: client)
+    try:
+        assert catalog.status()["fake"]["state"] == "idle"
+        catalog.connect_background()
+        catalog.connect_background()  # 重复启动不产生第二次连接
+        wait_state(catalog, "fake", "connected")
+        status = catalog.status()["fake"]
+        assert status["tools"] == ["tool_0", "tool_1"]
+        assert status["policy"] == "allow"
+        assert catalog.connected() == ("fake",)
+    finally:
+        catalog.close()
+
+
+def test_background_failure_hides_command_details_and_allows_retry():
+    attempts = []
+
+    def factory(spec):
+        attempts.append(spec.name)
+        if len(attempts) == 1:
+            raise RuntimeError(f"secret detail {spec.command}")
+        return FakeClient(fake_discovered(1))
+
+    catalog = catalog_with(fake_spec(), client_factory=factory)
+    registry = ToolRegistry()
+    try:
+        catalog.connect_background()
+        wait_state(catalog, "fake", "failed")
+        status = catalog.status()["fake"]
+        assert status["error"] == "connect_failed"
+        assert "secret" not in json.dumps(status, ensure_ascii=False)
+        # 失败后 connect_mcp 仍可重试；重试成功即转入 connected。
+        register_mcp_tools(registry, catalog)
+        outcome = registry.execute(ToolCall(id="c1", name="connect_mcp",
+                                            arguments={"name": "fake"}))
+        assert outcome["ok"] is True
+        assert catalog.status()["fake"]["state"] == "connected"
+    finally:
+        catalog.close()
+
+
+def test_background_mcp_error_message_is_kept_as_state():
+    catalog = catalog_with(
+        fake_spec(), client_factory=lambda spec: FakeClient(fail=MCPError("handshake failed")))
+    try:
+        catalog.connect_background()
+        wait_state(catalog, "fake", "failed")
+        assert catalog.status()["fake"]["error"] == "handshake failed"
+    finally:
+        catalog.close()
+
+
+def test_prompt_section_over_limit_falls_back_to_names_only():
+    tools = fake_discovered(30, description="long description word " * 25)
+    catalog = catalog_with(fake_spec(), client_factory=lambda spec: FakeClient(tools))
+    try:
+        catalog.connect("fake")
+        section = catalog.prompt_section()
+        assert estimate_tokens(section) <= MCP_SECTION_TOKEN_LIMIT
+        assert "long description word" not in section
+        for index in range(30):
+            assert f"mcp__fake__tool_{index}" in section
+    finally:
+        catalog.close()
+
+
+def test_prompt_section_names_only_over_limit_is_truncated_with_marker():
+    tools = fake_discovered(300)
+    catalog = catalog_with(fake_spec(), client_factory=lambda spec: FakeClient(tools))
+    try:
+        catalog.connect("fake")
+        section = catalog.prompt_section()
+        assert estimate_tokens(section) <= MCP_SECTION_TOKEN_LIMIT
+        assert "（清单超长，已截断）" in section
+        assert "mcp__fake__tool_0" in section
+        assert "mcp__fake__tool_299" not in section
+    finally:
+        catalog.close()
+
+
+def test_prompt_section_lists_unconnected_servers_for_retry():
+    catalog = catalog_with(fake_spec())
+    try:
+        section = catalog.prompt_section()
+        assert "fake" in section and "Fake MCP server for tests." in section
+        assert "connect_mcp" in section
+        assert sys.executable not in section
     finally:
         catalog.close()

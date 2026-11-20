@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 import json
 import secrets
+from typing import Literal
 from uuid import UUID
 
 from fastapi import FastAPI, Request, BackgroundTasks
@@ -56,6 +57,12 @@ class Shutdown(_Request):
 class Confirm(_Request):
     proposal_id: str
     continue_task: bool = False
+
+
+class MCPConfirm(_Request):
+    pending_id: str
+    decision: Literal["approve", "refuse"]
+    continue_task: bool = True
 
 
 class Resume(_Request):
@@ -192,6 +199,11 @@ def create_app(harness, *, identity=None):
             harness.resume(session_id, task_id=str(saved.task.task_id) if saved.task else None,
                            text="用户已定向确认当前提案，按模式与范围继续；保留先前结果。")
         return {"confirmed": True}
+    @app.post("/api/sessions/{session_id}/mcp-confirm")
+    def mcp_confirm(session_id: UUID, body: MCPConfirm):
+        record = harness.mcp_confirm(session_id, body.pending_id, body.decision,
+                                     continue_task=body.continue_task)
+        return {"decided": True, "pending_id": record["pending_id"], "status": record["status"]}
     @app.post("/api/sessions/{session_id}/resume", status_code=202)
     def resume(session_id: UUID, body: Resume):
         harness.resume(session_id, **body.model_dump()); return {"resuming": True}

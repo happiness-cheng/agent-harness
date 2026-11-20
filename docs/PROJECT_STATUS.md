@@ -2,7 +2,7 @@
 
 > **交付规则（AEF-003 第 11 行 + AEF-004 第 12 行，2026-11-14 定稿）**：每次交付必须附核心文件路径、四件事代码讲解与「长度按需、但必须能独立看懂」的关键片段（带文件与行号）；**片段之后还要逐行/分块讲解参数、每步动作、为什么这样写、明确不保证什么**。详见 [AGENTS.md](../AGENTS.md) 第 11–12 行。
 
-## 2026-11-20 最新续接：六任务接线改造批次（WIRING-000/001，进行中）
+## 2026-11-20 最新续接：六任务接线改造批次（WIRING-000/001/002，进行中）
 
 用户六任务清单（任务 0 基线 / 1 Skill 三层披露 / 2 MCP 后台连接+confirm 真排队 / 3 长期记忆+多 Agent / 4 删死代码 / 5 门禁+文档+PR），工作分支 `review/20261120-wiring-fix`，逐任务停下等确认；推远端与开 PR 在清单收尾执行，不直接合 main、不强推。
 
@@ -10,8 +10,14 @@
 - **任务 1（WIRING-001）COMPLETED**：Skill 三层披露——① `SkillCatalog` 支持目录型 `<name>/SKILL.md` + 子文档白名单（拒绝符号链接/越界/绝对路径）；② 默认路径 SystemPrompt 常开技能清单段（name + description **首句**，600 token 上限，超限降级只放名字再截断）；③ `read_skill(name, path?)` 按需读全文与子文档；④ 新增 3 个真 skill（code-entry-first / criteria-before-tests / evidence-before-compaction，description 含何时用/何时不用+反例）；⑤ trace_runs 记录追加 `prompt_sections`（段 sha256 + skill 数，TraceEvent 契约未动）。
 - **验证**：新增 18 例全过；全量 **2009 passed / 5 deselected / 0 failed / 268.28s**（= 1991 + 18）；live（本机 Ollama qwen3.5:4b，真实服务 2 输入内）**PASS**——清单段 sha256 一致、真实模型主动调 read_skill（completed/returned）、全文进工具消息、回答引用技能步骤。
 - **过程缺陷（如实）**：首版清单放整段 description，挤占 num_ctx=8192 小窗口的恢复余量，既有验收用例 `test_ollama_runtime` 恢复失败（21748 > 21504 字节）；按 D7 改首句清单后通过，未改 skill 以外压缩逻辑、未放宽既有判据。live 脚本两处缺陷（cookie、跨 run trace 聚合）已修，产品行为正确。
-- **边界**：live 只证明「清单可见 + 真实模型读全文」单链路，不构成成功率统计；子文档 live 读取未单独构造（离线集成覆盖）；任务 2–5 未开始。
-- [决策](engineering-log/DECISION_LOG.md)（WIRING-001 D1–D7）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md)；本地证据 `reports/wiring-20261120/`（gitignored）。
+- **任务 2（WIRING-002）COMPLETED**：
+  - **后台连接**：`create_session` 且配置了 MCP 时启动 `connect_background()`（daemon 线程逐个连接），状态 `idle→connecting→connected/failed`，不阻塞建会话；失败只记固定码或 `MCPError` 文本，不回显 command/args/env；`connect_mcp` 保留为「未连接/失败」服务器的手动重试入口。
+  - **元数据披露**：连接后工具以 `prompt_only=True` 注册——可 `execute`、不进模型 tools 数组；SystemPrompt MCP 段只列 `mcp__server__tool：description`（600 token 上限，超限先降级只放名字、再截断并标注）；完整 schema 在连接时随 `list_tools` 保存、在 `registry.execute` 入口按 required/简单类型校验，缺参不到服务器。
+  - **confirm 真排队**：首次调用登记 pending（会话扩展 `mcp_confirmations`，重启后仍在）并挂起 `waiting_user`；`POST /api/sessions/{id}/mcp-confirm` 批准 → 同签名原子消费并定向 resume 执行回填；拒绝 → `ToolRefusedError` → `ok:false` + `refused_by_user=True`，不再包成 `ok:true`；legacy 任务面板加待确认卡片（批准/拒绝按钮）。
+  - **验证**：目标用例 **28 passed**；全量 **2026 passed / 6 deselected / 0 failed / 215.69s**（= 任务 1 的 2009 + 新增 17；deselected 5→6 因 `test_mcp_live.py` 由 1 例拆成 2 例）；`tests/live/test_mcp_live.py -m live` **2 passed / 101.95s**（真实 `server-everything`）；真实模型（本机 qwen3.5:4b）验证脚本 **PASS**——后台连接、echo 回填、confirm 挂起→批准执行、拒绝未执行均留 trace。拒绝后模型未重发同一调用，`ok:false` 由离线用例覆盖（证据差异，非产品缺陷）。
+  - **边界**：/legacy 确认按钮未做浏览器点击人工验证；DSH 默认外壳无任何确认 UI（既有缺口，不扩范围）；后台连接失败不自动重试；prompt-only 工具调用只验证 qwen3.5:4b；MCP 工具不单独计预算。
+- **边界**：live 只证明「清单可见 + 真实模型读全文」「MCP 后台连接 + 排队确认」单链路，不构成成功率统计；子文档 live 读取未单独构造（离线集成覆盖）；任务 3–5 未开始。
+- [决策](engineering-log/DECISION_LOG.md)（WIRING-001 D1–D7、WIRING-002 D1–D7）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md)；本地证据 `reports/wiring-20261120/`（gitignored）。
 
 ## 2026-11-20 外部审查 4 项修复（REVIEW-FIX-001）
 

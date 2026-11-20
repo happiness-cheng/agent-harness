@@ -14,6 +14,10 @@ class InvalidToolResultError(TypeError):
     """handler 已返回，但结果不符合当前文本契约。"""
 
 
+class ToolRefusedError(Exception):
+    """用户或宿主明确拒绝本次调用；未执行，结果必须是 ok:false。"""
+
+
 def _request_error(code: str, message: str, **details: object) -> dict[str, object]:
     return {
         "ok": False,
@@ -35,10 +39,13 @@ class ToolDefinition:
     handler: Callable[..., object]
     managed_execution: bool = False
     raw_schema: dict[str, object] | None = None
+    prompt_only: bool = False
 
     def __post_init__(self) -> None:
         if type(self.managed_execution) is not bool:
             raise TypeError("managed_execution 必须是bool")
+        if type(self.prompt_only) is not bool:
+            raise TypeError("prompt_only 必须是bool")
         if self.raw_schema is not None:
             if not isinstance(self.raw_schema, dict):
                 raise TypeError("raw_schema 必须是字典")
@@ -145,7 +152,13 @@ class ToolRegistry:
                 "invalid_arguments", "参数校验失败，请按 Schema 修正。",
                 issues=issues, expected_schema=tool.parameters.model_json_schema(),
             )
-        output = tool.handler(**arguments.model_dump())
+        try:
+            output = tool.handler(**arguments.model_dump())
+        except ToolRefusedError as error:
+            return _request_error(
+                "tool_request_failed", str(error),
+                refused_by_user=True, recovery="do_not_retry_refused_call",
+            )
         if not isinstance(output, str):
             raise InvalidToolResultError("工具结果必须是字符串")
         return {"ok": True, "result": output}
@@ -160,5 +173,5 @@ class ToolRegistry:
                     else tool.parameters.model_json_schema()
                 ),
             }
-            for tool in self._tools.values()
+            for tool in self._tools.values() if not tool.prompt_only
         ]

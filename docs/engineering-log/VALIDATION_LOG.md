@@ -1634,3 +1634,23 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 **未运行**：真实模型 live 的子文档路径读取（离线集成已覆盖）；外部付费模型；浏览器 UI；`tests/live/`（5 例仍 deselected，任务 2/3 按需启用）。
 
 **边界**：离线测试证明契约与默认路径接线；live 单会话 2 输入证明「清单段可见 + 真实模型主动 read_skill 读全文」这一条链路，不构成成功率统计；首句清单对小窗口恢复余量的改善以该验收用例为准，不证明所有小窗口配置。
+
+## WIRING-002 · 2026-11-20 · Phase: MCP（后台连接 + 元数据披露 + confirm 真排队）
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / `.venv`；分支 `review/20261120-wiring-fix`，代码基线 `6e686cb`（WIRING-001）+ 本任务未提交改动；真实 MCP 为 `@modelcontextprotocol/server-everything`（`npx -y`，本机 Node）；真实模型为本机 Ollama `qwen3.5:4b`（127.0.0.1:11434，num_ctx=32768）；0 次外部付费调用。证据目录 `reports/wiring-20261120/`（gitignored）。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 目标单元/集成 | `pytest tests/unit/test_mcp_confirm.py tests/unit/test_mcp_catalog.py tests/integration/test_mcp_application.py tests/integration/test_mcp_runtime.py` | **28 passed / 6.86s**：排队去重与一次性消费、跨会话隔离、后台连接状态机、失败不泄露命令、MCP 段只含 name+description 且不含解释器路径/命令、超限降级名字/截断、prompt_only 不进 schemas 但可执行、缺参本地 `invalid_arguments`、confirm 挂起→批准回填→拒绝 `ok:false`、web 端点 CSRF/非法 decision |
+| 全量离线 | `pytest --junitxml reports/wiring-20261120/full-after-task2.xml -q` | **2026 passed / 6 deselected / 0 failed / 0 skipped / 1 warning / 215.69s（exit 0）**；JUnit 核对 tests=2026 failures=0 errors=0 skipped=0；= 任务 1 的 2009 + 新增 17（catalog +6、confirm +8、application +3）；deselected 5→6 是 `tests/live/test_mcp_live.py` 由 1 例拆成 2 例真实服务器用例 |
+| live 真实 MCP（ScriptedModel，无真实模型） | `MCP_LIVE_CONFIG=reports/wiring-20261120/mcp-live-config.json pytest tests/live/test_mcp_live.py -m live -q` | **2 passed / 101.95s**：① 会话创建后后台连上 everything，工具不进 tools 数组、名字+说明进 SystemPrompt，`echo` 真实回填；② confirm 策略首次调用挂起 `waiting_user`、pending 落库且未执行，`mcp_confirm(approve)` 后恢复执行并回填，pending 清空 |
+| live 真实模型（本机 Ollama） | `reports/wiring-20261120/mcp_live_verify.py` → `mcp-live-evidence.json` | **PASS**：`background_connected` 两个服务器均 connected；allow 组真实模型调用 `mcp__everything__echo`，结果 `hello-mcp-live` 回填、trace completed；confirm 组首次调用挂起 `waiting_user`、pending 记录、批准前未执行，批准后同一调用执行并回填、批准已消费；拒绝组 API 返回 `refused`、pending 记录、未执行；`prompt_sections.mcp` 存在。证据生成于 15:54:49，产品源码 mtime 均早于该时间（catalog 15:47、application 15:28），本轮未重跑真实模型以省本地推理，复用该证据 |
+
+**失败与修复（如实）**：
+1. 本轮离线目标用例、全量、`tests/live` 均无失败（0 failed / 0 error）。
+2. 真实模型证据中 `refuse_ok_false_on_retry=false`：拒绝后模型只回文字、未重发同一调用，因此没产生「重发收到 ok:false」的运行时样本，验证脚本也未把该项计入 PASS 判据。拒绝的 `ok:false` 契约由离线用例 `test_confirm_policy_refusal_returns_explicit_error_not_ok`（断言 `refused_by_user=True`、`code=tool_request_failed`、无 echo 结果）与 `test_confirm_policy_without_session_entry_refuses_without_calling_server` 覆盖；**这是证据类型差异，不是产品缺陷，也不据此声称真实模型一定重试**。
+3. 真实模型首跑曾在 Plan 模式下拒绝发起 confirm 调用（只回文字），按 DECISION_LOG D7 在 MCP 段加「与工作模式无关」脚注后重跑通过；该失败证据见 DECISION_LOG WIRING-002 D7，不追溯改写。
+
+**未运行**：/legacy 确认按钮的浏览器点击（只做 API + DOM 接线）；DSH 默认外壳确认 UI（不存在，既有缺口）；其他模型/付费模型；后台连接失败后的自动重试；同任务服务器崩溃热重连。
+
+**边界**：`tests/live` 两条用 ScriptedModel，只证明真实服务器协议与排队路径，不证明模型自然语言行为；真实模型 1 个会话、3 次输入，不构成成功率统计；prompt-only 工具调用只验证 qwen3.5:4b；confirm 绑定「工具名 + 参数」签名，参数不同即新排队（刻意行为）；`prompt_sections.mcp` 的 sha 是 run 结束后按当时段内容计算的，运行期间后台连接完成会使该段在轮次间变化，sha 反映末次内容。
