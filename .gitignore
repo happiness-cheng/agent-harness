@@ -31,3 +31,12 @@ agent-harness-credentials.json
 
 # 文件工具内部目录（写锁与回收站）
 .adrian/
+
+# 本机私有材料与工具目录，不进入公开仓库
+/.dsh-acl-report/
+/.workbuddy-ai/
+/.workbuddy/
+/docs/career-positioning-2026-11-05/
+/docs/interview-2026-11-15/
+/docs/interview-2026-11-21/
+/docs/tech-audit-2026-11-05/
