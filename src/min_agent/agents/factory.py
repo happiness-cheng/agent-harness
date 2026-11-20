@@ -9,8 +9,9 @@ session / budget / 工具白名单。工厂本身不注册工具，注册仍由
 
 * 不新建会话控制循环，不读写 ``SessionEvents`` 的 steer/stop；
 * 不调用外部网络，不做模型选择——``model`` 由每次运行的 ``raw_model`` 传入；
-* 不保证子 Agent 的语义正确：文本 worker 只做格式标记校验，计算 worker 只
-  认可宿主生成的 ``calculator`` 工具回执（``semantic_review`` 恒为 UNKNOWN）。
+* **不保证子 Agent 的结论正确**：calculator worker 的 PASS 只证明宿主收到了
+  ``calculator`` 工具回执且结果结构合法，不核对回执数值与摘要是否一致
+  （``semantic_review`` 恒为 UNKNOWN）；不能把 PASS 当作算术正确性证明。
 """
 
 from __future__ import annotations

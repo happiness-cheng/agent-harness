@@ -34,22 +34,17 @@ flowchart LR
 
 PowerShell，项目根目录，使用装有项目依赖的Python；本机是D:\python.exe：
 
-```powershell
-$env:PYTHONPATH='src;.'
-# 默认离线：健康基线不会假造失败来触发更新。
-D:\python.exe -X utf8 -m min_agent.evaluation.evolution_cli init --out reports/my-evolution
-D:\python.exe -X utf8 -m min_agent.evaluation.evolution_cli run --state reports/my-evolution/state.json
-D:\python.exe -X utf8 -m min_agent.evaluation.evolution_cli status --state reports/my-evolution/state.json
+```text
+# 已删除，不可运行：min_agent.evaluation.evolution_cli init/run/status
+# 入口已在 WIRING-004 删除；原始命令见 Git 历史。
 ```
 
 离线有故障副本可用`init --source 副本路径`，`run --candidates 候选数组.json`重放受限候选。此类结果标为SUPPLIED_CANDIDATE_REPLAY，只证明机制，不能声称模型自主生成。
 
 真实批次需要明确授权及显式配置。以下是一次50请求槽位/$1计划的配置示例；同一授权不重复建新计划重置额度：
 
-```powershell
-D:\python.exe -X utf8 -m min_agent.evaluation.evolution_cli init --out reports/my-live-evolution --live --request-ceiling 50 --cost-limit 1 --seconds 900
-$credentialPath=Join-Path $env:USERPROFILE 'agent-harness-credentials.json'
-D:\python.exe -X utf8 -m min_agent.evaluation.evolution_cli run --state reports/my-live-evolution/state.json --live --credentials $credentialPath --proxy http://127.0.0.1:7890
+```text
+# 已删除，不可运行：evolution_cli init/run（live）
 ```
 
 候选生成只接收计算器相关源码、合成开发失败的结果与工具调用；不会收到保留任务/答案/得分或凭据。接受的版本保存在versions/candidate-N中，生产目录不改。
@@ -60,8 +55,8 @@ D:\python.exe -X utf8 -m min_agent.evaluation.evolution_cli run --state reports/
 
 回到已有实验版本：
 
-```powershell
-D:\python.exe -X utf8 -m min_agent.evaluation.evolution_cli rollback --state reports/my-evolution/state.json --version baseline
+```text
+# 已删除，不可运行：evolution_cli rollback
 ```
 
 只改变实验版本指针和追加回滚事件，不删除历史、不重置预算、不回滚真实业务数据。未知active操作或被改动的来源拒绝自动回滚。回滚后计划停止；继续新的研究需明确新任务和资源边界。

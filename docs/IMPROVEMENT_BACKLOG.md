@@ -101,6 +101,42 @@
 - **边界/重开第一步**：并发旧会话可保守拒绝；无任意多实例租约、未证明语义/模型收益。若实际使用出现新反例，先按[阶段记录](phase-records/2026-10-31-system-opt.md)冻结输入，不重开无关工具重构。
 - **回滚/证据**：reports/system-opt-20261031/implementation.patch及该目录原始前后日志；不要整文件git restore。
 
+## WIRING-006：进程回收与端口 TIME_WAIT（F1，2026-11-20 审查提出）
+
+- **状态/优先级**：OPEN / MEDIUM；不阻塞 PR #4 功能，但外部审查在 Linux 复跑全量时 7 个失败中 4 个与它相关。
+- **现状及影响**：`evaluation.processes.stop_owned` 只停直接子进程、不等后代真正退出；`web.launcher.port_available` 只探测端口占用，未用 `SO_REUSEADDR` 区分 TIME_WAIT 与真实占用。快速重启/并发测试可能误判端口被占或残留后代。
+- **当时取舍**：PR #4 聚焦接线与授权语义，进程/端口属于测试稳定性债务，未在修复提交中扩大。
+- **重开触发/第一步**：复现 4 个相关失败之一，或 Windows/Linux 上出现真实重启失败；先写最小复现，再改 `stop_owned` 等待后代退出、给端口探测加可复用检查。
+- **验收/证据**：失败用例转绿，且不降低现有进程所有权/取消语义；证据进 VALIDATION_LOG 新 Task ID。
+
+## WIRING-007：根预算与委派预算零余量（F2，2026-11-20 审查提出）
+
+- **状态/优先级**：OPEN / MEDIUM；当前能跑，但余量为 0。
+- **现状及影响**：3 子任务时根契约 14 = 计划 1 + 汇总 1 + 3×4 worker；工具 9 = 3×3，均恰好顶满；`delegate_model_calls=16` 实际不可达（根上限 14），2 次额度是死 headroom。给 manager 加一次调用就会重现 `budget_rejected` 旧故障。
+- **当时取舍**：修复目标是让 2–3 子任务真实跑通，不额外放宽预算；先用推导公式消除误拒。
+- **重开触发/第一步**：新增 manager 轮次、增加 worker 重试或第 4 个子任务前，先重新算最坏额度；考虑把 `delegate_model_calls` 与根契约统一成一个配置源，避免两套数字。
+- **验收/证据**：预算不足时仍明确 partial；成功路径不依赖「恰好顶满」；补一个 4 子任务或 manager 多轮的预算测试。
+
+## WIRING-008：memory_fixture 迁移非逐字搬移（F3，2026-11-20 备注）
+
+- **状态**：NOTE / CLOSED_WITH_DELETION。
+- **说明**：`tests/fakes/memory_fixture.py` 的 `build_approved_fixture` 去掉了 `probe=False, budget=2048`，返回 dict 从 9 个键缩为 3 个；`evaluate_case`、`inspect_private_corpus` 与 `test_adrian_memory_eval.py` 的 3 个用例随 `long_memory/evaluation.py` 同删，无替代。delivery 测试仍按原断言通过。
+- **重开触发/第一步**：若将来恢复记忆评测，先重建完整 fixture 与 3 个评测用例，不要从缩水版静默推断原覆盖。
+
+## WIRING-009：网页长期记忆默认 active（D1，待用户确认）
+
+- **状态/优先级**：PENDING_USER_CONFIRMATION；功能上无越权，但属于默认面扩大。
+- **现状**：`web/__main__.py` 的 `mode = options.memory_mode or 'active'`（旧行为：非 Adrian 默认 legacy）；legacy 模式也会自动提议候选（`_auto_propose_memory` 只拦 off）。
+- **待确认**：是否接受「所有网页服务默认 active、候选自动提出但确认前不入库」；若不接受，改回按 provider/显式开关选择。
+- **验收/证据**：用户书面确认后才在 PROJECT_STATUS 标 COMPLETED；未确认前保持 PENDING。
+
+## WIRING-010：默认启动脚本开启多 Agent（D2，待用户确认）
+
+- **状态/优先级**：PENDING_USER_CONFIRMATION；功能上无越权，但属于默认面扩大。
+- **现状**：`scripts/start-adrian.cmd`、`scripts/start-qianwen.ps1` 默认加 `--multi-agent`；构造器仍默认关闭。
+- **待确认**：是否接受默认服务脚本开启委派；若不接受，去掉脚本参数、保留显式 `--multi-agent`。
+- **验收/证据**：用户书面确认后才在 PROJECT_STATUS 标 COMPLETED；未确认前保持 PENDING。
+
 ## 新整改项最小格式
 
 `ID / 状态与优先级 / 现状及影响 / 当时取舍原因 / 重开触发条件 / 第一项最小工作 / 验收及证据入口`。

@@ -44,19 +44,10 @@ Codex每次启动前扣调用次数，失败/超时也不退回次数；不假�
 
 先看 `docs/examples/night-jobs.json` 与 `night-job.schema.json`。默认示例包括：真实项目计算器回归（不用模型）、公开代码分析草案（语义待人工审查）、隔离计算器受控修复演示（Codex）、一个必须挂起的部署任务。通用任意代码实现仍不自动开放。
 
-```powershell
-$env:PYTHONPATH='src'
-# 零真实模型调用的10小时模拟，含真实Harness/SQLite/Verifier
-.\.venv\Scripts\python.exe -X utf8 -m min_agent.evaluation.night_cli demo --out reports/my-night-demo
-# 初始化新的夜间计划；真实模型预算默认0，此例明确配置
-.\.venv\Scripts\python.exe -X utf8 -m min_agent.evaluation.night_cli init --queue reports/my-night/queue.json --jobs docs/examples/night-jobs.json --hours 10 --deepseek-budget 1 --codex-calls 2 --reserve 0.2
-# 仅执行无需模型的任务，其余安全阻塞
-.\.venv\Scripts\python.exe -X utf8 -m min_agent.evaluation.night_cli run --queue reports/my-night/queue.json
-# 明确开始真实夜间工作；需要保持窗口和电脑运行，不自动设置开机/定时启动
-$credentialsFile=Join-Path $env:USERPROFILE 'agent-harness-credentials.json'
-.\.venv\Scripts\python.exe -X utf8 -m min_agent.evaluation.night_cli run --queue reports/my-night/queue.json --wait --live --credentials $credentialsFile --proxy http://127.0.0.1:7890
-# 早晨查看/重新生成报告
-.\.venv\Scripts\python.exe -X utf8 -m min_agent.evaluation.night_cli report --queue reports/my-night/queue.json
+以下为**历史示例**：`min_agent.evaluation.night_cli` 与 `scripts/night-adrian.cmd` 已在 WIRING-004 删除，命令不可运行；保留在 Git 历史。
+
+```text
+# 已删除，不可运行：night_cli demo/init/run/report 与 scripts/night-adrian.cmd
 ```
 
 报告默认在队列同目录的`morning-report.md`，每项都指向尝试目录和结果证据。`--wait`空闲时仅等待，不调用模型；不加时处理现有可执行任务后退出。停止可Ctrl+C；重启用同一queue文件，不能用新计划冒充恢复或重置预算。遗留RUNNING不自动重放；先核对保留的结果，人工决定后再创建/调整下一步任务。

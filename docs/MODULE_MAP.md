@@ -21,7 +21,7 @@
 | `research/` | 研究服务与观察投影 | `ResearchService`、`ResearchObservationStore` |
 | `mcp/` | MCP 服务器配置、stdio JSON-RPC 客户端、按需连接与工具并入 | `MCPServerCatalog`、`StdioMCPClient`、`connect_mcp`、`register_mcp_tools` |
 | `notify/` | 通知、桌面通知与定时调度 | `Notifications`、`Scheduler`、`DesktopChannel` |
-| `activity/` | Windows 活动采集：身份、存储、变更与记忆适配 | `scan`、`M1Store`、`M2Store`、`MemoryAdapter` |
+| `activity/`（**WIRING-004 已删除**） | 历史：Windows 活动采集：身份、存储、变更与记忆适配 | 已删除，命令不再可用 |
 | `tools/` `llm/` `web/` `evaluation/` `long_memory/` | 既有子包，本次未重排 | 工具、模型适配器、Web 入口、评测、长期记忆 |
 
 ## `runtime/` 内部结构（RUNTIME-SLIM-001）
@@ -56,7 +56,7 @@
 - `manager` → `agents.manager`；`multi_agent_service` → `agents.multi_agent_service`；`agent_messages` → `agents.agent_messages`；`context_policy` → `agents.context_policy`；`subagent` → `agents.subagent`；`subagent_review` → `agents.subagent_review`；`subagent_state` → `agents.subagent_state`；`subagent_collab` → `agents.subagent_collab`；`parallel` → `agents.parallel`；`task_graph` → `agents.task_graph`
 - `research` → `research.service`；`research_observation` → `research.observation`
 - `notifications` → `notify.notifications`；`desktop_notifications` → `notify.desktop_notifications`；`scheduler` → `notify.scheduler`
-- `activity_identity` → `activity.identity`；`activity_records` → `activity.records`；`activity_store` → `activity.store`；`activity_m2` → `activity.m2`；`activity_m3` → `activity.m3`；`activity_changes` → `activity.changes`；`activity_reader` → `activity.reader`；`activity_connector` → `activity.connector`；`activity_memory_adapter` → `activity.memory_adapter`
+- `activity_identity` → `activity.identity`；`activity_records` → `activity.records`；`activity_store` → `activity.store`；`activity_m2` → `activity.m2`；`activity_m3` → `activity.m3`；`activity_changes` → `activity.changes`；`activity_reader` → `activity.reader`；`activity_connector` → `activity.connector`；`activity_memory_adapter` → `activity.memory_adapter`（**WIRING-004 已删除整个 `activity/` 包，以上仅历史映射**）
 
 唯一保留的兼容门面是 `min_agent.runtime`：`from min_agent.runtime import Runtime, RunResult, Model` 仍可用，
 其余子包 `__init__.py` 只放一句话说明、不导入子模块（避免包级循环导入）。
@@ -64,6 +64,6 @@
 ## 对外可见变化
 
 - `python -m min_agent.activity_connector` / `-m min_agent.activity_memory_adapter`
-  → `python -m min_agent.activity.connector` / `-m min_agent.activity.memory_adapter`（**WIRING-004 已删除 `activity/` 包**，此处仅保留历史路径说明）。
+  → `python -m min_agent.activity.connector` / `-m min_agent.activity.memory_adapter`（**WIRING-004 已删除 `activity/` 包**，以上入口均不可用，仅历史说明）。
 - `min_agent.web`、`min_agent.evaluation`、`min_agent.application` 等入口路径不变。
 - 新增可选 `--mcp-config path.json`（MCP-001）；不提供时不启动任何 MCP 子进程，默认行为不变。

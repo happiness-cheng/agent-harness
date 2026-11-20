@@ -12,9 +12,10 @@ from pydantic import BaseModel, ConfigDict, Field, create_model
 
 from min_agent.mcp.catalog import MCPConnection, MCPTool
 from min_agent.mcp.client import MCPError
+from min_agent.mcp.confirm import ConfirmationBacklogError
 from min_agent.mcp.spec import prefixed_tool_name
 from min_agent.session.task_state import AuthorizationRequired
-from min_agent.tools.registry import ToolRefusedError
+from min_agent.tools.registry import ToolExecutionFailedError, ToolRefusedError
 
 
 class _MCPArguments(BaseModel):
@@ -34,22 +35,34 @@ def build_mcp_tool(connection: MCPConnection, tool: MCPTool, confirmations=None)
         if connection.spec.policy == "confirm":
             if confirmations is None:
                 raise ToolRefusedError(
-                    f"MCP 工具 {tool.name} 为 confirm 策略，但当前没有会话确认入口；未执行。")
-            decision = confirmations.check_and_consume(name, arguments)
+                    f"MCP 工具 {tool.name} 为 confirm 策略，但当前没有会话确认入口；未执行。",
+                    reason="confirmation_unavailable")
+            try:
+                decision = confirmations.check_and_consume(name, arguments)
+            except PermissionError as error:
+                raise ToolRefusedError(str(error), reason="confirmation_unavailable")
+            except ConfirmationBacklogError as error:
+                raise ToolRefusedError(str(error), reason="backlog_full")
             if decision == "refused":
                 raise ToolRefusedError(
-                    f"用户已拒绝 MCP 调用 {tool.name}；未执行，不要重试同一调用。")
+                    f"用户已拒绝 MCP 调用 {tool.name}；未执行，不要重试同一调用。",
+                    reason="user_refused")
             if decision == "consumed":
                 raise ToolRefusedError(
-                    f"MCP 调用 {tool.name} 的批准已消费（此前已执行）；不要重复执行。")
+                    f"MCP 调用 {tool.name} 的批准已消费（此前已执行）；不要重复执行。",
+                    reason="already_consumed")
             if decision != "approved":
-                confirmations.request(server=connection.spec.name, tool=tool.name,
-                                      prefixed=name, arguments=arguments)
+                try:
+                    confirmations.request(server=connection.spec.name, tool=tool.name,
+                                          prefixed=name, arguments=arguments)
+                except ConfirmationBacklogError as error:
+                    raise ToolRefusedError(str(error), reason="backlog_full")
                 raise AuthorizationRequired("waiting_user")
         try:
             return connection.client.call_tool(tool.name, arguments)
         except MCPError as error:
-            return f"MCP error: {error}"
+            # 服务器报错必须走 ok:false，不能包成成功文本让模型自己猜。
+            raise ToolExecutionFailedError(f"MCP 工具调用失败：{error}") from error
 
     return ToolDefinition(
         name=name,

@@ -5,7 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from min_agent.mcp.client import MCPError, MCPProtocolVersionError, StdioMCPClient
+from min_agent.mcp.client import (
+    MCPError, MCPProtocolVersionError, MCPToolError, StdioMCPClient,
+)
 from min_agent.mcp.spec import MCPServerSpec
 
 SERVER = Path(__file__).resolve().parents[1] / "fakes" / "mcp_server.py"
@@ -28,6 +30,16 @@ def test_client_initializes_discovers_and_calls_tools():
         assert tools[0]["inputSchema"]["required"] == ["message"]
         assert client.call_tool("echo", {"message": "hello"}) == "echo:hello"
         assert client.call_tool("add", {"a": 2, "b": 3}) == "5"
+    finally:
+        client.close()
+
+
+def test_client_raises_tool_error_for_server_is_error_result():
+    client = StdioMCPClient(fake_spec())
+    try:
+        client.start()
+        with pytest.raises(MCPToolError):
+            client.call_tool("unknown-tool", {})
     finally:
         client.close()
 

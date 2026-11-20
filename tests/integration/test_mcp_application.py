@@ -167,3 +167,54 @@ def test_web_mcp_confirm_endpoint_requires_csrf_and_approves_pending(tmp_path):
     assert any("echo:hello" in message["content"]
                for message in saved["messages"] if message["role"] == "tool")
     assert saved["mcp_confirmations"] == []
+
+
+def test_restarting_app_reconnects_existing_session_on_snapshot(tmp_path):
+    path = tmp_path / "restart.sqlite3"
+    first = HarnessApplication(path, memory_mode="off", mcp_servers=(fake_spec(),))
+    try:
+        identity = first.create_session()["session_id"]
+        wait_connected(first, identity)
+    finally:
+        first.close()
+
+    second = HarnessApplication(path, memory_mode="off", mcp_servers=(fake_spec(),))
+    try:
+        # 重启后第一次打开已有会话：快照本身应触发后台重连。
+        assert second.snapshot(identity)["mcp"]["fake"]["state"] in {
+            "connecting", "connected", "idle"}
+        wait_connected(second, identity)
+        assert second.snapshot(identity)["mcp"]["fake"]["state"] == "connected"
+    finally:
+        second.close()
+
+
+def test_same_signature_in_a_new_task_requires_fresh_confirmation(tmp_path):
+    model = ScriptedModel([
+        echo_call("c1"), echo_call("c2"), ModelResponse(finish_reason="stop", content="第一轮完成"),
+        echo_call("c3"), echo_call("c4"), ModelResponse(finish_reason="stop", content="第二轮完成"),
+    ])
+    app = HarnessApplication(tmp_path / "mcp-tasks.sqlite3", model=model,
+                             memory_mode="off", mcp_servers=(fake_spec(policy="confirm"),))
+    try:
+        identity = app.create_session()["session_id"]
+        wait_connected(app, identity)
+        app.submit(identity, "第一轮：回显 hello")
+        app.wait(identity, timeout=30)
+        first = app.snapshot(identity)
+        assert first["task"]["status"] == "waiting_user"
+        app.mcp_confirm(identity, first["mcp_confirmations"][0]["pending_id"], "approve")
+        app.wait(identity, timeout=30)
+        assert app.snapshot(identity)["task"]["status"] == "completed"
+
+        # 新任务里的同签名调用不能复用上一任务的批准，必须重新挂起。
+        app.submit(identity, "第二轮：回显 hello")
+        app.wait(identity, timeout=30)
+        second = app.snapshot(identity)
+        assert second["task"]["status"] == "waiting_user"
+        assert len(second["mcp_confirmations"]) == 1
+        app.mcp_confirm(identity, second["mcp_confirmations"][0]["pending_id"], "approve")
+        app.wait(identity, timeout=30)
+        assert app.snapshot(identity)["task"]["status"] == "completed"
+    finally:
+        app.close()

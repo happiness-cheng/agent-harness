@@ -204,11 +204,16 @@ class HarnessApplication:
             if catalog is None:
                 from min_agent.mcp.catalog import MCPServerCatalog
                 catalog = MCPServerCatalog(self.mcp_servers)
+                # 同一会话首次访问（新建或重启后加载）就后台连接，不阻塞调用方。
+                catalog.connect_background()
                 self._mcp_catalogs[identity] = catalog
             return catalog
 
     def _mcp_status(self, context):
-        catalog = self._mcp_catalogs.get(str(context.session_id))
+        if not self.mcp_servers:
+            return {}
+        # 快照/打开已有会话时走 _mcp_catalog，触发重启后的后台重连。
+        catalog = self._mcp_catalog(context)
         return catalog.status() if catalog is not None else {}
 
     def _mcp_pending(self, context):
@@ -526,7 +531,7 @@ class HarnessApplication:
     # WIRING-003：会话/轮次结束时自动**提出候选**，不自动确认、不入库、不注入。
     # 只认用户消息开头的明确「记住/remember」指令；助手文字不能成为用户事实。
     _REMEMBER_DIRECTIVE = re.compile(
-        r"^\s*(?:请)?(?:记住|remember)\s*[:：]?\s*(\S[\s\S]*)$", re.IGNORECASE)
+        r"^\s*(?:请)?(?:记住|remember\b)(?:\s*[:：]\s*|\s+)(\S[\s\S]*)$", re.IGNORECASE)
 
     def _auto_propose_memory(self, context) -> int:
         """扫描上次游标之后的用户消息，把明确「记住」指令登记为待审核候选。"""
@@ -549,7 +554,7 @@ class HarnessApplication:
             if match is None:
                 continue
             content = match.group(1).strip()
-            if not content:
+            if not content or not re.search(r"[^\s:：，,。.!！?？;；、]", content):
                 continue
             try:
                 self.memory.propose(context, content, source_indices=[index])

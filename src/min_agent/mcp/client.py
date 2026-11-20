@@ -29,6 +29,10 @@ class MCPError(RuntimeError):
     """MCP 连接、协议或工具调用失败；消息只含可安全展示的诊断。"""
 
 
+class MCPToolError(MCPError):
+    """服务器明确返回 isError=true；文本是服务器给的错误说明。"""
+
+
 class MCPRequestError(MCPError):
     """服务器返回 JSON-RPC error；``rpc_code`` 用于区分版本不兼容。"""
 
@@ -237,7 +241,9 @@ class StdioMCPClient:
                 if isinstance(block, dict) and block.get("type") == "text" and isinstance(block.get("text"), str):
                     texts.append(block["text"])
         text = "\n".join(texts) if texts else json.dumps(result, ensure_ascii=False)
-        return f"MCP error: {text}" if result.get("isError") else text
+        if result.get("isError"):
+            raise MCPToolError(text)
+        return text
 
     # ---------------------------------------------------------------- internals
     def _validate_tools(self, tools: list[dict]) -> list[dict]:

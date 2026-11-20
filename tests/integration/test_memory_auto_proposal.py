@@ -133,3 +133,29 @@ def test_confirmed_memory_is_injected_into_next_real_request(tmp_path):
                    for message in saved["messages"])
     finally:
         app.close()
+
+def test_remember_regex_rejects_false_positives(tmp_path):
+    model = StopModel()
+    app = HarnessApplication(tmp_path / "mem.sqlite3", model=model, memory_mode="active")
+    try:
+        session = app.create_session(mode="build")["session_id"]
+        for text in ("记住性很好", "remembering to call", "记住：", "remember:", "记住：。"):
+            app.submit(session, text)
+            app.wait(session, timeout=30)
+            assert app.snapshot(session)["long_memory"]["candidates"] == [], text
+    finally:
+        app.close()
+
+
+def test_remember_without_colon_is_still_accepted(tmp_path):
+    app = HarnessApplication(tmp_path / "mem.sqlite3", model=StopModel(),
+                             memory_mode="active")
+    try:
+        session = app.create_session(mode="build")["session_id"]
+        app.submit(session, "记住 我的代码示例偏好是 Python 3.13")
+        app.wait(session, timeout=30)
+        candidates = app.snapshot(session)["long_memory"]["candidates"]
+        assert len(candidates) == 1
+        assert candidates[0]["content"] == "我的代码示例偏好是 Python 3.13"
+    finally:
+        app.close()

@@ -197,12 +197,16 @@ class MCPServerCatalog:
     def prompt_section(self) -> str:
         """只暴露工具 name + description；不暴露 command/args/env 与完整 schema。
 
-        超 token 上限降级为只放名字，再超按序截断并标注（与技能清单同口径）。
+        超 token 上限降级为只放名字，再超按序截断；未连接服务器清单一并计入
+        上限（追加后复核），且区分「正在连接 / 失败 / 未连接」，避免模型在
+        后台连接尚未完成时误以为必须调 connect_mcp。
         """
         with self._lock:
             available = [spec for name, spec in self._specs.items()
                          if name not in self._connections]
             connected = list(self._connections.values())
+            states = {spec.name: dict(self._state.get(spec.name, {"state": "idle"}))
+                      for spec in available}
         if not available and not connected:
             return ""
         header = "## MCP 工具（按名直接调用）"
@@ -217,12 +221,8 @@ class MCPServerCatalog:
         footer = ("参数按工具说明传入；调用时才按完整 schema 校验。"
                   "MCP 调用是否允许由宿主策略与用户确认决定，与工作模式无关，任何模式都可发起。"
                   "标记需确认的工具会挂起等待用户批准，不要重复发起同一调用。")
-        section = "\n".join([header, *lines, footer])
-        if estimate_tokens(section) <= MCP_SECTION_TOKEN_LIMIT:
-            return self._append_available(section, available)
-        names_only = "\n".join([header, *[line.split("：")[0] for line in lines], footer])
-        if estimate_tokens(names_only) <= MCP_SECTION_TOKEN_LIMIT:
-            return self._append_available(names_only, available)
+        variants = ["\n".join([header, *lines, footer])]
+        variants.append("\n".join([header, *[line.split("：")[0] for line in lines], footer]))
         kept = []
         for line in lines:
             name = line.split("：")[0]
@@ -230,14 +230,33 @@ class MCPServerCatalog:
             if estimate_tokens(candidate) > MCP_SECTION_TOKEN_LIMIT:
                 break
             kept.append(name)
-        return self._append_available(
-            "\n".join([header, *kept, "（清单超长，已截断）", footer]), available)
+        variants.append("\n".join([header, *kept, "（清单超长，已截断）", footer]))
+        for variant in variants:
+            for detailed in (True, False):
+                candidate = self._append_available(variant, available, states, detailed=detailed)
+                if estimate_tokens(candidate) <= MCP_SECTION_TOKEN_LIMIT:
+                    return candidate
+        fallback = "\n".join([header, "（工具清单超长，已省略；可直接按名调用已知工具）", footer])
+        for detailed in (True, False):
+            candidate = self._append_available(fallback, available, states, detailed=detailed)
+            if estimate_tokens(candidate) <= MCP_SECTION_TOKEN_LIMIT:
+                return candidate
+        return "\n".join([header, "（清单超长已省略）", footer])
 
     @staticmethod
-    def _append_available(section: str, available) -> str:
+    def _append_available(section: str, available, states, *, detailed: bool) -> str:
         if not available:
             return section
-        lines = [section, "尚未连接的服务器（可调用 connect_mcp 重试）："]
+        lines = [section, "尚未就绪的服务器："]
         for spec in available:
-            lines.append(f"- {spec.name}：{' '.join(spec.description.split())}")
+            state = states.get(spec.name, {}).get("state", "idle")
+            if state == "connecting":
+                text = "正在后台连接，稍后自动可用；不必调用 connect_mcp"
+            elif state == "failed":
+                text = "连接失败，可调用 connect_mcp 重试"
+            else:
+                text = "尚未连接，可调用 connect_mcp 重试"
+            if detailed and spec.description:
+                text += "：" + " ".join(spec.description.split())
+            lines.append(f"- {spec.name}：{text}")
         return "\n".join(lines)

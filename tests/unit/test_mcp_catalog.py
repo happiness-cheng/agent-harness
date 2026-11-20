@@ -134,8 +134,8 @@ def test_confirm_policy_without_session_entry_refuses_without_calling_server():
         result = registry.execute(ToolCall(id="c2", name="mcp__fake__echo",
                                            arguments={"message": "hi"}))
         assert result["ok"] is False
-        assert result["error"]["code"] == "tool_request_failed"
-        assert result["error"]["refused_by_user"] is True
+        assert result["error"]["code"] == "confirmation_unavailable"
+        assert result["error"]["refused_by_user"] is False
         assert "未执行" in result["error"]["message"]
     finally:
         catalog.close()
@@ -307,5 +307,39 @@ def test_prompt_section_lists_unconnected_servers_for_retry():
         assert "fake" in section and "Fake MCP server for tests." in section
         assert "connect_mcp" in section
         assert sys.executable not in section
+    finally:
+        catalog.close()
+
+
+def test_server_error_is_ok_false_not_success_text():
+    class FailingClient(FakeClient):
+        def call_tool(self, name, arguments):
+            raise MCPError("server exploded")
+
+    catalog = catalog_with(
+        fake_spec(), client_factory=lambda spec: FailingClient(fake_discovered(1)))
+    registry = ToolRegistry()
+    try:
+        catalog.connect("fake")
+        catalog.bind(registry)
+        outcome = registry.execute(ToolCall(
+            id="c1", name="mcp__fake__tool_0", arguments={}))
+        assert outcome["ok"] is False
+        assert outcome["error"]["code"] == "tool_execution_failed"
+        assert outcome["error"]["execution_state"] == "unknown"
+        assert "MCP error" not in outcome.get("result", "")
+    finally:
+        catalog.close()
+
+
+def test_connecting_state_and_available_list_stay_within_token_limit():
+    spec = fake_spec(description="很" * 500)
+    catalog = catalog_with(spec)
+    try:
+        catalog._state["fake"] = {"state": "connecting"}
+        section = catalog.prompt_section()
+        assert estimate_tokens(section) <= MCP_SECTION_TOKEN_LIMIT
+        assert "正在后台连接" in section
+        assert "很" * 20 not in section
     finally:
         catalog.close()

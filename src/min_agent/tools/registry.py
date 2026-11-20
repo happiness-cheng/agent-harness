@@ -15,7 +15,23 @@ class InvalidToolResultError(TypeError):
 
 
 class ToolRefusedError(Exception):
-    """用户或宿主明确拒绝本次调用；未执行，结果必须是 ok:false。"""
+    """工具因用户/宿主原因未执行；reason 决定错误码与是否标记用户拒绝。"""
+
+    def __init__(self, message: str, *, reason: str = "user_refused") -> None:
+        super().__init__(message)
+        self.reason = reason
+
+
+class ToolExecutionFailedError(Exception):
+    """工具已尝试执行但外部系统报错；结果必须是 ok:false，且不得伪装成拒绝。"""
+
+
+_REFUSAL_ERRORS = {
+    "user_refused": ("tool_request_failed", "do_not_retry_refused_call", True),
+    "already_consumed": ("tool_already_consumed", "do_not_replay_completed_call", False),
+    "confirmation_unavailable": ("confirmation_unavailable", "configure_confirmation_entry", False),
+    "backlog_full": ("confirmation_backlog_full", "resolve_pending_confirmations", False),
+}
 
 
 def _request_error(code: str, message: str, **details: object) -> dict[str, object]:
@@ -155,9 +171,18 @@ class ToolRegistry:
         try:
             output = tool.handler(**arguments.model_dump())
         except ToolRefusedError as error:
+            code, recovery, refused_by_user = _REFUSAL_ERRORS.get(
+                getattr(error, "reason", "user_refused"),
+                ("tool_request_failed", "do_not_retry_refused_call", False),
+            )
             return _request_error(
-                "tool_request_failed", str(error),
-                refused_by_user=True, recovery="do_not_retry_refused_call",
+                code, str(error),
+                refused_by_user=refused_by_user, recovery=recovery,
+            )
+        except ToolExecutionFailedError as error:
+            return _request_error(
+                "tool_execution_failed", str(error),
+                execution_state="unknown", recovery="verify_actual_state_before_retry",
             )
         if not isinstance(output, str):
             raise InvalidToolResultError("工具结果必须是字符串")

@@ -1,15 +1,12 @@
 # 最小只读 Activity Connector
 
+> **WIRING-004（2026-11-20）**：`activity/` 包与 `activity` 安装 extra 已删除（生产零调用）。以下命令仅保留历史记录，当前不可运行。
+
 支持已观察的 Codex rollout JSONL/zstd、DSH session version 4 和 version 0（old）。只输出元数据报告，不写 Event Store、Checkpoint 或 Memory。
 
-## 安装与运行
+## 安装与运行（历史，已删除）
 
-```powershell
-.venv/Scripts/python.exe -m pip install -e ".[activity]"
-.venv/Scripts/python.exe -X utf8 -m min_agent.activity_connector "$HOME/.codex/sessions" --max-files 5 --output reports/codex-activity.json
-.venv/Scripts/python.exe -X utf8 -m min_agent.activity_connector "$HOME/.dsh/sessions" --max-files 5 --output reports/dsh-activity.json
-.venv/Scripts/python.exe -X utf8 -m min_agent.activity_connector "C:/你的目录/单个历史文件.jsonl"
-```
+`activity` extra 与 `min_agent.activity.*` 入口已删除，不能安装或运行；本文件只保留设计记录。
 
 支持单文件或递归目录；目录只选 `.jsonl`、`.zst`、`.zstd`，跳过 symlink/reparse points。报告父目录需已存在；输出必须是新文件且不能位于输入目录内部，已有报告拒绝覆盖。不传 `--output` 时打印 JSON。退出码 0 表示扫描范围内无异常；2 表示部分读取、限制、解析异常或参数/输出拒绝。KNOWN_LIMIT/provisional 不自动等同解析错误。
 

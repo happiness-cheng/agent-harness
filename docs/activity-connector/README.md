@@ -62,11 +62,14 @@
 
 JCS 仅实现本轮需要的字符串/整数子集，拒绝 float、大于安全整数范围的数、重复 JSON 键和孤立 surrogate；只对 logical_id 预先做 NFC，其他字符串保持原值。依据 [RFC 8785 §3.1、§3.2.2.2、§3.2.3](https://www.rfc-editor.org/rfc/rfc8785.html#section-3.2.3)，不是完整浮点 JCS 实现。
 
-可复现命令：
+> **WIRING-004（2026-11-20）**：`activity/` 包、`scripts/activity_m1_experiment.py` 与相关测试已删除（生产零调用）。以下命令仅保留历史记录，当前不可运行。
+
+可复现命令（历史）：
 
 ```powershell
-.venv/Scripts/python.exe -X utf8 -m pytest tests/unit/test_activity_identity.py tests/unit/test_activity_store.py -q
-.venv/Scripts/python.exe -X utf8 scripts/activity_m1_experiment.py
+# 已删除，勿运行：
+# .venv/Scripts/python.exe -X utf8 -m pytest tests/unit/test_activity_identity.py tests/unit/test_activity_store.py -q
+# .venv/Scripts/python.exe -X utf8 scripts/activity_m1_experiment.py
 ```
 
 脚本仅在自动清理的临时目录创建合成库；`--report <新文件路径>` 可保存公开结果，已有路径拒绝覆盖。阶段交付、失败历史和 M2 启动条件见 [M1 阶段记录](../phase-records/2026-11-05-phase0b-m1.md)。
