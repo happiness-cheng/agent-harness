@@ -721,3 +721,13 @@
 - **不保证**：完整 JSON Schema 校验（嵌套对象/数组元素/`additionalProperties`/`pattern`/数值范围仍由服务器校验）；`-32602` 之外的非标准版本拒绝码不会触发降级；轮数上限不区分“有效长任务”和“死循环”，只提供可预测的上界。
 - **实施记录**：[IMPLEMENTATION_LOG.md](IMPLEMENTATION_LOG.md) → REVIEW-FIX-001
 - **验证与自检**：[VALIDATION_LOG.md](VALIDATION_LOG.md) → REVIEW-FIX-001
+
+## WIRING-001 · 2026-11-20 · Skill 三层披露设计决策
+
+- **D1 双布局**：保留平铺 `<name>.md`（public-evidence 与既有测试不动），新增目录型 `<name>/SKILL.md`。替代方案「全部迁移目录型」被否：无收益地改动既有 skill 与测试。
+- **D2 子文档白名单**：扫描时登记 skill 目录内全部 `*.md` 为可读子文档；`read_skill(name, path)` 只接受登记过的相对路径，拒绝符号链接、目录逃逸、绝对路径；单文件 20000 字节上限沿用。替代方案「运行时任意相对路径解析」被否：攻击面大且无必要。
+- **D3 清单段 token 上限 600**（`estimate_tokens` 口径：ASCII//4 + 非ASCII）：超限降级为只放名字，再超按名字序截断并标注。依据：description ≤1024 字符，3–4 个 skill 正常放得下；上限防止 skill 增多撑爆小窗口。
+- **D4 SystemPrompt 常开**：application 层总是构造 `SystemPrompt(system.md, [技能段] + [MCP段?])`；Runtime 的 None 默认路径不变（其他调用方不受影响）。替代方案「把技能段塞进 Runtime」被否：Runtime 保持通用，组件段归 application，与 MCP-001 一致。
+- **D5 read_skill 描述静态化**：清单从工具 description 移入 system 段，避免同一清单在工具 schema 与提示词里各付一次 token。
+- **D6 trace 可见性**：`TraceEvent` 是 strict/frozen 固定字段契约，不动；在 `record_run_trace` 的 run 级记录 dict 里追加可选 `prompt_sections`（段名→内容 sha256 + skill 数）。验证「trace 里能看到清单段」按此元数据 + `tool_ref=sha256("read_skill")` 判定，不存提示词正文（与 trace 只存诊断元数据的既有边界一致）。
+- **D7 清单只取 description 首句（实施中修订）**：首版清单放整段 description（含何时不用/反例），全量回归暴露既有验收用例 `test_ollama_runtime.py::test_truncated_prompt_is_a_checkpoint_not_an_answer_and_can_resume` 失败：num_ctx=8192 的保守字节窗口下，恢复请求 21748 字节 > 可容纳上限 21504（24576 − request_bound 附加 1024 − output_reserve 1024 − safety_margin 1024），且只有一轮用户交互、无可压缩历史，`manager.py:139` 抛 `context_limit`。清单段是每次请求的固定开销，整段描述 1471 字节挤掉了小窗口的恢复余量。修订：清单行只取 description 第一个「。」前的首句（约省 700 字节），完整描述仍在 frontmatter、由 `read_skill` 全文提供。这同时更贴合任务清单「name + 一句话描述」的定义。替代方案「按窗口大小动态省略清单段」被否：给披露层引入窗口分支，复杂且让清单存在性依赖配置；「放宽既有测试」被否：那是硬性验收判据，不能为让结果变绿而改。修订后该用例通过，新增 `test_prompt_section_keeps_only_first_sentence` 固化首句行为。

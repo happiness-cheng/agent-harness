@@ -1613,3 +1613,24 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 **未运行**：live 测试（需显式授权）；真实模型；浏览器 UI；`HarnessApplication` 实例化后的运行时加载图（本图是模块 import 级，函数内懒加载不计入）。
 
 **边界**：import 图只证明「默认入口 import 时加载了哪些模块」，不证明运行时调用路径，也不据此判定死代码——任务 4 仍须逐个 grep 生产引用。`reports/wiring-20261120/` 被 `/reports/` gitignore 忽略，属本地证据；结论以本日志为准。
+
+## WIRING-001 · 2026-11-20 · Phase: CONTEXT / SKILLS
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / `.venv`；分支 `review/20261120-wiring-fix`（基线 `1db4225`，源码同 `de68c2f`）。live 用本机 Ollama `qwen3.5:4b`（127.0.0.1:11434，num_ctx=32768），服务端口 8799，独立临时库；0 次外部付费调用。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 新增单元测试 | `pytest tests/unit/test_skill_disclosure.py` | 16 例（含参数化）全过：目录扫描/frontmatter 必填/平铺目录冲突/子文档越界 5 种/符号链接/清单无全文/空目录/超限降级/截断/首句行为/真实 3 skill 判据 |
+| 新增集成测试 | `pytest tests/integration/test_skill_prompt.py` | 2 例全过：ScriptedModel 首请求 system 含清单段且无全文、read_skill 读到全文与子文档、trace_runs 含 skills sha256+skill_count、2 个 completed tool 事件 tool_ref=sha256("read_skill")；越界 path 返回 ok:false/tool_execution_failed 且不泄露内部消息 |
+| 相关回归 | `pytest tests/unit/test_skill_disclosure.py tests/integration/test_skill_prompt.py tests/integration/test_ollama_runtime.py tests/unit/test_skill_disclosure_eval.py` | **29 passed / 5.76s**（含修复后的既有小窗口恢复用例） |
+| 全量离线（修复后终版） | `pytest --junitxml reports/wiring-20261120/full-after-task1.xml -q` | **2009 passed / 5 deselected / 0 failed / 0 errors / 268.28s（exit 0）**；JUnit 核对 tests=2009 failures=0 errors=0 skipped=0；= 基线 1991 + 新增 18（collect-only 核对 18 例） |
+| live 服务验证 | `reports/wiring-20261120/skill_live_verify.py`（真实服务 + qwen3.5:4b，2 次用户输入内） | **PASS**：prompt_sections.skills 存在且 sha256 与 `SkillCatalog.prompt_section()` 一致（skill_count=4）；read_skill tool 事件 1 个、completed、execution_state=returned；工具消息含技能全文特征句；终态 completed；模型回答真实引用技能步骤（写场景卡五问）。证据 `skill-live-evidence.json` |
+
+**失败与修复（如实）**：
+1. 全量首跑 **1 failed / 2007 passed**：既有验收用例 `test_ollama_runtime.py::test_truncated_prompt_is_a_checkpoint_not_an_answer_and_can_resume` 恢复后 partial/context_limit。根因：整段 description 清单 1471 字节固定开销使 num_ctx=8192 的恢复请求 21748 字节 > 可容纳 21504（24576 − 1024×3），单轮无可压缩历史，`manager.py:139` 抛错。按 DECISION_LOG D7 改首句清单后通过。首跑日志被终版重跑覆盖，失败断言与根因数据以本条记录为准。
+2. live 首跑 401：脚本未携带 bootstrap 种的 `harness_session` cookie（web/app.py:101 双校验）；修脚本。
+3. live 二跑判 FAIL 但产品行为正确：脚本只查 `snapshot["trace"]`（仅最后一个 run），read_skill 实际发生在第一个 run；snapshot 的 trace_runs 剥离 events（application.py:303），改用 `GET /api/sessions/{id}/traces/{run_id}` 聚合全部 run 后三跑 PASS。
+
+**未运行**：真实模型 live 的子文档路径读取（离线集成已覆盖）；外部付费模型；浏览器 UI；`tests/live/`（5 例仍 deselected，任务 2/3 按需启用）。
+
+**边界**：离线测试证明契约与默认路径接线；live 单会话 2 输入证明「清单段可见 + 真实模型主动 read_skill 读全文」这一条链路，不构成成功率统计；首句清单对小窗口恢复余量的改善以该验收用例为准，不证明所有小窗口配置。

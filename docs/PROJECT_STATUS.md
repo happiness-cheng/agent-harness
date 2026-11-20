@@ -2,7 +2,18 @@
 
 > **交付规则（AEF-003 第 11 行 + AEF-004 第 12 行，2026-11-14 定稿）**：每次交付必须附核心文件路径、四件事代码讲解与「长度按需、但必须能独立看懂」的关键片段（带文件与行号）；**片段之后还要逐行/分块讲解参数、每步动作、为什么这样写、明确不保证什么**。详见 [AGENTS.md](../AGENTS.md) 第 11–12 行。
 
-## 2026-11-20 最新续接：外部审查 4 项修复（REVIEW-FIX-001）
+## 2026-11-20 最新续接：六任务接线改造批次（WIRING-000/001，进行中）
+
+用户六任务清单（任务 0 基线 / 1 Skill 三层披露 / 2 MCP 后台连接+confirm 真排队 / 3 长期记忆+多 Agent / 4 删死代码 / 5 门禁+文档+PR），工作分支 `review/20261120-wiring-fix`，逐任务停下等确认；推远端与开 PR 在清单收尾执行，不直接合 main、不强推。
+
+- **任务 0（WIRING-000）COMPLETED**：干净工作区切分支；全量离线基线 **1991 passed / 5 deselected / 200.62s**（与清单预期一致）；默认路径 import 图：140 模块、import 加载 60、未加载 81（其中 `long_memory/`、`mcp/`、`agents/`、`llm/*` 为条件懒加载，**不是死代码**，任务 4 仍须逐个 grep）。
+- **任务 1（WIRING-001）COMPLETED**：Skill 三层披露——① `SkillCatalog` 支持目录型 `<name>/SKILL.md` + 子文档白名单（拒绝符号链接/越界/绝对路径）；② 默认路径 SystemPrompt 常开技能清单段（name + description **首句**，600 token 上限，超限降级只放名字再截断）；③ `read_skill(name, path?)` 按需读全文与子文档；④ 新增 3 个真 skill（code-entry-first / criteria-before-tests / evidence-before-compaction，description 含何时用/何时不用+反例）；⑤ trace_runs 记录追加 `prompt_sections`（段 sha256 + skill 数，TraceEvent 契约未动）。
+- **验证**：新增 18 例全过；全量 **2009 passed / 5 deselected / 0 failed / 268.28s**（= 1991 + 18）；live（本机 Ollama qwen3.5:4b，真实服务 2 输入内）**PASS**——清单段 sha256 一致、真实模型主动调 read_skill（completed/returned）、全文进工具消息、回答引用技能步骤。
+- **过程缺陷（如实）**：首版清单放整段 description，挤占 num_ctx=8192 小窗口的恢复余量，既有验收用例 `test_ollama_runtime` 恢复失败（21748 > 21504 字节）；按 D7 改首句清单后通过，未改 skill 以外压缩逻辑、未放宽既有判据。live 脚本两处缺陷（cookie、跨 run trace 聚合）已修，产品行为正确。
+- **边界**：live 只证明「清单可见 + 真实模型读全文」单链路，不构成成功率统计；子文档 live 读取未单独构造（离线集成覆盖）；任务 2–5 未开始。
+- [决策](engineering-log/DECISION_LOG.md)（WIRING-001 D1–D7）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md)；本地证据 `reports/wiring-20261120/`（gitignored）。
+
+## 2026-11-20 外部审查 4 项修复（REVIEW-FIX-001）
 
 外部 agent 对 `review/20261117-runtime-mcp` 给出 Approve with fixes；本轮按顺序修 4 项，未扩大 MCP 能力范围。
 

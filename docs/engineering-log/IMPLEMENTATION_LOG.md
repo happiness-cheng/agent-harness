@@ -1330,3 +1330,29 @@
 4. **未完成**：任务 1–5 全部未开始（按清单逐任务停下等确认）。
 5. **副作用**：无生产行为变化；新分支未推送（按总规则推远端与开 PR 在清单收尾执行）。
 6. **最终状态**：COMPLETED（基线任务）。本任务无新决策。
+
+## WIRING-001 · 2026-11-20 · Phase: CONTEXT / SKILLS（任务 1 · Skill 三层披露）
+
+### 执行前
+
+1. **Task ID / 目标**：`WIRING-001`；三层披露——① 扫描 `src/min_agent/skills/` 解析 frontmatter（name/description 必填，已有）；② SystemPrompt 增加技能清单段（只放 name + 一句话 description，带 token 上限）；③ `read_skill` 按名加载全文，支持 SKILL.md 引用的子文档路径；④ 新写 3 个真 skill（读代码先定位入口 / 写测试先定判据 / 压缩前保留证据链），description 含何时用/何时不用 + 反例。
+2. **基线**：`review/20261120-wiring-fix` @ `1db4225`（源码同 `de68c2f`），全量 1991 passed / 5 deselected（WIRING-000）。现状：`SkillCatalog` 只扫平铺 `*.md`；技能清单 JSON 嵌在 `read_skill` 工具 description 里（application.py:522）；SystemPrompt 仅在配置 MCP 时构造（application.py:637-641），默认路径无技能段；trace 只存固定诊断元数据（tool_ref=sha256(工具名)），不存提示词正文。
+3. **预期修改**：`compression/skills.py`（目录型 skill + 子文档 + prompt_section）、`application.py`（read_skill 参数/描述、SystemPrompt 常开、trace 元数据）、`contracts/trace.py`（record_run_trace 追加可选 prompt_sections）、`src/min_agent/skills/` 新增 3 个目录型 skill；新增 unit/integration 测试；不改 `context/manager.py`、`compression/compaction.py` 等 skill 以外压缩逻辑，不改 `_registry` 签名（避免 MCP-001 的 EvalApplication 覆写签名事故重演）。
+4. **判据**：A 离线——目录扫描/frontmatter 必填/子文档越界拒绝；B 离线——首个模型请求 system 含清单段（name+description、无全文），超 token 上限降级只放名字、再超截断；C 离线集成——ScriptedModel 调 read_skill 真实读到全文与子文档，trace_runs 记录含技能段元数据与 read_skill 的 tool_ref；D live——启动服务（本地 Ollama）发一句需要 skill 的请求，trace 可见清单段与 read_skill 调用。
+5. **风险与禁止**：子文档读取不得越过 skill 目录（符号链接/`..`/绝对路径拒绝）；清单段不得放全文；不动 skill 以外压缩逻辑；真实模型调用限本地 Ollama、单次请求级；不提交私有材料。
+
+### 执行后
+
+1. **实际修改文件**：
+   - `src/min_agent/compression/skills.py`：目录型 `<name>/SKILL.md` 双布局扫描（`_documents` 子文档白名单、`_parents` 包含映射）；`prompt_section()` 清单段（name + description 首句，600 token 上限，超限降级只放名字、再超截断标注）；`_listing_line()` 首句提取；`read(name, path=None)` 子文档白名单读取（拒绝符号链接/越界/绝对路径，20000 字节上限沿用）。
+   - `src/min_agent/application.py`：`_Skill` 增加可选 `path`（1–200 字符）；`read_skill` 描述静态化（清单移入 system 段）；`_run` 总是构造 `SystemPrompt(system.md, [技能段] + [MCP段?])` 并生成 `prompt_sections` 元数据（段内容 sha256 + skill 数）传给 `record_run_trace`。`_registry` 签名未动。
+   - `src/min_agent/contracts/trace.py`：`record_run_trace` 增加可选 `prompt_sections`，run 级记录 dict 追加该键；`TraceEvent` 契约未动。
+   - `scripts/eval_skill_disclosure.py:67`：read_skill lambda 同步 `path=None` 参数（修复 `_Skill` dump 带 path 后的 TypeError）。
+   - 新增 `src/min_agent/skills/{code-entry-first,criteria-before-tests,evidence-before-compaction}/SKILL.md` + `evidence-before-compaction/references/evidence-checklist.md`；description 均含何时用/何时不用 + 反例。
+   - 新增 `tests/unit/test_skill_disclosure.py`（16 例含参数化）、`tests/integration/test_skill_prompt.py`（2 例），合计 18 例。
+   - 日志：DECISION_LOG（WIRING-001 D1–D7）、本日志、VALIDATION_LOG；`docs/PROJECT_STATUS.md` 置顶新增 WIRING 批次节。
+2. **为什么**：三层披露把「清单固定开销」与「全文按需读取」分开；子文档白名单让 SKILL.md 能引用参考材料而不开放任意路径读取。设计论证见 DECISION_LOG WIRING-001 D1–D7，不重复。
+3. **与计划的偏差**：① 首版清单放整段 description，全量回归暴露既有验收用例 `test_ollama_runtime` 小窗口恢复失败（固定开销挤占恢复余量），按 D7 修订为首句清单并新增回归测试——未改 skill 以外压缩逻辑、未放宽既有判据。② live 验证脚本两次缺陷（缺 cookie 处理致 401；只看最后一个 run 的 trace 漏掉首 run 的 read_skill 事件），均为脚本问题，产品行为正确，修脚本后 PASS。
+4. **未完成**：任务 2–5 未开始；真实模型 live 只覆盖「读全文」，子文档路径的 live 读取未单独构造（离线集成已覆盖）；未做浏览器 UI 验证。
+5. **副作用**：默认路径每次模型请求新增技能清单段（约 750 字节）与 read_skill 工具 schema；`trace_runs` 记录新增 `prompt_sections` 键（附加式，旧记录无此键不受影响）；无数据库 schema 变化（扩展 JSON）。
+6. **最终状态**：COMPLETED。验证见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → WIRING-001。
