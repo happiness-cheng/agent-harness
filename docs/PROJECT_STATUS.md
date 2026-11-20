@@ -2,9 +2,9 @@
 
 > **交付规则（AEF-003 第 11 行 + AEF-004 第 12 行，2026-11-14 定稿）**：每次交付必须附核心文件路径、四件事代码讲解与「长度按需、但必须能独立看懂」的关键片段（带文件与行号）；**片段之后还要逐行/分块讲解参数、每步动作、为什么这样写、明确不保证什么**。详见 [AGENTS.md](../AGENTS.md) 第 11–12 行。
 
-## 2026-11-20 最新续接：六任务接线改造批次（WIRING-000/001/002，进行中）
+## 2026-11-20 最新续接：六任务接线改造批次（WIRING-000…005，COMPLETED 待验收）
 
-用户六任务清单（任务 0 基线 / 1 Skill 三层披露 / 2 MCP 后台连接+confirm 真排队 / 3 长期记忆+多 Agent / 4 删死代码 / 5 门禁+文档+PR），工作分支 `review/20261120-wiring-fix`，逐任务停下等确认；推远端与开 PR 在清单收尾执行，不直接合 main、不强推。
+用户六任务清单（任务 0 基线 / 1 Skill 三层披露 / 2 MCP 后台连接+confirm 真排队 / 3 长期记忆+多 Agent / 4 删死代码 / 5 门禁+文档+PR），工作分支 `review/20261120-wiring-fix`。任务 0–5 已在本分支完成并逐任务提交；推远端与开 PR 留到收尾执行，不直接合 main、不强推。
 
 - **任务 0（WIRING-000）COMPLETED**：干净工作区切分支；全量离线基线 **1991 passed / 5 deselected / 200.62s**（与清单预期一致）；默认路径 import 图：140 模块、import 加载 60、未加载 81（其中 `long_memory/`、`mcp/`、`agents/`、`llm/*` 为条件懒加载，**不是死代码**，任务 4 仍须逐个 grep）。
 - **任务 1（WIRING-001）COMPLETED**：Skill 三层披露——① `SkillCatalog` 支持目录型 `<name>/SKILL.md` + 子文档白名单（拒绝符号链接/越界/绝对路径）；② 默认路径 SystemPrompt 常开技能清单段（name + description **首句**，600 token 上限，超限降级只放名字再截断）；③ `read_skill(name, path?)` 按需读全文与子文档；④ 新增 3 个真 skill（code-entry-first / criteria-before-tests / evidence-before-compaction，description 含何时用/何时不用+反例）；⑤ trace_runs 记录追加 `prompt_sections`（段 sha256 + skill 数，TraceEvent 契约未动）。
@@ -16,8 +16,17 @@
   - **confirm 真排队**：首次调用登记 pending（会话扩展 `mcp_confirmations`，重启后仍在）并挂起 `waiting_user`；`POST /api/sessions/{id}/mcp-confirm` 批准 → 同签名原子消费并定向 resume 执行回填；拒绝 → `ToolRefusedError` → `ok:false` + `refused_by_user=True`，不再包成 `ok:true`；legacy 任务面板加待确认卡片（批准/拒绝按钮）。
   - **验证**：目标用例 **28 passed**；全量 **2026 passed / 6 deselected / 0 failed / 215.69s**（= 任务 1 的 2009 + 新增 17；deselected 5→6 因 `test_mcp_live.py` 由 1 例拆成 2 例）；`tests/live/test_mcp_live.py -m live` **2 passed / 101.95s**（真实 `server-everything`）；真实模型（本机 qwen3.5:4b）验证脚本 **PASS**——后台连接、echo 回填、confirm 挂起→批准执行、拒绝未执行均留 trace。拒绝后模型未重发同一调用，`ok:false` 由离线用例覆盖（证据差异，非产品缺陷）。
   - **边界**：/legacy 确认按钮未做浏览器点击人工验证；DSH 默认外壳无任何确认 UI（既有缺口，不扩范围）；后台连接失败不自动重试；prompt-only 工具调用只验证 qwen3.5:4b；MCP 工具不单独计预算。
-- **边界**：live 只证明「清单可见 + 真实模型读全文」「MCP 后台连接 + 排队确认」单链路，不构成成功率统计；子文档 live 读取未单独构造（离线集成覆盖）；任务 3–5 未开始。
-- [决策](engineering-log/DECISION_LOG.md)（WIRING-001 D1–D7、WIRING-002 D1–D7）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md)；本地证据 `reports/wiring-20261120/`（gitignored）。
+- **任务 3（WIRING-003）COMPLETED**：
+  - **长期记忆写入**：每轮结束 `_auto_propose_memory` 只扫描用户消息里的明确「记住/remember X」，生成 pending 候选；确认仍走 `/memory/candidates` + `/memory/confirm`（Build + 一次性 review_token），确认前不入库、不注入；关闭期间也推进游标，避免重新开启时追溯旧消息。网页默认记忆模式改为 `active`，`--legacy-long-memory` 回退、`--no-long-memory` 关闭；构造器默认仍 `legacy`，不改变直接构造应用的调用方。
+  - **多 Agent**：新增 `agents/factory.py` 与 `--multi-agent` 开关；`scripts/start-qianwen.ps1` / `start-adrian.cmd` 默认开启。只接 **calculator** worker（PASS 依赖宿主生成的 calculator 工具回执），文本角色因无确定性判据不接；`delegate_task` 复用任务总预算 40/60（打开时片段上限提升），子预算仍走 `parent_budget.child(...)`。
+  - **验证**：新增离线 10 例全过（记忆 4、多 Agent 3、JSON 围栏 3）；真实 qwen3.5:4b 跑 **3 个真实委派**（2–3 子任务）：任务 1/2 与失败后重试均 3/3 PASS（汇总 405/93），`total_models=3` 的失败轮 `partial/budget_exhausted` 且模型调用恰好 3 次；记忆 live：真实模型「记住：…」→ 自动候选 → 确认 → 正式库 1 条。`tests/live/test_wiring_live.py` **2 passed / 216.23s**。
+  - **过程缺陷（如实）**：真实委派先后暴露 4 个断点——`_build_transport` 把档位 key 当对象；委派结果触发工具摘要时 qwen 返回 ```json 围栏导致 `context_limit`；根契约 `max_subtasks*2+2` 不够 3 个 worker；worker 重试超工具上限。均已最小修复并留回归；首版 writer 角色因「结论」格式标记不可靠被删除，没有放宽验收判据。
+  - **边界**：候选确认按钮未做浏览器点击；`--multi-agent` 未在真实服务进程 + 浏览器端到端跑；只验证 qwen3.5:4b 的算术委派；失败重试由验证脚本重新发起，不是产品自动重放。
+- **任务 4（WIRING-004）COMPLETED**：grep 全仓确认零生产引用后删除 **33 个文件 / 5072 行**——`activity/` 整包（2176 行）、`evaluation/{evolution*,night*,night_executor}.py`（853 行）、`long_memory/evaluation.py`（173 行）、A 批 `llm/context_capabilities.py` 与 `scripts/migrate_layout_20261115.py`，同步删 4 个脚本、10 个只覆盖被删模块的测试文件及混合文件里的 night 用例；`build_approved_fixture` 迁到 `tests/fakes/memory_fixture.py` 以保留 delivery 覆盖。保留 `evaluation` 的 verifier/runner/suites/improvement 等生产仍用部分。
+- **任务 5（WIRING-005）COMPLETED**：`AGENTS.md` 新增「接线门禁」——新模块合 main 前必须在默认路径真实调用一次，默认关闭必须有可运行路径，删死代码前 grep、删后全量；修正 `PROJECT_STATUS` 主循环 6 阶段（`runtime/loop.py:73-84`）与多 Agent 静态接入表述；README/NIGHT_MODE/EVOLUTION_V1/MODULE_MAP 标注已删除入口。
+- **合并验证**：全量离线 **1768 passed / 8 deselected / 0 failed / 140.22s**（任务 3 后 2036，删 268 个收集项后 1768）；8 个 deselected 为 `tests/live/`。基线对比：1991 → 2009（+18）→ 2026（+17）→ 2036（+10）→ 1768（−268）。
+- **边界（总）**：live 只覆盖固定小样本，不构成成功率统计；浏览器 UI（MCP 确认、记忆候选）未做点击验证；DSH 外壳无确认 UI；多 Agent 仅 calculator 角色；未推远端、未开 PR、未合 main。
+- [决策](engineering-log/DECISION_LOG.md)（WIRING-001 D1–D7、WIRING-002 D1–D7、WIRING-003 D1–D8、WIRING-004 D1–D4、WIRING-005 D1–D2）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md)；本地证据 `reports/wiring-20261120/`（gitignored）。
 
 ## 2026-11-20 外部审查 4 项修复（REVIEW-FIX-001）
 
@@ -44,7 +53,7 @@
 
 ## 2026-11-15 最新续接：Runtime 瘦身 + 包结构分类（RUNTIME-SLIM-001 / PKG-LAYOUT-001）
 
-- **做了什么**：① 原 `runtime.py`（547 行、`_run` 约 250 行）拆成 `src/min_agent/runtime/` 包——主循环约 20 行，只按序调用 5 个阶段；控制、预算预留、模型调用、响应分派、工具批次、收尾、提示词投影、错误载荷分别进 `stages.py` / `tool_loop.py` / `closing.py` / `prompt.py` / `errors.py`。② `src/min_agent` 根目录 62 → 2 个文件（`__init__.py`、`application.py`），59 个模块按职责进 11 个子包；找文件先看 [MODULE_MAP](MODULE_MAP.md)。
+- **做了什么**：① 原 `runtime.py`（547 行、`_run` 约 250 行）拆成 `src/min_agent/runtime/` 包——主循环约 20 行，只按序调用 **6 个阶段**（`ControlGate` / `RoundLimit` / `ReserveGate` / `ModelCall` / `ResponseRouter` / `ToolBatch`，见 `runtime/loop.py:73-84`）；控制、预算预留、模型调用、响应分派、工具批次、收尾、提示词投影、错误载荷分别进 `stages.py` / `tool_loop.py` / `closing.py` / `prompt.py` / `errors.py`。② `src/min_agent` 根目录 62 → 2 个文件（`__init__.py`、`application.py`），59 个模块按职责进 11 个子包；找文件先看 [MODULE_MAP](MODULE_MAP.md)。
 - **判据与结果**：现有测试的**断言一条未改**（只更新导入路径与 `-m` 入口）；基线 **1921 passed / 4 deselected / 199.14s** → 阶段 A **1940 passed**（+19 项新测试）→ 阶段 B **1942 passed**（+2 项布局门禁）；JUnit 对照两次均 **PASS**（1921 条全部存在、0 条结果变化）。导入审计 301 文件 0 unresolved；全模块导入 132/132；`find_packages` 18 个包；`python -m min_agent.web --help` exit 0。
 - **边界（重要）**：**未跑**真实模型、Ollama/DeepSeek/千问、浏览器 UI、live 用例；`verify_release.py` 的 wheel 分离环境验证 **NOT RUN**（本机无离线 wheelhouse）；`manager.py` 的 Worker 循环未拆；历史 `docs/steps/*` 旧路径不改；不证明未覆盖语义的等价性与性能。
 - **对外可见变化**：`-m min_agent.activity_connector` / `-m min_agent.activity_memory_adapter` → `-m min_agent.activity.connector` / `-m min_agent.activity.memory_adapter`；`min_agent.web`、`min_agent.evaluation`、`min_agent.application` 不变。
@@ -83,6 +92,8 @@
 - [决策](engineering-log/DECISION_LOG.md)（D1–D7）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md) 的 QWEN-SELECTOR-001。
 
 ## 2026-11-14 上一批：MA-P5-013 Multi-Agent 功能补全 + 静态接入生产主循环
+
+> **后续状态（2026-11-20，WIRING-003）**：本节「默认关闭、生产行为 NOT VERIFIED」已被后续任务取代——新增 `--multi-agent` 开关与 `agents/factory.py` 工厂，`scripts/start-qianwen.ps1` / `start-adrian.cmd` 默认开启；本机 Ollama 真实跑通 2–3 子任务委派，并用「预算耗尽失败 → 正常预算重试」验证了失败恢复（见 VALIDATION_LOG → WIRING-003）。以下保留当时记录，不追溯改写。
 
 - **做了什么**：按用户计划书补全 5 处缺口并静态接进生产主循环——① **上游产物注入**（`TaskEnvelope.upstream`，只取直接依赖里 `completed + PASS + output 非空` 的，在提示词里作 `[FROM_UPSTREAM_TASK]` **数据段**）；② **worker 受限工具循环**（`ToolExecutor` 注入 + `contract.check_tool` 白名单 + `before_tool`/`after_tool`）；③ **双预算硬门**（hook 放行 → 资源预占 → `BudgetSegment` 原子扣减 → 才调用；`usage` 缺失按预占上界记 `reserved_upper_bound`）；④ **点对点 Mailbox**（四类通知，有界、无广播、不改状态）；⑤ **汇总失败不伪装完成**（`_aggregate()` 返回 `(content, error)`，只有全部 PASS 且汇总成功才 `completed`）。新增 `agent_messages.py`（316 行）、`context_policy.py`（202 行）、`multi_agent_service.py`（578 行）；改 `subagent_collab.py`（独立性改机械公式）、`manager.py`（1453 行）、`application.py`。
 - **怎么接入的**：`application.py` 默认 `enable_multi_agent=False`；只在开关为真**且**有可信 `multi_agent_service_factory` 时才在 `research` 之后条件注册**同步工具** `delegate_task`。处理器用闭包里的可信 `context/segment/registry/events`，每次调用新建 `MultiAgentService`、`finally` 释放；外层 Runtime 已把这次工具调用计入外层预算，**内部只扣子预算**，`delegate_task` 与 `research` 在生产 worker 里被硬禁用（防递归）。

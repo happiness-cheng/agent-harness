@@ -1384,3 +1384,38 @@
 5. **未完成 / 边界**：/legacy 确认按钮只做了 API + DOM 接线，未做浏览器点击人工验证；DSH 默认外壳（shell/）仍无任何确认 UI（既有缺口，不扩范围）；后台连接无自动重试、同任务热重连沿用 MCP-001 边界；未接入其他模型验证 prompt-only 调用（只验证 qwen3.5:4b）；MCP 工具不单独计预算（外层工具调用预算照常）。
 6. **副作用**：快照新增 `mcp` / `mcp_confirmations` 两个键（附加式，旧前端忽略即可）；`trace_runs` 的 `prompt_sections` 新增 `mcp` 键（仅配置了服务器时）；会话扩展新增 `mcp_confirmations`（JSON，无数据库 schema 变更）；新增一个 POST 端点；会话创建时可能启动后台子进程（仅配置了 MCP 时）。
 7. **最终状态**：**COMPLETED**（离线全量与 live 自验通过，待用户验收；提交后工作分支保留，不推远端、不合 main）。验证明细见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → WIRING-002。
+
+## WIRING-003 · 2026-11-20 · Phase: MEMORY + MULTI-AGENT（任务 3）
+
+### 执行前
+
+1. **Task ID / 目标**：`WIRING-003`；① 长期记忆补写入入口：每轮结束自动把用户明确的「记住 X」提成候选，仍走 propose→review→confirm，确认前不入库、不注入；② 网页默认 `active` 记忆模式，`legacy` 保留回退；③ 多 Agent 打开：web `--multi-agent` + 默认服务脚本；补 `multi_agent_service_factory`；`delegate_task` 复用 40/60 预算。
+2. **基线**：`review/20261120-wiring-fix` @ `9eac391`（WIRING-002 已提交），工作区干净；全量 2026 passed / 6 deselected。
+3. **预期修改**：`agents/factory.py`（新）、`application.py`、`web/__main__.py`、启动脚本、legacy 面板、压缩 JSON 解析、`manager.py` / `multi_agent_service.py`（实施中发现的契约缺陷）、新增离线与 live 测试。
+4. **判据**：A 离线——「记住：X」一轮后出现 pending 候选且正式库仍空；确认后下一轮动态投影含该事实并带合法引用；多 Agent `delegate_task` 能在 2 个子任务上跑完且预算计入同一 40/60；关闭时无工具、无工厂、无额外线程；预算不足时明确 partial。B live——本机 qwen3.5:4b 跑 3 个真实委派（2–3 子任务），其中一次先失败后重试成功；记忆候选自动提出并可确认；`tests/live` 两个 smoke 通过。
+5. **风险与禁止**：不改记忆评分权重；不自动确认候选；模型参数不能带 owner/session/budget/工具白名单；不引入付费模型；不扩大 outer 预算。
+
+### 执行后
+
+1. **实际修改文件**：新增 `src/min_agent/agents/factory.py`（可信工厂 + calculator worker）；`src/min_agent/agents/multi_agent_service.py`（`_build_transport` 接收档位 key 字符串）；`src/min_agent/agents/manager.py`（根契约模型额度按 worker 配置推导）；`src/min_agent/application.py`（`_auto_propose_memory`、`memory_status.candidates`、`snapshot.multi_agent`、多 Agent 片段预算、工厂传 `model=raw_model`）；`src/min_agent/web/__main__.py`（`--multi-agent`、`--legacy-long-memory`、默认 active）；`scripts/start-qianwen.ps1`、`scripts/start-adrian.cmd`；`src/min_agent/web/static/{app.js,index.html}`；`src/min_agent/compression/{model_json.py,selector.py,summary.py}`；新增 `tests/integration/test_memory_auto_proposal.py`（4 例）、`tests/integration/test_multi_agent_wiring.py`（3 例）、`tests/unit/test_model_json_fence.py`（3 例）、`tests/live/test_wiring_live.py`（2 例）。
+2. **实现过程**：自动 propose 用会话扩展游标扫描用户消息，只匹配明确指令，调用 `LongMemory.propose` 生成 pending；确认复用既有 `/memory/candidates` + `/memory/confirm`，界面加最小「确认写入/拒绝」按钮。多 Agent 由工厂按每次运行的 `raw_model` 构造 `ProductionModelTransport`，worker 只有 calculator 角色且验收依赖宿主生成的工具回执；打开时片段上限改为任务总预算 40/60；根契约按 `max_subtasks × 最大 worker 调用数 + 2` 计算。
+3. **与计划的偏差 / 发现的不一致**：① 首版接了 writer 角色 + `required_markers=("结论",)`，真实 Ollama 第三轮 writer 摘要没带该词导致 `delivery_mismatch`，判定为「判据本身不成立」，删除该角色，只保留可机械验证的 calculator（DECISION_LOG D5）；② 真实委派暴露 `MultiAgentService._build_transport` 把档位 key 当 `ModelProfile` 用，任何真实委派都会 `AttributeError`（D7）；③ 委派结果 >2000 字节触发工具摘要，qwen 返回 ```json 围栏使选择器解析失败并报 `context_limit`，新增去围栏容错（D8）；④ 3 个子任务时根契约 8 次模型调用不够，按 worker 配置推导（D4 相关）；⑤ worker 工具次数 2 不够汇总子任务重试，提到 3 次工具 / 4 次模型，委派工具预算 9。
+4. **未完成 / 边界**：候选确认按钮未做浏览器点击验证（只做 API + DOM 接线）；多 Agent 只接 calculator 角色，文本角色未接；live 只验证本机 qwen3.5:4b；委派的「失败重试」是验证脚本用低预算制造失败后重新发起，不是产品自动重放；未在真实 `--multi-agent` 服务进程里跑浏览器端到端（直接构造应用验证）。
+5. **副作用**：网页默认记忆模式变为 active（新增 `--legacy-long-memory` 回退）；快照 `long_memory` 新增 `candidates`、新增 `multi_agent` 键；会话扩展新增 `long_memory_auto_cursor`；多 Agent 打开时片段预算从 6/12 变为 40/60；启动脚本默认带 `--multi-agent`；无数据库 schema 变更。
+6. **最终状态**：**COMPLETED**（离线 + live 自验通过；待用户验收）。验证见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → WIRING-003。
+
+## WIRING-004 · 2026-11-20 · Phase: DEAD-CODE（任务 4）
+
+1. **目标与范围**：按清单分两批删除确认无生产引用的休眠代码；A 批 `llm/context_capabilities.py`、`scripts/migrate_layout_20261115.py`；B 批 `activity/`、`evaluation/` 的 evolution + night 模块、`long_memory/evaluation.py`，同步删除只覆盖这些模块的测试与脚本。
+2. **核实方式**：全仓 grep（`.py` 为主，兼顾 `.cmd/.ps1/.md`）确认：`context_capabilities` 仅自身与历史快照提及；`activity` 仅自身/6 个测试/1 个实验脚本引用；`evaluation.night*`/`evolution*` 仅自身/测试/脚本；`long_memory.evaluation` 仅自身/2 个测试/1 个脚本。生产 `application.py`、`web/`、`runtime/` 均无引用。
+3. **实际删除**：33 个文件、5072 行（`git diff --numstat` 汇总）。其中生产源码：`activity/` 10 文件 2176 行、evaluation evolution+night 6 文件 853 行、`long_memory/evaluation.py` 173 行、`context_capabilities.py` 6 行。脚本 4 个；测试整文件 10 个 + 两个混合文件中的 night 用例；`build_approved_fixture` 迁到 `tests/fakes/memory_fixture.py` 以保留 delivery 测试。
+4. **边界与偏差**：保留 `evaluation` 的 contracts/verifier/runner/suites/worker/improvement/review/verification_rules/processes/finance/journal/codex_adapter，因为生产 `subagent_review.py` 与 `evaluation/__main__.py` 仍用它们；`codex_adapter` 虽主要用于 night，但 `improve --codex` 仍引用，未删。A 批迁移脚本与历史 DECISION_LOG D8「保留供审计」冲突，按任务清单删除并追加更正（DECISION_LOG WIRING-004 D3）。
+5. **副作用**：`python -m min_agent.activity.*`、`-m min_agent.evaluation.night_cli`、`-m min_agent.evaluation.evolution_cli` 不再可用；`scripts/night-adrian.cmd`、`scripts/eval_adrian_memory.py` 删除；文档加「已删除」标注。无数据库/配置副作用。
+6. **最终状态**：**COMPLETED**（删除后全量离线测试见 VALIDATION_LOG WIRING-004/005）。
+
+## WIRING-005 · 2026-11-20 · Phase: GATE + DOCS（任务 5）
+
+1. **目标**：AGENTS.md 增加接线门禁；修正文档事实错误（主循环阶段数、多 Agent 静态接入表述）；更新 PROJECT_STATUS；最后全量离线对比基线。
+2. **实际修改**：`AGENTS.md` 新增「接线门禁（WIRING-005）」三条；`docs/PROJECT_STATUS.md` 把 RUNTIME-SLIM 的「5 个阶段」改为 6 个并列出阶段名，MA-P5-013 段加「后续状态」注记；`README.md`、`docs/NIGHT_MODE.md`、`docs/EVOLUTION_V1.md`、`docs/MODULE_MAP.md` 标注已删除入口或更新命令。
+3. **未做**：不追溯改写历史日志/阶段记录；不动 `docs/acceptance/` 的 9.1MB JSON 快照；不动 `shell/` 前端；不推远端、不开 PR、不合 main（留到用户收尾）。
+4. **最终状态**：**COMPLETED**（门禁与文档已更新，全量测试见 VALIDATION_LOG）。

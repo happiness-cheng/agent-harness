@@ -1654,3 +1654,50 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 **未运行**：/legacy 确认按钮的浏览器点击（只做 API + DOM 接线）；DSH 默认外壳确认 UI（不存在，既有缺口）；其他模型/付费模型；后台连接失败后的自动重试；同任务服务器崩溃热重连。
 
 **边界**：`tests/live` 两条用 ScriptedModel，只证明真实服务器协议与排队路径，不证明模型自然语言行为；真实模型 1 个会话、3 次输入，不构成成功率统计；prompt-only 工具调用只验证 qwen3.5:4b；confirm 绑定「工具名 + 参数」签名，参数不同即新排队（刻意行为）；`prompt_sections.mcp` 的 sha 是 run 结束后按当时段内容计算的，运行期间后台连接完成会使该段在轮次间变化，sha 反映末次内容。
+
+## WIRING-003 · 2026-11-20 · Phase: MEMORY + MULTI-AGENT（任务 3）
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / `.venv`；分支 `review/20261120-wiring-fix`，代码基线 `9eac391`（WIRING-002）+ 本任务改动；live 用本机 Ollama `qwen3.5:4b`（num_ctx=32768），0 次外部付费调用。证据 `reports/wiring-20261120/`。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 新增离线测试 | `pytest tests/integration/test_memory_auto_proposal.py tests/integration/test_multi_agent_wiring.py tests/unit/test_model_json_fence.py tests/integration/test_compression_layers.py` | **23 passed / 3.19s**：记忆候选（自动提出、确认前不入库、API 确认、关闭不追溯、下一轮注入并带合法引用）、多 Agent（2 子任务全 PASS、预算 40/60、关闭不注册、预算不足 partial）、JSON 围栏（去壳/严格校验/非法 JSON 仍失败）、压缩层回归 |
+| 记忆 live（真实模型） | `tests/live/test_wiring_live.py::test_ollama_auto_proposes_memory_candidate_after_remember_directive`（`AGENT_HARNESS_LIVE_OLLAMA=1 AGENT_HARNESS_LIVE_MEMORY=1`） | **1 passed / 54.38s**：真实 qwen 完成「记住：…」一轮，候选自动出现且内容含 `Python 3.13`；确认后正式库 1 条 |
+| 多 Agent live smoke | `tests/live/test_wiring_live.py::test_ollama_real_multi_agent_delegation_stays_within_budget` | **1 passed / 152.82s**：真实委派 3 个子任务全部 `completed/PASS`，结果 405；预算 `model_calls=11`（含 1 次压缩）计入同一账本 |
+| 多 Agent live 两测试合并 | `pytest tests/live/test_wiring_live.py -m live -q` | **2 passed / 216.23s** |
+| 3 个真实委派 + 失败重试 | `reports/wiring-20261120/multi_agent_live_verify.py` → `multi-agent-live-evidence.json` | **PASS（13/13 checks）**：① 2 子任务 → 实拆 3 个、全 PASS、汇总 405；② 3 子任务 → 全 PASS、汇总 93；③ `total_models=3` 的同一目标 → `partial/budget_exhausted`，模型调用恰好 3 次（预算门生效）；④ 正常预算重试 → 3/3 PASS、汇总 93。每次均用真实 calculator 工具回执验收 |
+| 全量离线（任务 3/4/5 合并树） | `pytest --junitxml reports/wiring-20261120/full-after-task5.xml -q` | **1768 passed / 8 deselected / 0 failed / 0 skipped / 140.22s（exit 0）**；JUnit tests=1768 failures=0 errors=0 skipped=0 |
+
+**失败与修复（如实，均为本任务实施中发现）**：
+1. **writer 角色判据不成立**：首版工厂接 `writer` + `required_markers=("结论",)`；真实 Ollama 在任务 1 的汇总子任务里输出「两个计算结果分别为391和14」，不含「结论」，`delivery_mismatch` → 整次委派 partial。判定为「用格式巧合冒充验收」而非产品缺陷，删除 writer，只保留 calculator（DECISION_LOG D5）。
+2. **任何真实委派都 AttributeError**：`MultiAgentService._build_transport` 把 `manager.py:1326` 传入的档位 key 字符串当 `ModelProfile` 访问 `.key`；离线只测到工厂前一步，所以从未暴露。改为接收字符串 key。
+3. **委派完成后主循环 context_limit**：委派结果 >2000 字节触发工具摘要，qwen 返回 ```json 围栏，`GroundedSelector.select` 直接 `model_validate_json` 失败；`tool_summary` 抛错被 `prepare` 包成 `ContextLimit`。日志证据：`FITS True window=98304 bound≈22.5KB`，失败栈在 `compression/selector.py:93`。新增 `strip_code_fence` 后同一用例 `completed`。
+4. **3 子任务时根契约额度不足**：Manager 根契约硬编码 `max_subtasks*2+2`（3 子任务=8），第 3 个 worker 用满 4 次时被根契约拒（`budget_rejected:model_calls`）。改为按 `WorkerSpec.max_model_calls` 推导（3×4+2=14）。
+5. **worker 重试被工具上限打断**：汇总子任务调用 calculator 3 次后 `max_tool_calls_exceeded`。将 calculator 上限提到 3 次工具/4 次模型，委派工具预算 9；离线测试同步改为真实 calculator 回执路径。
+6. 以上 2–5 修复后，3 任务验证首轮即 13/13 PASS；未修改既有验收判据来「变绿」。
+
+**未运行**：候选确认按钮的浏览器点击；`--multi-agent` 真实服务进程 + 浏览器端到端；文本类 worker（未接线）；其他模型/付费模型；委派内部自动重试（失败重试由验证脚本重新发起）。
+
+**边界**：live 是 1 个会话/3 个任务的固定样本，不构成成功率统计；PASS 只证明「calculator 工具回执存在且结果结构合法」，不证明自然语言语义正确（`semantic_review=UNKNOWN`）；自动 propose 只识别明确「记住/remember」指令；多 Agent 只支持算术角色。
+
+## WIRING-004 / WIRING-005 · 2026-11-20 · Phase: DEAD-CODE + GATE/DOCS（任务 4/5）
+
+**环境**：同上；删除后未引入新依赖。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 引用核实 | 全仓 grep `context_capabilities`、`min_agent.activity`、`evaluation.(night|evolution)`、`long_memory.evaluation` | A 批仅自身/历史快照；B 批仅自身/测试/脚本；生产 `application.py`/`web/`/`runtime/` 零引用 |
+| 删除规模 | `git diff --numstat` / `git status` | **33 个文件、5072 行**；生产源码 3208 行（activity 2176、evaluation evolution+night 853、long_memory/evaluation 173、context_capabilities 6） |
+| 删除后目标测试 | `pytest tests/integration/test_evaluation_v1.py tests/integration/test_system_consistency.py tests/unit/test_adrian_evidence_delivery.py` | **20 passed / 44.19s**；mixed 文件只删 night 用例，保留 runner/suite/memory 覆盖 |
+| 导入/编译 | `python -c "import min_agent.application, min_agent.evaluation, min_agent.evaluation.__main__, min_agent.long_memory"`；`python -m compileall -q src/min_agent` | 导入 ok；compileall exit 0 |
+| 全量离线 | 同 WIRING-003 的 `full-after-task5.xml` | **1768 passed / 8 deselected / 0 failed**；净减少 268 个收集项（= 任务 3 后 2036 − 1768，含参数化展开）；8 个 deselected = 原 5 + 新增 2 个 `test_wiring_live` + `test_mcp_live` 拆分为 2 |
+| live 双 smoke | 同 WIRING-003 | **2 passed / 216.23s** |
+| 文档/门禁 | `AGENTS.md` 新增接线门禁；`PROJECT_STATUS.md` 6 阶段与多 Agent 后续状态；README/NIGHT_MODE/EVOLUTION_V1/MODULE_MAP 标注删除 | 文档改动无运行测试；以 git diff 核对 |
+
+**失败与修复**：删除后目标测试无失败；全量无失败。`test_adrian_evidence_delivery` 原依赖被删的 `long_memory.evaluation.build_approved_fixture`，改为 `tests/fakes/memory_fixture.py` 后 9 passed；未放宽该测试断言。
+
+**未运行**：删除模块的历史 live 脚本（文件已删）；`docs/acceptance/` 9.1MB JSON 快照未改动；`shell/` 前端未改动；未推远端、未开 PR。
+
+**边界**：grep 证明的是「当前树内无静态 import/命令引用」，不证明不存在外部脚本或用户本地调用；`evaluation` 核心、`codex_adapter`、`finance`、`journal` 保留，未逐项判定是否仍休眠；门禁是文字规则，不会自动拦截提交。
+
+**基线对比**：1991（WIRING-000）→ 2009（+18，任务 1）→ 2026（+17，任务 2）→ 2036（任务 3 新增 10）→ **1768**（任务 4/5 删除 268 个收集项后）；删除后 0 failed，测试收集无错误。
