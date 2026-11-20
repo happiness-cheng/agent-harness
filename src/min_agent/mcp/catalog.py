@@ -1,7 +1,8 @@
-"""MCP 服务器目录：按需连接、发现工具、并入 ToolRegistry、生成提示词段。
+"""MCP 服务器目录：后台默认连接、发现工具、并入 ToolRegistry、生成元数据段。
 
-渐进式披露：连接前只公开服务器 ``name + description``；连接成功后，
-该服务器的工具才以 ``mcp__server__tool`` 的名字进入工具列表。
+元数据披露：连接成功后 SystemPrompt 段只公开工具 ``name + description``；
+工具以 prompt_only 方式注册（可调用、不进 tools 数组），完整 schema 在
+调用入口校验。command/args/env 永远不出现在模型可见文本里。
 """
 
 import threading
@@ -9,8 +10,11 @@ import weakref
 from dataclasses import dataclass
 from typing import Callable
 
+from min_agent.ledger.resource_budget import estimate_tokens
 from min_agent.mcp.client import MCPError, StdioMCPClient
 from min_agent.mcp.spec import MCPServerSpec, normalize_tool_name, prefixed_tool_name
+
+MCP_SECTION_TOKEN_LIMIT = 600
 
 
 @dataclass(frozen=True)
@@ -49,6 +53,8 @@ class MCPServerCatalog:
         self._bound: "weakref.WeakKeyDictionary[object, set[str]]" = weakref.WeakKeyDictionary()
         self._lock = threading.RLock()
         self._closed = False
+        self._bg_started = False
+        self._state: dict[str, dict] = {}
 
     # ---------------------------------------------------------------- queries
     def available(self) -> tuple[MCPServerSpec, ...]:
@@ -64,16 +70,46 @@ class MCPServerCatalog:
 
     def status(self) -> dict[str, dict[str, object]]:
         with self._lock:
-            return {
-                name: {
-                    "connected": True,
-                    "tools": [tool.name for tool in connection.tools],
-                    "policy": connection.spec.policy,
-                }
-                for name, connection in self._connections.items()
-            }
+            result = {}
+            for name, spec in self._specs.items():
+                connection = self._connections.get(name)
+                if connection is not None:
+                    result[name] = {
+                        "state": "connected",
+                        "tools": [tool.name for tool in connection.tools],
+                        "policy": spec.policy,
+                    }
+                else:
+                    result[name] = {**self._state.get(name, {"state": "idle"}),
+                                    "policy": spec.policy}
+            return result
 
     # ---------------------------------------------------------------- lifecycle
+    def connect_background(self) -> None:
+        """启动时后台逐个连接；不阻塞调用方，失败记状态供 connect_mcp 重试。"""
+        with self._lock:
+            if self._closed or self._bg_started or not self._specs:
+                return
+            self._bg_started = True
+            for name in self._specs:
+                self._state[name] = {"state": "connecting"}
+        threading.Thread(target=self._connect_all, daemon=True).start()
+
+    def _connect_all(self) -> None:
+        for name in list(self._specs):
+            with self._lock:
+                if self._closed:
+                    return
+            try:
+                self.connect(name)
+            except MCPError as error:
+                with self._lock:
+                    self._state[name] = {"state": "failed", "error": str(error)}
+            except Exception:
+                # 异常文本可能含命令/环境细节，只记固定码，不回显给模型或界面。
+                with self._lock:
+                    self._state[name] = {"state": "failed", "error": "connect_failed"}
+
     def connect(self, name: str) -> MCPConnection:
         with self._lock:
             if self._closed:
@@ -98,6 +134,7 @@ class MCPServerCatalog:
                 raise
             connection = MCPConnection(spec=spec, client=client, tools=tools)
             self._connections[name] = connection
+            self._state[name] = {"state": "connected"}
             return connection
 
     @staticmethod
@@ -130,8 +167,8 @@ class MCPServerCatalog:
             connection.client.close()
 
     # ---------------------------------------------------------------- registry
-    def bind(self, registry) -> None:
-        """把已连接服务器的工具绑定进 registry；重复调用只补缺，不重复注册。"""
+    def bind(self, registry, confirmations=None) -> None:
+        """把已连接服务器的工具以 prompt_only 方式绑定；重复调用只补缺。"""
         from min_agent.mcp.tools import build_mcp_tool
 
         with self._lock:
@@ -153,26 +190,73 @@ class MCPServerCatalog:
                         raise MCPError(f"MCP 工具名与已有工具冲突：{name}")
                     pending.append((name, connection, tool))
             for name, connection, tool in pending:
-                registry.register(build_mcp_tool(connection, tool))
+                registry.register(build_mcp_tool(connection, tool, confirmations))
                 bound.add(name)
 
     # ---------------------------------------------------------------- prompt
     def prompt_section(self) -> str:
-        """只暴露名称与说明；不暴露 command/args/env，也不引用服务器自述权限。"""
+        """只暴露工具 name + description；不暴露 command/args/env 与完整 schema。
+
+        超 token 上限降级为只放名字，再超按序截断；未连接服务器清单一并计入
+        上限（追加后复核），且区分「正在连接 / 失败 / 未连接」，避免模型在
+        后台连接尚未完成时误以为必须调 connect_mcp。
+        """
         with self._lock:
-            available = [spec for name, spec in self._specs.items() if name not in self._connections]
+            available = [spec for name, spec in self._specs.items()
+                         if name not in self._connections]
             connected = list(self._connections.values())
+            states = {spec.name: dict(self._state.get(spec.name, {"state": "idle"}))
+                      for spec in available}
         if not available and not connected:
             return ""
-        lines = ["## MCP 服务器（按需连接）"]
-        if available:
-            lines.append("可用服务器（当前只公开名称与说明，工具尚未并入）：")
-            for spec in available:
-                lines.append(f"- {spec.name}：{' '.join(spec.description.split())}")
-        if connected:
-            lines.append("已连接的服务器：")
-            for connection in connected:
-                lines.append(f"- {connection.spec.name}：{len(connection.tools)} 个工具已并入")
-        if available:
-            lines.append("需要时调用 connect_mcp(name)；连接成功后其工具才会出现在工具列表。")
+        header = "## MCP 工具（按名直接调用）"
+        lines = []
+        for connection in connected:
+            confirm = connection.spec.policy == "confirm"
+            for tool in connection.tools:
+                name = prefixed_tool_name(connection.spec.name, tool.name)
+                description = " ".join(tool.description.split())
+                suffix = "（调用需用户在界面确认）" if confirm else ""
+                lines.append(f"- {name}：{description}{suffix}")
+        footer = ("参数按工具说明传入；调用时才按完整 schema 校验。"
+                  "MCP 调用是否允许由宿主策略与用户确认决定，与工作模式无关，任何模式都可发起。"
+                  "标记需确认的工具会挂起等待用户批准，不要重复发起同一调用。")
+        variants = ["\n".join([header, *lines, footer])]
+        variants.append("\n".join([header, *[line.split("：")[0] for line in lines], footer]))
+        kept = []
+        for line in lines:
+            name = line.split("：")[0]
+            candidate = "\n".join([header, *kept, name, "（清单超长，已截断）", footer])
+            if estimate_tokens(candidate) > MCP_SECTION_TOKEN_LIMIT:
+                break
+            kept.append(name)
+        variants.append("\n".join([header, *kept, "（清单超长，已截断）", footer]))
+        for variant in variants:
+            for detailed in (True, False):
+                candidate = self._append_available(variant, available, states, detailed=detailed)
+                if estimate_tokens(candidate) <= MCP_SECTION_TOKEN_LIMIT:
+                    return candidate
+        fallback = "\n".join([header, "（工具清单超长，已省略；可直接按名调用已知工具）", footer])
+        for detailed in (True, False):
+            candidate = self._append_available(fallback, available, states, detailed=detailed)
+            if estimate_tokens(candidate) <= MCP_SECTION_TOKEN_LIMIT:
+                return candidate
+        return "\n".join([header, "（清单超长已省略）", footer])
+
+    @staticmethod
+    def _append_available(section: str, available, states, *, detailed: bool) -> str:
+        if not available:
+            return section
+        lines = [section, "尚未就绪的服务器："]
+        for spec in available:
+            state = states.get(spec.name, {}).get("state", "idle")
+            if state == "connecting":
+                text = "正在后台连接，稍后自动可用；不必调用 connect_mcp"
+            elif state == "failed":
+                text = "连接失败，可调用 connect_mcp 重试"
+            else:
+                text = "尚未连接，可调用 connect_mcp 重试"
+            if detailed and spec.description:
+                text += "：" + " ".join(spec.description.split())
+            lines.append(f"- {spec.name}：{text}")
         return "\n".join(lines)

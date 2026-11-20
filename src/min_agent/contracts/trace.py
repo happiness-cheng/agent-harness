@@ -127,13 +127,16 @@ class TraceRecorder:
                 _active_span.reset(token)
 
 
-def record_run_trace(sessions, context, trace, *, run_id, budget_id, status, limit=20):
+def record_run_trace(sessions, context, trace, *, run_id, budget_id, status, limit=20, prompt_sections=None):
     if type(limit) is not int or not 1 <= limit <= 100:
         raise ValueError("trace保留数量无效")
     with sessions.control(context):
         records = sessions.extension(context, "trace_runs", [])
         events = json.loads(trace.to_json())
         records = [record for record in records if record["run_id"] != str(run_id)]
-        records.append({"run_id": str(run_id), "logical_task_id": str(budget_id) if budget_id else None,
-            "status": status, "event_count": len(events), "truncated": len(events) > 2000, "events": events[:2000]})
+        record = {"run_id": str(run_id), "logical_task_id": str(budget_id) if budget_id else None,
+            "status": status, "event_count": len(events), "truncated": len(events) > 2000, "events": events[:2000]}
+        if prompt_sections is not None:
+            record["prompt_sections"] = prompt_sections
+        records.append(record)
         sessions.set_extensions(context, {"last_trace": events[:2000], "trace_runs": records[-limit:]})

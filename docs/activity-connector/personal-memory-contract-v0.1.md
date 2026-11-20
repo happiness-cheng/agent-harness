@@ -35,12 +35,9 @@ Activity ID 输入为契约版本 + platform + Source ID + 报告记录位置，
 CLI 仅生成内置合成输入，通过现有只读 Connector 形成报告后转换；没有私人历史输入参数。输出只在自身新建的 OS 临时沙盒，保护正式 Vault。Source 卡使用 Obsidian 内部 block 链接，候选正文直接显示审核、三种时间与引用边界。正常 Obsidian 显示不等于插件导入成功或人工审核。
 ## 最小 CLI 与验收边界
 
-在 Adrian 仓库运行（只生成内置合成数据）：
+> **WIRING-004（2026-11-20）**：`activity/` 包已删除（生产零调用）。以下命令仅保留历史记录，当前不可运行。
 
-```powershell
-.venv/Scripts/python.exe -X utf8 -m min_agent.activity_memory_adapter
-.venv/Scripts/python.exe -X utf8 -m min_agent.activity_memory_adapter --sandbox "<上一条返回的 sandbox>"
-```
+在 Adrian 仓库运行（只生成内置合成数据，历史；`activity/` 已删除，命令不可运行）：
 
 第二次转换 `written=0`；目录内 `vault/Candidates` 是候选，`vault/Sources` 是报告摘录及证据卡，`identity-map-*.json` 是显式映射。观察时间取沙盒首次创建时间，不随重跑漂移。CLI 不接受实际历史路径；Python 转换函数是本实验的合成报告接口，不是自动敏感内容识别器。只复制白名单字段，未知限制文本不导出；已知 Connector 限制按固定常量保留。
 

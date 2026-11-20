@@ -166,3 +166,41 @@ def test_handler_must_be_callable():
         registry.register(ToolDefinition("invalid", "测试定义", ExpressionArguments, None))
 
     assert registry.schemas() == []
+
+from min_agent.contracts.models import ToolCall
+from min_agent.tools.registry import ToolExecutionFailedError, ToolRefusedError
+
+
+class NoArguments(BaseModel):
+    model_config = ConfigDict(strict=True, extra="forbid")
+
+
+@pytest.mark.parametrize("reason,code,refused", [
+    ("user_refused", "tool_request_failed", True),
+    ("already_consumed", "tool_already_consumed", False),
+    ("confirmation_unavailable", "confirmation_unavailable", False),
+    ("backlog_full", "confirmation_backlog_full", False),
+])
+def test_refusal_reasons_map_to_distinct_errors(reason, code, refused):
+    def handler():
+        raise ToolRefusedError("未执行", reason=reason)
+
+    registry = ToolRegistry()
+    registry.register(ToolDefinition("guarded", "测试拒绝原因", NoArguments, handler))
+    outcome = registry.execute(ToolCall(id="c1", name="guarded", arguments={}))
+    assert outcome["ok"] is False
+    assert outcome["error"]["code"] == code
+    assert outcome["error"]["refused_by_user"] is refused
+
+
+def test_external_execution_failure_is_ok_false_with_unknown_state():
+    def handler():
+        raise ToolExecutionFailedError("服务器报错")
+
+    registry = ToolRegistry()
+    registry.register(ToolDefinition("remote", "测试外部失败", NoArguments, handler))
+    outcome = registry.execute(ToolCall(id="c1", name="remote", arguments={}))
+    assert outcome["ok"] is False
+    assert outcome["error"]["code"] == "tool_execution_failed"
+    assert outcome["error"]["execution_state"] == "unknown"
+    assert "refused_by_user" not in outcome["error"]

@@ -1311,3 +1311,132 @@
 3. **未完成**：完整 JSON Schema 校验（嵌套/数组元素/`additionalProperties`/范围）；非 `-32602` 版本拒绝码的降级；轮数上限按任务类型自适应；skills/memory 的组件提示词段仍待接。
 4. **副作用**：`Runtime` 公开签名新增关键字参数（默认 64，旧调用不受影响）；trace 增加一个允许错误码；MCP 工具现在会先本地拒绝缺参/明显类型错误（行为变化）；`close()` 正常情况下立即返回，异常服务器最多多等约 4 s（两个线程各 2 s）。
 5. **最终状态**：外部审查 4 项全部修复并有回归覆盖；完整 schema 校验与远程 MCP 仍未做。
+
+## WIRING-000 · 2026-11-20 · Phase: BASELINE（四条改造任务清单 · 任务 0）
+
+### 执行前
+
+1. **Task ID / 目标**：`WIRING-000`；用户四条改造清单（任务 1 Skill 三层披露 / 任务 2 MCP 后台连接+confirm 真排队 / 任务 3 长期记忆+多 Agent 开启 / 任务 4 删死代码 / 任务 5 门禁+文档）的公共基线：干净工作区上切工作分支 `review/20261120-wiring-fix`，跑全量离线测试记基线（清单预期 1991 passed），记录默认路径 import 图。后续每任务单独 Task ID（WIRING-001…005），每任务完成停下汇报等用户确认。
+2. **基线与工作区**：main = `de68c2f`（= origin/main），`git status` 干净（7 个私有目录已被 .gitignore 忽略）；最近可信全量为 REVIEW-FIX-001 的 **1991 passed / 5 deselected / 214.89s**（源码 `cfb91db`，已随 PR #2 合入 main）。本轮在 `de68c2f` 上重跑作为本清单基线。
+3. **预期修改**：本任务不改任何 `src/`、`tests/` 源码；只新增本日志条目、VALIDATION_LOG 条目与 `reports/wiring-20261120/`（gitignored）下的基线证据（JUnit XML、import 图脚本与 JSON）。
+4. **判据**：① 全量离线 `pytest -q`（addopts 默认 `-m "not live"`）0 failed，passed 数与 1991 对比并如实记录差异；② import 图区分「默认入口 import 时加载」与「源码树存在但未加载」，并标注懒加载边界。
+5. **风险与禁止**：测试运行期间不编辑 `src/`/`tests/`（避免 REVIEW-FIX-001 的混合代码基线作废问题重演）；不调用真实模型、不发外部请求；不直接合 main、不强推；所有改动只进 `review/20261120-wiring-fix`。
+
+### WIRING-000 执行后（2026-11-20）
+
+1. **实际完成**：① 从 main `de68c2f` 切出 `review/20261120-wiring-fix`；② 全量离线基线 **1991 passed / 5 deselected / 0 failed / 200.62s**（见 VALIDATION_LOG WIRING-000）；③ 默认路径 import 图（140 模块 / 60 加载 / 81 未加载）与懒加载核实；④ 本日志与 VALIDATION_LOG 条目。
+2. **实际修改文件**：`docs/engineering-log/IMPLEMENTATION_LOG.md`、`docs/engineering-log/VALIDATION_LOG.md`（追加）；本地证据 `reports/wiring-20261120/{full-baseline.xml,full-baseline.log,import_graph.py,import-graph.json}`（gitignored，不入库）。`src/`、`tests/` 零改动。
+3. **与计划的偏差**：无。测试数与清单预期 1991 完全一致。
+4. **未完成**：任务 1–5 全部未开始（按清单逐任务停下等确认）。
+5. **副作用**：无生产行为变化；新分支未推送（按总规则推远端与开 PR 在清单收尾执行）。
+6. **最终状态**：COMPLETED（基线任务）。本任务无新决策。
+
+## WIRING-001 · 2026-11-20 · Phase: CONTEXT / SKILLS（任务 1 · Skill 三层披露）
+
+### 执行前
+
+1. **Task ID / 目标**：`WIRING-001`；三层披露——① 扫描 `src/min_agent/skills/` 解析 frontmatter（name/description 必填，已有）；② SystemPrompt 增加技能清单段（只放 name + 一句话 description，带 token 上限）；③ `read_skill` 按名加载全文，支持 SKILL.md 引用的子文档路径；④ 新写 3 个真 skill（读代码先定位入口 / 写测试先定判据 / 压缩前保留证据链），description 含何时用/何时不用 + 反例。
+2. **基线**：`review/20261120-wiring-fix` @ `1db4225`（源码同 `de68c2f`），全量 1991 passed / 5 deselected（WIRING-000）。现状：`SkillCatalog` 只扫平铺 `*.md`；技能清单 JSON 嵌在 `read_skill` 工具 description 里（application.py:522）；SystemPrompt 仅在配置 MCP 时构造（application.py:637-641），默认路径无技能段；trace 只存固定诊断元数据（tool_ref=sha256(工具名)），不存提示词正文。
+3. **预期修改**：`compression/skills.py`（目录型 skill + 子文档 + prompt_section）、`application.py`（read_skill 参数/描述、SystemPrompt 常开、trace 元数据）、`contracts/trace.py`（record_run_trace 追加可选 prompt_sections）、`src/min_agent/skills/` 新增 3 个目录型 skill；新增 unit/integration 测试；不改 `context/manager.py`、`compression/compaction.py` 等 skill 以外压缩逻辑，不改 `_registry` 签名（避免 MCP-001 的 EvalApplication 覆写签名事故重演）。
+4. **判据**：A 离线——目录扫描/frontmatter 必填/子文档越界拒绝；B 离线——首个模型请求 system 含清单段（name+description、无全文），超 token 上限降级只放名字、再超截断；C 离线集成——ScriptedModel 调 read_skill 真实读到全文与子文档，trace_runs 记录含技能段元数据与 read_skill 的 tool_ref；D live——启动服务（本地 Ollama）发一句需要 skill 的请求，trace 可见清单段与 read_skill 调用。
+5. **风险与禁止**：子文档读取不得越过 skill 目录（符号链接/`..`/绝对路径拒绝）；清单段不得放全文；不动 skill 以外压缩逻辑；真实模型调用限本地 Ollama、单次请求级；不提交私有材料。
+
+### 执行后
+
+1. **实际修改文件**：
+   - `src/min_agent/compression/skills.py`：目录型 `<name>/SKILL.md` 双布局扫描（`_documents` 子文档白名单、`_parents` 包含映射）；`prompt_section()` 清单段（name + description 首句，600 token 上限，超限降级只放名字、再超截断标注）；`_listing_line()` 首句提取；`read(name, path=None)` 子文档白名单读取（拒绝符号链接/越界/绝对路径，20000 字节上限沿用）。
+   - `src/min_agent/application.py`：`_Skill` 增加可选 `path`（1–200 字符）；`read_skill` 描述静态化（清单移入 system 段）；`_run` 总是构造 `SystemPrompt(system.md, [技能段] + [MCP段?])` 并生成 `prompt_sections` 元数据（段内容 sha256 + skill 数）传给 `record_run_trace`。`_registry` 签名未动。
+   - `src/min_agent/contracts/trace.py`：`record_run_trace` 增加可选 `prompt_sections`，run 级记录 dict 追加该键；`TraceEvent` 契约未动。
+   - `scripts/eval_skill_disclosure.py:67`：read_skill lambda 同步 `path=None` 参数（修复 `_Skill` dump 带 path 后的 TypeError）。
+   - 新增 `src/min_agent/skills/{code-entry-first,criteria-before-tests,evidence-before-compaction}/SKILL.md` + `evidence-before-compaction/references/evidence-checklist.md`；description 均含何时用/何时不用 + 反例。
+   - 新增 `tests/unit/test_skill_disclosure.py`（16 例含参数化）、`tests/integration/test_skill_prompt.py`（2 例），合计 18 例。
+   - 日志：DECISION_LOG（WIRING-001 D1–D7）、本日志、VALIDATION_LOG；`docs/PROJECT_STATUS.md` 置顶新增 WIRING 批次节。
+2. **为什么**：三层披露把「清单固定开销」与「全文按需读取」分开；子文档白名单让 SKILL.md 能引用参考材料而不开放任意路径读取。设计论证见 DECISION_LOG WIRING-001 D1–D7，不重复。
+3. **与计划的偏差**：① 首版清单放整段 description，全量回归暴露既有验收用例 `test_ollama_runtime` 小窗口恢复失败（固定开销挤占恢复余量），按 D7 修订为首句清单并新增回归测试——未改 skill 以外压缩逻辑、未放宽既有判据。② live 验证脚本两次缺陷（缺 cookie 处理致 401；只看最后一个 run 的 trace 漏掉首 run 的 read_skill 事件），均为脚本问题，产品行为正确，修脚本后 PASS。
+4. **未完成**：任务 2–5 未开始；真实模型 live 只覆盖「读全文」，子文档路径的 live 读取未单独构造（离线集成已覆盖）；未做浏览器 UI 验证。
+5. **副作用**：默认路径每次模型请求新增技能清单段（约 750 字节）与 read_skill 工具 schema；`trace_runs` 记录新增 `prompt_sections` 键（附加式，旧记录无此键不受影响）；无数据库 schema 变化（扩展 JSON）。
+6. **最终状态**：COMPLETED。验证见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → WIRING-001。
+
+## WIRING-002 · 2026-11-20 · Phase: MCP（任务 2 · 后台默认连接 + 元数据披露 + confirm 真排队）
+
+### 执行前
+
+1. **Task ID / 目标**：`WIRING-002`；① 启动时后台连接 `--mcp-config` 指定的服务器（无配置不做任何事）；② list_tools 后只把工具 name + description 拼进 SystemPrompt 的 MCP 段（token 上限，超了只放名字）；③ 模型调 `mcp__*` 工具时再按完整 schema 校验（schema 连接时发现并保存，校验在执行入口）；④ command/args/env 仍只来自 host 配置；⑤ confirm 从「直接拒绝（且包成 ok:true）」改为真排队：调用挂起、记入会话持久事件、等 web 界面批准/拒绝后再执行并回填；拒绝明确返回 ok:false。
+2. **基线**：`review/20261120-wiring-fix` @ `6e686cb`（WIRING-001 已提交），工作区干净；全量 2009 passed / 5 deselected。现状：连接由模型调 `connect_mcp` 触发（mcp/tools.py:59）；工具连接后以完整 raw_schema 进 tools 数组（registry.schemas）；confirm 策略 handler 返回拒绝字符串被包成 ok:true（mcp/tools.py:27-28）；MCP 段只列服务器名不列工具（catalog.py:160-178）。
+3. **预期修改**：`tools/registry.py`（prompt_only 披露标记 + ToolRefusedError 明确拒绝契约）、`mcp/confirm.py`（新，排队协调器）、`mcp/catalog.py`（后台连接 + 状态 + 工具级元数据段）、`mcp/tools.py`（prompt_only 绑定 + confirm 排队 handler + connect_mcp 只留未连接服务器）、`application.py`（create_session 触发后台连接、snapshot 增 mcp 状态与待确认、mcp_confirm 入口）、`web/app.py` + `web/static/`（确认端点与 legacy 界面按钮）；更新既有 MCP 测试中断言旧披露流程的部分（行为按清单改变，安全断言保留），新增排队/上限/后台连接测试；重写 `tests/live/test_mcp_live.py` 为新流程。
+4. **判据**：A 离线——后台连接（假工厂/假服务器）状态机 connecting/connected/failed；MCP 段只含 name+description、无 command/env、超上限降级；prompt_only 工具不进 schemas 但可 execute；confirm 调用挂起为 waiting_user、批准后执行回填、拒绝返回 ok:false 且不包 ok:true、批准一次性消费。B 离线集成——ScriptedModel 走 echo→confirm 挂起→批准→恢复→完成。C live——server-everything（allow+confirm 两个配置名）+ 真实模型（本机 Ollama qwen3.5:4b）跑 连接→发现→echo→confirm 工具确认后执行，全程 trace；`tests/live/test_mcp_live.py -m live` 通过。
+5. **风险与禁止**：不改 command/args/env 来源；不读服务器 annotations 当授权；批准必须绑定精确工具名+参数签名且一次性消费；拒绝不得包成 ok:true；不动 skill/记忆/多 Agent；真实模型限本机 Ollama；npx server-everything 用本机包缓存。已探针验证 qwen3.5:4b 能按提示词段调用不在 tools 数组里的工具（1 次请求，名字与参数正确）。
+6. **已知边界（先记）**：默认 DSH 外壳（shell/）没有任何确认 UI（连既有 goal 确认也没有），确认界面在 /legacy；本任务把 MCP 确认做进 legacy 界面与 API，外壳缺口如实记录不扩范围补。
+
+### 执行后
+
+1. **实际修改文件**（`git status` 核对，14 个文件；源码 7 + 测试 5 + 日志 2）：
+   - 新增 `src/min_agent/mcp/confirm.py`（89 行）：`MCPConfirmations` 持久排队协调器（登记去重 / 定向决定 / 原子消费 / 容量清理）。
+   - `src/min_agent/mcp/catalog.py`：新增 `connect_background()`（daemon 线程逐个连接、状态机 idle→connecting→connected/failed、失败只记固定码或 `MCPError` 文本）、`status()`、`prompt_section()` 改为只列 `mcp__server__tool：description`（600 token 上限，超限先降级只放名字、再按序截断并标注）、`bind()` 支持 `prompt_only`。
+   - `src/min_agent/mcp/tools.py`：`build_mcp_tool(..., confirmations)` 的 confirm handler 改为「查已批准→消费执行 / 已拒绝→`ToolRefusedError` / 无记录→登记 pending 后 `AuthorizationRequired("waiting_user")`」；`connect_mcp` 只列未连接服务器。
+   - `src/min_agent/tools/registry.py`：新增 `ToolRefusedError` 与 `ToolDefinition.prompt_only`；`schemas()` 排除 prompt_only；`_execute` 捕获拒绝并返回 `_request_error("tool_request_failed", ..., refused_by_user=True, recovery="do_not_retry_refused_call")`。
+   - `src/min_agent/application.py`：`create_session` 触发 `connect_background()`；快照新增 `mcp` 状态与 `mcp_confirmations`；新增 `mcp_confirm()` 定向入口（运行中拒绝、决定后按当前任务 resume）；`_registry` 把 `MCPConfirmations` 传给 `register_mcp_tools`；SystemPrompt 组装在配置了服务器时追加 MCP 段并记录 `prompt_sections["mcp"].sha256`。
+   - `src/min_agent/web/app.py`、`src/min_agent/web/static/app.js`：`POST /api/sessions/{id}/mcp-confirm`（`decision: approve|refuse`，CSRF 由既有中间件约束）；legacy 任务面板渲染待确认卡片与批准/拒绝按钮。
+   - 新增 `tests/unit/test_mcp_confirm.py`（8 例）；`tests/unit/test_mcp_catalog.py`（8→14 例）；`tests/integration/test_mcp_application.py`（1→4 例）；`tests/integration/test_mcp_runtime.py`（2 例，按新披露口径更新断言）；`tests/live/test_mcp_live.py`（改为后台连接 + prompt-only 调用 + confirm 排队/批准两条真实服务器用例）。
+2. **实现要点**：后台连接只在 `create_session` 且配置了服务器时启动，失败不回显命令/环境细节；工具连接成功后以 `prompt_only=True` 注册——`execute` 可调用、`schemas()` 不导出，模型只在 SystemPrompt 看到 name+description；schema 在连接时随 `list_tools` 保存，`registry.execute` 入口按 required/简单类型校验；confirm 复用 Runtime 既有 `waiting_user` 挂起与定向 resume，pending 与批准/拒绝记录落在会话扩展 `mcp_confirmations`（JSON），进程重启后仍在；批准按「工具名 + 规范化参数」签名一次性消费，拒绝返回 `ok:false` 并带 `refused_by_user`。
+3. **子项清单核对**：a 后台连接 **已完成**（离线状态机 + 真实服务器 live）；b 只传 name+description + token 上限 **已完成**（含降级/截断测试）；c 调用时完整 schema 校验 **已完成**（schema 连接时保存、执行入口校验，缺参不到服务器）；d confirm 真排队 **已完成**（挂起 → pending 持久记录 → web 批准/拒绝 → 定向恢复/明确拒绝；拒绝 `ok:false`）；e command/args/env 仍只来自 host 配置 **未改**（MCP 段断言不含命令路径/解释器）；f 测试 **通过**（目标 28 例、全量 2026 例）；g live **通过**（`tests/live/test_mcp_live.py -m live` 2 passed；真实模型验证脚本 PASS）。
+4. **与计划的偏差 / 发现的不一致**：① `connect_mcp` 未删除，保留为「未连接/失败服务器」的手动重试入口——后台连接失败不自动重试，这是刻意保留的恢复路径；② 拒绝记录保留在扩展中（status=refused）供审计，`pending()` 只返回 pending，界面不显示已拒绝项；③ live 真实模型第三轮（拒绝）未重发同一调用，`refuse_ok_false_on_retry` 证据为空，拒绝的 `ok:false` 契约由离线集成用例覆盖（见 VALIDATION_LOG）；④ 测试文件中原本断言「连接后工具进 tools 数组」的用例按新披露口径改写，安全断言（不泄露命令、未执行、拒绝不伪装成功）全部保留并加强。
+5. **未完成 / 边界**：/legacy 确认按钮只做了 API + DOM 接线，未做浏览器点击人工验证；DSH 默认外壳（shell/）仍无任何确认 UI（既有缺口，不扩范围）；后台连接无自动重试、同任务热重连沿用 MCP-001 边界；未接入其他模型验证 prompt-only 调用（只验证 qwen3.5:4b）；MCP 工具不单独计预算（外层工具调用预算照常）。
+6. **副作用**：快照新增 `mcp` / `mcp_confirmations` 两个键（附加式，旧前端忽略即可）；`trace_runs` 的 `prompt_sections` 新增 `mcp` 键（仅配置了服务器时）；会话扩展新增 `mcp_confirmations`（JSON，无数据库 schema 变更）；新增一个 POST 端点；会话创建时可能启动后台子进程（仅配置了 MCP 时）。
+7. **最终状态**：**COMPLETED**（离线全量与 live 自验通过，待用户验收；提交后工作分支保留，不推远端、不合 main）。验证明细见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → WIRING-002。
+
+## WIRING-003 · 2026-11-20 · Phase: MEMORY + MULTI-AGENT（任务 3）
+
+### 执行前
+
+1. **Task ID / 目标**：`WIRING-003`；① 长期记忆补写入入口：每轮结束自动把用户明确的「记住 X」提成候选，仍走 propose→review→confirm，确认前不入库、不注入；② 网页默认 `active` 记忆模式，`legacy` 保留回退；③ 多 Agent 打开：web `--multi-agent` + 默认服务脚本；补 `multi_agent_service_factory`；`delegate_task` 复用 40/60 预算。
+2. **基线**：`review/20261120-wiring-fix` @ `9eac391`（WIRING-002 已提交），工作区干净；全量 2026 passed / 6 deselected。
+3. **预期修改**：`agents/factory.py`（新）、`application.py`、`web/__main__.py`、启动脚本、legacy 面板、压缩 JSON 解析、`manager.py` / `multi_agent_service.py`（实施中发现的契约缺陷）、新增离线与 live 测试。
+4. **判据**：A 离线——「记住：X」一轮后出现 pending 候选且正式库仍空；确认后下一轮动态投影含该事实并带合法引用；多 Agent `delegate_task` 能在 2 个子任务上跑完且预算计入同一 40/60；关闭时无工具、无工厂、无额外线程；预算不足时明确 partial。B live——本机 qwen3.5:4b 跑 3 个真实委派（2–3 子任务），其中一次先失败后重试成功；记忆候选自动提出并可确认；`tests/live` 两个 smoke 通过。
+5. **风险与禁止**：不改记忆评分权重；不自动确认候选；模型参数不能带 owner/session/budget/工具白名单；不引入付费模型；不扩大 outer 预算。
+
+### 执行后
+
+1. **实际修改文件**：新增 `src/min_agent/agents/factory.py`（可信工厂 + calculator worker）；`src/min_agent/agents/multi_agent_service.py`（`_build_transport` 接收档位 key 字符串）；`src/min_agent/agents/manager.py`（根契约模型额度按 worker 配置推导）；`src/min_agent/application.py`（`_auto_propose_memory`、`memory_status.candidates`、`snapshot.multi_agent`、多 Agent 片段预算、工厂传 `model=raw_model`）；`src/min_agent/web/__main__.py`（`--multi-agent`、`--legacy-long-memory`、默认 active）；`scripts/start-qianwen.ps1`、`scripts/start-adrian.cmd`；`src/min_agent/web/static/{app.js,index.html}`；`src/min_agent/compression/{model_json.py,selector.py,summary.py}`；新增 `tests/integration/test_memory_auto_proposal.py`（4 例）、`tests/integration/test_multi_agent_wiring.py`（3 例）、`tests/unit/test_model_json_fence.py`（3 例）、`tests/live/test_wiring_live.py`（2 例）。
+2. **实现过程**：自动 propose 用会话扩展游标扫描用户消息，只匹配明确指令，调用 `LongMemory.propose` 生成 pending；确认复用既有 `/memory/candidates` + `/memory/confirm`，界面加最小「确认写入/拒绝」按钮。多 Agent 由工厂按每次运行的 `raw_model` 构造 `ProductionModelTransport`，worker 只有 calculator 角色且验收依赖宿主生成的工具回执；打开时片段上限改为任务总预算 40/60；根契约按 `max_subtasks × 最大 worker 调用数 + 2` 计算。
+3. **与计划的偏差 / 发现的不一致**：① 首版接了 writer 角色 + `required_markers=("结论",)`，真实 Ollama 第三轮 writer 摘要没带该词导致 `delivery_mismatch`，判定为「判据本身不成立」，删除该角色，只保留可机械验证的 calculator（DECISION_LOG D5）；② 真实委派暴露 `MultiAgentService._build_transport` 把档位 key 当 `ModelProfile` 用，任何真实委派都会 `AttributeError`（D7）；③ 委派结果 >2000 字节触发工具摘要，qwen 返回 ```json 围栏使选择器解析失败并报 `context_limit`，新增去围栏容错（D8）；④ 3 个子任务时根契约 8 次模型调用不够，按 worker 配置推导（D4 相关）；⑤ worker 工具次数 2 不够汇总子任务重试，提到 3 次工具 / 4 次模型，委派工具预算 9。
+4. **未完成 / 边界**：候选确认按钮未做浏览器点击验证（只做 API + DOM 接线）；多 Agent 只接 calculator 角色，文本角色未接；live 只验证本机 qwen3.5:4b；委派的「失败重试」是验证脚本用低预算制造失败后重新发起，不是产品自动重放；未在真实 `--multi-agent` 服务进程里跑浏览器端到端（直接构造应用验证）。
+5. **副作用**：网页默认记忆模式变为 active（新增 `--legacy-long-memory` 回退）；快照 `long_memory` 新增 `candidates`、新增 `multi_agent` 键；会话扩展新增 `long_memory_auto_cursor`；多 Agent 打开时片段预算从 6/12 变为 40/60；启动脚本默认带 `--multi-agent`；无数据库 schema 变更。
+6. **最终状态**：**COMPLETED**（离线 + live 自验通过；待用户验收）。验证见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → WIRING-003。
+
+## WIRING-004 · 2026-11-20 · Phase: DEAD-CODE（任务 4）
+
+1. **目标与范围**：按清单分两批删除确认无生产引用的休眠代码；A 批 `llm/context_capabilities.py`、`scripts/migrate_layout_20261115.py`；B 批 `activity/`、`evaluation/` 的 evolution + night 模块、`long_memory/evaluation.py`，同步删除只覆盖这些模块的测试与脚本。
+2. **核实方式**：全仓 grep（`.py` 为主，兼顾 `.cmd/.ps1/.md`）确认：`context_capabilities` 仅自身与历史快照提及；`activity` 仅自身/7 个测试/1 个实验脚本引用；`evaluation.night*`/`evolution*` 仅自身/测试/脚本；`long_memory.evaluation` 仅自身/2 个测试/1 个脚本。生产 `application.py`、`web/`、`runtime/` 均无引用。
+3. **实际删除**：33 个被删文件共 **5856 行**（`git diff --numstat main...d77c5f1 --diff-filter=D`；去空行 5072 行，空行 784）。其中生产源码 3208 行：`activity/` 10 文件 2176 行、evaluation evolution+night 6 文件 853 行、`long_memory/evaluation.py` 173 行、`context_capabilities.py` 6 行；脚本 4 个 413 行、测试 2235 行。测试整文件 **11 个**（`test_activity_*` 7 个 + `test_evolution.py` + `test_evolution_integration.py` + `test_night_mode.py` + `test_adrian_memory_eval.py`）+ 两个混合文件中的 night 用例；`build_approved_fixture` 迁到 `tests/fakes/memory_fixture.py` 以保留 delivery 测试。
+4. **边界与偏差**：保留 `evaluation` 的 contracts/verifier/runner/suites/worker/improvement/review/verification_rules/processes/finance/journal/codex_adapter，因为生产 `subagent_review.py` 与 `evaluation/__main__.py` 仍用它们；`codex_adapter` 虽主要用于 night，但 `improve --codex` 仍引用，未删。A 批迁移脚本与历史 DECISION_LOG D8「保留供审计」冲突，按任务清单删除并追加更正（DECISION_LOG WIRING-004 D3）。
+5. **副作用**：`python -m min_agent.activity.*`、`-m min_agent.evaluation.night_cli`、`-m min_agent.evaluation.evolution_cli` 不再可用；`scripts/night-adrian.cmd`、`scripts/eval_adrian_memory.py` 删除；文档加「已删除」标注——`README.md`、`docs/NIGHT_MODE.md`、`docs/EVOLUTION_V1.md`、`docs/MODULE_MAP.md` 的删除标注实际在 `64cd6e2`（WIRING-004），不在任务 5 的 `d77c5f1`。无数据库/配置副作用。
+6. **最终状态**：**COMPLETED**（删除后全量离线测试见 VALIDATION_LOG WIRING-004/005）。
+
+## WIRING-005 · 2026-11-20 · Phase: GATE + DOCS（任务 5）
+
+1. **目标**：AGENTS.md 增加接线门禁；修正文档事实错误（主循环阶段数、多 Agent 静态接入表述）；更新 PROJECT_STATUS；最后全量离线对比基线。
+2. **实际修改（归属更正）**：`d77c5f1`（WIRING-005）只改 5 个文件——`AGENTS.md`、`docs/PROJECT_STATUS.md`、三份工程日志。`AGENTS.md` 新增「接线门禁（WIRING-005）」；`PROJECT_STATUS.md` 把 RUNTIME-SLIM 的「5 个阶段」改为 6 个并列出阶段名，MA-P5-013 段加「后续状态」注记。`README.md`、`docs/NIGHT_MODE.md`、`docs/EVOLUTION_V1.md`、`docs/MODULE_MAP.md` 的删除标注实际在 `64cd6e2`（WIRING-004），本任务只在此更正归属，不重复计为本任务改动。
+3. **未做**：不追溯改写历史日志/阶段记录；不动 `docs/acceptance/` 的 9.1MB JSON 快照；不动 `shell/` 前端；不推远端、不开 PR、不合 main（留到用户收尾）。
+4. **最终状态**：**COMPLETED**（门禁与文档已更新，全量测试见 VALIDATION_LOG）。
+
+## WIRING-FIX-001 · 2026-11-20 · Phase: PR #4 REVIEW FIX
+
+### 执行前
+
+1. **Task ID / 目标**：`WIRING-FIX-001`；修完 PR #4 审查的 M1–M6、N1–N10；F1–F3 与 D1–D2 记入 backlog/状态；全量离线测试后推送并更新 PR #4。
+2. **基线**：`review/20261120-wiring-fix` @ `d77c5f1`，工作区干净；1768 passed / 8 deselected。
+3. **预期修改**：`mcp/confirm.py`（任务绑定/TTL/容量）、`mcp/tools.py`、`mcp/client.py`、`tools/registry.py`、`application.py`（重连、正则）、`mcp/catalog.py`（上限/状态）、`agents/factory.py`、`runtime/loop.py`、`pyproject.toml`、AGENTS/文档、测试。
+
+### 执行后
+
+1. **实际修改（代码提交 `e7651b0`）**：`mcp/confirm.py` 重写状态机；`mcp/tools.py` 区分 confirm 原因并转服务器错误；`mcp/client.py` 新增 `MCPToolError`；`tools/registry.py` 新增 `ToolExecutionFailedError` 与原因映射；`application.py` 用 `logical_task_id` 自动候选正则、首次访问重连；`mcp/catalog.py` 追加后复核上限并标注 connecting；`agents/factory.py` docstring；`runtime/loop.py` 六阶段；`pyproject.toml` 删 activity extra；AGENTS/README/NIGHT/EVOLUTION/MODULE_MAP/activity 文档更新；测试 7 个文件更新/新增。
+2. **M1/M2**：确认记录增加 `logical_task_id` + `expires_at`；`check_and_consume` 只匹配同一逻辑任务且未过期；`consumed/refused` 按任务隔离；`request` 同任务同签名复用 pending，跨任务新建。新增测试 `test_same_signature_in_another_task_gets_a_new_pending`、`test_approval_is_consumed_once_and_not_reused_by_another_task`、`test_approved_record_expires_and_requires_new_confirmation`、`test_expired_pending_cannot_be_decided_and_is_replaced`，集成 `test_same_signature_in_a_new_task_requires_fresh_confirmation`。
+3. **M3**：`MCPToolError`（isError）与 handler 转换走 `ToolExecutionFailedError` → `ok:false/tool_execution_failed/unknown`；测试 `test_server_error_is_ok_false_not_success_text`、`test_client_raises_tool_error_for_server_is_error_result`、`test_external_execution_failure_is_ok_false_with_unknown_state`。
+4. **M4**：`_mcp_catalog` 创建即 `connect_background()`，`_mcp_status` 经 `_mcp_catalog`；测试 `test_restarting_app_reconnects_existing_session_on_snapshot`。
+5. **M5/M6**：按 `git diff --numstat main...d77c5f1 --diff-filter=D` 重算 33 文件 5856 行（去空行 5072、空行 784；src 3208 + scripts 413 + tests 2235），测试文件 11 个、`test_activity_*` 7 个；`loop.py` 两处 docstring 改六阶段。
+6. **N1–N4**：记忆正则要求分隔符/词界/实质内容；MCP 段追加后复核 600；pending 上限 20、总记录 100、过期清理；拒绝原因映射 4 种错误码，`refused_by_user` 仅真拒绝为真。
+7. **N5–N10**：activity 三份文档命令标注删除、MODULE_MAP/PROJECT_STATUS 历史路径标注；删 activity extra；AGENTS 门禁补定义/豁免/优先级/核查人；N8 归属更正（README/NIGHT/EVOLUTION/MODULE_MAP 属 `64cd6e2`，`d77c5f1` 只改 5 文件）；factory docstring 明确 PASS 不核对数值正确性；首轮 connecting 标注。
+8. **未完成/待确认**：F1–F3 仅登记 backlog（WIRING-006/007/008），未修；D1（网页记忆默认 active）、D2（启动脚本默认 --multi-agent）保持现状但标 `PENDING_USER_CONFIRMATION`，等用户书面确认；候选确认按钮仍无浏览器点击验证。
+9. **副作用**：确认扩展记录新增 `logical_task_id/expires_at`，旧记录（无 expires_at）按过期处理；快照读取已有 MCP 会话会触发后台重连；新增错误码 `tool_execution_failed`、`tool_already_consumed`、`confirmation_unavailable`、`confirmation_backlog_full`；`pyproject.toml` 删 `activity` extra；无数据库 schema 变更。
+10. **最终状态**：M1–M6/N1–N10 **COMPLETED**，D1/D2 **PENDING_USER_CONFIRMATION**，F1–F3 **OPEN（backlog）**。验证见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → WIRING-FIX-001。

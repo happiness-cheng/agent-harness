@@ -6,7 +6,7 @@ import pytest
 
 from min_agent.long_memory.delivery import bind_active_memory, MemoryDeliveryModel, citation_check
 from min_agent.long_memory.delivery_support import encoded
-from min_agent.long_memory.evaluation import build_approved_fixture
+from tests.fakes.memory_fixture import build_approved_fixture
 from min_agent.long_memory.models import Query
 from min_agent.contracts.models import Message
 from min_agent.tools.registry import ToolRegistry

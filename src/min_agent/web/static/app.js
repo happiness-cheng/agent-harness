@@ -63,6 +63,17 @@ function renderTask(saved){
   if(proposal){area.append(node('h3',proposal.goal.objective));const list=node('ul');for(const text of proposal.goal.completion_criteria)list.append(node('li',text));area.append(list);const details=node('details');details.append(node('summary',`执行范围 · ${proposal.goal.actions.length} 项动作`),node('pre',JSON.stringify(proposal.goal.actions,null,2)));area.append(details);
     if(work.confirmed_goal_id!==proposal.proposal_id){area.append(node('p',work.mode==='plan'?'当前为 Plan，确认后也不会写入。':'当前为 Build，确认后仅执行列出的范围。'));const approve=node('button','确认目标并继续','primary');approve.disabled=saved.task?.status==='running';approve.addEventListener('click',()=>act(()=>api(path('/confirm'),{proposal_id:proposal.proposal_id,continue_task:true})));area.append(approve);}
   }else{area.append(node('p','确认目标后，进度会显示在这里。','muted'));}
+  for(const item of (saved.mcp_confirmations||[])){
+    const box=node('div',undefined,'mcp-confirm');
+    box.append(node('h3',`MCP 调用待确认：${item.prefixed}`));
+    box.append(node('pre',JSON.stringify(item.arguments,null,2)));
+    box.append(node('p','批准后才会执行；拒绝会明确告知模型未执行。','muted'));
+    const approve=node('button','批准并继续','primary');approve.disabled=saved.task?.status==='running';
+    approve.addEventListener('click',()=>act(()=>api(path('/mcp-confirm'),{pending_id:item.pending_id,decision:'approve',continue_task:true})));
+    const refuse=node('button','拒绝','secondary');refuse.disabled=saved.task?.status==='running';
+    refuse.addEventListener('click',()=>act(()=>api(path('/mcp-confirm'),{pending_id:item.pending_id,decision:'refuse',continue_task:true})));
+    box.append(approve,refuse);area.append(box);
+  }
   const cp=saved.checkpoint;if(cp&&cp.resumed_by===null){area.append(node('p',cp.checkpoint.model_note?.pending?.join('；')||'已有结果已保存，请核对后继续。'));const resume=node('button','继续本任务','secondary');resume.addEventListener('click',()=>resumeTask(saved));area.append(resume);}
   else if(saved.task&&['waiting_user','partial','failed','cancelled'].includes(saved.task.status)&&(!proposal||work.confirmed_goal_id===proposal.proposal_id)){const resume=node('button','补充信息后继续','secondary');resume.addEventListener('click',()=>resumeTask(saved));area.append(resume);}
   if(saved.error)area.append(node('p','运行已保护性暂停，需重新加载后台状态。','muted'));
@@ -107,6 +118,16 @@ function render(saved){
   const receipt=memory.receipt;
   $('memory-status').textContent=!memory.enabled?'长期记忆已关闭':receipt?.status==='delivered'?`最近送达${receipt.delivered.length}项 · 遗漏${receipt.omitted.length}项`:receipt?.status==='delivery_unknown'?'记忆送达结果未知':'按需读取已确认历史';
   $('memory-detail').textContent=JSON.stringify({mode:memory.mode,receipt:receipt||null,citation:memory.citation||null},null,2);
+  const candidates=$('memory-candidates');
+  candidates.replaceChildren(...(memory.candidates||[]).map(item=>{
+    const box=node('div',undefined,'memory-candidate');
+    box.append(node('p',`待确认记忆：${item.content}`));
+    const approve=node('button','确认写入','primary');approve.disabled=saved.task?.status==='running';
+    approve.addEventListener('click',()=>act(async()=>{const review=await api(path(`/memory/candidates/${encodeURIComponent(item.id)}`));await api(path('/memory/confirm'),{candidate_id:item.id,review_token:review.review_token});toast('记忆已确认；下一轮按需注入。');}));
+    const reject=node('button','拒绝','secondary');reject.disabled=saved.task?.status==='running';
+    reject.addEventListener('click',()=>act(()=>api(path(`/memory/candidates/${encodeURIComponent(item.id)}/reject`),{})));
+    box.append(approve,reject);return box;
+  }));
 }
 async function poll(){if(!state.session||state.polling)return;state.polling=true;try{const saved=await api(path());const signature=JSON.stringify(saved);if(signature!==state.signature){render(saved);state.signature=signature;state.saved=saved;}$('connection-status').textContent='后台已连接';}catch(error){$('connection-status').textContent='连接中断，等待恢复';}finally{state.polling=false;}}
 async function act(callback){try{await callback();await poll();await refreshSessions();}catch(error){toast(error.message);}}

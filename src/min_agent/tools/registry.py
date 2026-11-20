@@ -14,6 +14,26 @@ class InvalidToolResultError(TypeError):
     """handler 已返回，但结果不符合当前文本契约。"""
 
 
+class ToolRefusedError(Exception):
+    """工具因用户/宿主原因未执行；reason 决定错误码与是否标记用户拒绝。"""
+
+    def __init__(self, message: str, *, reason: str = "user_refused") -> None:
+        super().__init__(message)
+        self.reason = reason
+
+
+class ToolExecutionFailedError(Exception):
+    """工具已尝试执行但外部系统报错；结果必须是 ok:false，且不得伪装成拒绝。"""
+
+
+_REFUSAL_ERRORS = {
+    "user_refused": ("tool_request_failed", "do_not_retry_refused_call", True),
+    "already_consumed": ("tool_already_consumed", "do_not_replay_completed_call", False),
+    "confirmation_unavailable": ("confirmation_unavailable", "configure_confirmation_entry", False),
+    "backlog_full": ("confirmation_backlog_full", "resolve_pending_confirmations", False),
+}
+
+
 def _request_error(code: str, message: str, **details: object) -> dict[str, object]:
     return {
         "ok": False,
@@ -35,10 +55,13 @@ class ToolDefinition:
     handler: Callable[..., object]
     managed_execution: bool = False
     raw_schema: dict[str, object] | None = None
+    prompt_only: bool = False
 
     def __post_init__(self) -> None:
         if type(self.managed_execution) is not bool:
             raise TypeError("managed_execution 必须是bool")
+        if type(self.prompt_only) is not bool:
+            raise TypeError("prompt_only 必须是bool")
         if self.raw_schema is not None:
             if not isinstance(self.raw_schema, dict):
                 raise TypeError("raw_schema 必须是字典")
@@ -145,7 +168,22 @@ class ToolRegistry:
                 "invalid_arguments", "参数校验失败，请按 Schema 修正。",
                 issues=issues, expected_schema=tool.parameters.model_json_schema(),
             )
-        output = tool.handler(**arguments.model_dump())
+        try:
+            output = tool.handler(**arguments.model_dump())
+        except ToolRefusedError as error:
+            code, recovery, refused_by_user = _REFUSAL_ERRORS.get(
+                getattr(error, "reason", "user_refused"),
+                ("tool_request_failed", "do_not_retry_refused_call", False),
+            )
+            return _request_error(
+                code, str(error),
+                refused_by_user=refused_by_user, recovery=recovery,
+            )
+        except ToolExecutionFailedError as error:
+            return _request_error(
+                "tool_execution_failed", str(error),
+                execution_state="unknown", recovery="verify_actual_state_before_retry",
+            )
         if not isinstance(output, str):
             raise InvalidToolResultError("工具结果必须是字符串")
         return {"ok": True, "result": output}
@@ -160,5 +198,5 @@ class ToolRegistry:
                     else tool.parameters.model_json_schema()
                 ),
             }
-            for tool in self._tools.values()
+            for tool in self._tools.values() if not tool.prompt_only
         ]

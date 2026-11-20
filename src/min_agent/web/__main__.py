@@ -48,8 +48,13 @@ def main(argv=None):
         help="MCP 服务器配置 JSON；不提供时不启动任何 MCP 子进程")
     parser.add_argument("--adrian", action="store_true", help="真实Adrian本地试用：按需Memory、单实例、就绪后浏览器")
     parser.add_argument("--no-browser", action="store_true", help="显式不自动打开浏览器")
+    parser.add_argument("--multi-agent", action="store_true",
+        help="启用 delegate_task 多 Agent 委派（默认服务脚本会显式打开；命令行默认关闭）")
     memory = parser.add_mutually_exclusive_group()
-    memory.add_argument("--long-memory", dest="memory_mode", action="store_const", const="active")
+    memory.add_argument("--long-memory", dest="memory_mode", action="store_const", const="active",
+        help="主动长期记忆（默认）：确认后的记忆按当前问题动态注入")
+    memory.add_argument("--legacy-long-memory", dest="memory_mode", action="store_const", const="legacy",
+        help="回退到旧行为：只在模型主动检索时使用已确认记忆")
     memory.add_argument("--no-long-memory", dest="memory_mode", action="store_const", const="off")
     options = parser.parse_args(argv)
     if options.adrian:
@@ -68,7 +73,7 @@ def main(argv=None):
     if not 1024 <= options.port <= 65535: parser.error("端口需为1024到65535")
     if not 1 <= options.max_requests <= 100: parser.error("模型请求上限需为1到100")
     if options.live and options.credentials_file is None: parser.error("实网模式必须提供指定凭据文件")
-    mode = options.memory_mode or ('active' if options.adrian else 'legacy')
+    mode = options.memory_mode or 'active'
     from min_agent.web.launcher import DatabaseLease, DatabaseInUse, LaunchError, identity_for, open_existing, port_available, wait_ready
     identity = identity_for(options.database,options.port,demo=not (options.live or options.ollama),memory_mode=mode)
     lease = DatabaseLease(options.database,identity)
@@ -142,8 +147,14 @@ def main(argv=None):
                 mcp_servers = load_mcp_config(options.mcp_config)
             except (OSError, ValueError) as error:
                 parser.error("MCP 配置无法加载：" + _configuration_error(error))
+        multi_agent_service_factory = None
+        if options.multi_agent:
+            from min_agent.agents.factory import build_multi_agent_factory
+            multi_agent_service_factory = build_multi_agent_factory()
         harness = HarnessApplication(options.database,model=model,proxy=options.proxy,desktop=desktop,memory_mode=mode,
-            model_catalog=catalog,workspace_root=options.workspace_root,mcp_servers=mcp_servers)
+            model_catalog=catalog,workspace_root=options.workspace_root,mcp_servers=mcp_servers,
+            enable_multi_agent=options.multi_agent,
+            multi_agent_service_factory=multi_agent_service_factory)
         run(harness,identity,open_browser=options.adrian and not options.no_browser)
     finally:
         lease.__exit__(None,None,None)

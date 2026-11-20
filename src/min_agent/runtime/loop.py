@@ -1,6 +1,6 @@
 """直接回答与串行工具请求的同步执行引擎。
 
-本文件只做编排：构造校验、会话任务闭合，以及一个按固定顺序调用五个阶段
+本文件只做编排：构造校验、会话任务闭合，以及一个按固定顺序调用六个阶段
 的主循环。错误判断、消息构造、收尾与提示词投影都在 ``runtime/`` 下的组件里。
 """
 
@@ -186,7 +186,7 @@ class Runtime:
         self, text: str, context: TraceContext, run_id: UUID, parent_call_id: UUID,
         messages: list[Message] | None = None,
     ) -> RunResult:
-        """五个阶段按固定顺序推进；任一阶段返回结果即终止本轮。"""
+        """六个阶段按固定顺序推进；任一阶段返回结果即终止本轮。"""
         if messages is None:
             messages = [Message(role="user", content=text)]
         state = RunState(context=context, run_id=run_id,

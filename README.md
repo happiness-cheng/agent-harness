@@ -1,4 +1,4 @@
-﻿# Agent Harness
+# Agent Harness
 
 从一道“实现最小 Agent”的笔试出发，逐步构建我心目中的个人 Agent：先理解意图，在明确边界内执行，让过程与结果可以追查。
 
@@ -131,9 +131,9 @@ $credentialsFile = Join-Path $env:USERPROFILE 'agent-harness-credentials.json'
 
 切回原有 Provider：关闭该进程，用上面的 `--demo` 或 `--live` 命令重启。设计说明、协议映射、实测证据与限制见 [本地 Ollama 接入](docs/OLLAMA.md)。
 
-## 统一验证与夜间工作（V1）
+## 统一验证（V1）
 
-评估、真实业务状态验收、受控隔离修复见 [统一验证说明](docs/EVALUATION_V1.md)；持久队列、预算、Codex基础路由和早晨报告见 [夜间模式](docs/NIGHT_MODE.md)。默认离线，不自动开启整晚付费任务，也不自动合并候选。可用 `scripts/evaluate-adrian.cmd`、`scripts/night-adrian.cmd` 查看命令帮助。实际结果和限制见 [本轮报告](reports/eval-v1/REPORT.md)。
+评估、真实业务状态验收、受控隔离修复见 [统一验证说明](docs/EVALUATION_V1.md)。默认离线，不自动开启付费任务，也不自动合并候选。可用 `scripts/evaluate-adrian.cmd` 查看命令帮助。实际结果和限制见 [本轮报告](reports/eval-v1/REPORT.md)。夜间队列/演进 CLI 已在 WIRING-004 中删除（无生产调用），历史说明保留在 docs 与 Git 历史。
 
 ## 使用
 

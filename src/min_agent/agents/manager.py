@@ -852,9 +852,13 @@ class Manager:
         self._stop_poller = stop_poller
         self._max_tool_error_rounds = max_tool_error_rounds
         self._clock = clock
+        # 根契约的模型额度必须覆盖「最坏情况下每个子任务用满自己的额度」+ 规划/汇总。
+        # 旧值 max_subtasks*2+2 假设每个 worker 最多 2 次调用；WorkerSpec 允许更高时，
+        # 第 3 个子任务会在汇总前被根契约误拒（WIRING-003 真实 Ollama 复现）。
+        worst_worker_calls = max(spec.max_model_calls for spec in worker_specs.values())
         self._root = SubagentContract(root_budget, Handoff(
             objective="manager-root", allowed_tools=("none",),
-            max_model_calls=max(2, max_subtasks * 2 + 2),
+            max_model_calls=max(2, max_subtasks * worst_worker_calls + 2),
             max_tool_calls=max_total_tool_calls,
             deadline_seconds=3600.0,
         ), clock=clock)

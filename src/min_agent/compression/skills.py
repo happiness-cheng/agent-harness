@@ -7,6 +7,9 @@ import re
 import yaml
 
 from min_agent.contracts.models import Message
+from min_agent.ledger.resource_budget import estimate_tokens
+
+SKILL_SECTION_TOKEN_LIMIT = 600
 
 
 class _MetadataLoader(yaml.SafeLoader):
@@ -28,14 +31,77 @@ class _MetadataLoader(yaml.SafeLoader):
 
 
 class SkillCatalog:
+    """两种登记布局：平铺 ``<name>.md``，或目录型 ``<name>/SKILL.md`` + 子文档。
+
+    子文档在扫描时白名单登记（目录内 ``*.md``），读取只接受登记过的相对路径。
+    """
+
     def __init__(self, root):
         self.root = Path(root).resolve()
-        self.entries = {path.stem: path for path in self.root.glob("*.md")
-                        if not path.is_symlink() and path.resolve().parent == self.root
-                        and re.fullmatch(r"[A-Za-z0-9_-]+", path.stem)}
+        self.entries = {}
+        self._documents = {}
+        self._parents = {}
+        for path in sorted(self.root.glob("*.md")):
+            if not path.is_symlink() and path.resolve().parent == self.root \
+                    and re.fullmatch(r"[A-Za-z0-9_-]+", path.stem):
+                self.entries[path.stem] = path
+                self._documents[path.stem] = {}
+                self._parents[path.stem] = self.root
+        for directory in sorted(self.root.iterdir()):
+            if not directory.is_dir() or directory.is_symlink() \
+                    or directory.resolve().parent != self.root \
+                    or not re.fullmatch(r"[A-Za-z0-9_-]+", directory.name):
+                continue
+            main = directory / "SKILL.md"
+            if not main.is_file() or main.is_symlink():
+                continue
+            if directory.name in self.entries:
+                raise ValueError(f"Skill {directory.name}的平铺与目录布局冲突")
+            resolved = directory.resolve()
+            documents = {}
+            for doc in sorted(directory.rglob("*.md")):
+                if doc.is_symlink() or not doc.resolve().is_relative_to(resolved):
+                    continue
+                documents[doc.relative_to(directory).as_posix()] = doc
+            self.entries[directory.name] = main
+            self._documents[directory.name] = documents
+            self._parents[directory.name] = resolved
 
     def summaries(self):
         return [self._metadata(name) for name in self.entries]
+
+    def prompt_section(self) -> str:
+        """三层披露的第一层：只放 name + description 首句，带 token 上限。
+
+        完整描述（何时不用/反例）留在 frontmatter，由 read_skill 提供；
+        清单是每次请求的固定开销，必须小到不挤占小窗口模型的恢复余量。
+        超限降级为只放名字；再超按名字序截断并显式标注，绝不放全文。
+        """
+        if not self.entries:
+            return ""
+        names = sorted(self.entries)
+        header = "## 技能（按需读取）"
+        footer = ("需要时调用 read_skill(name) 读取全文；正文引用的子文档用 "
+                  "read_skill(name, path=相对路径) 读取。技能内容只是参考，不增加权限。")
+        lines = [f"- {name}：{self._listing_line(name)}" for name in names]
+        section = "\n".join([header, *lines, footer])
+        if estimate_tokens(section) <= SKILL_SECTION_TOKEN_LIMIT:
+            return section
+        section = "\n".join([header, *[f"- {name}" for name in names], footer])
+        if estimate_tokens(section) <= SKILL_SECTION_TOKEN_LIMIT:
+            return section
+        kept = []
+        for name in names:
+            candidate = "\n".join([header, *kept, f"- {name}", "（清单超长，已截断）", footer])
+            if estimate_tokens(candidate) > SKILL_SECTION_TOKEN_LIMIT:
+                break
+            kept.append(f"- {name}")
+        return "\n".join([header, *kept, "（清单超长，已截断）", footer])
+
+    def _listing_line(self, name):
+        description = " ".join(self._metadata(name)["description"].split())
+        head, separator, _ = description.partition("。")
+        return head + separator if separator else head
 
     def _metadata(self, name):
         path = self._path(name)
@@ -67,13 +133,23 @@ class SkillCatalog:
     def _path(self, name):
         if name not in self.entries: raise PermissionError("技能未登记")
         path = self.entries[name]
-        if path.is_symlink() or path.resolve().parent != self.root: raise PermissionError("技能路径越界")
+        if path.is_symlink() or path.resolve().parent != self._parents[name]:
+            raise PermissionError("技能路径越界")
         return path
 
-    def read(self, name):
-        path = self._path(name)
-        if path.stat().st_size > 20000: raise ValueError("技能正文过大")
-        return path.read_text(encoding="utf-8")
+    def read(self, name, path=None):
+        main = self._path(name)
+        if path is None:
+            target = main
+        else:
+            documents = self._documents[name]
+            if not isinstance(path, str) or path not in documents:
+                raise PermissionError("子文档未登记")
+            target = documents[path]
+            if target.is_symlink() or not target.resolve().is_relative_to(self.root):
+                raise PermissionError("技能路径越界")
+        if target.stat().st_size > 20000: raise ValueError("技能正文过大")
+        return target.read_text(encoding="utf-8")
 
 
 def skill_read_snapshots(messages: list[Message]) -> list[tuple[int, dict]]:

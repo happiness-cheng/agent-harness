@@ -1596,3 +1596,133 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 **未运行**：真实模型 + MCP 对话（未授权，会消耗模型调用）；浏览器 UI；HTTP/SSE/OAuth 服务器；`server-everything` 之外的第三方 MCP；服务器卡死时 kill 路径的现场复现（Windows `terminate` 通常直接结束进程，kill 分支未单独构造）。
 
 **边界**：只证明这 4 项修复的离线契约与 `server-everything` stdio 兼容性；不证明完整 JSON Schema 校验、其他服务器兼容性、远程传输、并发安全或自然语言效果。
+
+## WIRING-000 · 2026-11-20 · Phase: BASELINE
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / `.venv`；源码 `de68c2f`（main，= origin/main）切出的 `review/20261120-wiring-fix`；离线运行，0 次模型调用、0 次外部请求。测试运行期间未编辑 `src/`/`tests/`。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 全量离线基线 | `.venv/Scripts/python.exe -m pytest --junitxml reports/wiring-20261120/full-baseline.xml -q` | **1991 passed / 5 deselected / 0 failed / 0 skipped / 1 warning / 200.62s（exit 0）**；与清单预期 1991 一致，与 REVIEW-FIX-001 终版（214.89s）同数量级 |
+| JUnit 核对 | 解析 `full-baseline.xml` | tests=1991, failures=0, errors=0, skipped=0 |
+| 默认路径 import 图 | `reports/wiring-20261120/import_graph.py`（只 import `min_agent.web.__main__` + `min_agent.application`，不执行 main、不建应用） | 源码树 **140** 模块；import 时加载 **60**；未加载 **81**（清单在 `import-graph.json`） |
+| 懒加载核实 | `application.py:144/159/197/495-501/574/593/644`、`web/__main__.py:91-140` grep | `long_memory/`、`mcp/`、`agents/multi_agent_service`、`llm/*` 为**条件懒加载**（开关/配置触发），不是零引用死代码 |
+
+**基线口径**：本清单后续任务（WIRING-001…005）的对比基线 = 本次 `de68c2f` 上的 **1991 passed / 5 deselected**。5 个 deselected 为 `tests/live/`（addopts `-m "not live"`）。
+
+**未运行**：live 测试（需显式授权）；真实模型；浏览器 UI；`HarnessApplication` 实例化后的运行时加载图（本图是模块 import 级，函数内懒加载不计入）。
+
+**边界**：import 图只证明「默认入口 import 时加载了哪些模块」，不证明运行时调用路径，也不据此判定死代码——任务 4 仍须逐个 grep 生产引用。`reports/wiring-20261120/` 被 `/reports/` gitignore 忽略，属本地证据；结论以本日志为准。
+
+## WIRING-001 · 2026-11-20 · Phase: CONTEXT / SKILLS
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / `.venv`；分支 `review/20261120-wiring-fix`（基线 `1db4225`，源码同 `de68c2f`）。live 用本机 Ollama `qwen3.5:4b`（127.0.0.1:11434，num_ctx=32768），服务端口 8799，独立临时库；0 次外部付费调用。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 新增单元测试 | `pytest tests/unit/test_skill_disclosure.py` | 16 例（含参数化）全过：目录扫描/frontmatter 必填/平铺目录冲突/子文档越界 5 种/符号链接/清单无全文/空目录/超限降级/截断/首句行为/真实 3 skill 判据 |
+| 新增集成测试 | `pytest tests/integration/test_skill_prompt.py` | 2 例全过：ScriptedModel 首请求 system 含清单段且无全文、read_skill 读到全文与子文档、trace_runs 含 skills sha256+skill_count、2 个 completed tool 事件 tool_ref=sha256("read_skill")；越界 path 返回 ok:false/tool_execution_failed 且不泄露内部消息 |
+| 相关回归 | `pytest tests/unit/test_skill_disclosure.py tests/integration/test_skill_prompt.py tests/integration/test_ollama_runtime.py tests/unit/test_skill_disclosure_eval.py` | **29 passed / 5.76s**（含修复后的既有小窗口恢复用例） |
+| 全量离线（修复后终版） | `pytest --junitxml reports/wiring-20261120/full-after-task1.xml -q` | **2009 passed / 5 deselected / 0 failed / 0 errors / 268.28s（exit 0）**；JUnit 核对 tests=2009 failures=0 errors=0 skipped=0；= 基线 1991 + 新增 18（collect-only 核对 18 例） |
+| live 服务验证 | `reports/wiring-20261120/skill_live_verify.py`（真实服务 + qwen3.5:4b，2 次用户输入内） | **PASS**：prompt_sections.skills 存在且 sha256 与 `SkillCatalog.prompt_section()` 一致（skill_count=4）；read_skill tool 事件 1 个、completed、execution_state=returned；工具消息含技能全文特征句；终态 completed；模型回答真实引用技能步骤（写场景卡五问）。证据 `skill-live-evidence.json` |
+
+**失败与修复（如实）**：
+1. 全量首跑 **1 failed / 2007 passed**：既有验收用例 `test_ollama_runtime.py::test_truncated_prompt_is_a_checkpoint_not_an_answer_and_can_resume` 恢复后 partial/context_limit。根因：整段 description 清单 1471 字节固定开销使 num_ctx=8192 的恢复请求 21748 字节 > 可容纳 21504（24576 − 1024×3），单轮无可压缩历史，`manager.py:139` 抛错。按 DECISION_LOG D7 改首句清单后通过。首跑日志被终版重跑覆盖，失败断言与根因数据以本条记录为准。
+2. live 首跑 401：脚本未携带 bootstrap 种的 `harness_session` cookie（web/app.py:101 双校验）；修脚本。
+3. live 二跑判 FAIL 但产品行为正确：脚本只查 `snapshot["trace"]`（仅最后一个 run），read_skill 实际发生在第一个 run；snapshot 的 trace_runs 剥离 events（application.py:303），改用 `GET /api/sessions/{id}/traces/{run_id}` 聚合全部 run 后三跑 PASS。
+
+**未运行**：真实模型 live 的子文档路径读取（离线集成已覆盖）；外部付费模型；浏览器 UI；`tests/live/`（5 例仍 deselected，任务 2/3 按需启用）。
+
+**边界**：离线测试证明契约与默认路径接线；live 单会话 2 输入证明「清单段可见 + 真实模型主动 read_skill 读全文」这一条链路，不构成成功率统计；首句清单对小窗口恢复余量的改善以该验收用例为准，不证明所有小窗口配置。
+
+## WIRING-002 · 2026-11-20 · Phase: MCP（后台连接 + 元数据披露 + confirm 真排队）
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / `.venv`；分支 `review/20261120-wiring-fix`，代码基线 `6e686cb`（WIRING-001）+ 本任务未提交改动；真实 MCP 为 `@modelcontextprotocol/server-everything`（`npx -y`，本机 Node）；真实模型为本机 Ollama `qwen3.5:4b`（127.0.0.1:11434，num_ctx=32768）；0 次外部付费调用。证据目录 `reports/wiring-20261120/`（gitignored）。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 目标单元/集成 | `pytest tests/unit/test_mcp_confirm.py tests/unit/test_mcp_catalog.py tests/integration/test_mcp_application.py tests/integration/test_mcp_runtime.py` | **28 passed / 6.86s**：排队去重与一次性消费、跨会话隔离、后台连接状态机、失败不泄露命令、MCP 段只含 name+description 且不含解释器路径/命令、超限降级名字/截断、prompt_only 不进 schemas 但可执行、缺参本地 `invalid_arguments`、confirm 挂起→批准回填→拒绝 `ok:false`、web 端点 CSRF/非法 decision |
+| 全量离线 | `pytest --junitxml reports/wiring-20261120/full-after-task2.xml -q` | **2026 passed / 6 deselected / 0 failed / 0 skipped / 1 warning / 215.69s（exit 0）**；JUnit 核对 tests=2026 failures=0 errors=0 skipped=0；= 任务 1 的 2009 + 新增 17（catalog +6、confirm +8、application +3）；deselected 5→6 是 `tests/live/test_mcp_live.py` 由 1 例拆成 2 例真实服务器用例 |
+| live 真实 MCP（ScriptedModel，无真实模型） | `MCP_LIVE_CONFIG=reports/wiring-20261120/mcp-live-config.json pytest tests/live/test_mcp_live.py -m live -q` | **2 passed / 101.95s**：① 会话创建后后台连上 everything，工具不进 tools 数组、名字+说明进 SystemPrompt，`echo` 真实回填；② confirm 策略首次调用挂起 `waiting_user`、pending 落库且未执行，`mcp_confirm(approve)` 后恢复执行并回填，pending 清空 |
+| live 真实模型（本机 Ollama） | `reports/wiring-20261120/mcp_live_verify.py` → `mcp-live-evidence.json` | **PASS**：`background_connected` 两个服务器均 connected；allow 组真实模型调用 `mcp__everything__echo`，结果 `hello-mcp-live` 回填、trace completed；confirm 组首次调用挂起 `waiting_user`、pending 记录、批准前未执行，批准后同一调用执行并回填、批准已消费；拒绝组 API 返回 `refused`、pending 记录、未执行；`prompt_sections.mcp` 存在。证据生成于 15:54:49，产品源码 mtime 均早于该时间（catalog 15:47、application 15:28），本轮未重跑真实模型以省本地推理，复用该证据 |
+
+**失败与修复（如实）**：
+1. 本轮离线目标用例、全量、`tests/live` 均无失败（0 failed / 0 error）。
+2. 真实模型证据中 `refuse_ok_false_on_retry=false`：拒绝后模型只回文字、未重发同一调用，因此没产生「重发收到 ok:false」的运行时样本，验证脚本也未把该项计入 PASS 判据。拒绝的 `ok:false` 契约由离线用例 `test_confirm_policy_refusal_returns_explicit_error_not_ok`（断言 `refused_by_user=True`、`code=tool_request_failed`、无 echo 结果）与 `test_confirm_policy_without_session_entry_refuses_without_calling_server` 覆盖；**这是证据类型差异，不是产品缺陷，也不据此声称真实模型一定重试**。
+3. 真实模型首跑曾在 Plan 模式下拒绝发起 confirm 调用（只回文字），按 DECISION_LOG D7 在 MCP 段加「与工作模式无关」脚注后重跑通过；该失败证据见 DECISION_LOG WIRING-002 D7，不追溯改写。
+
+**未运行**：/legacy 确认按钮的浏览器点击（只做 API + DOM 接线）；DSH 默认外壳确认 UI（不存在，既有缺口）；其他模型/付费模型；后台连接失败后的自动重试；同任务服务器崩溃热重连。
+
+**边界**：`tests/live` 两条用 ScriptedModel，只证明真实服务器协议与排队路径，不证明模型自然语言行为；真实模型 1 个会话、3 次输入，不构成成功率统计；prompt-only 工具调用只验证 qwen3.5:4b；confirm 绑定「工具名 + 参数」签名，参数不同即新排队（刻意行为）；`prompt_sections.mcp` 的 sha 是 run 结束后按当时段内容计算的，运行期间后台连接完成会使该段在轮次间变化，sha 反映末次内容。
+
+## WIRING-003 · 2026-11-20 · Phase: MEMORY + MULTI-AGENT（任务 3）
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / `.venv`；分支 `review/20261120-wiring-fix`，代码基线 `9eac391`（WIRING-002）+ 本任务改动；live 用本机 Ollama `qwen3.5:4b`（num_ctx=32768），0 次外部付费调用。证据 `reports/wiring-20261120/`。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 新增离线测试 | `pytest tests/integration/test_memory_auto_proposal.py tests/integration/test_multi_agent_wiring.py tests/unit/test_model_json_fence.py tests/integration/test_compression_layers.py` | **23 passed / 3.19s**：记忆候选（自动提出、确认前不入库、API 确认、关闭不追溯、下一轮注入并带合法引用）、多 Agent（2 子任务全 PASS、预算 40/60、关闭不注册、预算不足 partial）、JSON 围栏（去壳/严格校验/非法 JSON 仍失败）、压缩层回归 |
+| 记忆 live（真实模型） | `tests/live/test_wiring_live.py::test_ollama_auto_proposes_memory_candidate_after_remember_directive`（`AGENT_HARNESS_LIVE_OLLAMA=1 AGENT_HARNESS_LIVE_MEMORY=1`） | **1 passed / 54.38s**：真实 qwen 完成「记住：…」一轮，候选自动出现且内容含 `Python 3.13`；确认后正式库 1 条 |
+| 多 Agent live smoke | `tests/live/test_wiring_live.py::test_ollama_real_multi_agent_delegation_stays_within_budget` | **1 passed / 152.82s**：真实委派 3 个子任务全部 `completed/PASS`，结果 405；预算 `model_calls=11`（含 1 次压缩）计入同一账本 |
+| 多 Agent live 两测试合并 | `pytest tests/live/test_wiring_live.py -m live -q` | **2 passed / 216.23s** |
+| 3 个真实委派 + 失败重试 | `reports/wiring-20261120/multi_agent_live_verify.py` → `multi-agent-live-evidence.json` | **PASS（13/13 checks）**：① 2 子任务 → 实拆 3 个、全 PASS、汇总 405；② 3 子任务 → 全 PASS、汇总 93；③ `total_models=3` 的同一目标 → `partial/budget_exhausted`，模型调用恰好 3 次（预算门生效）；④ 正常预算重试 → 3/3 PASS、汇总 93。每次均用真实 calculator 工具回执验收 |
+| 全量离线（任务 3/4/5 合并树） | `pytest --junitxml reports/wiring-20261120/full-after-task5.xml -q` | **1768 passed / 8 deselected / 0 failed / 0 skipped / 140.22s（exit 0）**；JUnit tests=1768 failures=0 errors=0 skipped=0 |
+
+**失败与修复（如实，均为本任务实施中发现）**：
+1. **writer 角色判据不成立**：首版工厂接 `writer` + `required_markers=("结论",)`；真实 Ollama 在任务 1 的汇总子任务里输出「两个计算结果分别为391和14」，不含「结论」，`delivery_mismatch` → 整次委派 partial。判定为「用格式巧合冒充验收」而非产品缺陷，删除 writer，只保留 calculator（DECISION_LOG D5）。
+2. **任何真实委派都 AttributeError**：`MultiAgentService._build_transport` 把 `manager.py:1326` 传入的档位 key 字符串当 `ModelProfile` 访问 `.key`；离线只测到工厂前一步，所以从未暴露。改为接收字符串 key。
+3. **委派完成后主循环 context_limit**：委派结果 >2000 字节触发工具摘要，qwen 返回 ```json 围栏，`GroundedSelector.select` 直接 `model_validate_json` 失败；`tool_summary` 抛错被 `prepare` 包成 `ContextLimit`。日志证据：`FITS True window=98304 bound≈22.5KB`，失败栈在 `compression/selector.py:93`。新增 `strip_code_fence` 后同一用例 `completed`。
+4. **3 子任务时根契约额度不足**：Manager 根契约硬编码 `max_subtasks*2+2`（3 子任务=8），第 3 个 worker 用满 4 次时被根契约拒（`budget_rejected:model_calls`）。改为按 `WorkerSpec.max_model_calls` 推导（3×4+2=14）。
+5. **worker 重试被工具上限打断**：汇总子任务调用 calculator 3 次后 `max_tool_calls_exceeded`。将 calculator 上限提到 3 次工具/4 次模型，委派工具预算 9；离线测试同步改为真实 calculator 回执路径。
+6. 以上 2–5 修复后，3 任务验证首轮即 13/13 PASS；未修改既有验收判据来「变绿」。
+
+**未运行**：候选确认按钮的浏览器点击；`--multi-agent` 真实服务进程 + 浏览器端到端；文本类 worker（未接线）；其他模型/付费模型；委派内部自动重试（失败重试由验证脚本重新发起）。
+
+**边界**：live 是 1 个会话/3 个任务的固定样本，不构成成功率统计；PASS 只证明「calculator 工具回执存在且结果结构合法」，不证明自然语言语义正确（`semantic_review=UNKNOWN`）；自动 propose 只识别明确「记住/remember」指令；多 Agent 只支持算术角色。
+
+## WIRING-004 / WIRING-005 · 2026-11-20 · Phase: DEAD-CODE + GATE/DOCS（任务 4/5）
+
+**环境**：同上；删除后未引入新依赖。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 引用核实 | 全仓 grep `context_capabilities`、`min_agent.activity`、`evaluation.(night|evolution)`、`long_memory.evaluation` | A 批仅自身/历史快照；B 批仅自身/测试/脚本；生产 `application.py`/`web/`/`runtime/` 零引用 |
+| 删除规模 | `git diff --numstat main...d77c5f1 --diff-filter=D` / `git status` | **33 个被删文件共 5856 行**（src 3208、scripts 413、tests 2235）；去空行 5072 行（空行 784）。生产源码 3208 行（activity 2176、evaluation evolution+night 853、long_memory/evaluation 173、context_capabilities 6） |
+| 删除后目标测试 | `pytest tests/integration/test_evaluation_v1.py tests/integration/test_system_consistency.py tests/unit/test_adrian_evidence_delivery.py` | **20 passed / 44.19s**；mixed 文件只删 night 用例，保留 runner/suite/memory 覆盖 |
+| 导入/编译 | `python -c "import min_agent.application, min_agent.evaluation, min_agent.evaluation.__main__, min_agent.long_memory"`；`python -m compileall -q src/min_agent` | 导入 ok；compileall exit 0 |
+| 全量离线 | 同 WIRING-003 的 `full-after-task5.xml` | **1768 passed / 8 deselected / 0 failed**；净减少 268 个收集项（= 任务 3 后 2036 − 1768，含参数化展开）；8 个 deselected = 原 5 + 新增 2 个 `test_wiring_live` + `test_mcp_live` 拆分为 2 |
+| live 双 smoke | 同 WIRING-003 | **2 passed / 216.23s** |
+| 文档/门禁 | `AGENTS.md` 新增接线门禁；`PROJECT_STATUS.md` 6 阶段与多 Agent 后续状态；README/NIGHT_MODE/EVOLUTION_V1/MODULE_MAP 标注删除 | 文档改动无运行测试；以 git diff 核对 |
+
+**失败与修复**：删除后目标测试无失败；全量无失败。`test_adrian_evidence_delivery` 原依赖被删的 `long_memory.evaluation.build_approved_fixture`，改为 `tests/fakes/memory_fixture.py` 后 9 passed；未放宽该测试断言。
+
+**未运行**：删除模块的历史 live 脚本（文件已删）；`docs/acceptance/` 9.1MB JSON 快照未改动；`shell/` 前端未改动；未推远端、未开 PR。
+
+**边界**：grep 证明的是「当前树内无静态 import/命令引用」，不证明不存在外部脚本或用户本地调用；`evaluation` 核心、`codex_adapter`、`finance`、`journal` 保留，未逐项判定是否仍休眠；门禁是文字规则，不会自动拦截提交。
+
+**基线对比**：1991（WIRING-000）→ 2009（+18，任务 1）→ 2026（+17，任务 2）→ 2036（任务 3 新增 10）→ **1768**（任务 4/5 删除 268 个收集项后）；删除后 0 failed，测试收集无错误。
+
+## WIRING-FIX-001 · 2026-11-20 · Phase: PR #4 REVIEW FIX
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / `.venv`；分支 `review/20261120-wiring-fix` @ `d77c5f1` + 修复；live 用真实 `@modelcontextprotocol/server-everything`（npx 缓存），0 次外部付费调用。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 受影响测试（最终） | `pytest tests/unit/test_mcp_confirm.py tests/unit/test_mcp_catalog.py tests/unit/test_mcp_client.py tests/integration/test_mcp_application.py tests/integration/test_mcp_runtime.py tests/unit/test_tool_registry.py tests/integration/test_memory_auto_proposal.py` | **75 passed / 11.12s** |
+| M1/M2 跨任务与过期 | 上述测试中的 `test_same_signature_in_another_task_gets_a_new_pending`、`test_approval_is_consumed_once_and_not_reused_by_another_task`、`test_approved_record_expires_and_requires_new_confirmation`、`test_expired_pending_cannot_be_decided_and_is_replaced`、`test_same_signature_in_a_new_task_requires_fresh_confirmation` | 全过：A 任务批准不被 B 任务同签名挪用；TTL 过期后返回 `none` 并重新排队；同任务重放仍返回 `consumed` |
+| M3 服务器错误 | `test_server_error_is_ok_false_not_success_text`、`test_client_raises_tool_error_for_server_is_error_result`、`test_external_execution_failure_is_ok_false_with_unknown_state` | 全过：`ok:false`、`code=tool_execution_failed`、`execution_state=unknown`，不再出现 `MCP error:` 成功文本 |
+| M4 重启重连 | `test_restarting_app_reconnects_existing_session_on_snapshot` | 通过：关闭第一个应用后，第二个应用 `snapshot` 已有会话触发 `connect_background()`，最终 `connected` |
+| N1/N2/N3/N4 | `test_remember_regex_rejects_false_positives`、`test_remember_without_colon_is_still_accepted`、`test_connecting_state_and_available_list_stay_within_token_limit`、`test_pending_count_is_capped`、`test_refusal_reasons_map_to_distinct_errors` | 全过；`记住性很好/remembering to call/记住：/remember:/记住：。` 不再生成候选，`记住 X` 仍接受；MCP 段含 connecting 标注且 ≤600 token；第 21 个 pending 被拒；4 种拒绝原因错误码不同 |
+| M5 数字复核 | `git diff --numstat main...d77c5f1 --diff-filter=D`；非空行用 `64cd6e2^` 原文统计 | **33 个被删文件共 5856 行**（src 3208 + scripts 413 + tests 2235）；去空行 **5072**、空行 **784**；测试整文件 **11 个**、`test_activity_*` **7 个** |
+| M6 六阶段 | 全仓 `grep 五个阶段` | **0 命中**；`runtime/loop.py` 两处 docstring 已改「六个阶段」 |
+| MCP live（真实服务器） | `MCP_LIVE_CONFIG=... pytest tests/live/test_mcp_live.py -m live -q` | **2 passed / 17.04s**：后台连接、prompt-only 调用、confirm 挂起→批准执行仍通过 |
+| 全量离线（最终） | `pytest --junitxml reports/wiring-20261120/full-after-wiring-fix-001-final.xml -q` | **1784 passed / 8 deselected / 0 failed / 0 skipped / 162.53s（exit 0）**；JUnit tests=1784 failures=0 errors=0 skipped=0；= 1768 + 新增 16 |
+
+**失败与修复（如实）**：
+1. 首次跑受影响测试 **12 failed / 25 passed**：旧 `test_mcp_confirm.py` 直接调用协调器时没有任务，新 API 要求 `logical_task_id`；3 个集成 confirm 用例也因 `task_id` 绑定在 resume 后变化而重新挂起。前者按新契约重写测试，后者暴露真实设计错误——改用 `logical_task_id` 后集成用例转绿。这不是放宽判据。
+2. `test_connecting_state_and_available_list_stay_within_token_limit` 首版用 300×8 字描述，超过 `MCPServerSpec.description` 500 字符上限；改为 500 字符后通过。
+3. 未发现产品级回归；全量 0 failed。
+
+**未运行**：候选确认按钮浏览器点击；D1/D2 默认面扩大的用户确认；F1–F3 修复；Linux 全量（审查员环境）未在本机复跑。
+
+**边界**：TTL 用进程内时钟，未处理系统时钟大幅回拨；`logical_task_id` 由 SessionStore 生成，外部伪造仍受 owner/存储校验；服务器 `isError` 文本会进入模型可见错误消息；重启重连只覆盖被访问的会话；全量数字是 Windows 本机结果，不代表 Linux 的 7 个失败已消失（F1 仍开着）。
