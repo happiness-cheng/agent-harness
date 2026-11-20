@@ -446,8 +446,9 @@ class MultiAgentService:
         derived.mkdir(parents=True)
         return derived
 
-    def _build_transport(self, profile: ModelProfile) -> ChatTransport:
-        transport = self._config.worker_transport_factory(profile.key)
+    def _build_transport(self, profile_key: str) -> ChatTransport:
+        # Manager 的 transport_factory 契约传入的是档位 key（字符串），不是 ModelProfile。
+        transport = self._config.worker_transport_factory(profile_key)
         self._owned_transports.append(transport)
         return transport
 

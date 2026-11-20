@@ -6,6 +6,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from min_agent.compression.model_json import strip_code_fence
 from min_agent.contracts.models import Message, ModelResponse
 
 
@@ -90,7 +91,7 @@ class GroundedSelector:
             response = self.model.generate(messages)
             if not isinstance(response, ModelResponse) or response.finish_reason != "stop":
                 raise ValueError("选择响应未完整结束或试图调用工具")
-            result = Selection.model_validate_json(response.content)
+            result = Selection.model_validate_json(strip_code_fence(response.content))
             allowed = {row["unit_id"] for row in chunk}
             seen = set()
             for item in result.selections:
@@ -123,7 +124,7 @@ class GroundedSelector:
         response = self.model.generate(messages)
         if not isinstance(response, ModelResponse) or response.finish_reason != "stop":
             raise ValueError("相关性复核响应未完整结束或试图调用工具")
-        result = RelevanceReview.model_validate_json(response.content)
+        result = RelevanceReview.model_validate_json(strip_code_fence(response.content))
         seen = set()
         for item in result.decisions:
             if item.unit_id not in candidates or item.unit_id in seen:

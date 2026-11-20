@@ -7,6 +7,7 @@ from pathlib import Path
 from threading import Event, RLock, Thread
 from uuid import UUID, NAMESPACE_URL, uuid5
 import json
+import re
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -175,6 +176,11 @@ class HarnessApplication:
         BudgetLimits(model_calls=total_models,tool_calls=total_tools)
         BudgetLimits(model_calls=segment_models,tool_calls=segment_tools)
         self.total_tools,self.segment_tools=total_tools,segment_tools
+        # WIRING-003：多 Agent 委派复用任务总预算（默认 40/60）。片段原先固定
+        # 6/12，计划 + 3 个 worker + 汇总会在中途耗尽，delegate_task 只能空转。
+        # 仍受任务总账本硬上限约束，不额外开预算池。
+        if self.enable_multi_agent:
+            self.segment_models, self.segment_tools = total_models, total_tools
         self._lock, self._running, self._errors, self._fetchers = RLock(), {}, {}, {}
         self._mcp_catalogs = {}
         # QWEN-STREAM-001：会话级流式显示缓冲；只放增量正文，不放请求或凭据。
@@ -340,7 +346,8 @@ class HarnessApplication:
             "error": self._errors.get(str(context.session_id)), "demo": self.demo,
             "long_memory": self.memory_status(context),
             "mcp": self._mcp_status(context),
-            "mcp_confirmations": self._mcp_pending(context)}
+            "mcp_confirmations": self._mcp_pending(context),
+            "multi_agent": self.sessions.extension(context, "multi_agent_last_run", None)}
 
     def submit(self, session_id, text, *, public_goals=None, proposal_id=None):
         context = self.context(session_id)
@@ -494,7 +501,10 @@ class HarnessApplication:
         return dict(enabled=mode!='off', mode=mode, scenario_ids=preferences.get('scenario_ids', []),
             scenarios=[dict(id=s.id,label=s.label) for s in doc.scenarios.values() if s.created_at<=self.memory.clock()],
             receipt=self.sessions.extension(context, 'long_memory_delivery', None),
-            citation=self.sessions.extension(context, 'long_memory_citation', None))
+            citation=self.sessions.extension(context, 'long_memory_citation', None),
+            # WIRING-003：待审核候选只展示本人内容，不含 review_token（审核时另取）。
+            candidates=[dict(id=c.id, content=c.content[:500], proposed_at=c.proposed_at.isoformat())
+                        for c in self.memory.list_pending(context)])
 
     def configure_memory(self, session_id, enabled, scenario_ids=None):
         context = self.context(session_id)
@@ -512,6 +522,44 @@ class HarnessApplication:
             if not set(ids)<=known: raise PermissionError('场景不属于当前可用owner范围')
             self.sessions.set_extension(context,'long_memory_preferences',dict(enabled=enabled,scenario_ids=list(dict.fromkeys(ids))))
         return self.memory_status(context)
+
+    # WIRING-003：会话/轮次结束时自动**提出候选**，不自动确认、不入库、不注入。
+    # 只认用户消息开头的明确「记住/remember」指令；助手文字不能成为用户事实。
+    _REMEMBER_DIRECTIVE = re.compile(
+        r"^\s*(?:请)?(?:记住|remember)\s*[:：]?\s*(\S[\s\S]*)$", re.IGNORECASE)
+
+    def _auto_propose_memory(self, context) -> int:
+        """扫描上次游标之后的用户消息，把明确「记住」指令登记为待审核候选。"""
+        messages = self.sessions.snapshot(context).messages
+        cursor = self.sessions.extension(context, 'long_memory_auto_cursor', 0)
+        if isinstance(cursor, bool) or not isinstance(cursor, int) \
+                or not 0 <= cursor <= len(messages):
+            cursor = 0
+        if self.effective_memory_mode(context) == 'off':
+            # 关闭期间也推进游标：以后重新开启时不追溯旧消息生成候选。
+            if len(messages) != cursor:
+                self.sessions.set_extension(context, 'long_memory_auto_cursor', len(messages))
+            return 0
+        proposed = 0
+        for index in range(cursor, len(messages)):
+            message = messages[index]
+            if message.role != 'user':
+                continue
+            match = self._REMEMBER_DIRECTIVE.match(message.content or '')
+            if match is None:
+                continue
+            content = match.group(1).strip()
+            if not content:
+                continue
+            try:
+                self.memory.propose(context, content, source_indices=[index])
+            except (ValueError, PermissionError):
+                # 已拒绝/已遗忘/来源不可用：保持既有语义，不自动绕过审核。
+                continue
+            proposed += 1
+        if len(messages) != cursor:
+            self.sessions.set_extension(context, 'long_memory_auto_cursor', len(messages))
+        return proposed
 
     def _registry(self, context, segment, raw_model, control, trace=None, memory_query='当前任务',
                   mcp_catalog=None):
@@ -613,7 +661,8 @@ class HarnessApplication:
                 # 外层 Runtime 已把本次 delegate_task 计为一次工具调用，这里只消耗子预算。
                 service = self.multi_agent_service_factory(
                     sessions=self.sessions, context=context,
-                    parent_budget=segment, registry=registry, control=control)
+                    parent_budget=segment, registry=registry, control=control,
+                    model=raw_model)
                 try:
                     run = service.run(request)
                     return json.dumps(run.model_dump(mode="json"), ensure_ascii=False)
@@ -706,6 +755,11 @@ class HarnessApplication:
                     result = runtime.run_session(text, store=self.sessions, context=context)
                 record_run_trace(self.sessions, context, runtime.trace, run_id=result.run_id,
                     budget_id=budget_id, status=result.status, prompt_sections=prompt_sections)
+                # WIRING-003：一轮结束只**提出候选**；失败不影响本轮任务结果。
+                try:
+                    self._auto_propose_memory(context)
+                except Exception:
+                    self.sessions.set_extension(context, 'long_memory_auto_error', 'auto_propose_failed')
                 if result.status in {"partial", "failed", "cancelled"} and result.checkpoint is None:
                     self._save_factual_checkpoint(context, segment, result.error_code)
                 text, checkpoint_id, resume_task_id = None, None, None

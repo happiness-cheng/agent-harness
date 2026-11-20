@@ -6,6 +6,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from min_agent.compression.model_json import strip_code_fence
 from min_agent.contracts.models import Message, ModelResponse
 
 
@@ -64,7 +65,7 @@ class SemanticCompressor:
             try:
                 if not isinstance(response, ModelResponse) or response.finish_reason != "stop" or response.tool_calls:
                     raise ValueError("摘要响应不完整或试图调用工具")
-                result = SummaryResponse.model_validate_json(response.content)
+                result = SummaryResponse.model_validate_json(strip_code_fence(response.content))
                 covered = set()
                 for item in result.items:
                     if (not item.text.strip() or len(set(item.source_ids)) != len(item.source_ids)

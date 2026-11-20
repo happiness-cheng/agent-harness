@@ -118,6 +118,16 @@ function render(saved){
   const receipt=memory.receipt;
   $('memory-status').textContent=!memory.enabled?'长期记忆已关闭':receipt?.status==='delivered'?`最近送达${receipt.delivered.length}项 · 遗漏${receipt.omitted.length}项`:receipt?.status==='delivery_unknown'?'记忆送达结果未知':'按需读取已确认历史';
   $('memory-detail').textContent=JSON.stringify({mode:memory.mode,receipt:receipt||null,citation:memory.citation||null},null,2);
+  const candidates=$('memory-candidates');
+  candidates.replaceChildren(...(memory.candidates||[]).map(item=>{
+    const box=node('div',undefined,'memory-candidate');
+    box.append(node('p',`待确认记忆：${item.content}`));
+    const approve=node('button','确认写入','primary');approve.disabled=saved.task?.status==='running';
+    approve.addEventListener('click',()=>act(async()=>{const review=await api(path(`/memory/candidates/${encodeURIComponent(item.id)}`));await api(path('/memory/confirm'),{candidate_id:item.id,review_token:review.review_token});toast('记忆已确认；下一轮按需注入。');}));
+    const reject=node('button','拒绝','secondary');reject.disabled=saved.task?.status==='running';
+    reject.addEventListener('click',()=>act(()=>api(path(`/memory/candidates/${encodeURIComponent(item.id)}/reject`),{})));
+    box.append(approve,reject);return box;
+  }));
 }
 async function poll(){if(!state.session||state.polling)return;state.polling=true;try{const saved=await api(path());const signature=JSON.stringify(saved);if(signature!==state.signature){render(saved);state.signature=signature;state.saved=saved;}$('connection-status').textContent='后台已连接';}catch(error){$('connection-status').textContent='连接中断，等待恢复';}finally{state.polling=false;}}
 async function act(callback){try{await callback();await poll();await refreshSessions();}catch(error){toast(error.message);}}

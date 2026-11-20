@@ -16,7 +16,7 @@ if errorlevel 1 (
     popd
     exit /b 1
 )
-".venv\Scripts\python.exe" -X utf8 -m min_agent.web --adrian --desktop %*
+".venv\Scripts\python.exe" -X utf8 -m min_agent.web --adrian --desktop --multi-agent %*
 set "ADRIAN_EXIT_CODE=%ERRORLEVEL%"
 if not "%ADRIAN_EXIT_CODE%"=="0" (
     echo Adrian未正常启动或已停止。请查看上方错误；没有回退Demo。

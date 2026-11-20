@@ -1,4 +1,4 @@
-﻿# 千问工作台启动器：前台运行（日志可见，Ctrl+C 停止），就绪后自动打开页面。
+# 千问工作台启动器：前台运行（日志可见，Ctrl+C 停止），就绪后自动打开页面。
 # 只用项目 venv 与项目外凭据文件；不读取系统代理，不需要命令行参数。
 param(
     [int]$Port = 8765,
@@ -54,7 +54,8 @@ if (-not $NoBrowser) {
 
 # 3) 前台启动：--qianwen 使用凭据文件里的 qianwen_api_key，默认 qwen3.8-flash。
 # --workspace-root 显式开启只读文件工具（fs_list / fs_read），根目录就是项目目录。
-& $python -X utf8 -m min_agent.web --qianwen --database $Database --port $Port --workspace-root $root
+# --multi-agent 是本服务的默认配置：开启 delegate_task；长期记忆默认 active。
+& $python -X utf8 -m min_agent.web --qianwen --database $Database --port $Port --workspace-root $root --multi-agent
 $code = $LASTEXITCODE
 if ($code -ne 0) {
     Write-Host "启动失败（退出码 $code）。常见原因：端口被占用、该数据库已有服务、凭据文件缺 qianwen_api_key。" -ForegroundColor Yellow
