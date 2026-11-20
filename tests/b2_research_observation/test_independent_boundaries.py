@@ -2,11 +2,11 @@
 from pathlib import Path
 import importlib.util,json
 import pytest
-from min_agent.storage import SQLiteStorage
-from min_agent.sessions import SessionStore
-from min_agent.research_observation import ResearchObservationStore
-from min_agent.models import ModelResponse
-from min_agent.research import ResearchService
+from min_agent.session.storage import SQLiteStorage
+from min_agent.session.store import SessionStore
+from min_agent.research.observation import ResearchObservationStore
+from min_agent.contracts.models import ModelResponse
+from min_agent.research.service import ResearchService
 from min_agent.tools.read_webpage import WebReader
 import min_agent.application as application
 
@@ -114,7 +114,7 @@ def test_cross_instance_revocation_immediately_before_permission_guard(tmp_path,
   events.append(dict(propagated_exception=type(exc).__name__,message=str(exc)))
  finally:
   # 即使SessionStore已失效，也用已知owner/session直接读取持久状态。
-  from min_agent.sessions import ExecutionContext
+  from min_agent.session.store import ExecutionContext
   from uuid import UUID
   ctx=ExecutionContext(owner_id=app.owner_id,session_id=UUID(sid));snap=app.storage.load(ctx).snapshot
   observed=dict(backend_read_calls=b.FakeReader.calls,enabled=enabled,events=events,sqlite_snapshot=snap.model_dump(mode='json'))

@@ -9,12 +9,12 @@ import pytest
 import httpx
 from pydantic import ValidationError
 
-from min_agent.budget import BudgetExceeded, BudgetLedger, BudgetLimits
+from min_agent.ledger.budget import BudgetExceeded, BudgetLedger, BudgetLimits
 from min_agent.llm.deepseek import DeepSeekResponsesModel, DeepSeekSettings
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.runtime import Runtime
-from min_agent.sessions import SessionStore
-from min_agent.task_state import TaskController
+from min_agent.session.store import SessionStore
+from min_agent.session.task_state import TaskController
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolRegistry
 from min_agent.tools.todo import TodoService

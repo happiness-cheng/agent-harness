@@ -8,8 +8,8 @@ import pytest
 
 from min_agent.long_memory import LongMemory, Query, SearchHit
 from min_agent.long_memory.retrieval import fuse_hits
-from min_agent.models import Message
-from min_agent.sessions import ExecutionContext
+from min_agent.contracts.models import Message
+from min_agent.session.store import ExecutionContext
 from test_long_memory_store import setup_memory, candidate, commit
 
 
@@ -122,7 +122,7 @@ def test_identical_session_scoped_text_in_distinct_sessions_is_not_collapsed():
     sessions,context,clock,memory=setup_memory()
     first=commit(memory,context,candidate(memory,context,scope='session'))
     other=sessions.create(context.owner_id)
-    from min_agent.task_state import TaskController,GoalSpec
+    from min_agent.session.task_state import TaskController,GoalSpec
     controller=TaskController(sessions)
     p=controller.propose(other,GoalSpec(objective='确认记忆',completion_criteria=('审核候选',)))
     controller.confirm(other,p.proposal_id);controller.select_mode(other,'build')

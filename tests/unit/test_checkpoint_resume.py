@@ -4,14 +4,14 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from min_agent.budget import BudgetLedger, BudgetLimits
-from min_agent.budget_persistence import SessionBudgets
-from min_agent.checkpoints import CheckpointNote, CheckpointPolicy
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+from min_agent.ledger.budget_persistence import SessionBudgets
+from min_agent.ledger.checkpoints import CheckpointNote, CheckpointPolicy
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.runtime import Runtime
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
-from min_agent.task_state import ActionSpec, GoalSpec, TaskController
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
+from min_agent.session.task_state import ActionSpec, GoalSpec, TaskController
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolRegistry
 from min_agent.tools.todo import TodoService

@@ -11,8 +11,8 @@ from uuid import NAMESPACE_URL, uuid5
 from min_agent.long_memory import LongMemory, Query
 from min_agent.long_memory.models import Evidence, Memory, MemoryEdge, Topic
 from min_agent.long_memory.selection import SelectionPolicy, serialized
-from min_agent.models import Message
-from min_agent.sessions import SessionStore
+from min_agent.contracts.models import Message
+from min_agent.session.store import SessionStore
 
 
 def timestamp(value):

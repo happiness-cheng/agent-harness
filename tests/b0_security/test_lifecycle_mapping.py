@@ -6,8 +6,8 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.sessions import SessionStore
-from min_agent.task_state import GoalSpec, TaskController
+from min_agent.session.store import SessionStore
+from min_agent.session.task_state import GoalSpec, TaskController
 
 
 ROOT = Path(__file__).resolve().parents[2]

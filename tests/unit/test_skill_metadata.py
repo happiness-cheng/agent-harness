@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from min_agent.skills import SkillCatalog
+from min_agent.compression.skills import SkillCatalog
 
 
 def catalog(tmp_path, header, body=b"# BODY_MARKER\n"):

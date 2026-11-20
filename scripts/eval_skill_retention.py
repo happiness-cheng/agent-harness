@@ -6,7 +6,7 @@ from pathlib import Path
 
 from min_agent.llm.client import LLMError
 from min_agent.llm.deepseek import DeepSeekResponsesModel, DeepSeekSettings
-from min_agent.models import Message
+from min_agent.contracts.models import Message
 
 
 def validate_selection(selection, candidates):

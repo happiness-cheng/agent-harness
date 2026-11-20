@@ -113,7 +113,7 @@ class LongMemory:
         item = doc.candidates.get(candidate_id)
         if item is None: raise PermissionError('候选不存在或不属于当前用户')
         evidence=[]
-        from min_agent.sessions import ExecutionContext
+        from min_agent.session.store import ExecutionContext
         from uuid import UUID
         for identity in item.evidence_refs:
             source=doc.evidence[identity]
@@ -137,7 +137,7 @@ class LongMemory:
             if candidate.status != 'pending' or candidate.expires_at <= at: raise PermissionError('候选未获有效批准')
             if any(doc.evidence[r].source_hash in doc.blocked_source_hashes for r in candidate.evidence_refs):
                 raise PermissionError('来源已被遗忘，旧审核凭据失效')
-            from min_agent.sessions import ExecutionContext
+            from min_agent.session.store import ExecutionContext
             from uuid import UUID
             for ref in candidate.evidence_refs:
                 evidence=doc.evidence[ref]

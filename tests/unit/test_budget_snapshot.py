@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import pytest
 
-from min_agent.budget import BudgetExceeded, BudgetLedger, BudgetLimits
+from min_agent.ledger.budget import BudgetExceeded, BudgetLedger, BudgetLimits
 
 
 def limits(models=3, tools=3):
@@ -60,7 +60,7 @@ def test_persistence_callback_failure_restores_live_counters():
     ledger = BudgetLedger(limits(), on_change=persist)
     segment = ledger.start_segment(limits())
     before = ledger.snapshot()
-    from min_agent.budget import BudgetPersistenceError
+    from min_agent.ledger.budget import BudgetPersistenceError
 
     with pytest.raises(BudgetPersistenceError):
         segment.consume("model_calls")
@@ -72,7 +72,7 @@ def test_failed_segment_creation_is_not_published_or_left_in_snapshot():
     def persist(_):
         raise OSError("synthetic-storage-error")
 
-    from min_agent.budget import BudgetPersistenceError
+    from min_agent.ledger.budget import BudgetPersistenceError
 
     ledger = BudgetLedger(limits(), on_change=persist)
     with pytest.raises(BudgetPersistenceError):
@@ -89,7 +89,7 @@ def test_ambiguous_commit_failure_blocks_handle_until_authoritative_reload():
             if len(committed) == 1:
                 raise OSError("synthetic-commit-ack-lost")
 
-    from min_agent.budget import BudgetPersistenceError
+    from min_agent.ledger.budget import BudgetPersistenceError
 
     ledger = BudgetLedger(limits(), on_change=persist)
     segment = ledger.start_segment(limits())

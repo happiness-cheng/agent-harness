@@ -4,7 +4,7 @@ from dataclasses import replace
 import pytest
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.runtime import Runtime
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolRegistry

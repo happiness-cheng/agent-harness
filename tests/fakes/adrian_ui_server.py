@@ -2,7 +2,7 @@
 import argparse
 
 from min_agent.application import HarnessApplication
-from min_agent.models import ModelResponse
+from min_agent.contracts.models import ModelResponse
 from min_agent.web.__main__ import run
 from min_agent.web.launcher import DatabaseLease, identity_for
 from tests.integration.test_adrian_memory_wiring import RecallModel

@@ -71,7 +71,7 @@ class CalculatorBackend:
             return next(self.candidates)
         from min_agent.evaluation.finance import CostLedger, CostBoundedModel
         from min_agent.llm.deepseek import DeepSeekResponsesModel, DeepSeekSettings
-        from min_agent.models import Message
+        from min_agent.contracts.models import Message
         prompt = ('你在隔离实验中修复计算器四则运算绑定。只返回JSON：'
                   '{"bindings":{"Add":"add","Sub":"subtract","Mult":"multiply","Div":"divide"}}。'
                   '值只能选add/subtract/multiply/divide，不返回代码、路径或工具调用。'

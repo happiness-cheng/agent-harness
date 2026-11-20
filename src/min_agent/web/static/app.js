@@ -1,7 +1,11 @@
 'use strict';
 const $ = id => document.getElementById(id);
-const state = {csrf: '', session: null, sessions: [], saved: null, signature: '', artifact: null, polling: false, instance: null, closing: false};
+// SHELL-005：旧界面退到 /legacy 后，地址栏仍要留在 /legacy；默认入口 / 已交给外壳。
+const legacyBase = location.pathname.startsWith('/legacy') ? '/legacy' : '/';
+const state = {csrf: '', session: null, sessions: [], saved: null, signature: '', artifact: null, polling: false, instance: null, closing: false, pendingText: '', streamText: '', source: null};
 const labels = {ready:'就绪',running:'执行中',completed:'已结束',waiting_user:'等待确认',partial:'已暂停',failed:'执行失败',cancelled:'已停止'};
+const failureReasons = {http_400:'请求被拒绝(400)',http_401:'凭据无效(401)',http_402:'账户余额不足(402)',http_403:'无权访问(403)',http_404:'模型或接口不存在(404)',http_408:'请求超时(408)',http_413:'请求体过大(413)',http_429:'触发限流(429)',http_5xx:'服务端错误(5xx)',network_error:'网络不可达',invalid_api_key:'密钥格式无效',request_limit:'本地请求次数用尽',response_too_large:'响应超过大小上限',request_too_large:'请求超过大小上限',invalid_response:'响应格式不符',invalid_request:'请求参数被拒绝',client_closed:'模型客户端已关闭',model_call_failed:'模型调用失败'};
+const failureText = code => code ? `上次失败原因：${failureReasons[code]||code}。` : '';
 const node = (tag, text, cls) => {const el = document.createElement(tag); if(text !== undefined) el.textContent = text; if(cls) el.className = cls; return el;};
 function toast(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').hidden=true,4500);}
 async function api(path, data){
@@ -16,12 +20,21 @@ function renderSessions(){
   $('session-count').textContent=String(state.sessions.length).padStart(2,'0');$('session-list').replaceChildren();
   for(const item of state.sessions){const button=node('button',undefined,'session-item'+(item.session_id===state.session?' active':''));button.append(node('span',item.label));button.append(node('small',item.unread?`${item.unread} 未读`:labels[item.status]||'就绪'));button.addEventListener('click',()=>selectSession(item.session_id));$('session-list').append(button);}
 }
-async function selectSession(identity){state.session=identity;state.signature='';document.body.classList.remove('show-nav');history.replaceState(null,'',`/?session=${identity}`);renderSessions();await poll();}
+async function selectSession(identity){closeStream();state.streamText='';state.pendingText='';state.session=identity;state.signature='';document.body.classList.remove('show-nav');history.replaceState(null,'',`${legacyBase}?session=${identity}`);renderSessions();await poll();}
 async function createSession(){const item=await api('/api/sessions',{label:`会话 ${String(state.sessions.length+1).padStart(2,'0')}`});await refreshSessions();await selectSession(item.session_id);$('message').focus();}
 function readJSON(text){try{return JSON.parse(text);}catch{return null;}}
 function findReferences(value, output=new Set(), depth=0){if(depth>8||value===null)return output;if(typeof value==='object'){if(typeof value.artifact_id==='string')output.add(value.artifact_id);for(const item of Object.values(value))findReferences(item,output,depth+1);}else if(typeof value==='string'&&value.startsWith('{'))findReferences(readJSON(value),output,depth+1);return output;}
 function renderMessages(saved){
-  const area=$('messages');if(!saved.messages.length){if(!area.querySelector('.welcome')){const welcome=node('div',undefined,'welcome');welcome.append(node('div','h.','welcome-symbol'),node('h2','把事情，一步步做好。'),node('p','从一个问题开始，或交给助手一项明确的任务。'));area.replaceChildren(welcome);}return;}
+  const area=$('messages');
+  const pending=state.pendingText||saved.pending_input||'';
+  const queued=(saved.events&&saved.events.queue)||[];
+  // 去重不能只看"最后一条"：一轮结束后最后一条是 assistant，用户消息在它前面。
+  const lastUser=saved.messages.filter(message=>message.role==='user').pop();
+  const running=!!(saved.task&&saved.task.status==='running');
+  const landed=!!pending&&!running&&!!lastUser&&lastUser.content===pending;
+  if(landed)state.pendingText='';
+  const bubbleText=landed?'':pending;
+  if(!saved.messages.length&&!bubbleText&&!queued.length){if(!area.querySelector('.welcome')){const welcome=node('div',undefined,'welcome');welcome.append(node('div','h.','welcome-symbol'),node('h2','把事情，一步步做好。'),node('p','从一个问题开始，或交给助手一项明确的任务。'));area.replaceChildren(welcome);}return;}
   const atBottom=area.scrollHeight-area.scrollTop-area.clientHeight<100;const fragment=document.createDocumentFragment();
   for(const message of saved.messages){
     const item=node('article',undefined,`message ${message.role}`);item.append(node('div',message.role==='user'?'YOU':message.role==='tool'?'工具结果':'HARNESS','message-label'));
@@ -41,6 +54,8 @@ function renderMessages(saved){
     }
     fragment.append(item);
   }
+  if(bubbleText){const item=node('article',undefined,'message user pending');item.append(node('div','YOU','message-label'));item.append(node('div',bubbleText,'message-body'));item.append(node('small','发送中…','pending-hint'));fragment.append(item);}
+  for(const text of queued){const item=node('article',undefined,'message user pending');item.append(node('div','YOU','message-label'));item.append(node('div',text,'message-body'));item.append(node('small','排队中…','pending-hint'));fragment.append(item);}
   area.replaceChildren(fragment);if(atBottom||!state.signature)area.scrollTop=area.scrollHeight;
 }
 function renderTask(saved){
@@ -62,10 +77,29 @@ function renderItems(saved){
   for(const item of saved.notifications.slice().reverse()){const button=node('button',undefined,'notification'+(item.unread?' unread':''));button.append(node('span',item.title));button.append(node('small',`${item.unread?'未读':'已读'}${item.late_seconds?' · 延迟补发':''} · 桌面${({accepted:'接口已接受',failed:'发送失败',unknown:'结果未知',disabled:'未启用',pending:'待发送',attempting:'发送中'})[item.desktop.status]||item.desktop.status}`));button.addEventListener('click',()=>act(()=>api(path(`/notifications/${item.id}/read`),{})));notifications.append(button);}
   const budget=$('budget');budget.replaceChildren();if(saved.budget){for(const [key,label] of [['model_calls','模型调用'],['tool_calls','工具调用']]){const row=node('div',undefined,'budget-row');row.append(node('span',label),node('b',`${saved.budget.usage[key]} / ${saved.budget.limits[key]}`));budget.append(row);}budget.append(node('p','继续执行会保留累计用量。','muted'));}else budget.append(node('p','任务启动后开始累计。','muted'));
 }
+function closeStream(){if(state.source){state.source.close();state.source=null;}const bubble=document.getElementById('stream-bubble');if(bubble)bubble.remove();}
+function renderStreaming(){
+  if(!state.streamText)return;
+  const area=$('messages');let bubble=document.getElementById('stream-bubble');
+  if(!bubble){bubble=node('article',undefined,'message assistant streaming');bubble.id='stream-bubble';bubble.append(node('div','HARNESS','message-label'),node('div','','message-body'));area.append(bubble);}
+  bubble.lastChild.textContent=state.streamText;area.scrollTop=area.scrollHeight;
+}
+function syncStream(saved){
+  const running=!!(saved.task&&saved.task.status==='running');
+  if(!running){if(state.streamText){state.streamText='';}closeStream();return;}
+  if(state.source)return;
+  const source=new EventSource(path('/stream'));
+  source.onmessage=event=>{try{const data=JSON.parse(event.data);if(data&&typeof data.text==='string'&&data.text){state.streamText+=data.text;renderStreaming();}}catch{}};
+  source.addEventListener('done',()=>closeStream());
+  source.onerror=()=>closeStream();
+  state.source=source;
+}
 function render(saved){
   $('session-title').textContent=saved.label;$('task-status').textContent=labels[saved.task?.status]||'就绪';$('stop').disabled=!saved.task||saved.task.status!=='running';$('mode-plan').classList.toggle('selected',saved.work_state.mode==='plan');$('mode-build').classList.toggle('selected',saved.work_state.mode==='build');$('mode-caption').textContent=saved.work_state.mode==='plan'?'先讨论，再执行':'按确认范围执行';$('allow-web').checked=saved.allow_web;$('demo-banner').hidden=!saved.demo;
-  const queued=saved.events.queue.length;const waiting=saved.task&&['partial','waiting_user','cancelled','failed'].includes(saved.task.status);$('queue-status').hidden=!queued&&!waiting;$('queue-status').textContent=waiting?`当前任务已暂停。${queued?`${queued} 条普通消息保留在队列。`:''}请用右侧确认或继续按钮恢复。`:`${queued} 条消息排队中，当前任务结束后处理。`;
-  renderMessages(saved);renderTask(saved);renderItems(saved);$('trace').textContent=saved.trace.length?JSON.stringify(saved.trace,null,2):'暂无记录';
+  const model=saved.model||{selectable:false};const picker=$('model-choice');picker.hidden=!model.selectable;
+  if(model.selectable){const signature=JSON.stringify(model.options);if(picker.dataset.signature!==signature){picker.replaceChildren(...model.options.map(item=>{const option=node('option',item.label);option.value=item.id;return option;}));picker.dataset.signature=signature;}picker.value=model.current||'';picker.disabled=saved.task?.status==='running';}
+  const queued=saved.events.queue.length;const waiting=saved.task&&['partial','waiting_user','cancelled','failed'].includes(saved.task.status);$('queue-status').hidden=!queued&&!waiting;$('queue-status').textContent=waiting?`当前任务已暂停。${failureText(saved.task?.error_code)}${queued?`${queued} 条普通消息保留在队列。`:''}请用右侧确认或继续按钮恢复。`:`${queued} 条消息排队中，当前任务结束后处理。`;
+  renderMessages(saved);renderStreaming();syncStream(saved);renderTask(saved);renderItems(saved);$('trace').textContent=saved.trace.length?JSON.stringify(saved.trace,null,2):'暂无记录';
   const memory=saved.long_memory||{};$('allow-memory').checked=!!memory.enabled;
   $('allow-memory').disabled=saved.task?.status==='running';$('memory-scenario').disabled=!memory.enabled||saved.task?.status==='running';
   $('memory-scenario').replaceChildren(...[['','通用情景'],...(memory.scenarios||[]).map(s=>[s.id,s.label])].map(([value,label])=>{const option=node('option',label);option.value=value;return option;}));
@@ -80,13 +114,14 @@ async function showArtifact(identity,start=0){try{const value=await api(path(`/a
 async function showMemoryEvidence(identity){try{const value=await api(path(`/memory/evidence/${encodeURIComponent(identity)}`));state.artifact=null;$('artifact-source').textContent=`历史${value.role}陈述 · ${value.time} · ${value.source}`;$('artifact-content').textContent=value.quotes.map(q=>q.text).join('\n');$('artifact-next').disabled=true;if(!$('artifact-dialog').open)$('artifact-dialog').showModal();}catch(error){toast('记忆来源未送达、已撤回或不在当前情景。请重新检索核对。');}}
 $('new-session').addEventListener('click',()=>act(createSession));$('mobile-nav').addEventListener('click',()=>document.body.classList.toggle('show-nav'));
 $('mode-plan').addEventListener('click',()=>act(()=>api(path('/mode'),{mode:'plan'})));$('mode-build').addEventListener('click',()=>act(()=>api(path('/mode'),{mode:'build'})));
+$('model-choice').addEventListener('change',()=>act(()=>api(path('/model'),{model:$('model-choice').value})));
 $('allow-web').addEventListener('change',()=>act(()=>api(path('/web-permission'),{enabled:$('allow-web').checked})));
 $('allow-memory').addEventListener('change',()=>act(()=>api(path('/memory-permission'),{enabled:$('allow-memory').checked})));
 $('memory-scenario').addEventListener('change',()=>act(()=>api(path('/memory-permission'),{enabled:$('allow-memory').checked,scenario_ids:$('memory-scenario').value?[$('memory-scenario').value]:[]})));
 $('shutdown-service').addEventListener('click',async()=>{if(!confirm('关闭Adrian服务？会停止当前任务；会话会保留。'))return;try{await api('/api/adrian/shutdown',{instance_id:state.instance});state.closing=true;$('connection-status').textContent='正在关闭服务，请等待服务窗口退出';$('send').disabled=true;$('shutdown-service').disabled=true;toast('服务正在关闭；下次可双击桌面Adrian启动。');}catch(error){toast(error.message);}});
 $('stop').addEventListener('click',()=>act(()=>api(path('/control'),{kind:'stop'})));
 $('send-mode').addEventListener('change',()=>$('scope-label').hidden=$('send-mode').value!=='steer');
-$('composer').addEventListener('submit',async event=>{event.preventDefault();const text=$('message').value.trim();if(!text||!state.session)return;$('send').disabled=true;try{if($('send-mode').value==='steer'){if(!state.saved?.task||state.saved.task.status!=='running')throw new Error('当前没有可引导的运行任务。');await api(path('/control'),{kind:'steer',task_id:state.saved.task.task_id,text,scope_changed:$('scope-changed').checked});}else await api(path('/input'),{text});$('message').value='';await poll();await refreshSessions();}catch(error){toast(error.message);}finally{$('send').disabled=false;}});
+$('composer').addEventListener('submit',async event=>{event.preventDefault();const text=$('message').value.trim();if(!text||!state.session)return;$('send').disabled=true;try{if($('send-mode').value==='steer'){if(!state.saved?.task||state.saved.task.status!=='running')throw new Error('当前没有可引导的运行任务。');await api(path('/control'),{kind:'steer',task_id:state.saved.task.task_id,text,scope_changed:$('scope-changed').checked});}else {state.pendingText=text;await api(path('/input'),{text});}$('message').value='';await poll();await refreshSessions();}catch(error){state.pendingText='';toast(error.message);}finally{$('send').disabled=false;}});
 $('message').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();$('composer').requestSubmit();}});
 $('close-artifact').addEventListener('click',()=>$('artifact-dialog').close());$('artifact-next').addEventListener('click',()=>{if(state.artifact)showArtifact(state.artifact.artifact_id,state.artifact.end);});
-(async()=>{try{const initial=await api('/api/bootstrap');state.csrf=initial.csrf;state.sessions=initial.sessions;state.instance=initial.instance_id;$('shutdown-service').hidden=!initial.can_shutdown;renderSessions();const requested=new URLSearchParams(location.search).get('session');if(state.sessions.length)await selectSession(state.sessions.some(item=>item.session_id===requested)?requested:state.sessions[0].session_id);else await createSession();setInterval(()=>{if(!state.closing)poll();},1500);setInterval(()=>{if(!state.closing)refreshSessions().catch(()=>{});},5000);}catch(error){toast('无法连接本地后台，请检查服务是否已启动。');}})();
+(async()=>{try{const initial=await api('/api/bootstrap');state.csrf=initial.csrf;state.sessions=initial.sessions;state.instance=initial.instance_id;$('shutdown-service').hidden=!initial.can_shutdown;renderSessions();const requested=new URLSearchParams(location.search).get('session');if(state.sessions.length)await selectSession(state.sessions.some(item=>item.session_id===requested)?requested:state.sessions[0].session_id);else await createSession();setInterval(()=>{if(!state.closing)refreshSessions().catch(()=>{});},5000);(async function pollLoop(){while(!state.closing){await poll();const running=state.saved&&state.saved.task&&state.saved.task.status==='running';await new Promise(resolve=>setTimeout(resolve,running?400:1500));}})();}catch(error){toast('无法连接本地后台，请检查服务是否已启动。');}})();

@@ -2,8 +2,8 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage, _SESSION_COMMIT
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage, _SESSION_COMMIT
 from min_agent.tools.todo import TodoService
 
 

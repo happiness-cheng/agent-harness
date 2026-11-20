@@ -5,8 +5,8 @@ from zoneinfo import ZoneInfoNotFoundError
 import pytest
 from pydantic import ValidationError
 
-from min_agent.clock import Clock
-from min_agent.sessions import ExecutionContext, SessionStore
+from min_agent.contracts.clock import Clock
+from min_agent.session.store import ExecutionContext, SessionStore
 from min_agent.tools.todo import TodoItem, TodoService
 
 

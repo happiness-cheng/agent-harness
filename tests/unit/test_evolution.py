@@ -216,7 +216,7 @@ def test_live_proposer_uses_cost_gate_and_only_returns_data(tmp_path, source, mo
     from types import SimpleNamespace
     import min_agent.llm.deepseek as module
     from min_agent.evaluation.evolution_backend import CalculatorBackend
-    from min_agent.models import ModelResponse
+    from min_agent.contracts.models import ModelResponse
     captured = []
     class Raw:
         def __init__(self, settings, **kwargs):

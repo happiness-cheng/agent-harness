@@ -4,8 +4,8 @@ import json
 import re
 from copy import deepcopy
 
-from min_agent.models import Message, ModelResponse, ProviderState, ToolCall
-from min_agent.sessions import SessionStore
+from min_agent.contracts.models import Message, ModelResponse, ProviderState, ToolCall
+from min_agent.session.store import SessionStore
 
 
 def load_json(value):

@@ -5,7 +5,7 @@ from threading import Barrier
 import pytest
 from pydantic import ValidationError
 
-from min_agent.sessions import ExecutionContext, SessionStore
+from min_agent.session.store import ExecutionContext, SessionStore
 from min_agent.tools.todo import TodoService
 
 

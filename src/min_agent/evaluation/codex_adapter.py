@@ -5,7 +5,7 @@ from pathlib import Path
 import shutil
 import subprocess
 from time import monotonic
-from min_agent.models import ModelResponse
+from min_agent.contracts.models import ModelResponse
 from min_agent.evaluation.improvement import CANDIDATE_SCHEMA
 from min_agent.evaluation.runner import save_json
 from min_agent.evaluation.processes import run_owned

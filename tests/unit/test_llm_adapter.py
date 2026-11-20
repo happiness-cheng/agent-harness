@@ -5,9 +5,9 @@ import pytest
 
 from min_agent.llm.client import LLMError, OpenAIResponsesModel
 from min_agent.llm.config import OpenAISettings
-from min_agent.models import Message
+from min_agent.contracts.models import Message
 from min_agent.runtime import Runtime
-from min_agent.models import ProviderState
+from min_agent.contracts.models import ProviderState
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolRegistry
 
@@ -128,7 +128,7 @@ def test_network_exception_and_runtime_trace_do_not_contain_request_or_credentia
     with OpenAIResponsesModel(OpenAISettings(api_key="unit-test-token"), transport=httpx.MockTransport(handle)) as model:
         runtime = Runtime(model)
         result = runtime.run("测试异常")
-    assert result.status == "failed" and result.error_code == "model_call_failed"
+    assert result.status == "failed" and result.error_code == "network_error"
     assert "unit-test-token" not in runtime.trace.to_json()
     assert "private-body" not in runtime.trace.to_json()
 
@@ -183,7 +183,7 @@ def test_visible_reasoning_summary_is_distinct_from_opaque_state_and_legacy_hist
     def handle(request):
         captured.append(json.loads(request.content))
         return httpx.Response(200, json=wire_response(reasoning, text_output("回答")))
-    from min_agent.models import ToolCall
+    from min_agent.contracts.models import ToolCall
     history = [
         Message(role="assistant", content="", tool_calls=[ToolCall(id="legacy", name="calculator", arguments={"expression": "1+1"})]),
         Message(role="tool", content="2", tool_call_id="legacy"), Message(role="user", content="继续"),

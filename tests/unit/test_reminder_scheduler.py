@@ -2,11 +2,11 @@ from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 import pytest
 
-from min_agent.notifications import Notifications
-from min_agent.scheduler import Scheduler
+from min_agent.notify.notifications import Notifications
+from min_agent.notify.scheduler import Scheduler
 from min_agent.tools.reminder import ReminderService
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
 from min_agent.tools.todo import TodoService
 
 
@@ -66,7 +66,7 @@ def test_desktop_failure_does_not_lose_session_notification():
 
 
 def test_disabled_windows_notifications_are_not_reported_as_accepted():
-    from min_agent.desktop_notifications import DesktopChannel
+    from min_agent.notify.desktop_notifications import DesktopChannel
     NotificationSetting = pytest.importorskip("winrt.windows.ui.notifications").NotificationSetting
     class Native:
         setting = NotificationSetting.DISABLED_FOR_USER

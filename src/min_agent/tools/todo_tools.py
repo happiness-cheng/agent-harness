@@ -7,8 +7,8 @@ from uuid import UUID
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, field_validator
 
-from min_agent.sessions import ExecutionContext
-from min_agent.task_state import ActionSpec, TaskController
+from min_agent.session.store import ExecutionContext
+from min_agent.session.task_state import ActionSpec, TaskController
 from min_agent.tools.registry import ToolDefinition, ToolRegistry
 from min_agent.tools.todo import TodoService
 

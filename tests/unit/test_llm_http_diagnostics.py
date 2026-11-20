@@ -7,7 +7,7 @@ import pytest
 
 from min_agent.llm.client import LLMError, OpenAIResponsesModel
 from min_agent.llm.config import OpenAISettings
-from min_agent.models import Message
+from min_agent.contracts.models import Message
 
 
 def http_error(response):

@@ -6,9 +6,9 @@ from uuid import uuid4
 import pytest
 
 from min_agent.application import HarnessApplication
-from min_agent.artifacts import ArtifactStore
-from min_agent.models import ModelResponse, ToolCall
-from min_agent.research_observation import ResearchObservation
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.contracts.models import ModelResponse, ToolCall
+from min_agent.research.observation import ResearchObservation
 
 import min_agent.application as application
 

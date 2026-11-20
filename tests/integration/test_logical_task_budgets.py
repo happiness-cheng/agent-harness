@@ -1,5 +1,5 @@
 from min_agent.application import HarnessApplication
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.contracts.models import ModelResponse, ToolCall
 from tests.fakes.model import ScriptedModel
 from tests.unit.test_checkpoint_resume import note_response
 

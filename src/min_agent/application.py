@@ -9,29 +9,29 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.budget import BudgetLimits
-from min_agent.budget_persistence import SessionBudgets
-from min_agent.checkpoints import Checkpoint, ToolResultRef
-from min_agent.checkpoints import CheckpointPolicy
-from min_agent.compaction import Compactor
-from min_agent.compression_selector import GroundedSelector
-from min_agent.context import ContextManager, ManagedModel
-from min_agent.events import SessionEvents
-from min_agent.memory import MemoryJournal
-from min_agent.memory_records import SourceReference
-from min_agent.memory_state import SessionStateTable
-from min_agent.models import Message, ModelResponse
-from min_agent.notifications import Notifications
-from min_agent.progress_guard import ProgressGuard
-from min_agent.research import ResearchService
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.ledger.budget import BudgetLimits
+from min_agent.ledger.budget_persistence import SessionBudgets
+from min_agent.ledger.checkpoints import Checkpoint, ToolResultRef
+from min_agent.ledger.checkpoints import CheckpointPolicy
+from min_agent.compression.compaction import Compactor
+from min_agent.compression.selector import GroundedSelector
+from min_agent.context.manager import ContextManager, ManagedModel
+from min_agent.session.events import SessionEvents
+from min_agent.memory.journal import MemoryJournal
+from min_agent.memory.records import SourceReference
+from min_agent.memory.state import SessionStateTable
+from min_agent.contracts.models import Message, ModelResponse
+from min_agent.notify.notifications import Notifications
+from min_agent.runtime.progress_guard import ProgressGuard
+from min_agent.research.service import ResearchService
 from min_agent.runtime import Runtime
-from min_agent.scheduler import Scheduler
-from min_agent.sessions import SessionStore, ExecutionContext
-from min_agent.skills import SkillCatalog
-from min_agent.skill_retention import SkillRetentionSelector
-from min_agent.storage import SQLiteStorage
-from min_agent.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
+from min_agent.notify.scheduler import Scheduler
+from min_agent.session.store import SessionStore, ExecutionContext
+from min_agent.compression.skills import SkillCatalog
+from min_agent.compression.skill_retention import SkillRetentionSelector
+from min_agent.session.storage import SQLiteStorage
+from min_agent.session.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.read_webpage import PublicFetcher, WebReader
 from min_agent.tools.reminder import ReminderService
@@ -40,7 +40,7 @@ from min_agent.tools.registry import ToolDefinition
 from min_agent.tools.search import SearchService
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry
-from min_agent.trace import TraceContext, TraceRecorder, record_run_trace
+from min_agent.contracts.trace import TraceContext, TraceRecorder, record_run_trace
 
 
 class GoalParameters(BaseModel):
@@ -79,6 +79,17 @@ class _Skill(BaseModel):
     name: str = Field(min_length=1, max_length=60)
 
 
+class _DelegateTask(BaseModel):
+    """``delegate_task`` 的模型可见参数：**只有**目标字符串。
+
+    没有 owner / session / budget / 角色 / 工具字段——这些只来自可信闭包，
+    模型无法通过参数扩大权限或换身份（MA-P5-013 D14）。
+    """
+
+    model_config = ConfigDict(strict=True, extra="forbid")
+    objective: str = Field(min_length=1, max_length=2000)
+
+
 class DemoModel:
     def generate(self, messages, *, tools=None):
         return ModelResponse(finish_reason="stop", content="离线演示已保存这条消息。当前没有接入真实模型；启用指定凭据后可由模型选择工具。")
@@ -88,7 +99,9 @@ class HarnessApplication:
     def __init__(self, database, *, model=None, model_factory=None, proxy=None, desktop=None,
                  total_models=40, segment_models=6, total_tools=60, segment_tools=12, window=None, owner_id=None,
                  memory_strategy='GOAL_VALUE', memory_budget=4096, memory_policy=None, memory_mode='legacy',
-                 public_goals_enabled=False, research_observation_enabled=False):
+                 public_goals_enabled=False, research_observation_enabled=False,
+                 enable_multi_agent=False, multi_agent_service_factory=None, model_catalog=None,
+                 workspace_root=None, mcp_servers=None):
         if memory_strategy not in {'NONE','RECENCY','FREQUENCY','GOAL_VALUE'}:
             raise ValueError('无效Memory策略')
         if type(memory_budget) is not int or memory_budget<0: raise ValueError('无效Memory预算')
@@ -103,7 +116,7 @@ class HarnessApplication:
         self.research_observation_enabled = research_observation_enabled
         self.research_observations = None
         if research_observation_enabled:
-            from min_agent.research_observation import ResearchObservationStore
+            from min_agent.research.observation import ResearchObservationStore
             self.research_observations = ResearchObservationStore(self.sessions)
         if type(public_goals_enabled) is not bool:
             raise TypeError("公开目标开关必须为布尔值")
@@ -111,22 +124,59 @@ class HarnessApplication:
         self.public_goal_registry = None
         self.public_goal_adapter = None
         if public_goals_enabled:
-            from min_agent.public_goal_adapter import PublicGoalAdapter
-            from min_agent.public_goal_registry import PublicGoalRegistry
-            from min_agent.todo_observation import TodoObserver
+            from min_agent.goals.public_goal_adapter import PublicGoalAdapter
+            from min_agent.goals.public_goal_registry import PublicGoalRegistry
+            from min_agent.goals.todo_observation import TodoObserver
             self.public_goal_registry = PublicGoalRegistry(self.sessions)
             self.public_goal_adapter = PublicGoalAdapter(
                 self.public_goal_registry, TodoObserver(self.storage))
+        # MA-P5-013：默认关闭。关闭时不创建 Service / Manager / Mailbox /
+        # ResourceLedger，也不注册 delegate_task——只是记下两个字段。
+        if type(enable_multi_agent) is not bool:
+            raise TypeError("多 Agent 开关必须为布尔值")
+        if multi_agent_service_factory is not None and not callable(multi_agent_service_factory):
+            raise TypeError("multi_agent_service_factory 必须可调用")
+        if enable_multi_agent and multi_agent_service_factory is None:
+            # 打开却缺工厂：立即失败，不回退 Demo、不借用主模型冒充强/弱模型。
+            raise ValueError("enable_multi_agent=True 必须同时提供可信的 multi_agent_service_factory")
+        self.enable_multi_agent = enable_multi_agent
+        self.multi_agent_service_factory = multi_agent_service_factory
         from min_agent.long_memory import LongMemory
         self.memory = LongMemory(self.sessions)
         self.owner_id = owner_id or uuid5(NAMESPACE_URL, "agent-harness-local:" + str(path))
         self.model = model or DemoModel(); self.model_factory = model_factory
         self.demo = isinstance(self.model, DemoModel) and model_factory is None
+        # QWEN-SELECTOR-001：可选模型目录。提供时按会话取模型，缺省用目录默认模型；
+        # 未提供时行为与历史版本完全一致（进程级单模型）。
+        self.model_catalog = model_catalog
+        # FS-READ-001：只读文件工具**显式开启**（传 workspace_root）；默认不注册，
+        # 避免改变既有部署的提示词体积与小上下文模型的行为。
+        self.workspace_root = Path(workspace_root).resolve() if workspace_root is not None else None
+        # MCP-001：服务器配置只来自可信 host；默认不配置、不启动任何子进程。
+        if mcp_servers is None:
+            servers = ()
+        else:
+            from min_agent.mcp.spec import MCPServerSpec
+            servers = tuple(mcp_servers)
+            if not all(isinstance(server, MCPServerSpec) for server in servers):
+                raise TypeError("mcp_servers 必须是 MCPServerSpec 序列")
+            if len({server.name for server in servers}) != len(servers):
+                raise ValueError("MCP 服务器名重复")
+        self.mcp_servers = servers
+        if model_catalog is not None:
+            if not callable(getattr(model_catalog, "model_for", None)):
+                raise TypeError("model_catalog 必须提供 model_for(model)")
+            if self.model_factory is None:
+                self.model_factory = lambda context: model_catalog.model_for(
+                    self.sessions.extension(context, "model_choice", model_catalog.default_model))
         self.proxy, self.total_models, self.segment_models, self.window = proxy, total_models, segment_models, window
         BudgetLimits(model_calls=total_models,tool_calls=total_tools)
         BudgetLimits(model_calls=segment_models,tool_calls=segment_tools)
         self.total_tools,self.segment_tools=total_tools,segment_tools
         self._lock, self._running, self._errors, self._fetchers = RLock(), {}, {}, {}
+        self._mcp_catalogs = {}
+        # QWEN-STREAM-001：会话级流式显示缓冲；只放增量正文，不放请求或凭据。
+        self._streams = {}
         self._pool = ThreadPoolExecutor(max_workers=4, thread_name_prefix="agent-session")
         self._closing = Event(); self._scheduler_thread = None
         self.scheduler = Scheduler(self.sessions, desktop=desktop)
@@ -136,11 +186,45 @@ class HarnessApplication:
         context = ExecutionContext(owner_id=self.owner_id, session_id=UUID(str(session_id)))
         return self.sessions.check_access(context)
 
-    def create_session(self, label="新会话"):
+    def _mcp_catalog(self, context):
+        """每个会话一个 MCP 目录；连接状态跨任务保留，应用关闭时统一回收。"""
+        if not self.mcp_servers:
+            return None
+        identity = str(context.session_id)
+        with self._lock:
+            catalog = self._mcp_catalogs.get(identity)
+            if catalog is None:
+                from min_agent.mcp.catalog import MCPServerCatalog
+                catalog = MCPServerCatalog(self.mcp_servers)
+                self._mcp_catalogs[identity] = catalog
+            return catalog
+
+    def create_session(self, label="新会话", model=None, mode=None):
+        """新建会话；model/mode 可在创建时指定，避免“第一条消息发出前无法选择”。"""
         if not isinstance(label, str) or not label.strip() or len(label) > 60: raise ValueError("会话名需要1到60字符")
+        if mode is not None and mode not in {"plan", "build"}: raise ValueError("模式只能是 plan 或 build")
+        catalog = self.model_catalog
+        if model is not None:
+            if catalog is None: raise RuntimeError("当前服务未启用可选模型")
+            catalog.validate(model)
         context = self.sessions.create(self.owner_id)
         self.sessions.set_extension(context, "label", label)
-        return {"session_id": str(context.session_id), "label": label}
+        if model is not None:
+            self.sessions.set_extension(context, "model_choice", model)
+        if mode is not None:
+            TaskController(self.sessions).select_mode(context, mode)
+        return {"session_id": str(context.session_id), "label": label,
+                "mode": mode or "plan",
+                "model": model if model is not None else (catalog.default_model if catalog is not None else None)}
+
+    def set_label(self, session_id, label):
+        """重命名会话；label 存在 extension，不需要数据库迁移。"""
+        if not isinstance(label, str) or not label.strip() or len(label.strip()) > 60:
+            raise ValueError("会话名需要1到60字符")
+        context = self.context(session_id)
+        cleaned = label.strip()
+        self.sessions.set_extension(context, "label", cleaned)
+        return {"session_id": str(context.session_id), "label": cleaned}
 
     def list_sessions(self):
         result = []
@@ -150,6 +234,54 @@ class HarnessApplication:
                 "status": snapshot.task.status if snapshot.task else "ready",
                 "unread": sum(event["unread"] for event in Notifications(self.sessions).list_items(context))})
         return result
+
+    def default_model_status(self):
+        """没有会话时的模型选项（新会话欢迎页用），默认值与目录一致。"""
+        catalog = self.model_catalog
+        if catalog is None:
+            return {"selectable": False, "current": None, "options": []}
+        return {"selectable": True, "current": catalog.default_model, "options": catalog.options()}
+
+    def model_status(self, context):
+        """当前会话的模型选择；未启用目录时明确返回不可选，不伪装成有选项。"""
+        catalog = self.model_catalog
+        if catalog is None:
+            return {"selectable": False, "current": None, "options": []}
+        choice = self.sessions.extension(context, "model_choice", catalog.default_model)
+        current = choice if isinstance(choice, str) and choice in catalog.models else catalog.default_model
+        return {"selectable": True, "current": current, "options": catalog.options()}
+
+    def set_model(self, session_id, model):
+        """按会话保存模型选择；运行中拒绝切换，非白名单拒绝且不发任何请求。"""
+        context = self.context(session_id)
+        catalog = self.model_catalog
+        if catalog is None:
+            raise RuntimeError("当前服务未启用可选模型")
+        catalog.validate(model)
+        with self._lock:
+            if str(context.session_id) in self._running:
+                raise RuntimeError("运行中不能切换模型")
+            self.sessions.set_extension(context, "model_choice", model)
+        return self.model_status(context)
+
+    def stream_sink(self, session_id):
+        """SSE 端点用：当前会话的流式缓冲；没有正在进行的流时返回 None。"""
+        context = self.context(session_id)
+        with self._lock:
+            return self._streams.get(str(context.session_id))
+
+    def _open_stream(self, identity):
+        from min_agent.runtime.streaming import StreamSink
+        sink = StreamSink()
+        with self._lock:
+            self._streams[identity] = sink
+        return sink
+
+    def _close_stream(self, identity):
+        with self._lock:
+            sink = self._streams.pop(identity, None)
+        if sink is not None:
+            sink.close()
 
     def snapshot(self, session_id):
         context = self.context(session_id); value = self.sessions.snapshot(context)
@@ -169,6 +301,8 @@ class HarnessApplication:
             "trace_runs": [{key: value for key, value in record.items() if key != "events"}
                 for record in self.sessions.extension(context, "trace_runs", [])],
             "allow_web": self.sessions.extension(context, "allow_public_web", False),
+            "model": self.model_status(context),
+            "pending_input": self.sessions.extension(context, "pending_input", None),
             "error": self._errors.get(str(context.session_id)), "demo": self.demo,
             "long_memory": self.memory_status(context)}
 
@@ -302,11 +436,11 @@ class HarnessApplication:
         try:
             context = self.context(session_id)
         except Exception as error:
-            from min_agent.storage import VersionConflict
+            from min_agent.session.storage import VersionConflict
             # 陈旧会话可能已被assert_current标记失效；对host只暴露无可信结果。
             if not isinstance(error, (PermissionError, ValueError, TypeError, VersionConflict)):
                 raise
-            from min_agent.research_observation import ResearchObservation
+            from min_agent.research.observation import ResearchObservation
             return ResearchObservation(run_ref="withheld", status="WITHHELD",
                                        reason_code="UNVERIFIED_RESEARCH_RUN")
         return self.research_observations.get(context, run_ref)
@@ -343,11 +477,19 @@ class HarnessApplication:
             self.sessions.set_extension(context,'long_memory_preferences',dict(enabled=enabled,scenario_ids=list(dict.fromkeys(ids))))
         return self.memory_status(context)
 
-    def _registry(self, context, segment, raw_model, control, trace=None, memory_query='当前任务'):
+    def _registry(self, context, segment, raw_model, control, trace=None, memory_query='当前任务',
+                  mcp_catalog=None):
         controller = TaskController(self.sessions)
         todos = TodoService(self.sessions)
         registry = todo_registry(todos, controller, context)
         registry.register(CALCULATOR_TOOL)
+        # FS-READ-001：只读文件工具；根目录不可用时明确不注册，而不是放宽到全盘。
+        if self.workspace_root is not None and self.workspace_root.is_dir():
+            from min_agent.tools.filesystem import build_write_gate, filesystem_tools
+            # 复用上面已构造的 controller，避免把 TaskController 变成函数局部名。
+            gate = build_write_gate(controller, context)
+            for tool in filesystem_tools(self.workspace_root, gate=gate):
+                registry.register(tool)
         mode = self.effective_memory_mode(context)
         if mode == 'active':
             from min_agent.long_memory.delivery import bind_active_memory
@@ -424,10 +566,37 @@ class HarnessApplication:
                 result = {"status": "partial", "error": "stale_goal_version", "evidence": None}
             return json.dumps(result, ensure_ascii=False)
         registry.register(ToolDefinition("research", "针对已允许的公开问题自主搜索、阅读与补查，返回有原文位置/限制/冲突的证据包；不复制私人聊天、不写业务或递归委派。", _Question, research))
+        # MA-P5-013：**条件注册**。默认 enable_multi_agent=False 时这一段完全不执行，
+        # 不创建任何多 Agent 对象、不注册工具、不产生额外线程。
+        if self.enable_multi_agent and self.multi_agent_service_factory is not None:
+            def delegate_task(objective):
+                """同步跑一次多 Agent 委派；每次都新建 Service，finally 释放。"""
+                from min_agent.agents.multi_agent_service import DelegateRequest
+                request = DelegateRequest(objective=objective)
+                # 可信入口全部来自闭包：context / segment / registry / control。
+                # 外层 Runtime 已把本次 delegate_task 计为一次工具调用，这里只消耗子预算。
+                service = self.multi_agent_service_factory(
+                    sessions=self.sessions, context=context,
+                    parent_budget=segment, registry=registry, control=control)
+                try:
+                    run = service.run(request)
+                    return json.dumps(run.model_dump(mode="json"), ensure_ascii=False)
+                finally:
+                    service.close()
+            registry.register(ToolDefinition(
+                "delegate_task",
+                "把一个有界目标拆给 Manager/Worker 完成，返回结构化计划与各子任务结论。"
+                "不扩大当前会话权限、不递归委派、不替代用户确认；结果里的 completed 仍"
+                "需符合各 worker 的 verification，可能返回 partial / failed / cancelled。",
+                _DelegateTask, delegate_task))
+        if mcp_catalog is not None:
+            from min_agent.mcp.tools import register_mcp_tools
+            register_mcp_tools(registry, mcp_catalog)
         return registry
 
     def _worker(self, context, text=None, checkpoint_id=None, resume_task_id=None):
         identity = str(context.session_id)
+        sink = self._open_stream(identity)
         try:
             while not self._closing.is_set():
                 self.memory.reconcile_deletions(context)
@@ -435,6 +604,10 @@ class HarnessApplication:
                 new_input = text is None
                 if new_input: text = events.next_input()
                 if text is None: break
+                # QWEN-UX-001：把"正在处理的那条输入"记在会话扩展里，运行中页面能立刻显示，
+                # 进程被强杀时也能在下次启动恢复成历史；不写 messages，避免影响
+                # Runtime 的 original_length 切片与压缩计数。
+                self.sessions.set_extension(context, "pending_input", text)
                 snapshot = self.sessions.snapshot(context)
                 budgets = SessionBudgets(self.sessions)
                 if new_input and snapshot.task is not None and snapshot.task.status != "completed":
@@ -446,7 +619,7 @@ class HarnessApplication:
                 ledger = budgets.open(context, budget_id)
                 segment = ledger.start_segment(BudgetLimits(model_calls=self.segment_models, tool_calls=self.segment_tools))
                 raw_model = self.model_factory(context) if self.model_factory is not None else self.model
-                from min_agent.model_context import context_window, output_reserve
+                from min_agent.context.model_context import context_window, output_reserve
                 window = context_window(raw_model, override=self.window)
                 compactor = Compactor(raw_model, self.sessions, context, segment, input_window=window, control=events)
                 manager = ContextManager(self.sessions, context, ArtifactStore(self.sessions, context),
@@ -458,15 +631,27 @@ class HarnessApplication:
                 work = self.sessions.work_state(context)
                 if not new_input and work.proposal:
                     memory_query = work.proposal.goal.objective+'\n'+text
-                registry = self._registry(context, segment, raw_model, events, trace, memory_query=memory_query)
+                mcp_catalog = self._mcp_catalog(context)
+                registry = self._registry(context, segment, raw_model, events, trace,
+                    memory_query=memory_query, mcp_catalog=mcp_catalog)
+                system_prompt = None
+                if mcp_catalog is not None:
+                    from min_agent.context.system_prompt import SystemPrompt
+                    base = (Path(__file__).parent / "prompts" / "system.md").read_text(encoding="utf-8")
+                    system_prompt = SystemPrompt(base, (mcp_catalog.prompt_section,))
                 primary_model = raw_model
                 if getattr(registry, '_memory_delivery', None) is not None:
                     from min_agent.long_memory.delivery import MemoryDeliveryModel
                     primary_model = MemoryDeliveryModel(raw_model, registry._memory_delivery)
+                elif callable(getattr(raw_model, "generate_stream", None)):
+                    # QWEN-STREAM-001：只在没有Memory递送包装时接管流式，避免绕过递送逻辑。
+                    from min_agent.runtime.streaming import StreamingModel
+                    primary_model = StreamingModel(raw_model, sink)
                 runtime = Runtime(ManagedModel(primary_model, manager, control=events), registry,
                     budget=segment, checkpoint_policy=CheckpointPolicy(), control=events,
                     progress_guard=ProgressGuard(self.sessions, context), recover_unknown_writes=True, trace=trace,
-                    before_execute=self._freeze_public_goals if self.public_goals_enabled else None)
+                    before_execute=self._freeze_public_goals if self.public_goals_enabled else None,
+                    system_prompt=system_prompt)
                 if checkpoint_id is not None:
                     result = runtime.resume_session(checkpoint_id, store=self.sessions, context=context, text=text)
                 elif resume_task_id is not None:
@@ -485,8 +670,11 @@ class HarnessApplication:
             try: SessionEvents(self.sessions, context).finished("failed")
             except Exception: pass
         finally:
+            self._close_stream(identity)
             with self._lock:
                 self._running.pop(identity, None)
+                try: self.sessions.set_extension(context, "pending_input", None)
+                except Exception: pass
                 if not self._closing.is_set():
                     event_state = SessionEvents(self.sessions, context).snapshot()
                     if event_state["queue"] and event_state["status"] == "completed" and event_state["dispatch"]:
@@ -517,7 +705,13 @@ class HarnessApplication:
                 pending = self.sessions._pending(snapshot.messages)
                 missing = [Message(role="tool", tool_call_id=call_id, content=json.dumps({"ok": False,
                     "error": {"code": "interrupted", "execution_state": "unknown", "recovery": "verify_actual_state_before_retry"}})) for call_id in sorted(pending)]
+                # QWEN-UX-001：进程被强杀时，正在处理的那条用户输入只在 pending_input 里；
+                # 补回历史，避免"重新打开就什么都没有"。
+                crashed_input = self.sessions.extension(context, "pending_input", None)
+                if isinstance(crashed_input, str) and crashed_input.strip():
+                    missing.insert(0, Message(role="user", content=crashed_input))
                 self.sessions.finish(context, snapshot.task.task_id, status="partial", error_code="interrupted", messages=missing)
+                self.sessions.set_extension(context, "pending_input", None)
                 if snapshot.active_budget_id is not None:
                     ledger = SessionBudgets(self.sessions).open(context, snapshot.active_budget_id)
                     roots = [key for key, node in ledger.snapshot().segments.items() if node.parent_id is None]
@@ -542,6 +736,12 @@ class HarnessApplication:
                 except Exception: pass
         self._pool.shutdown(wait=True, cancel_futures=True)
         if self._scheduler_thread: self._scheduler_thread.join(timeout=5)
+        for mcp_catalog in list(self._mcp_catalogs.values()):
+            try: mcp_catalog.close()
+            except Exception: pass
+        self._mcp_catalogs.clear()
         for fetcher in self._fetchers.values(): fetcher.close()
         if hasattr(self.model, "close"): self.model.close()
+        catalog = self.model_catalog
+        if catalog is not None and hasattr(catalog, "close"): catalog.close()
         self.storage.close()

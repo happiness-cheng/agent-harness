@@ -7,8 +7,8 @@ from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from min_agent.clock import Clock
-from min_agent.sessions import ExecutionContext, SessionStore
+from min_agent.contracts.clock import Clock
+from min_agent.session.store import ExecutionContext, SessionStore
 
 
 class _Unset(Enum):
@@ -65,7 +65,7 @@ class TodoService:
 
     def add(self, context: ExecutionContext, title: str, *, due_date: date | str | None = None) -> TodoItem:
         checked = self._sessions.check_access(context)
-        from min_agent.operations import operation_id
+        from min_agent.session.operations import operation_id
         identity = operation_id.get()
         item = TodoItem(
             id=uuid5(checked.session_id, identity) if identity is not None else uuid4(), session_id=checked.session_id, title=title,

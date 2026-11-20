@@ -8,7 +8,7 @@ from min_agent.long_memory.delivery import bind_active_memory, MemoryDeliveryMod
 from min_agent.long_memory.delivery_support import encoded
 from min_agent.long_memory.evaluation import build_approved_fixture
 from min_agent.long_memory.models import Query
-from min_agent.models import Message
+from min_agent.contracts.models import Message
 from min_agent.tools.registry import ToolRegistry
 
 
@@ -75,7 +75,7 @@ def test_budget_does_not_truncate_evidence_or_silently_mark_it_delivered(budget)
 def test_revocation_after_final_build_blocks_provider():
     memory, context, registry, state = prepared()
     view = registry.memory_view([])
-    from min_agent.task_state import TaskController, GoalSpec
+    from min_agent.session.task_state import TaskController, GoalSpec
     control = TaskController(memory.sessions)
     proposal = control.propose(context, GoalSpec(objective='合成测试定向撤回', completion_criteria=('指定证据已撤回',)))
     control.confirm(context, proposal.proposal_id)

@@ -5,8 +5,8 @@ import httpx
 import pytest
 
 from min_agent.llm.deepseek import DeepSeekResponsesModel, DeepSeekSettings
-from min_agent.models import Message
-from min_agent.context import request_bound
+from min_agent.contracts.models import Message
+from min_agent.context.manager import request_bound
 from tests.unit.test_deepseek_adapter import ds_response, ds_text
 
 
@@ -58,7 +58,7 @@ def test_actual_request_size_does_not_double_count_native_protocol_state():
 
 
 def test_metadata_window_and_output_configuration_are_independent():
-    from min_agent.model_context import context_window, output_reserve
+    from min_agent.context.model_context import context_window, output_reserve
     with DeepSeekResponsesModel(DeepSeekSettings(api_key='synthetic-unit-token',max_output_tokens=8192),
             transport=httpx.MockTransport(lambda request:httpx.Response(200,json=metadata(window=220000)))) as model:
         assert context_window(model)==220000 and output_reserve(model)==8192
@@ -67,14 +67,14 @@ def test_metadata_window_and_output_configuration_are_independent():
 
 
 def test_unknown_real_provider_requires_explicit_capability_instead_of_32k():
-    from min_agent.model_context import context_window
+    from min_agent.context.model_context import context_window
     class Unknown:
         _provider='unknown.remote'
     with pytest.raises(ValueError):context_window(Unknown())
 
 
 def test_harness_default_window_is_256k_and_provider_window_wins():
-    from min_agent.model_context import DEFAULT_HARNESS_CONTEXT_WINDOW, context_window
+    from min_agent.context.model_context import DEFAULT_HARNESS_CONTEXT_WINDOW, context_window
     class MockModel:
         pass
     assert DEFAULT_HARNESS_CONTEXT_WINDOW == 262144
@@ -87,7 +87,7 @@ def test_harness_default_window_is_256k_and_provider_window_wins():
 
 
 def test_configured_output_cannot_exceed_discovered_model_output_limit():
-    from min_agent.model_context import context_window
+    from min_agent.context.model_context import context_window
     with DeepSeekResponsesModel(DeepSeekSettings(api_key='synthetic-unit-token',max_output_tokens=8192),
             transport=httpx.MockTransport(lambda request:httpx.Response(200,json=metadata(window=220000,output=4000)))) as model:
         with pytest.raises(ValueError):context_window(model)
@@ -95,9 +95,9 @@ def test_configured_output_cannot_exceed_discovered_model_output_limit():
 
 def test_identical_input_admission_follows_discovered_capacity():
     from uuid import uuid4
-    from min_agent.artifacts import ArtifactStore
-    from min_agent.context import ContextManager, ContextLimit
-    from min_agent.sessions import SessionStore
+    from min_agent.session.artifacts import ArtifactStore
+    from min_agent.context.manager import ContextManager, ContextLimit
+    from min_agent.session.store import SessionStore
     text=Message(role='user',content='必须保留的当前原文'*1500)
     for window, allowed in [(220000,True),(20000,False)]:
         with DeepSeekResponsesModel(DeepSeekSettings(api_key='synthetic-unit-token'),
@@ -113,14 +113,14 @@ def test_identical_input_admission_follows_discovered_capacity():
 
 def test_existing_subloops_share_model_capacity_and_configured_output_reserve():
     from uuid import uuid4
-    from min_agent.artifacts import ArtifactStore
-    from min_agent.context import ContextManager
-    from min_agent.compaction import Compactor
-    from min_agent.compression_selector import GroundedSelector
-    from min_agent.compression_summary import SemanticCompressor
-    from min_agent.skill_retention import SkillRetentionSelector
-    from min_agent.research import ResearchService
-    from min_agent.sessions import SessionStore
+    from min_agent.session.artifacts import ArtifactStore
+    from min_agent.context.manager import ContextManager
+    from min_agent.compression.compaction import Compactor
+    from min_agent.compression.selector import GroundedSelector
+    from min_agent.compression.summary import SemanticCompressor
+    from min_agent.compression.skill_retention import SkillRetentionSelector
+    from min_agent.research.service import ResearchService
+    from min_agent.session.store import SessionStore
     requests=[]
     with DeepSeekResponsesModel(DeepSeekSettings(api_key='synthetic-unit-token',max_output_tokens=8192),
             transport=httpx.MockTransport(lambda request: requests.append(request) or httpx.Response(200,json=metadata(window=743210)))) as model:

@@ -4,7 +4,7 @@ from collections import deque
 from collections.abc import Iterable
 from copy import deepcopy
 
-from min_agent.models import Message, ModelResponse
+from min_agent.contracts.models import Message, ModelResponse
 
 
 class ScriptedModel:

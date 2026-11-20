@@ -2,13 +2,13 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.budget import BudgetLimits
-from min_agent.budget_persistence import SessionBudgets
-from min_agent.checkpoints import CheckpointPolicy
-from min_agent.models import ModelResponse
+from min_agent.ledger.budget import BudgetLimits
+from min_agent.ledger.budget_persistence import SessionBudgets
+from min_agent.ledger.checkpoints import CheckpointPolicy
+from min_agent.contracts.models import ModelResponse
 from min_agent.runtime import Runtime
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
 from tests.fakes.model import ScriptedModel
 from tests.unit.test_checkpoint_resume import note_response
 

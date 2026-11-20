@@ -2,9 +2,9 @@ from uuid import uuid4
 import pytest
 
 from min_agent.application import HarnessApplication
-from min_agent.memory import MemoryJournal
-from min_agent.models import Message, ModelResponse, ToolCall
-from min_agent.sessions import SessionStore
+from min_agent.memory.journal import MemoryJournal
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
+from min_agent.session.store import SessionStore
 from tests.fakes.model import ScriptedModel
 
 

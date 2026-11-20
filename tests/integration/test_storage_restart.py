@@ -6,9 +6,9 @@ from threading import Barrier
 
 import pytest
 
-from min_agent.models import Message, ToolCall
-from min_agent.sessions import ExecutionContext, SessionStore
-from min_agent.storage import SQLiteStorage, _SESSION_COMMIT
+from min_agent.contracts.models import Message, ToolCall
+from min_agent.session.store import ExecutionContext, SessionStore
+from min_agent.session.storage import SQLiteStorage, _SESSION_COMMIT
 
 
 def trusted_storage_save(storage, *args, **kwargs):

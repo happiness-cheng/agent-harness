@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+.pnpm-store/
+.cache/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+tmp/

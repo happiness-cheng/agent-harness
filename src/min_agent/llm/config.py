@@ -24,7 +24,7 @@ class OpenAISettings(BaseModel):
         """仅取显式文件中当前提供商字段；不查询环境或个人工具配置。"""
         try:
             data = load_json(Path(path).read_text(encoding="utf-8-sig"))
-            if not isinstance(data, dict) or set(data) - {"openai_api_key", "deepseek_api_key"}:
+            if not isinstance(data, dict) or set(data) - {"openai_api_key", "deepseek_api_key", "qianwen_api_key"}:
                 raise ValueError("凭据文件包含不支持的配置")
             key = data[cls._credential_key]
             if not isinstance(key, str) or not key or not key.isascii() or not key.isprintable() or any(character.isspace() for character in key):

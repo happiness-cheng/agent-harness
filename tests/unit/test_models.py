@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from min_agent.models import Message, ModelResponse, ToolCall
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
 
 
 @pytest.fixture

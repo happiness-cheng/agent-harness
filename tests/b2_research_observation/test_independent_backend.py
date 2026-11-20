@@ -2,9 +2,9 @@
 from uuid import UUID
 import pytest
 import min_agent.application as application
-from min_agent.research import ResearchService
-from min_agent.sessions import ExecutionContext,SessionStore
-from min_agent.storage import SQLiteStorage,VersionConflict
+from min_agent.research.service import ResearchService
+from min_agent.session.store import ExecutionContext,SessionStore
+from min_agent.session.storage import SQLiteStorage,VersionConflict
 from test_independent_boundaries import build,b
 
 @pytest.mark.parametrize('enabled',[True,False])

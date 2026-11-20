@@ -6,7 +6,7 @@ import pytest
 
 def test_codex_adapter_has_strict_schema_sandbox_and_observable_call_limit(tmp_path,monkeypatch):
     from min_agent.evaluation.codex_adapter import CodexCandidateModel
-    from min_agent.models import Message
+    from min_agent.contracts.models import Message
     import min_agent.evaluation.codex_adapter as module
     monkeypatch.setenv('OPENAI_API_KEY','SYNTHETIC_SHOULD_NOT_INHERIT')
     captured=[]
@@ -40,7 +40,7 @@ def test_cost_gate_refuses_before_invoking_provider(tmp_path):
 @pytest.mark.parametrize('timeout_error',[True,False])
 def test_codex_timeout_keeps_attempt_and_receipt_without_retry(tmp_path,monkeypatch,timeout_error):
     from min_agent.evaluation.codex_adapter import CodexCandidateModel
-    from min_agent.models import Message
+    from min_agent.contracts.models import Message
     import min_agent.evaluation.codex_adapter as module
     calls=[]
     def timeout(command,**options):

@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import pytest
 
 from min_agent.llm.client import LLMError
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.contracts.models import ModelResponse, ToolCall
 
 
 @pytest.fixture

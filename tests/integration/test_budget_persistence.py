@@ -6,18 +6,18 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from min_agent.budget import BudgetExceeded, BudgetLedger, BudgetLimits, BudgetPersistenceError
-from min_agent.budget_persistence import SessionBudgets
-from min_agent.models import ModelResponse, ToolCall
+from min_agent.ledger.budget import BudgetExceeded, BudgetLedger, BudgetLimits, BudgetPersistenceError
+from min_agent.ledger.budget_persistence import SessionBudgets
+from min_agent.contracts.models import ModelResponse, ToolCall
 from min_agent.runtime import Runtime
-from min_agent.sessions import ExecutionContext, SessionStore
-from min_agent.storage import SQLiteStorage, _SESSION_COMMIT
+from min_agent.session.store import ExecutionContext, SessionStore
+from min_agent.session.storage import SQLiteStorage, _SESSION_COMMIT
 
 
 def trusted_storage_save(storage, *args, **kwargs):
     """模拟受信 SessionStore 调用，原存储不变量断言保持不变。"""
     return storage.save(*args, _session_commit=_SESSION_COMMIT, **kwargs)
-from min_agent.task_state import ActionSpec, GoalSpec, TaskController
+from min_agent.session.task_state import ActionSpec, GoalSpec, TaskController
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry
 from tests.fakes.model import ScriptedModel
@@ -254,10 +254,10 @@ def test_separate_process_recovers_exhausted_budget_without_new_model_call(tmp_p
     script = """
 import sys
 from uuid import UUID
-from min_agent.budget import BudgetLimits
-from min_agent.budget_persistence import SessionBudgets
-from min_agent.sessions import ExecutionContext, SessionStore
-from min_agent.storage import SQLiteStorage
+from min_agent.ledger.budget import BudgetLimits
+from min_agent.ledger.budget_persistence import SessionBudgets
+from min_agent.session.store import ExecutionContext, SessionStore
+from min_agent.session.storage import SQLiteStorage
 from min_agent.runtime import Runtime
 class Never:
     def generate(self, *args, **kwargs):

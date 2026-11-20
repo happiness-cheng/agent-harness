@@ -2,10 +2,10 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.memory_state import SessionStateTable
-from min_agent.models import ToolCall
-from min_agent.sessions import SessionStore
-from min_agent.task_state import ActionSpec, GoalSpec, TaskController
+from min_agent.memory.state import SessionStateTable
+from min_agent.contracts.models import ToolCall
+from min_agent.session.store import SessionStore
+from min_agent.session.task_state import ActionSpec, GoalSpec, TaskController
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry
 
@@ -52,7 +52,7 @@ def test_same_owner_sessions_have_independent_state_and_deleted_todo_is_not_curr
 
 
 def test_state_rejects_foreign_owner_and_mismatched_service():
-    from min_agent.sessions import ExecutionContext
+    from min_agent.session.store import ExecutionContext
     store = SessionStore(); context = store.create(uuid4())
     with pytest.raises(PermissionError):
         SessionStateTable(store, ExecutionContext(owner_id=uuid4(), session_id=context.session_id), TodoService(store))

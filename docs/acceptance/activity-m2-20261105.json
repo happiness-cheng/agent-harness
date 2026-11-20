@@ -1,0 +1,594 @@
+{
+  "task_id": "ADR-M2-001",
+  "baseline": "v0.2.4.2-final",
+  "git_head_at_run": "3c3d82f5aa81ebd374708964a2b991a273e7a3c8",
+  "source_sha256": {
+    "src/min_agent/activity_identity.py": "25f71623844788bf33c529dcda2b76277823aa9cf44a29b24adb7a84e2ddd868",
+    "src/min_agent/activity_store.py": "8da80ff1913be95f896dfe7deedea4687df5fa5f6143ad2c82d27b04c596ed08",
+    "src/min_agent/activity_m2.py": "881c8480e5b3f364f2341fe2ba2c24c701aa02fc6f48deb573fb4f12ddbf5f8f",
+    "tests/unit/test_activity_identity.py": "d68749cd75a289bd693fe87fc581cbcbba51d92b4292cf07d99f3ec6c93a7979",
+    "tests/unit/test_activity_store.py": "0e9635590218a16c310597bb66fb7f332950f5985f8336abee48f04ea049ecc8",
+    "tests/unit/test_activity_m2.py": "06cc99435d2c73be9ce8c113daadad4ec58b8d87deb47d5d64f43635ae3ebe03"
+  },
+  "environment": {
+    "python": "3.13.16",
+    "sqlite": "3.50.4"
+  },
+  "command": ".venv/Scripts/python.exe -X utf8 -m pytest tests/unit/test_activity_m2.py tests/unit/test_activity_identity.py tests/unit/test_activity_store.py tests/unit/test_checkpoint_resume.py tests/integration/test_checkpoint_persistence.py -q --tb=short --junitxml=docs/acceptance/activity-m2-20261105.junit.xml",
+  "totals": {
+    "passed": 100,
+    "failed": 0,
+    "skipped": 0,
+    "m2": 37,
+    "m1": 31,
+    "existing_checkpoint": 32
+  },
+  "fault_injection": {
+    "process_exit_cases": 13,
+    "exception_cases": 7,
+    "child_exit_code": 73
+  },
+  "demo": {
+    "manifest_id": "id1_fbeb25ccf6f6550fb77956a6623bd80d6e95e26c63c3cddae45a8e55a7a791a7",
+    "old_generation": "id1_e13cd3023f2c6ae319da8899da1125b527dd294ecd61a05612dcc201532d6327",
+    "new_generation": "id1_d670bd351a01186fc1041bca5ab283f25bc7cf7028bb854fc43d6e39b4479e49",
+    "old_checkpoint_closed": {
+      "id": "id1_7039646eefd93e0bfcba3e76b925d1119aac9a3e8710b0e40752573158dd5277",
+      "hash": "996dde859cc43dc4ee90bd9153e19b22d6e37dd16ba99f4e68cf563916bc5d54",
+      "backfill": true,
+      "key": {
+        "source_generation_id": "id1_e13cd3023f2c6ae319da8899da1125b527dd294ecd61a05612dcc201532d6327",
+        "source_member_id": "id1_98b2c36d53e9886b16597f26cfe2c5689bae0d2253659baa8f0baea062efd855",
+        "source_stream_id": "id1_a98144d3f1b47940defadbf4b1c8cbcbbac279c5d7ac07cf0bfe02e1f4baa260"
+      },
+      "manifest_id": "id1_fbeb25ccf6f6550fb77956a6623bd80d6e95e26c63c3cddae45a8e55a7a791a7",
+      "position": 14,
+      "revision": 2,
+      "snapshot_id": "id1_c24428668036248c8eb0baab00f16c97e281ea11c36b08e3bbc8ddcbd3b310b9"
+    },
+    "new_checkpoint_at_activation": {
+      "id": "id1_4fcd803b716e46ceab12ad5dbc9d2fe68f414b3cd4f52fd6c79c91f8ba1c25a1",
+      "hash": "f2c52b95262a32babe1089eed033f921825aab40ddd3a54f7588ea325fa9a94d",
+      "backfill": true,
+      "key": {
+        "source_generation_id": "id1_d670bd351a01186fc1041bca5ab283f25bc7cf7028bb854fc43d6e39b4479e49",
+        "source_member_id": "id1_98b2c36d53e9886b16597f26cfe2c5689bae0d2253659baa8f0baea062efd855",
+        "source_stream_id": "id1_a98144d3f1b47940defadbf4b1c8cbcbbac279c5d7ac07cf0bfe02e1f4baa260"
+      },
+      "manifest_id": "id1_fbeb25ccf6f6550fb77956a6623bd80d6e95e26c63c3cddae45a8e55a7a791a7",
+      "position": 0,
+      "revision": 1,
+      "snapshot_id": "id1_cead12db19a384726e46e68fdd159250be4986265a2277e784b1f4b8498ccefe"
+    },
+    "new_checkpoint_after_replay": {
+      "id": "id1_4fcd803b716e46ceab12ad5dbc9d2fe68f414b3cd4f52fd6c79c91f8ba1c25a1",
+      "hash": "cde233dabfce08d1efe8870aa251b1ad16cab80ce065045f1b478d7fcc6a787d",
+      "backfill": true,
+      "key": {
+        "source_generation_id": "id1_d670bd351a01186fc1041bca5ab283f25bc7cf7028bb854fc43d6e39b4479e49",
+        "source_member_id": "id1_98b2c36d53e9886b16597f26cfe2c5689bae0d2253659baa8f0baea062efd855",
+        "source_stream_id": "id1_a98144d3f1b47940defadbf4b1c8cbcbbac279c5d7ac07cf0bfe02e1f4baa260"
+      },
+      "manifest_id": "id1_fbeb25ccf6f6550fb77956a6623bd80d6e95e26c63c3cddae45a8e55a7a791a7",
+      "position": 4,
+      "revision": 2,
+      "snapshot_id": "id1_cead12db19a384726e46e68fdd159250be4986265a2277e784b1f4b8498ccefe"
+    },
+    "event_count": 4,
+    "transition_state": "committed",
+    "generation_states": {
+      "old": "closed",
+      "new": "active"
+    }
+  },
+  "cases": [
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_normal_ingest_and_replay",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_checkpoint_cannot_skip_events_or_record_boundaries",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_ingest_exception_recovery[events.after_insert-0-0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_ingest_exception_recovery[events.before_commit-0-0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_ingest_exception_recovery[events.after_commit-3-0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_ingest_exception_recovery[consume.after_events-3-0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_ingest_exception_recovery[checkpoint.after_write-3-0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_ingest_exception_recovery[checkpoint.before_commit-3-0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_ingest_exception_recovery[checkpoint.after_commit-3-14]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_process_exit_ingest_recovery[events.after_insert-0-0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_process_exit_ingest_recovery[events.before_commit-0-0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_process_exit_ingest_recovery[consume.after_events-3-0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_process_exit_ingest_recovery[checkpoint.after_write-3-0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_process_exit_ingest_recovery[checkpoint.before_commit-3-0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_process_exit_ingest_recovery[checkpoint.after_commit-3-14]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_transition_process_exit_atomicity[transition.after_manifest]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_transition_process_exit_atomicity[transition.after_pending]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_transition_process_exit_atomicity[transition.after_old_closed]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_transition_process_exit_atomicity[transition.after_new_active]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_transition_process_exit_atomicity[transition.after_checkpoint]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_transition_process_exit_atomicity[transition.before_commit]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_transition_process_exit_atomicity[transition.after_commit]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_independent_reader_never_sees_partial_transition",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_wrong_id_reuse_stale_cas_and_unconsumed_generation",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_two_transitions_keep_append_only_history",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_pending_without_changes_is_aborted_on_reopen",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_zero_active_uninitialized_backfills_from_root",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_illegal_active_states_freeze_across_restarts[zero-transition_incomplete]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_illegal_active_states_freeze_across_restarts[multiple-multiple_active_checkpoints]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_illegal_active_states_freeze_across_restarts[committed_wrong_active-transition_committed_inconsistent]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_persisted_checkpoint_ahead_of_events_is_corruption",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_m2_rebuild_preserves_transition_and_business_events",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_partial_trailing_line_and_wrong_event_payload",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_concurrent_transition_has_one_cas_winner",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_same_transition_id_concurrent_replay_is_idempotent",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_late_old_generation_event_write_is_rejected",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_m2",
+      "name": "test_reopen_does_not_mutate_normal_committed_store",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_identity",
+      "name": "test_jcs_subset_has_exact_bytes_and_utf16_sorting",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_identity",
+      "name": "test_id_full_hash_and_domain_separation",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_identity",
+      "name": "test_opaque_object_only_normalizes_nfc",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_identity",
+      "name": "test_rejects_unsupported_canonical_values[1.0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_identity",
+      "name": "test_rejects_unsupported_canonical_values[nan]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_identity",
+      "name": "test_rejects_unsupported_canonical_values[9007199254740992]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_identity",
+      "name": "test_rejects_unsupported_canonical_values[\\ud800]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_identity",
+      "name": "test_rejects_unsupported_canonical_values[value4]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_identity",
+      "name": "test_caller_cannot_override_id_domain",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_a_identity_and_revision_stable_on_append_checkpoint_and_state",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_b_root_and_latest_separate_and_duplicate_snapshot_idempotent",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_c_fold_conflict_rejects_without_mutating_and_freezes_writer",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_d_rebuild_from_durable_json_preserves_all_ids_and_derived_state",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_e_corrupt_manifest_body_blocks_open_and_existing_writer[revision_no-44]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_e_corrupt_manifest_body_blocks_open_and_existing_writer[manifest_id-id1_wrong]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_e_corrupt_manifest_body_blocks_open_and_existing_writer[parent_revision_no-42]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_e_corrupt_manifest_body_blocks_open_and_existing_writer[parent_manifest_hash-0000000000000000000000000000000000000000000000000000000000000000]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_e_corrupt_hashes_or_committed_pointer_fail_closed[UPDATE manifest_revisions SET hash='bad' WHERE seq=1]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_e_corrupt_hashes_or_committed_pointer_fail_closed[UPDATE manifest_head SET manifest_id='other']",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_e_corrupt_hashes_or_committed_pointer_fail_closed[UPDATE manifest_head SET seq=0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_e_corrupt_hashes_or_committed_pointer_fail_closed[UPDATE observations SET hash='bad' WHERE seq=1]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_e_corrupt_hashes_or_committed_pointer_fail_closed[UPDATE checkpoints SET hash='bad']",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_checkpoint_cas_and_bounds",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_closed_checkpoint_cannot_advance",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_bad_bundle_does_not_create_target_and_existing_db_not_overwritten",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_unsupported_or_ambiguous_inputs_never_silently_make_identity",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_duplicate_json_keys_are_corruption_even_if_last_value_matches",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_boolean_revision_rejected_even_with_recomputed_hash",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_simultaneous_checkpoint_cas_has_one_winner",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_registration_replay_is_idempotent",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_activity_store",
+      "name": "test_wrong_database_and_missing_database_are_not_initialized",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_remaining_obeys_tightest_task_parent_and_segment_limits",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_policy_rejects_invalid_reservations[options0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_policy_rejects_invalid_reservations[options1]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_policy_rejects_invalid_reservations[options2]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_policy_rejects_invalid_reservations[options3]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_policy_rejects_invalid_reservations[options4]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_policy_rejects_invalid_reservations[options5]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_policy_rejects_invalid_reservations[options6]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_policy_requires_explicit_budget",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_soft_limit_keeps_one_model_call_for_tool_free_checkpoint",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_soft_limit_checks_cumulative_quota_even_with_large_fresh_segment",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_no_budget_returns_factual_checkpoint_without_calling_model",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_closing_failure_keeps_facts_and_never_executes_more_tools[closing0]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_closing_failure_keeps_facts_and_never_executes_more_tools[closing1]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_closing_failure_keeps_facts_and_never_executes_more_tools[closing2]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_closing_failure_keeps_facts_and_never_executes_more_tools[closing3]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_closing_failure_keeps_facts_and_never_executes_more_tools[closing4]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_tool_reservation_stops_batch_pairs_unstarted_requests_then_closes",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_session_history_keeps_complete_pairs_and_returned_checkpoint_is_isolated",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_normal_reply_before_threshold_is_completed_without_checkpoint",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_legacy_without_policy_still_uses_last_call_for_normal_answer",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_note_requires_all_four_sections_and_rejects_oversized_text",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_persistent_todo_write_and_closing_usage_are_saved_but_checkpoint_is_return_only",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_closing_reservation_storage_failure_never_calls_model_or_retries",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_parent_quota_and_custom_reservation_trigger_early_without_spending_all",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_model_cannot_turn_checkpoint_into_verified_completion",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_non_response_closing_is_invalid_without_fake_success[None]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_non_response_closing_is_invalid_without_fake_success[not-a-response]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_non_response_closing_is_invalid_without_fake_success[123]",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.unit.test_checkpoint_resume",
+      "name": "test_policy_and_note_are_revalidated_at_public_entry",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.integration.test_checkpoint_persistence",
+      "name": "test_restart_requires_directed_checkpoint_and_fresh_segment",
+      "status": "PASS"
+    },
+    {
+      "suite": "tests.integration.test_checkpoint_persistence",
+      "name": "test_cannot_resume_using_original_segment",
+      "status": "PASS"
+    }
+  ],
+  "limits": [
+    "synthetic complete newline records only",
+    "single object/member/stream; multiple generations",
+    "zero active with transition evidence freezes rather than guessing repair",
+    "new generation starts at zero; previous source must be drained",
+    "no production migration; no power-loss/disk failure claims",
+    "M3-M6 and real Connector not implemented"
+  ]
+}

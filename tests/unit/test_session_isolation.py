@@ -7,9 +7,9 @@ import pytest
 
 import json
 
-from min_agent.models import Message, ModelResponse, ToolCall
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
 from min_agent.runtime import Runtime
-from min_agent.sessions import ExecutionContext, SessionStore
+from min_agent.session.store import ExecutionContext, SessionStore
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.registry import ToolRegistry
 from tests.fakes.model import ScriptedModel

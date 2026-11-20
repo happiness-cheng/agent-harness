@@ -3,10 +3,10 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.context import ContextManager, ContextLimit
-from min_agent.models import Message, ModelResponse, ToolCall
-from min_agent.sessions import SessionStore
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.context.manager import ContextManager, ContextLimit
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
+from min_agent.session.store import SessionStore
 
 
 def tool_history(text):
@@ -53,8 +53,8 @@ def test_structured_layer_compacts_completed_rounds_before_any_llm():
 
 
 def test_fabricated_or_rewritten_llm_summary_cannot_replace_original():
-    from min_agent.budget import BudgetLedger, BudgetLimits
-    from min_agent.compaction import Compactor, CompactionBlocked
+    from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+    from min_agent.compression.compaction import Compactor, CompactionBlocked
     from tests.fakes.model import ScriptedModel
     store = SessionStore(); context = store.create(uuid4())
     model = ScriptedModel([ModelResponse(finish_reason="stop", content=json.dumps({
@@ -69,8 +69,8 @@ def test_fabricated_or_rewritten_llm_summary_cannot_replace_original():
 
 
 def test_selection_covers_every_chunk_and_cannot_forge_source_ids():
-    from min_agent.budget import BudgetLedger, BudgetLimits
-    from min_agent.compression_selector import GroundedSelector
+    from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+    from min_agent.compression.selector import GroundedSelector
     class Model:
         def __init__(self): self.seen = []
         def generate(self, messages):
@@ -92,9 +92,9 @@ def test_selection_covers_every_chunk_and_cannot_forge_source_ids():
 
 
 def test_llm_selected_summary_preserves_whole_negative_sentence_and_real_source():
-    from min_agent.artifacts import ArtifactStore
-    from min_agent.budget import BudgetLedger, BudgetLimits
-    from min_agent.compaction import Compactor
+    from min_agent.session.artifacts import ArtifactStore
+    from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+    from min_agent.compression.compaction import Compactor
     from tests.fakes.model import ScriptedModel
     store = SessionStore(); context = store.create(uuid4())
     model = ScriptedModel([ModelResponse(finish_reason="stop", content='{"selections":[{"unit_id":0,"category":"constraints"}]}')])
@@ -117,8 +117,8 @@ def test_protected_condition_over_budget_fails_without_publishing_head_text():
 
 
 def test_tool_summary_failures_open_circuit_and_keep_original_once():
-    from min_agent.budget import BudgetLedger, BudgetLimits
-    from min_agent.compression_selector import GroundedSelector
+    from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+    from min_agent.compression.selector import GroundedSelector
     from tests.fakes.model import ScriptedModel
     store = SessionStore(); context = store.create(uuid4()); artifacts = ArtifactStore(store, context)
     model = ScriptedModel([ModelResponse(finish_reason="stop", content='{"selections":[{"unit_id":999}]}')] * 3)
@@ -134,8 +134,8 @@ def test_tool_summary_failures_open_circuit_and_keep_original_once():
 
 
 def test_selector_does_not_use_closing_reserve_or_make_half_coverage_calls():
-    from min_agent.budget import BudgetLedger, BudgetLimits
-    from min_agent.compression_selector import GroundedSelector
+    from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+    from min_agent.compression.selector import GroundedSelector
     from tests.fakes.model import ScriptedModel
     model = ScriptedModel([])
     ledger = BudgetLedger(BudgetLimits(model_calls=1, tool_calls=0))
@@ -146,7 +146,7 @@ def test_selector_does_not_use_closing_reserve_or_make_half_coverage_calls():
 
 
 def test_structured_view_reads_fresh_state_and_keeps_paired_tool_evidence():
-    from min_agent.memory_state import SessionStateTable
+    from min_agent.memory.state import SessionStateTable
     from min_agent.tools.todo import TodoService
     store = SessionStore(); context = store.create(uuid4()); todos = TodoService(store)
     item = todos.add(context, "当前待办")
@@ -201,7 +201,7 @@ def test_application_uses_isolated_tool_selector_and_parent_ledger(tmp_path):
         snapshot = harness.sessions.snapshot(context)
         assert snapshot.messages[-1].content == "退款需在7天内且未使用。"
         assert model.selected == model.main == 1
-        from min_agent.budget_persistence import SessionBudgets
+        from min_agent.ledger.budget_persistence import SessionBudgets
         usage = SessionBudgets(harness.sessions).open(context, snapshot.active_budget_id).usage
         assert usage.model_calls == 2
         assert usage.by_purpose["compaction"].model_calls == 1
@@ -225,8 +225,8 @@ def test_json_tool_error_status_and_decoded_quotes_keep_separate_real_sources():
 
 
 def test_recompressing_summary_keeps_reference_to_original_not_just_previous_summary():
-    from min_agent.budget import BudgetLedger, BudgetLimits
-    from min_agent.compaction import Compactor
+    from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+    from min_agent.compression.compaction import Compactor
     from tests.fakes.model import ScriptedModel
     store = SessionStore(); context = store.create(uuid4())
     response = ModelResponse(finish_reason="stop", content='{"selections":[{"unit_id":0,"category":"constraints"}]}')
@@ -242,7 +242,7 @@ def test_recompressing_summary_keeps_reference_to_original_not_just_previous_sum
     assert second_source["artifact_id"] == first_source["artifact_id"]
     assert (second_source["start"], second_source["end"]) == (first_source["start"], first_source["end"])
     assert second_source["source_kind"] == "unverified_summary"
-    from min_agent.compaction import CompactionBlocked
+    from min_agent.compression.compaction import CompactionBlocked
     second_source["end"] += 1
     with pytest.raises(CompactionBlocked):
         compactor.compact_memory(twice)

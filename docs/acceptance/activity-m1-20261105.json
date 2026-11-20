@@ -1,0 +1,154 @@
+{
+  "scope": "offline synthetic M1; not Connector, M2/M3, production or model quality",
+  "baseline": "v0.2.4.2-final (144814), confirmed by user 2026-11-05",
+  "git_head_at_run": "3400eb25fe1e99770e0a179d61c93839eb394ff9",
+  "source_sha256": {
+    "src/min_agent/activity_identity.py": "25f71623844788bf33c529dcda2b76277823aa9cf44a29b24adb7a84e2ddd868",
+    "src/min_agent/activity_store.py": "09e6beed8a2807b319415315ad6173d4b5589e326f805ec1eb8a740b76e761da",
+    "scripts/activity_m1_experiment.py": "e719f95c3ae118a8756490982dd497d650c846d2f9e608e7666efee101f067f3",
+    "tests/unit/test_activity_identity.py": "d68749cd75a289bd693fe87fc581cbcbba51d92b4292cf07d99f3ec6c93a7979",
+    "tests/unit/test_activity_store.py": "3e59bbbc04bcf06cb53a434c5648f2ed12b6b2c568fedf2a6e3742c3f9f50c43"
+  },
+  "cases": {
+    "A_identity_stable": true,
+    "B_root_latest_separate": true,
+    "C_fold_and_conflict": true,
+    "D_rebuild": true,
+    "E_corruption_rejected": true
+  },
+  "passed": true,
+  "initial": {
+    "manifest_id": "id1_d46e44fb10d171b2f2fb0732026cef7d10b2fbfe013c0b203d40a76283ad0aae",
+    "manifest_revision": 1,
+    "manifest_hash": "68bccfc4fa8defeebc9916d38ede12ae34223153c2833b52a3ffa5adf793456b",
+    "object_id": "id1_61aa9292afe63998d1e1fa1edc886418f8f7de955492e6524c8cc6418c40fbf7",
+    "member_id": "id1_301bb977fbf0f03a58487be14b74787be17d8465f02a21d9c2eb04d39f5a61c9",
+    "stream_id": "id1_375d956ed8543e947e48cfeaaaccad05194a6c48b216ff93313c57c3ef8e387f",
+    "generation_id": "id1_7645ae6a0842e81e2ebb0b57931c5068cacd15c0403cdeb2785cdec9364293a9",
+    "checkpoint_id": "id1_497083153092ad7e37c90521f782e1cff37df3dd305ec5f93b75d68f4684d475",
+    "state_event_log_root_id": "id1_cfeb5ba62d3a5fb55360ed2ac110d05420e13b81f36381fd7416c632f8969266",
+    "snapshot_chain_root_id": "id1_abba0a0fa8bdf32910acca834f8c49405ea44312d6995cca605e2f5393136d4b",
+    "latest_snapshot_id": "id1_abba0a0fa8bdf32910acca834f8c49405ea44312d6995cca605e2f5393136d4b"
+  },
+  "before_rebuild": {
+    "manifest_id": "id1_d46e44fb10d171b2f2fb0732026cef7d10b2fbfe013c0b203d40a76283ad0aae",
+    "manifest_revision": 1,
+    "manifest_hash": "68bccfc4fa8defeebc9916d38ede12ae34223153c2833b52a3ffa5adf793456b",
+    "object_id": "id1_61aa9292afe63998d1e1fa1edc886418f8f7de955492e6524c8cc6418c40fbf7",
+    "member_id": "id1_301bb977fbf0f03a58487be14b74787be17d8465f02a21d9c2eb04d39f5a61c9",
+    "stream_id": "id1_375d956ed8543e947e48cfeaaaccad05194a6c48b216ff93313c57c3ef8e387f",
+    "generation_id": "id1_7645ae6a0842e81e2ebb0b57931c5068cacd15c0403cdeb2785cdec9364293a9",
+    "checkpoint_id": "id1_497083153092ad7e37c90521f782e1cff37df3dd305ec5f93b75d68f4684d475",
+    "state_event_log_root_id": "id1_cfeb5ba62d3a5fb55360ed2ac110d05420e13b81f36381fd7416c632f8969266",
+    "snapshot_chain_root_id": "id1_abba0a0fa8bdf32910acca834f8c49405ea44312d6995cca605e2f5393136d4b",
+    "latest_snapshot_id": "id1_f6f261606ce4faf6fdba2ae4098b5ceb5668699edcd615d10fdd9326eee18a60"
+  },
+  "after_rebuild": {
+    "manifest_id": "id1_d46e44fb10d171b2f2fb0732026cef7d10b2fbfe013c0b203d40a76283ad0aae",
+    "manifest_revision": 1,
+    "manifest_hash": "68bccfc4fa8defeebc9916d38ede12ae34223153c2833b52a3ffa5adf793456b",
+    "object_id": "id1_61aa9292afe63998d1e1fa1edc886418f8f7de955492e6524c8cc6418c40fbf7",
+    "member_id": "id1_301bb977fbf0f03a58487be14b74787be17d8465f02a21d9c2eb04d39f5a61c9",
+    "stream_id": "id1_375d956ed8543e947e48cfeaaaccad05194a6c48b216ff93313c57c3ef8e387f",
+    "generation_id": "id1_7645ae6a0842e81e2ebb0b57931c5068cacd15c0403cdeb2785cdec9364293a9",
+    "checkpoint_id": "id1_497083153092ad7e37c90521f782e1cff37df3dd305ec5f93b75d68f4684d475",
+    "state_event_log_root_id": "id1_cfeb5ba62d3a5fb55360ed2ac110d05420e13b81f36381fd7416c632f8969266",
+    "snapshot_chain_root_id": "id1_abba0a0fa8bdf32910acca834f8c49405ea44312d6995cca605e2f5393136d4b",
+    "latest_snapshot_id": "id1_f6f261606ce4faf6fdba2ae4098b5ceb5668699edcd615d10fdd9326eee18a60"
+  },
+  "identity_comparison": [
+    {
+      "before": "id1_301bb977fbf0f03a58487be14b74787be17d8465f02a21d9c2eb04d39f5a61c9",
+      "after": "id1_301bb977fbf0f03a58487be14b74787be17d8465f02a21d9c2eb04d39f5a61c9",
+      "equal": true
+    },
+    {
+      "before": "id1_375d956ed8543e947e48cfeaaaccad05194a6c48b216ff93313c57c3ef8e387f",
+      "after": "id1_375d956ed8543e947e48cfeaaaccad05194a6c48b216ff93313c57c3ef8e387f",
+      "equal": true
+    },
+    {
+      "before": "id1_3b750ef5429fcc1177c6e4412ab597ea293b98bcb517ff6947ad89cb5c989e99",
+      "after": "id1_3b750ef5429fcc1177c6e4412ab597ea293b98bcb517ff6947ad89cb5c989e99",
+      "equal": true
+    },
+    {
+      "before": "id1_497083153092ad7e37c90521f782e1cff37df3dd305ec5f93b75d68f4684d475",
+      "after": "id1_497083153092ad7e37c90521f782e1cff37df3dd305ec5f93b75d68f4684d475",
+      "equal": true
+    },
+    {
+      "before": "id1_61aa9292afe63998d1e1fa1edc886418f8f7de955492e6524c8cc6418c40fbf7",
+      "after": "id1_61aa9292afe63998d1e1fa1edc886418f8f7de955492e6524c8cc6418c40fbf7",
+      "equal": true
+    },
+    {
+      "before": "id1_7645ae6a0842e81e2ebb0b57931c5068cacd15c0403cdeb2785cdec9364293a9",
+      "after": "id1_7645ae6a0842e81e2ebb0b57931c5068cacd15c0403cdeb2785cdec9364293a9",
+      "equal": true
+    },
+    {
+      "before": "id1_abba0a0fa8bdf32910acca834f8c49405ea44312d6995cca605e2f5393136d4b",
+      "after": "id1_abba0a0fa8bdf32910acca834f8c49405ea44312d6995cca605e2f5393136d4b",
+      "equal": true
+    },
+    {
+      "before": "id1_cfeb5ba62d3a5fb55360ed2ac110d05420e13b81f36381fd7416c632f8969266",
+      "after": "id1_cfeb5ba62d3a5fb55360ed2ac110d05420e13b81f36381fd7416c632f8969266",
+      "equal": true
+    },
+    {
+      "before": "id1_d46e44fb10d171b2f2fb0732026cef7d10b2fbfe013c0b203d40a76283ad0aae",
+      "after": "id1_d46e44fb10d171b2f2fb0732026cef7d10b2fbfe013c0b203d40a76283ad0aae",
+      "equal": true
+    },
+    {
+      "before": "id1_f6f261606ce4faf6fdba2ae4098b5ceb5668699edcd615d10fdd9326eee18a60",
+      "after": "id1_f6f261606ce4faf6fdba2ae4098b5ceb5668699edcd615d10fdd9326eee18a60",
+      "equal": true
+    }
+  ],
+  "checkpoint_after_rebuild": {
+    "id": "id1_497083153092ad7e37c90521f782e1cff37df3dd305ec5f93b75d68f4684d475",
+    "hash": "ca4143fb55822d5b98b8b5bef7488ab873de1da795a383a017f25ca73f0973e5",
+    "key": {
+      "source_generation_id": "id1_7645ae6a0842e81e2ebb0b57931c5068cacd15c0403cdeb2785cdec9364293a9",
+      "source_member_id": "id1_301bb977fbf0f03a58487be14b74787be17d8465f02a21d9c2eb04d39f5a61c9",
+      "source_stream_id": "id1_375d956ed8543e947e48cfeaaaccad05194a6c48b216ff93313c57c3ef8e387f"
+    },
+    "manifest_id": "id1_d46e44fb10d171b2f2fb0732026cef7d10b2fbfe013c0b203d40a76283ad0aae",
+    "position": 19,
+    "revision": 3,
+    "snapshot_id": "id1_f6f261606ce4faf6fdba2ae4098b5ceb5668699edcd615d10fdd9326eee18a60"
+  },
+  "state_conflict_error": "state_fold_conflict: terminal reversal",
+  "corruption": [
+    {
+      "case": "revision",
+      "error": "manifest_revision",
+      "no_write": true
+    },
+    {
+      "case": "hash",
+      "error": "manifest_hash",
+      "no_write": true
+    },
+    {
+      "case": "parent",
+      "error": "parent_manifest_hash",
+      "no_write": true
+    },
+    {
+      "case": "manifest_binding",
+      "error": "manifest_binding",
+      "no_write": true
+    }
+  ],
+  "known_limits": [
+    "one object/member/initial generation",
+    "uncompressed append only",
+    "complete recovery bundle required",
+    "integer/string JCS subset",
+    "hash chains are not signed anti-rollback protection"
+  ]
+}

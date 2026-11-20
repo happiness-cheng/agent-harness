@@ -3,7 +3,7 @@ import httpx
 import pytest
 
 from min_agent.llm.deepseek import DeepSeekResponsesModel,DeepSeekSettings
-from min_agent.models import Message
+from min_agent.contracts.models import Message
 
 
 def model_fixture(window=1048576,output=393216):
@@ -13,7 +13,7 @@ def model_fixture(window=1048576,output=393216):
 
 
 def test_adaptive_output_uses_model_cap_instead_of_4096():
-    from min_agent.model_context import output_reserve
+    from min_agent.context.model_context import output_reserve
     with model_fixture() as model:
         body=model._build_body([Message(role='user',content='简短问题')],None)
         assert body['max_output_tokens']==393216 and output_reserve(model)==0

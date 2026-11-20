@@ -23,7 +23,7 @@ class DeepSeekResponsesModel(OpenAIResponsesModel):
 
     def context_limits(self):
         """只读发现并按客户端缓存；不发送对话、不占生成请求次数。"""
-        from min_agent.model_context import ModelContextLimits
+        from min_agent.context.model_context import ModelContextLimits
         from min_agent.llm.openai_protocol import load_json
         import httpx
         with self._lock:
@@ -65,7 +65,7 @@ class DeepSeekResponsesModel(OpenAIResponsesModel):
         }
         if self._settings.max_output_tokens is None:
             import json
-            from min_agent.model_context import ModelWindowExceeded
+            from min_agent.context.model_context import ModelWindowExceeded
             limits = self.context_limits()
             body['max_output_tokens'] = limits.max_output_tokens
             # 不假装精确Tokenizer：用实际序列化体加协议余量保守计算可用输出空间。

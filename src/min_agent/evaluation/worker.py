@@ -10,12 +10,12 @@ from uuid import uuid4,UUID
 
 from pydantic import BaseModel,ConfigDict
 from min_agent.application import HarnessApplication
-from min_agent.artifacts import ArtifactStore
-from min_agent.checkpoints import CLOSING_INSTRUCTION
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.ledger.checkpoints import CLOSING_INSTRUCTION
 from min_agent.evaluation.contracts import Observation,TaskSpec
-from min_agent.models import Message,ModelResponse,ToolCall
-from min_agent.research import ResearchService
-from min_agent.task_state import ActionSpec,GoalSpec,TaskController
+from min_agent.contracts.models import Message,ModelResponse,ToolCall
+from min_agent.research.service import ResearchService
+from min_agent.session.task_state import ActionSpec,GoalSpec,TaskController
 from min_agent.tools.registry import ToolDefinition
 from min_agent.tools.todo import TodoService
 
@@ -134,8 +134,10 @@ class Empty(BaseModel):model_config=ConfigDict(extra='forbid')
 
 
 class EvalApplication(HarnessApplication):
-    def _registry(self,context,segment,raw_model,control,trace=None,memory_query='当前任务'):
-        registry=super()._registry(context,segment,raw_model,control,trace,memory_query=memory_query)
+    def _registry(self,context,segment,raw_model,control,trace=None,memory_query='当前任务',
+                  mcp_catalog=None):
+        registry=super()._registry(context,segment,raw_model,control,trace,memory_query=memory_query,
+                                   mcp_catalog=mcp_catalog)
         if self.eval_spec.fixture=='research':
             artifacts=ArtifactStore(self.sessions,context)
             class Search:

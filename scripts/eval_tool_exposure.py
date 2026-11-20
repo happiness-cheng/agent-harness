@@ -9,8 +9,8 @@ from time import perf_counter
 from eval_secretary_prompt import GENERAL_CASES, tool_definitions
 from min_agent.llm.client import LLMError
 from min_agent.llm.deepseek import DeepSeekResponsesModel, DeepSeekSettings
-from min_agent.models import Message
-from min_agent.task_state import WorkState
+from min_agent.contracts.models import Message
+from min_agent.session.task_state import WorkState
 
 
 def main():

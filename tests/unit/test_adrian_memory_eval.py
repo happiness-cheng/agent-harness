@@ -4,7 +4,7 @@ import pytest
 
 from min_agent.long_memory.evaluation import build_approved_fixture, evaluate_case, inspect_private_corpus
 from min_agent.long_memory import LongMemory, Query
-from min_agent.sessions import SessionStore
+from min_agent.session.store import SessionStore
 from uuid import uuid4
 
 

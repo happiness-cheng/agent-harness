@@ -3,12 +3,12 @@ from uuid import uuid4
 import json
 
 from min_agent.application import HarnessApplication
-from min_agent.budget import BudgetLimits
-from min_agent.budget_persistence import SessionBudgets
-from min_agent.models import Message, ModelResponse, ToolCall
-from min_agent.operations import operation_scope
-from min_agent.sessions import SessionStore
-from min_agent.storage import SQLiteStorage
+from min_agent.ledger.budget import BudgetLimits
+from min_agent.ledger.budget_persistence import SessionBudgets
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
+from min_agent.session.operations import operation_scope
+from min_agent.session.store import SessionStore
+from min_agent.session.storage import SQLiteStorage
 from min_agent.tools.todo import TodoService
 from tests.fakes.model import ScriptedModel
 from tests.unit.test_checkpoint_resume import note_response

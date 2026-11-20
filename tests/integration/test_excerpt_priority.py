@@ -4,13 +4,13 @@ from uuid import uuid4
 
 import pytest
 
-from min_agent.artifacts import ArtifactStore
-from min_agent.budget import BudgetLedger, BudgetLimits
-from min_agent.compression_selector import GroundedSelector
-from min_agent.compression_text import plan_excerpts, text_units
-from min_agent.context import ContextLimit, ContextManager
-from min_agent.models import Message, ModelResponse, ToolCall
-from min_agent.sessions import SessionStore
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+from min_agent.compression.selector import GroundedSelector
+from min_agent.compression.text import plan_excerpts, text_units
+from min_agent.context.manager import ContextLimit, ContextManager
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
+from min_agent.session.store import SessionStore
 from tests.fakes.model import ScriptedModel
 
 

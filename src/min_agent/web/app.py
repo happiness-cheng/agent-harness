@@ -2,19 +2,20 @@
 
 from contextlib import asynccontextmanager
 from pathlib import Path
+import json
 import secrets
 from uuid import UUID
 
 from fastapi import FastAPI, Request, BackgroundTasks
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel, ConfigDict, Field
 
 from min_agent.application import GoalParameters
-from min_agent.events import SessionEvents
-from min_agent.notifications import Notifications
-from min_agent.artifacts import ArtifactStore
+from min_agent.session.events import SessionEvents
+from min_agent.notify.notifications import Notifications
+from min_agent.session.artifacts import ArtifactStore
 
 
 class _Request(BaseModel):
@@ -23,6 +24,12 @@ class _Request(BaseModel):
 
 class NewSession(_Request):
     label: str = Field(default="新会话", min_length=1, max_length=60)
+    model: str | None = Field(default=None, min_length=1, max_length=128)
+    mode: str | None = Field(default=None, min_length=4, max_length=5)
+
+
+class Label(_Request):
+    label: str = Field(min_length=1, max_length=60)
 
 
 class Input(_Request):
@@ -64,9 +71,14 @@ class Control(_Request):
     scope_changed: bool = True
 
 
+class ModelChoice(_Request):
+    model: str = Field(min_length=1, max_length=128)
+
+
 def create_app(harness, *, identity=None):
     token, csrf = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
     static = Path(__file__).parent / "static"
+    shell = Path(__file__).parent / "shell"
     @asynccontextmanager
     async def lifespan(app):
         harness.start_scheduler()
@@ -97,7 +109,7 @@ def create_app(harness, *, identity=None):
                 return JSONResponse({"error": "body_size_refused"}, status_code=413)
         response = await call_next(request)
         response.headers.update({"X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer",
-            "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'",
+            "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'",
             "Cache-Control": "no-store"})
         return response
 
@@ -136,8 +148,12 @@ def create_app(harness, *, identity=None):
 
     @app.get("/api/sessions")
     def sessions(): return harness.list_sessions()
+    @app.get("/api/models")
+    def models(): return harness.default_model_status()
     @app.post("/api/sessions", status_code=201)
-    def new_session(body: NewSession): return harness.create_session(body.label)
+    def new_session(body: NewSession): return harness.create_session(body.label, body.model, body.mode)
+    @app.post("/api/sessions/{session_id}/label")
+    def rename_session(session_id: UUID, body: Label): return harness.set_label(session_id, body.label)
     @app.get("/api/sessions/{session_id}")
     def session(session_id: UUID): return harness.snapshot(session_id)
     @app.post("/api/sessions/{session_id}/input", status_code=202)
@@ -146,6 +162,10 @@ def create_app(harness, *, identity=None):
     @app.post("/api/sessions/{session_id}/mode")
     def mode(session_id: UUID, body: Mode):
         return harness.set_mode(session_id, body.mode).model_dump(mode="json")
+    @app.post("/api/sessions/{session_id}/model")
+    def choose_model(session_id: UUID, body: ModelChoice):
+        """按会话切换模型：白名单校验 + 运行中拒绝 + 归属校验都在应用层。"""
+        return harness.set_model(session_id, body.model)
     @app.post("/api/sessions/{session_id}/web-permission")
     def web_permission(session_id: UUID, body: WebPermission):
         harness.allow_web(session_id, body.enabled); return {"enabled": body.enabled}
@@ -183,6 +203,24 @@ def create_app(harness, *, identity=None):
         elif body.kind == "dispatch": harness.dispatch(session_id, body.text)
         else: raise ValueError("控制类型无效")
         return {"accepted": True}
+    @app.get("/api/sessions/{session_id}/stream")
+    def stream(session_id: UUID):
+        """QWEN-STREAM-001：只推送模型增量正文；没有活动流时返回 409，不排队。"""
+        sink = harness.stream_sink(session_id)
+        if sink is None:
+            return JSONResponse({"error": "not_streaming"}, status_code=409)
+        def events():
+            cursor = 0
+            while True:
+                chunks, cursor, closed = sink.read(cursor, timeout=10.0)
+                for text in chunks:
+                    yield "data: " + json.dumps({"text": text}, ensure_ascii=False) + "\n\n"
+                if closed:
+                    yield 'event: done\ndata: {"done": true}\n\n'
+                    return
+                yield ": ping\n\n"
+        return StreamingResponse(events(), media_type="text/event-stream",
+                                 headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
     @app.get("/api/sessions/{session_id}/events")
     def events(session_id: UUID, after: int = 0):
         saved = harness.snapshot(session_id)
@@ -205,6 +243,15 @@ def create_app(harness, *, identity=None):
     def retry_notification(session_id: UUID, event_id: UUID):
         Notifications(harness.sessions).retry_desktop(harness.context(session_id), event_id); return {"queued": True}
     @app.get("/")
-    def index(): return FileResponse(static / "index.html")
+    def index():
+        """默认入口就是 DSH 外壳；旧界面保留在 /legacy 作为回退。"""
+        if (shell / "index.html").is_file():
+            return RedirectResponse("/app/", status_code=307)
+        return FileResponse(static / "index.html")
+    @app.get("/legacy")
+    def legacy_index(): return FileResponse(static / "index.html")
     app.mount("/static", StaticFiles(directory=static), name="static")
+    # SHELL-001：chat-demo 外壳（MIT）构建产物挂到 /app；SHELL-005 起 / 默认重定向到这里。
+    if (shell / "index.html").is_file():
+        app.mount("/app", StaticFiles(directory=shell, html=True), name="shell")
     return app

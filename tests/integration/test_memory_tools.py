@@ -3,10 +3,10 @@ import json
 import pytest
 
 from min_agent.application import HarnessApplication
-from min_agent.context import request_bound
-from min_agent.memory import MemoryJournal
-from min_agent.model_context import ModelContextLimits
-from min_agent.models import Message, ModelResponse, ToolCall
+from min_agent.context.manager import request_bound
+from min_agent.memory.journal import MemoryJournal
+from min_agent.context.model_context import ModelContextLimits
+from min_agent.contracts.models import Message, ModelResponse, ToolCall
 from tests.fakes.model import ScriptedModel
 
 

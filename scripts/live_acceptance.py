@@ -9,17 +9,17 @@ from time import perf_counter
 from uuid import uuid4
 
 from min_agent.application import HarnessApplication
-from min_agent.artifacts import ArtifactStore
-from min_agent.budget import BudgetLedger, BudgetLimits
-from min_agent.checkpoints import CheckpointPolicy
-from min_agent.compaction import Compactor
-from min_agent.context import request_bound
+from min_agent.session.artifacts import ArtifactStore
+from min_agent.ledger.budget import BudgetLedger, BudgetLimits
+from min_agent.ledger.checkpoints import CheckpointPolicy
+from min_agent.compression.compaction import Compactor
+from min_agent.context.manager import request_bound
 from min_agent.llm.client import LLMError
 from min_agent.llm.deepseek import DeepSeekResponsesModel, DeepSeekSettings
-from min_agent.models import Message
-from min_agent.research import ResearchService
+from min_agent.contracts.models import Message
+from min_agent.research.service import ResearchService
 from min_agent.runtime import Runtime
-from min_agent.sessions import SessionStore
+from min_agent.session.store import SessionStore
 from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.read_webpage import PublicFetcher, WebReader
 from min_agent.tools.registry import ToolRegistry
