@@ -2,6 +2,22 @@
 
 > **交付规则（AEF-003 第 11 行 + AEF-004 第 12 行，2026-11-14 定稿）**：每次交付必须附核心文件路径、四件事代码讲解与「长度按需、但必须能独立看懂」的关键片段（带文件与行号）；**片段之后还要逐行/分块讲解参数、每步动作、为什么这样写、明确不保证什么**。详见 [AGENTS.md](../AGENTS.md) 第 11–12 行。
 
+## 2026-11-20 PR #4 审查修复（WIRING-FIX-001，待用户复审）
+
+PR #4 外部审查为 Request changes；本分支在 `d77c5f1` 后追加修复。代码/测试提交 `e7651b0`，本日志与状态随后提交。
+
+- **M1/M2/PENDING**：MCP confirm 记录绑定 `logical_task_id`（恢复 attempt 变化仍同逻辑任务）+ TTL 900 秒；`check_and_consume` 只消费同一逻辑任务、未过期的批准；consumed/refused 按任务隔离，新任务同签名必须重新确认；pending 上限 20、总记录 100、过期清理。
+- **M3**：MCP 服务器 `isError`/`MCPError` 走 `ToolExecutionFailedError` → `ok:false`、`tool_execution_failed`、`execution_state=unknown`，不再包成成功文本。
+- **M4**：已有会话在重启后第一次 `snapshot`/访问时触发 `connect_background()`；不在应用启动时批量连接未打开会话。
+- **M5/M6**：删除数字统一为「33 个被删文件 5856 行（去空行 5072、空行 784；src 3208 + scripts 413 + tests 2235）」「11 个测试文件」「test_activity_* 7 个」；`runtime/loop.py` 两处 docstring 改六阶段，全仓无「五个阶段」。
+- **N1–N10**：记忆正则拒绝 `记住性很好/remembering/记住：` 等误报；MCP 段追加后复核 600 token 并标注 connecting；pending 有上限/过期；拒绝原因区分错误码、`refused_by_user` 仅真拒绝为真；activity 文档/MODULE_MAP/PROJECT_STATUS 历史入口标注删除；删除 `activity` extra；AGENTS 门禁补定义/豁免/优先级/核查人；N8 归属更正；factory docstring 明确 PASS 不核对数值正确性；首轮 connecting 标注。
+- **验证**：受影响测试 **75 passed**；MCP live **2 passed / 17.04s**；全量离线 **1784 passed / 8 deselected / 0 failed / 162.53s**（= 1768 + 16）。
+- **待用户确认（PENDING_USER_CONFIRMATION）**：
+  - **D1**：网页长期记忆默认 `active`（旧：非 Adrian 默认 legacy），且 legacy 也会自动提议候选。功能无越权，但属默认面扩大；未确认前不标 COMPLETED。
+  - **D2**：`scripts/start-adrian.cmd` / `start-qianwen.ps1` 默认 `--multi-agent`。构造器仍默认关闭；未确认前不标 COMPLETED。
+- **Follow-up（不在本批修）**：F1 进程回收/端口 TIME_WAIT → backlog WIRING-006；F2 根预算/委派预算零余量 → WIRING-007；F3 memory_fixture 迁移缩水 → WIRING-008（NOTE）。
+- **边界**：浏览器确认按钮未点击验证；D1/D2 等用户表态；F1–F3 未修；Linux 全量 4 个进程相关失败未在本机复现。
+
 ## 2026-11-20 最新续接：六任务接线改造批次（WIRING-000…005，COMPLETED 待验收）
 
 用户六任务清单（任务 0 基线 / 1 Skill 三层披露 / 2 MCP 后台连接+confirm 真排队 / 3 长期记忆+多 Agent / 4 删死代码 / 5 门禁+文档+PR），工作分支 `review/20261120-wiring-fix`。任务 0–5 已在本分支完成并逐任务提交；推远端与开 PR 留到收尾执行，不直接合 main、不强推。
@@ -21,9 +37,9 @@
   - **多 Agent**：新增 `agents/factory.py` 与 `--multi-agent` 开关；`scripts/start-qianwen.ps1` / `start-adrian.cmd` 默认开启。只接 **calculator** worker（PASS 依赖宿主生成的 calculator 工具回执），文本角色因无确定性判据不接；`delegate_task` 复用任务总预算 40/60（打开时片段上限提升），子预算仍走 `parent_budget.child(...)`。
   - **验证**：新增离线 10 例全过（记忆 4、多 Agent 3、JSON 围栏 3）；真实 qwen3.5:4b 跑 **3 个真实委派**（2–3 子任务）：任务 1/2 与失败后重试均 3/3 PASS（汇总 405/93），`total_models=3` 的失败轮 `partial/budget_exhausted` 且模型调用恰好 3 次；记忆 live：真实模型「记住：…」→ 自动候选 → 确认 → 正式库 1 条。`tests/live/test_wiring_live.py` **2 passed / 216.23s**。
   - **过程缺陷（如实）**：真实委派先后暴露 4 个断点——`_build_transport` 把档位 key 当对象；委派结果触发工具摘要时 qwen 返回 ```json 围栏导致 `context_limit`；根契约 `max_subtasks*2+2` 不够 3 个 worker；worker 重试超工具上限。均已最小修复并留回归；首版 writer 角色因「结论」格式标记不可靠被删除，没有放宽验收判据。
-  - **边界**：候选确认按钮未做浏览器点击；`--multi-agent` 未在真实服务进程 + 浏览器端到端跑；只验证 qwen3.5:4b 的算术委派；失败重试由验证脚本重新发起，不是产品自动重放。
-- **任务 4（WIRING-004）COMPLETED**：grep 全仓确认零生产引用后删除 **33 个文件 / 5072 行**——`activity/` 整包（2176 行）、`evaluation/{evolution*,night*,night_executor}.py`（853 行）、`long_memory/evaluation.py`（173 行）、A 批 `llm/context_capabilities.py` 与 `scripts/migrate_layout_20261115.py`，同步删 4 个脚本、10 个只覆盖被删模块的测试文件及混合文件里的 night 用例；`build_approved_fixture` 迁到 `tests/fakes/memory_fixture.py` 以保留 delivery 覆盖。保留 `evaluation` 的 verifier/runner/suites/improvement 等生产仍用部分。
-- **任务 5（WIRING-005）COMPLETED**：`AGENTS.md` 新增「接线门禁」——新模块合 main 前必须在默认路径真实调用一次，默认关闭必须有可运行路径，删死代码前 grep、删后全量；修正 `PROJECT_STATUS` 主循环 6 阶段（`runtime/loop.py:73-84`）与多 Agent 静态接入表述；README/NIGHT_MODE/EVOLUTION_V1/MODULE_MAP 标注已删除入口。
+  - **边界**：候选确认按钮未做浏览器点击；`--multi-agent` 未在真实服务进程 + 浏览器端到端跑；只验证 qwen3.5:4b 的算术委派；失败重试由验证脚本重新发起，不是产品自动重放；calculator 的 PASS 只证明宿主收到工具回执、结果结构合法，**不核对回执数值与摘要是否一致**（`semantic_review=UNKNOWN`）。
+- **任务 4（WIRING-004）COMPLETED**：grep 全仓确认零生产引用后删除 **33 个被删文件 / 5856 行**（去空行 5072、空行 784；src 3208 + scripts 413 + tests 2235）——`activity/` 整包（2176 行）、`evaluation/{evolution*,night*,night_executor}.py`（853 行）、`long_memory/evaluation.py`（173 行）、A 批 `llm/context_capabilities.py` 与 `scripts/migrate_layout_20261115.py`，同步删 4 个脚本、**11 个**只覆盖被删模块的测试文件（`test_activity_*` 7 个 + evolution 2 + night 1 + adrian_memory_eval 1）及混合文件里的 night 用例；`build_approved_fixture` 迁到 `tests/fakes/memory_fixture.py` 以保留 delivery 覆盖。保留 `evaluation` 的 verifier/runner/suites/improvement 等生产仍用部分。
+- **任务 5（WIRING-005）COMPLETED**：`AGENTS.md` 新增「接线门禁」——新模块合 main 前必须在默认路径真实调用一次，默认关闭必须有可运行路径，删死代码前 grep、删后全量（定义/豁免/优先级由 WIRING-FIX-001 补齐）；修正 `PROJECT_STATUS` 主循环 6 阶段（`runtime/loop.py:73-84`）与多 Agent 静态接入表述。README/NIGHT_MODE/EVOLUTION_V1/MODULE_MAP 的删除标注属 WIRING-004（`64cd6e2`），不在本任务的 `d77c5f1`。
 - **合并验证**：全量离线 **1768 passed / 8 deselected / 0 failed / 140.22s**（任务 3 后 2036，删 268 个收集项后 1768）；8 个 deselected 为 `tests/live/`。基线对比：1991 → 2009（+18）→ 2026（+17）→ 2036（+10）→ 1768（−268）。
 - **边界（总）**：live 只覆盖固定小样本，不构成成功率统计；浏览器 UI（MCP 确认、记忆候选）未做点击验证；DSH 外壳无确认 UI；多 Agent 仅 calculator 角色；未推远端、未开 PR、未合 main。
 - [决策](engineering-log/DECISION_LOG.md)（WIRING-001 D1–D7、WIRING-002 D1–D7、WIRING-003 D1–D8、WIRING-004 D1–D4、WIRING-005 D1–D2）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md)；本地证据 `reports/wiring-20261120/`（gitignored）。
@@ -56,7 +72,7 @@
 - **做了什么**：① 原 `runtime.py`（547 行、`_run` 约 250 行）拆成 `src/min_agent/runtime/` 包——主循环约 20 行，只按序调用 **6 个阶段**（`ControlGate` / `RoundLimit` / `ReserveGate` / `ModelCall` / `ResponseRouter` / `ToolBatch`，见 `runtime/loop.py:73-84`）；控制、预算预留、模型调用、响应分派、工具批次、收尾、提示词投影、错误载荷分别进 `stages.py` / `tool_loop.py` / `closing.py` / `prompt.py` / `errors.py`。② `src/min_agent` 根目录 62 → 2 个文件（`__init__.py`、`application.py`），59 个模块按职责进 11 个子包；找文件先看 [MODULE_MAP](MODULE_MAP.md)。
 - **判据与结果**：现有测试的**断言一条未改**（只更新导入路径与 `-m` 入口）；基线 **1921 passed / 4 deselected / 199.14s** → 阶段 A **1940 passed**（+19 项新测试）→ 阶段 B **1942 passed**（+2 项布局门禁）；JUnit 对照两次均 **PASS**（1921 条全部存在、0 条结果变化）。导入审计 301 文件 0 unresolved；全模块导入 132/132；`find_packages` 18 个包；`python -m min_agent.web --help` exit 0。
 - **边界（重要）**：**未跑**真实模型、Ollama/DeepSeek/千问、浏览器 UI、live 用例；`verify_release.py` 的 wheel 分离环境验证 **NOT RUN**（本机无离线 wheelhouse）；`manager.py` 的 Worker 循环未拆；历史 `docs/steps/*` 旧路径不改；不证明未覆盖语义的等价性与性能。
-- **对外可见变化**：`-m min_agent.activity_connector` / `-m min_agent.activity_memory_adapter` → `-m min_agent.activity.connector` / `-m min_agent.activity.memory_adapter`；`min_agent.web`、`min_agent.evaluation`、`min_agent.application` 不变。
+- **对外可见变化**：`-m min_agent.activity_connector` / `-m min_agent.activity_memory_adapter` → `-m min_agent.activity.connector` / `-m min_agent.activity.memory_adapter`（**WIRING-004 已删除 `activity/` 包，以上命令当前不可用**）；`min_agent.web`、`min_agent.evaluation`、`min_agent.application` 不变。
 - **过程缺陷（如实）**：首轮 3 个表征测试是我写错（非产品缺陷）；迁移脚本漏了 `from min_agent import activity_*` 形式导致 4 failed；补规则时二次重写又造成 52 文件 / 101 处重复映射，已精确修复并补审计。失败证据与修复脚本都在 `reports/refactor-20261115/`。
 - **提交状态**：已随 `review/20261117-runtime-mcp`（commit `72fef51`）提交并推送。
 - [决策](engineering-log/DECISION_LOG.md)（RUNTIME-SLIM-001 D1–D5、PKG-LAYOUT-001 D6–D10）、[实施](engineering-log/IMPLEMENTATION_LOG.md)、[验证](engineering-log/VALIDATION_LOG.md)。

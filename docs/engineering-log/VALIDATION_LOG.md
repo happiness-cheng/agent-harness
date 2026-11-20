@@ -1687,7 +1687,7 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 | 检查 | 命令/证据 | 结果 |
 |---|---|---|
 | 引用核实 | 全仓 grep `context_capabilities`、`min_agent.activity`、`evaluation.(night|evolution)`、`long_memory.evaluation` | A 批仅自身/历史快照；B 批仅自身/测试/脚本；生产 `application.py`/`web/`/`runtime/` 零引用 |
-| 删除规模 | `git diff --numstat` / `git status` | **33 个文件、5072 行**；生产源码 3208 行（activity 2176、evaluation evolution+night 853、long_memory/evaluation 173、context_capabilities 6） |
+| 删除规模 | `git diff --numstat main...d77c5f1 --diff-filter=D` / `git status` | **33 个被删文件共 5856 行**（src 3208、scripts 413、tests 2235）；去空行 5072 行（空行 784）。生产源码 3208 行（activity 2176、evaluation evolution+night 853、long_memory/evaluation 173、context_capabilities 6） |
 | 删除后目标测试 | `pytest tests/integration/test_evaluation_v1.py tests/integration/test_system_consistency.py tests/unit/test_adrian_evidence_delivery.py` | **20 passed / 44.19s**；mixed 文件只删 night 用例，保留 runner/suite/memory 覆盖 |
 | 导入/编译 | `python -c "import min_agent.application, min_agent.evaluation, min_agent.evaluation.__main__, min_agent.long_memory"`；`python -m compileall -q src/min_agent` | 导入 ok；compileall exit 0 |
 | 全量离线 | 同 WIRING-003 的 `full-after-task5.xml` | **1768 passed / 8 deselected / 0 failed**；净减少 268 个收集项（= 任务 3 后 2036 − 1768，含参数化展开）；8 个 deselected = 原 5 + 新增 2 个 `test_wiring_live` + `test_mcp_live` 拆分为 2 |
@@ -1701,3 +1701,28 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 **边界**：grep 证明的是「当前树内无静态 import/命令引用」，不证明不存在外部脚本或用户本地调用；`evaluation` 核心、`codex_adapter`、`finance`、`journal` 保留，未逐项判定是否仍休眠；门禁是文字规则，不会自动拦截提交。
 
 **基线对比**：1991（WIRING-000）→ 2009（+18，任务 1）→ 2026（+17，任务 2）→ 2036（任务 3 新增 10）→ **1768**（任务 4/5 删除 268 个收集项后）；删除后 0 failed，测试收集无错误。
+
+## WIRING-FIX-001 · 2026-11-20 · Phase: PR #4 REVIEW FIX
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / `.venv`；分支 `review/20261120-wiring-fix` @ `d77c5f1` + 修复；live 用真实 `@modelcontextprotocol/server-everything`（npx 缓存），0 次外部付费调用。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 受影响测试（最终） | `pytest tests/unit/test_mcp_confirm.py tests/unit/test_mcp_catalog.py tests/unit/test_mcp_client.py tests/integration/test_mcp_application.py tests/integration/test_mcp_runtime.py tests/unit/test_tool_registry.py tests/integration/test_memory_auto_proposal.py` | **75 passed / 11.12s** |
+| M1/M2 跨任务与过期 | 上述测试中的 `test_same_signature_in_another_task_gets_a_new_pending`、`test_approval_is_consumed_once_and_not_reused_by_another_task`、`test_approved_record_expires_and_requires_new_confirmation`、`test_expired_pending_cannot_be_decided_and_is_replaced`、`test_same_signature_in_a_new_task_requires_fresh_confirmation` | 全过：A 任务批准不被 B 任务同签名挪用；TTL 过期后返回 `none` 并重新排队；同任务重放仍返回 `consumed` |
+| M3 服务器错误 | `test_server_error_is_ok_false_not_success_text`、`test_client_raises_tool_error_for_server_is_error_result`、`test_external_execution_failure_is_ok_false_with_unknown_state` | 全过：`ok:false`、`code=tool_execution_failed`、`execution_state=unknown`，不再出现 `MCP error:` 成功文本 |
+| M4 重启重连 | `test_restarting_app_reconnects_existing_session_on_snapshot` | 通过：关闭第一个应用后，第二个应用 `snapshot` 已有会话触发 `connect_background()`，最终 `connected` |
+| N1/N2/N3/N4 | `test_remember_regex_rejects_false_positives`、`test_remember_without_colon_is_still_accepted`、`test_connecting_state_and_available_list_stay_within_token_limit`、`test_pending_count_is_capped`、`test_refusal_reasons_map_to_distinct_errors` | 全过；`记住性很好/remembering to call/记住：/remember:/记住：。` 不再生成候选，`记住 X` 仍接受；MCP 段含 connecting 标注且 ≤600 token；第 21 个 pending 被拒；4 种拒绝原因错误码不同 |
+| M5 数字复核 | `git diff --numstat main...d77c5f1 --diff-filter=D`；非空行用 `64cd6e2^` 原文统计 | **33 个被删文件共 5856 行**（src 3208 + scripts 413 + tests 2235）；去空行 **5072**、空行 **784**；测试整文件 **11 个**、`test_activity_*` **7 个** |
+| M6 六阶段 | 全仓 `grep 五个阶段` | **0 命中**；`runtime/loop.py` 两处 docstring 已改「六个阶段」 |
+| MCP live（真实服务器） | `MCP_LIVE_CONFIG=... pytest tests/live/test_mcp_live.py -m live -q` | **2 passed / 17.04s**：后台连接、prompt-only 调用、confirm 挂起→批准执行仍通过 |
+| 全量离线（最终） | `pytest --junitxml reports/wiring-20261120/full-after-wiring-fix-001-final.xml -q` | **1784 passed / 8 deselected / 0 failed / 0 skipped / 162.53s（exit 0）**；JUnit tests=1784 failures=0 errors=0 skipped=0；= 1768 + 新增 16 |
+
+**失败与修复（如实）**：
+1. 首次跑受影响测试 **12 failed / 25 passed**：旧 `test_mcp_confirm.py` 直接调用协调器时没有任务，新 API 要求 `logical_task_id`；3 个集成 confirm 用例也因 `task_id` 绑定在 resume 后变化而重新挂起。前者按新契约重写测试，后者暴露真实设计错误——改用 `logical_task_id` 后集成用例转绿。这不是放宽判据。
+2. `test_connecting_state_and_available_list_stay_within_token_limit` 首版用 300×8 字描述，超过 `MCPServerSpec.description` 500 字符上限；改为 500 字符后通过。
+3. 未发现产品级回归；全量 0 failed。
+
+**未运行**：候选确认按钮浏览器点击；D1/D2 默认面扩大的用户确认；F1–F3 修复；Linux 全量（审查员环境）未在本机复跑。
+
+**边界**：TTL 用进程内时钟，未处理系统时钟大幅回拨；`logical_task_id` 由 SessionStore 生成，外部伪造仍受 owner/存储校验；服务器 `isError` 文本会进入模型可见错误消息；重启重连只覆盖被访问的会话；全量数字是 Windows 本机结果，不代表 Linux 的 7 个失败已消失（F1 仍开着）。

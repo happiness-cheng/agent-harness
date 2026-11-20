@@ -1407,15 +1407,36 @@
 ## WIRING-004 · 2026-11-20 · Phase: DEAD-CODE（任务 4）
 
 1. **目标与范围**：按清单分两批删除确认无生产引用的休眠代码；A 批 `llm/context_capabilities.py`、`scripts/migrate_layout_20261115.py`；B 批 `activity/`、`evaluation/` 的 evolution + night 模块、`long_memory/evaluation.py`，同步删除只覆盖这些模块的测试与脚本。
-2. **核实方式**：全仓 grep（`.py` 为主，兼顾 `.cmd/.ps1/.md`）确认：`context_capabilities` 仅自身与历史快照提及；`activity` 仅自身/6 个测试/1 个实验脚本引用；`evaluation.night*`/`evolution*` 仅自身/测试/脚本；`long_memory.evaluation` 仅自身/2 个测试/1 个脚本。生产 `application.py`、`web/`、`runtime/` 均无引用。
-3. **实际删除**：33 个文件、5072 行（`git diff --numstat` 汇总）。其中生产源码：`activity/` 10 文件 2176 行、evaluation evolution+night 6 文件 853 行、`long_memory/evaluation.py` 173 行、`context_capabilities.py` 6 行。脚本 4 个；测试整文件 10 个 + 两个混合文件中的 night 用例；`build_approved_fixture` 迁到 `tests/fakes/memory_fixture.py` 以保留 delivery 测试。
+2. **核实方式**：全仓 grep（`.py` 为主，兼顾 `.cmd/.ps1/.md`）确认：`context_capabilities` 仅自身与历史快照提及；`activity` 仅自身/7 个测试/1 个实验脚本引用；`evaluation.night*`/`evolution*` 仅自身/测试/脚本；`long_memory.evaluation` 仅自身/2 个测试/1 个脚本。生产 `application.py`、`web/`、`runtime/` 均无引用。
+3. **实际删除**：33 个被删文件共 **5856 行**（`git diff --numstat main...d77c5f1 --diff-filter=D`；去空行 5072 行，空行 784）。其中生产源码 3208 行：`activity/` 10 文件 2176 行、evaluation evolution+night 6 文件 853 行、`long_memory/evaluation.py` 173 行、`context_capabilities.py` 6 行；脚本 4 个 413 行、测试 2235 行。测试整文件 **11 个**（`test_activity_*` 7 个 + `test_evolution.py` + `test_evolution_integration.py` + `test_night_mode.py` + `test_adrian_memory_eval.py`）+ 两个混合文件中的 night 用例；`build_approved_fixture` 迁到 `tests/fakes/memory_fixture.py` 以保留 delivery 测试。
 4. **边界与偏差**：保留 `evaluation` 的 contracts/verifier/runner/suites/worker/improvement/review/verification_rules/processes/finance/journal/codex_adapter，因为生产 `subagent_review.py` 与 `evaluation/__main__.py` 仍用它们；`codex_adapter` 虽主要用于 night，但 `improve --codex` 仍引用，未删。A 批迁移脚本与历史 DECISION_LOG D8「保留供审计」冲突，按任务清单删除并追加更正（DECISION_LOG WIRING-004 D3）。
-5. **副作用**：`python -m min_agent.activity.*`、`-m min_agent.evaluation.night_cli`、`-m min_agent.evaluation.evolution_cli` 不再可用；`scripts/night-adrian.cmd`、`scripts/eval_adrian_memory.py` 删除；文档加「已删除」标注。无数据库/配置副作用。
+5. **副作用**：`python -m min_agent.activity.*`、`-m min_agent.evaluation.night_cli`、`-m min_agent.evaluation.evolution_cli` 不再可用；`scripts/night-adrian.cmd`、`scripts/eval_adrian_memory.py` 删除；文档加「已删除」标注——`README.md`、`docs/NIGHT_MODE.md`、`docs/EVOLUTION_V1.md`、`docs/MODULE_MAP.md` 的删除标注实际在 `64cd6e2`（WIRING-004），不在任务 5 的 `d77c5f1`。无数据库/配置副作用。
 6. **最终状态**：**COMPLETED**（删除后全量离线测试见 VALIDATION_LOG WIRING-004/005）。
 
 ## WIRING-005 · 2026-11-20 · Phase: GATE + DOCS（任务 5）
 
 1. **目标**：AGENTS.md 增加接线门禁；修正文档事实错误（主循环阶段数、多 Agent 静态接入表述）；更新 PROJECT_STATUS；最后全量离线对比基线。
-2. **实际修改**：`AGENTS.md` 新增「接线门禁（WIRING-005）」三条；`docs/PROJECT_STATUS.md` 把 RUNTIME-SLIM 的「5 个阶段」改为 6 个并列出阶段名，MA-P5-013 段加「后续状态」注记；`README.md`、`docs/NIGHT_MODE.md`、`docs/EVOLUTION_V1.md`、`docs/MODULE_MAP.md` 标注已删除入口或更新命令。
+2. **实际修改（归属更正）**：`d77c5f1`（WIRING-005）只改 5 个文件——`AGENTS.md`、`docs/PROJECT_STATUS.md`、三份工程日志。`AGENTS.md` 新增「接线门禁（WIRING-005）」；`PROJECT_STATUS.md` 把 RUNTIME-SLIM 的「5 个阶段」改为 6 个并列出阶段名，MA-P5-013 段加「后续状态」注记。`README.md`、`docs/NIGHT_MODE.md`、`docs/EVOLUTION_V1.md`、`docs/MODULE_MAP.md` 的删除标注实际在 `64cd6e2`（WIRING-004），本任务只在此更正归属，不重复计为本任务改动。
 3. **未做**：不追溯改写历史日志/阶段记录；不动 `docs/acceptance/` 的 9.1MB JSON 快照；不动 `shell/` 前端；不推远端、不开 PR、不合 main（留到用户收尾）。
 4. **最终状态**：**COMPLETED**（门禁与文档已更新，全量测试见 VALIDATION_LOG）。
+
+## WIRING-FIX-001 · 2026-11-20 · Phase: PR #4 REVIEW FIX
+
+### 执行前
+
+1. **Task ID / 目标**：`WIRING-FIX-001`；修完 PR #4 审查的 M1–M6、N1–N10；F1–F3 与 D1–D2 记入 backlog/状态；全量离线测试后推送并更新 PR #4。
+2. **基线**：`review/20261120-wiring-fix` @ `d77c5f1`，工作区干净；1768 passed / 8 deselected。
+3. **预期修改**：`mcp/confirm.py`（任务绑定/TTL/容量）、`mcp/tools.py`、`mcp/client.py`、`tools/registry.py`、`application.py`（重连、正则）、`mcp/catalog.py`（上限/状态）、`agents/factory.py`、`runtime/loop.py`、`pyproject.toml`、AGENTS/文档、测试。
+
+### 执行后
+
+1. **实际修改（代码提交 `e7651b0`）**：`mcp/confirm.py` 重写状态机；`mcp/tools.py` 区分 confirm 原因并转服务器错误；`mcp/client.py` 新增 `MCPToolError`；`tools/registry.py` 新增 `ToolExecutionFailedError` 与原因映射；`application.py` 用 `logical_task_id` 自动候选正则、首次访问重连；`mcp/catalog.py` 追加后复核上限并标注 connecting；`agents/factory.py` docstring；`runtime/loop.py` 六阶段；`pyproject.toml` 删 activity extra；AGENTS/README/NIGHT/EVOLUTION/MODULE_MAP/activity 文档更新；测试 7 个文件更新/新增。
+2. **M1/M2**：确认记录增加 `logical_task_id` + `expires_at`；`check_and_consume` 只匹配同一逻辑任务且未过期；`consumed/refused` 按任务隔离；`request` 同任务同签名复用 pending，跨任务新建。新增测试 `test_same_signature_in_another_task_gets_a_new_pending`、`test_approval_is_consumed_once_and_not_reused_by_another_task`、`test_approved_record_expires_and_requires_new_confirmation`、`test_expired_pending_cannot_be_decided_and_is_replaced`，集成 `test_same_signature_in_a_new_task_requires_fresh_confirmation`。
+3. **M3**：`MCPToolError`（isError）与 handler 转换走 `ToolExecutionFailedError` → `ok:false/tool_execution_failed/unknown`；测试 `test_server_error_is_ok_false_not_success_text`、`test_client_raises_tool_error_for_server_is_error_result`、`test_external_execution_failure_is_ok_false_with_unknown_state`。
+4. **M4**：`_mcp_catalog` 创建即 `connect_background()`，`_mcp_status` 经 `_mcp_catalog`；测试 `test_restarting_app_reconnects_existing_session_on_snapshot`。
+5. **M5/M6**：按 `git diff --numstat main...d77c5f1 --diff-filter=D` 重算 33 文件 5856 行（去空行 5072、空行 784；src 3208 + scripts 413 + tests 2235），测试文件 11 个、`test_activity_*` 7 个；`loop.py` 两处 docstring 改六阶段。
+6. **N1–N4**：记忆正则要求分隔符/词界/实质内容；MCP 段追加后复核 600；pending 上限 20、总记录 100、过期清理；拒绝原因映射 4 种错误码，`refused_by_user` 仅真拒绝为真。
+7. **N5–N10**：activity 三份文档命令标注删除、MODULE_MAP/PROJECT_STATUS 历史路径标注；删 activity extra；AGENTS 门禁补定义/豁免/优先级/核查人；N8 归属更正（README/NIGHT/EVOLUTION/MODULE_MAP 属 `64cd6e2`，`d77c5f1` 只改 5 文件）；factory docstring 明确 PASS 不核对数值正确性；首轮 connecting 标注。
+8. **未完成/待确认**：F1–F3 仅登记 backlog（WIRING-006/007/008），未修；D1（网页记忆默认 active）、D2（启动脚本默认 --multi-agent）保持现状但标 `PENDING_USER_CONFIRMATION`，等用户书面确认；候选确认按钮仍无浏览器点击验证。
+9. **副作用**：确认扩展记录新增 `logical_task_id/expires_at`，旧记录（无 expires_at）按过期处理；快照读取已有 MCP 会话会触发后台重连；新增错误码 `tool_execution_failed`、`tool_already_consumed`、`confirmation_unavailable`、`confirmation_backlog_full`；`pyproject.toml` 删 `activity` extra；无数据库 schema 变更。
+10. **最终状态**：M1–M6/N1–N10 **COMPLETED**，D1/D2 **PENDING_USER_CONFIRMATION**，F1–F3 **OPEN（backlog）**。验证见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → WIRING-FIX-001。
