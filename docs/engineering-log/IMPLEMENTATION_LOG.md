@@ -1311,3 +1311,22 @@
 3. **未完成**：完整 JSON Schema 校验（嵌套/数组元素/`additionalProperties`/范围）；非 `-32602` 版本拒绝码的降级；轮数上限按任务类型自适应；skills/memory 的组件提示词段仍待接。
 4. **副作用**：`Runtime` 公开签名新增关键字参数（默认 64，旧调用不受影响）；trace 增加一个允许错误码；MCP 工具现在会先本地拒绝缺参/明显类型错误（行为变化）；`close()` 正常情况下立即返回，异常服务器最多多等约 4 s（两个线程各 2 s）。
 5. **最终状态**：外部审查 4 项全部修复并有回归覆盖；完整 schema 校验与远程 MCP 仍未做。
+
+## WIRING-000 · 2026-11-20 · Phase: BASELINE（四条改造任务清单 · 任务 0）
+
+### 执行前
+
+1. **Task ID / 目标**：`WIRING-000`；用户四条改造清单（任务 1 Skill 三层披露 / 任务 2 MCP 后台连接+confirm 真排队 / 任务 3 长期记忆+多 Agent 开启 / 任务 4 删死代码 / 任务 5 门禁+文档）的公共基线：干净工作区上切工作分支 `review/20261120-wiring-fix`，跑全量离线测试记基线（清单预期 1991 passed），记录默认路径 import 图。后续每任务单独 Task ID（WIRING-001…005），每任务完成停下汇报等用户确认。
+2. **基线与工作区**：main = `de68c2f`（= origin/main），`git status` 干净（7 个私有目录已被 .gitignore 忽略）；最近可信全量为 REVIEW-FIX-001 的 **1991 passed / 5 deselected / 214.89s**（源码 `cfb91db`，已随 PR #2 合入 main）。本轮在 `de68c2f` 上重跑作为本清单基线。
+3. **预期修改**：本任务不改任何 `src/`、`tests/` 源码；只新增本日志条目、VALIDATION_LOG 条目与 `reports/wiring-20261120/`（gitignored）下的基线证据（JUnit XML、import 图脚本与 JSON）。
+4. **判据**：① 全量离线 `pytest -q`（addopts 默认 `-m "not live"`）0 failed，passed 数与 1991 对比并如实记录差异；② import 图区分「默认入口 import 时加载」与「源码树存在但未加载」，并标注懒加载边界。
+5. **风险与禁止**：测试运行期间不编辑 `src/`/`tests/`（避免 REVIEW-FIX-001 的混合代码基线作废问题重演）；不调用真实模型、不发外部请求；不直接合 main、不强推；所有改动只进 `review/20261120-wiring-fix`。
+
+### WIRING-000 执行后（2026-11-20）
+
+1. **实际完成**：① 从 main `de68c2f` 切出 `review/20261120-wiring-fix`；② 全量离线基线 **1991 passed / 5 deselected / 0 failed / 200.62s**（见 VALIDATION_LOG WIRING-000）；③ 默认路径 import 图（140 模块 / 60 加载 / 81 未加载）与懒加载核实；④ 本日志与 VALIDATION_LOG 条目。
+2. **实际修改文件**：`docs/engineering-log/IMPLEMENTATION_LOG.md`、`docs/engineering-log/VALIDATION_LOG.md`（追加）；本地证据 `reports/wiring-20261120/{full-baseline.xml,full-baseline.log,import_graph.py,import-graph.json}`（gitignored，不入库）。`src/`、`tests/` 零改动。
+3. **与计划的偏差**：无。测试数与清单预期 1991 完全一致。
+4. **未完成**：任务 1–5 全部未开始（按清单逐任务停下等确认）。
+5. **副作用**：无生产行为变化；新分支未推送（按总规则推远端与开 PR 在清单收尾执行）。
+6. **最终状态**：COMPLETED（基线任务）。本任务无新决策。

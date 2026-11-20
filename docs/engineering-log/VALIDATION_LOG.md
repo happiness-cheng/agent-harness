@@ -1596,3 +1596,20 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 **未运行**：真实模型 + MCP 对话（未授权，会消耗模型调用）；浏览器 UI；HTTP/SSE/OAuth 服务器；`server-everything` 之外的第三方 MCP；服务器卡死时 kill 路径的现场复现（Windows `terminate` 通常直接结束进程，kill 分支未单独构造）。
 
 **边界**：只证明这 4 项修复的离线契约与 `server-everything` stdio 兼容性；不证明完整 JSON Schema 校验、其他服务器兼容性、远程传输、并发安全或自然语言效果。
+
+## WIRING-000 · 2026-11-20 · Phase: BASELINE
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / `.venv`；源码 `de68c2f`（main，= origin/main）切出的 `review/20261120-wiring-fix`；离线运行，0 次模型调用、0 次外部请求。测试运行期间未编辑 `src/`/`tests/`。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 全量离线基线 | `.venv/Scripts/python.exe -m pytest --junitxml reports/wiring-20261120/full-baseline.xml -q` | **1991 passed / 5 deselected / 0 failed / 0 skipped / 1 warning / 200.62s（exit 0）**；与清单预期 1991 一致，与 REVIEW-FIX-001 终版（214.89s）同数量级 |
+| JUnit 核对 | 解析 `full-baseline.xml` | tests=1991, failures=0, errors=0, skipped=0 |
+| 默认路径 import 图 | `reports/wiring-20261120/import_graph.py`（只 import `min_agent.web.__main__` + `min_agent.application`，不执行 main、不建应用） | 源码树 **140** 模块；import 时加载 **60**；未加载 **81**（清单在 `import-graph.json`） |
+| 懒加载核实 | `application.py:144/159/197/495-501/574/593/644`、`web/__main__.py:91-140` grep | `long_memory/`、`mcp/`、`agents/multi_agent_service`、`llm/*` 为**条件懒加载**（开关/配置触发），不是零引用死代码 |
+
+**基线口径**：本清单后续任务（WIRING-001…005）的对比基线 = 本次 `de68c2f` 上的 **1991 passed / 5 deselected**。5 个 deselected 为 `tests/live/`（addopts `-m "not live"`）。
+
+**未运行**：live 测试（需显式授权）；真实模型；浏览器 UI；`HarnessApplication` 实例化后的运行时加载图（本图是模块 import 级，函数内懒加载不计入）。
+
+**边界**：import 图只证明「默认入口 import 时加载了哪些模块」，不证明运行时调用路径，也不据此判定死代码——任务 4 仍须逐个 grep 生产引用。`reports/wiring-20261120/` 被 `/reports/` gitignore 忽略，属本地证据；结论以本日志为准。
