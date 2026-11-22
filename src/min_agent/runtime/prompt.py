@@ -12,10 +12,12 @@ from min_agent.context.state_bar import RuntimeContextMessage
 class PromptView:
     """把运行历史投影成一次模型请求；调用方只拿到不可复用的副本。"""
 
-    def __init__(self, tools, budget, system_prompt: str | Callable[[], str] | None) -> None:
+    def __init__(self, tools, budget, system_prompt: str | Callable[[], str] | None,
+                 show_state: bool = True) -> None:
         self._tools = tools
         self._budget = budget
         self._system_prompt = system_prompt
+        self._show_state = show_state
 
     def _render_system_prompt(self) -> str:
         value = self._system_prompt
@@ -25,6 +27,10 @@ class PromptView:
         result = [message.model_copy(deep=True) for message in messages]
         if self._system_prompt is None:
             return result
+        if not self._show_state:
+            # generic 模式没有 Plan/Build/目标确认语义，注入 application_state
+            # 会让模型看到与实际能力矛盾的 mode/next_action。
+            return [Message(role="system", content=self._render_system_prompt())] + result
 
         def payload():
             try:

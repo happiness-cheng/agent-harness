@@ -394,7 +394,8 @@ class FileSandbox:
             return None, _error("read_failed", "文件无法读取，未删除。")
         return digest.hexdigest(), None
 
-    def _write_locked(self, target: Path, data: bytes, expected_sha256: str | None) -> str:
+    def _write_locked(self, target: Path, data: bytes, expected_sha256: str | None,
+                      require_version: bool = True) -> str:
         existed = target.exists()
         if existed:
             current, failure = self._current_bytes(target)
@@ -402,11 +403,11 @@ class FileSandbox:
                 return failure
             assert current is not None
             current_hash = hashlib.sha256(current).hexdigest()
-            if expected_sha256 is None:
+            if expected_sha256 is None and require_version:
                 return _error("missing_expected_version",
                               "覆盖已有文件必须带 expected_sha256；请先 fs_read。",
                               current_sha256=current_hash)
-            if current_hash != expected_sha256:
+            if expected_sha256 is not None and current_hash != expected_sha256:
                 return _error("stale_version", "文件已被改动，拒绝覆盖；请重新读取。",
                               current_sha256=current_hash)
         elif expected_sha256 is not None:
@@ -445,7 +446,7 @@ class FileSandbox:
                     "diff": diff, "added": added, "removed": removed, "truncated": truncated})
 
     def write_text(self, path: str, content: str, expected_sha256: str | None = None,
-                   dry_run: bool = False) -> str:
+                   dry_run: bool = False, require_version: bool = True) -> str:
         target, failure = self._resolve_for_write(path)
         if failure is not None:
             return failure
@@ -464,7 +465,8 @@ class FileSandbox:
             return self._preview_write(target, content, data, expected_sha256)
         try:
             with self._locked(target):
-                return self._write_locked(target, data, expected_sha256)
+                return self._write_locked(target, data, expected_sha256,
+                                          require_version=require_version)
         except LockTimeout as busy:
             return _error("lock_timeout", "文件正被另一个写入操作占用，请稍后重试。",
                           holder=busy.holder)
@@ -472,13 +474,18 @@ class FileSandbox:
             return _error("write_failed", "写入失败，原文件未修改。")
 
     def _edited_bytes(self, target: Path, old_text: str, new_text: str,
-                      expected_sha256: str) -> tuple[bytes | None, str | None, str | None]:
+                      expected_sha256: str | None, require_version: bool = True,
+                      ) -> tuple[bytes | None, str | None, str | None]:
         current, failure = self._current_bytes(target)
         if failure is not None:
             return None, failure, None
         assert current is not None
         current_hash = hashlib.sha256(current).hexdigest()
-        if current_hash != expected_sha256:
+        if expected_sha256 is None and require_version:
+            return None, _error("missing_expected_version",
+                                "修改文件必须带 expected_sha256；请先 fs_read。",
+                                current_sha256=current_hash), None
+        if expected_sha256 is not None and current_hash != expected_sha256:
             return None, _error("stale_version", "文件已被改动，拒绝修改；请重新读取。",
                                 current_sha256=current_hash), None
         try:
@@ -499,8 +506,9 @@ class FileSandbox:
         return data, None, edited
 
     def _edit_locked(self, target: Path, old_text: str, new_text: str,
-                     expected_sha256: str) -> str:
-        data, failure, _ = self._edited_bytes(target, old_text, new_text, expected_sha256)
+                     expected_sha256: str | None, require_version: bool = True) -> str:
+        data, failure, _ = self._edited_bytes(target, old_text, new_text, expected_sha256,
+                                              require_version=require_version)
         if failure is not None:
             return failure
         assert data is not None
@@ -510,8 +518,9 @@ class FileSandbox:
                     "mtime_ns": target.stat().st_mtime_ns, "replacements": 1})
 
     def _preview_edit(self, target: Path, old_text: str, new_text: str,
-                      expected_sha256: str) -> str:
-        data, failure, edited = self._edited_bytes(target, old_text, new_text, expected_sha256)
+                      expected_sha256: str | None, require_version: bool = True) -> str:
+        data, failure, edited = self._edited_bytes(target, old_text, new_text, expected_sha256,
+                                                    require_version=require_version)
         if failure is not None:
             return failure
         assert data is not None and edited is not None
@@ -523,8 +532,9 @@ class FileSandbox:
                     "proposed_sha256": hashlib.sha256(data).hexdigest(),
                     "diff": diff, "added": added, "removed": removed, "truncated": truncated})
 
-    def edit_text(self, path: str, old_text: str, new_text: str, expected_sha256: str,
-                  dry_run: bool = False) -> str:
+    def edit_text(self, path: str, old_text: str, new_text: str,
+                  expected_sha256: str | None = None,
+                  dry_run: bool = False, require_version: bool = True) -> str:
         target, failure = self._resolve_for_write(path)
         if failure is not None:
             return failure
@@ -536,10 +546,12 @@ class FileSandbox:
         if self._sensitive(target):
             return _error("sensitive_path", "该路径被视为敏感文件，拒绝修改。")
         if dry_run:
-            return self._preview_edit(target, old_text, new_text, expected_sha256)
+            return self._preview_edit(target, old_text, new_text, expected_sha256,
+                                      require_version=require_version)
         try:
             with self._locked(target):
-                return self._edit_locked(target, old_text, new_text, expected_sha256)
+                return self._edit_locked(target, old_text, new_text, expected_sha256,
+                                         require_version=require_version)
         except LockTimeout as busy:
             return _error("lock_timeout", "文件正被另一个写入操作占用，请稍后重试。",
                           holder=busy.holder)

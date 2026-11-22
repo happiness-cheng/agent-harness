@@ -2,6 +2,17 @@
 
 > **交付规则（AEF-003 第 11 行 + AEF-004 第 12 行，2026-11-14 定稿）**：每次交付必须附核心文件路径、四件事代码讲解与「长度按需、但必须能独立看懂」的关键片段（带文件与行号）；**片段之后还要逐行/分块讲解参数、每步动作、为什么这样写、明确不保证什么**。详见 [AGENTS.md](../AGENTS.md) 第 11–12 行。
 
+## 2026-11-22 GENERIC-TOOLS-001 通用四工具模式（PARTIAL / 实验入口）
+
+用户要求先把专用工具放一边，只提供 `read / write / edit / bash` 四个通用入口。本批新增**显式模式**，默认服务与既有测试路径不变；专用工具代码保留，切回默认即可恢复。
+
+- **入口**：`python -m min_agent.web --generic-tools --workspace-root <dir>`；一键脚本 `scripts\start-pi.cmd`（千问平台，端口 8766）。未传工作区时取当前目录。
+- **注册结果**：`HarnessApplication(generic_tools=True)` 的注册表恰好 4 项；默认模式仍是 28（千问）/21（Adrian）/20（裸 CLI），未改。
+- **行为**：`read` 按行切片（offset/limit，最多 2000 行），复用 `FileSandbox` 的敏感路径/越界/256 KiB 拒绝；`write`/`edit` 复用它的事务写、原子替换、唯一匹配和写锁，但**不要求 expected_sha256**（pi 式覆盖）；`bash` 用 Git Bash，工作区 cwd，注入 `.venv/Scripts`，清洗 `*API_KEY/*TOKEN/*SECRET/*PASSWORD/*CREDENTIAL*` 环境变量，默认 120 秒超时（`taskkill /T` 杀子进程），stdout/stderr 各截断 64 KiB。
+- **权限边界（重要）**：本模式**不经过 Plan/Build 与目标确认门**；`bash` 以当前用户权限运行，**不是沙箱**，能读工作区外文件和 `.env`。`show_state=False` 关闭 `application_state` 尾部，避免模型看到与实际能力矛盾的 `mode=plan`。未注册 `fs_delete`，`bash rm` 是硬删除。
+- **验证**：新增 21 项（`tests/unit/test_generic_tools.py` 14 + `tests/integration/test_generic_mode.py` 7）全过；其中 1 项从 `HarnessApplication.submit` 走完整 worker 线程，跑通 write→read 并断言首轮系统提示词与 4 个 schema。受影响回归 **121 passed**（含文件工具、runtime 组件、tool loop、冻结签名）。全量离线 **1805 passed / 8 deselected / 142.03s**（基线 1784 + 21）。
+- **未做/边界**：未用真实模型跑四工具对话；`read` 不支持 >256 KiB 分段；没有程序化工具调用（代码回调工具）；没有 Windows 沙箱；WSL 启动器被拒绝。详见 [GENERIC_TOOLS](GENERIC_TOOLS.md)。
+
 ## 2026-11-20 PR #4 审查修复（WIRING-FIX-001，待用户复审）
 
 PR #4 外部审查为 Request changes；本分支在 `d77c5f1` 后追加修复。代码/测试提交 `e7651b0`，本日志与状态随后提交。

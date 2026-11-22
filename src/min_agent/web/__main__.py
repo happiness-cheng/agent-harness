@@ -44,6 +44,9 @@ def main(argv=None):
     parser.add_argument("--qianwen", action="store_true", help="使用千问AI平台（OpenAI兼容）作为决策核心；需要凭据文件中的qianwen_api_key")
     parser.add_argument("--qianwen-model", default="qwen3.8-flash", help="千问白名单中的默认模型")
     parser.add_argument("--workspace-root", default=None, help="只读文件工具的根目录；默认当前工作目录，未设置时不放宽到全盘")
+    parser.add_argument("--generic-tools", action="store_true",
+        help="pi 式四工具模式：只注册 read/write/edit/bash，不注册 todo/记忆/提醒/研究/MCP；"
+             "工作区默认当前目录，不经过 Plan/Build 目标确认门")
     parser.add_argument("--mcp-config", type=Path, default=None,
         help="MCP 服务器配置 JSON；不提供时不启动任何 MCP 子进程")
     parser.add_argument("--adrian", action="store_true", help="真实Adrian本地试用：按需Memory、单实例、就绪后浏览器")
@@ -74,6 +77,11 @@ def main(argv=None):
     if not 1 <= options.max_requests <= 100: parser.error("模型请求上限需为1到100")
     if options.live and options.credentials_file is None: parser.error("实网模式必须提供指定凭据文件")
     mode = options.memory_mode or 'active'
+    if options.generic_tools and options.workspace_root is None:
+        options.workspace_root = str(Path.cwd())
+    if options.generic_tools:
+        print(f"通用四工具模式：read/write/edit/bash，工作区 {options.workspace_root}；"
+              "不经过 Plan/Build 目标确认门，bash 不是沙箱。", flush=True)
     from min_agent.web.launcher import DatabaseLease, DatabaseInUse, LaunchError, identity_for, open_existing, port_available, wait_ready
     identity = identity_for(options.database,options.port,demo=not (options.live or options.ollama),memory_mode=mode)
     lease = DatabaseLease(options.database,identity)
@@ -154,7 +162,8 @@ def main(argv=None):
         harness = HarnessApplication(options.database,model=model,proxy=options.proxy,desktop=desktop,memory_mode=mode,
             model_catalog=catalog,workspace_root=options.workspace_root,mcp_servers=mcp_servers,
             enable_multi_agent=options.multi_agent,
-            multi_agent_service_factory=multi_agent_service_factory)
+            multi_agent_service_factory=multi_agent_service_factory,
+            generic_tools=options.generic_tools)
         run(harness,identity,open_browser=options.adrian and not options.no_browser)
     finally:
         lease.__exit__(None,None,None)

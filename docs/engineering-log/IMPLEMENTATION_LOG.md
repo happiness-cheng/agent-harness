@@ -1440,3 +1440,28 @@
 8. **未完成/待确认**：F1–F3 仅登记 backlog（WIRING-006/007/008），未修；D1（网页记忆默认 active）、D2（启动脚本默认 --multi-agent）保持现状但标 `PENDING_USER_CONFIRMATION`，等用户书面确认；候选确认按钮仍无浏览器点击验证。
 9. **副作用**：确认扩展记录新增 `logical_task_id/expires_at`，旧记录（无 expires_at）按过期处理；快照读取已有 MCP 会话会触发后台重连；新增错误码 `tool_execution_failed`、`tool_already_consumed`、`confirmation_unavailable`、`confirmation_backlog_full`；`pyproject.toml` 删 `activity` extra；无数据库 schema 变更。
 10. **最终状态**：M1–M6/N1–N10 **COMPLETED**，D1/D2 **PENDING_USER_CONFIRMATION**，F1–F3 **OPEN（backlog）**。验证见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → WIRING-FIX-001。
+
+## GENERIC-TOOLS-001 · 2026-11-22 · Phase: GENERIC TOOLS
+
+### 执行前
+
+1. **Task ID / 目标**：`GENERIC-TOOLS-001`；按用户要求先只提供 `read/write/edit/bash` 四个通用工具，专用工具暂时不注册；bash 默认开启（pi 式），但本任务把它落在显式模式里，保住默认可回退。
+2. **基线**：`main` @ `334c5dd`，工作区干净；全量离线 **1784 passed / 8 deselected / 147.19s**；千问默认注册表 28 个工具、schema 19,085 bytes / 约 5,315 tokens；文件族 7 个占 6,653 bytes / 约 1,891 tokens。
+3. **预期修改**：新增 `tools/generic.py` 与 `prompts/generic.md`；`application.py` 增加 `generic_tools` 分支与 `_base_prompt`；`filesystem.py` 给 write/edit 增加可选的 `require_version`；`runtime/{loop,prompt}.py` 增加 `show_state`；`web/__main__.py` 增加 `--generic-tools`；启动脚本与测试、文档、三份日志。
+4. **风险/禁止**：不删除专用工具代码；不改默认注册链；不伪造目标确认；不把 bash 说成沙箱；不提交、不推送。
+
+### 执行后
+
+1. **新增 `src/min_agent/tools/generic.py`**：定义 `ReadArguments/WriteArguments/EditArguments/BashArguments`；`GenericWorkspace.read` 用 `FileSandbox.read_text` 后按行切片（保留 CRLF，返回 start/end/total/truncated/sha256）；`write`/`edit` 复用沙箱并传 `require_version=False`；`bash` 优先 Git Bash、拒绝 System32 WSL、清洗敏感环境变量、注入项目 venv、`Popen` 独立进程组、超时用 `taskkill /F /T` 或 `killpg` 杀树、stdout/stderr 各 64 KiB 截断。
+2. **新增 `src/min_agent/prompts/generic.md`**：只描述四个工具、先读后改、用命令过滤结果、如实报告退出码；明确「不经过 Plan/Build」「bash 不是沙箱」「不外传凭据」。
+3. **`src/min_agent/application.py`**：构造器新增 `generic_tools=False`（布尔校验；为真必须有 `workspace_root`）；`_registry` 在本模式直接构造 `ToolRegistry` 并只注册四个工具，提前返回，不碰 todo/记忆/提醒/研究/多 Agent/MCP；新增 `_base_prompt()` 选 `generic.md` 并注入真实工作区根；`_worker` 在本模式不追加 skills/MCP 段、不初始化 MCP、`Runtime(show_state=False)`；`create_session` 在本模式不后台连 MCP。
+4. **`src/min_agent/tools/filesystem.py`**：`write_text/edit_text/_write_locked/_edited_bytes/_edit_locked/_preview_edit` 增加 `require_version: bool = True`；默认行为与 `fs_write/fs_edit` 完全一致，generic 传 False 才允许无 hash 覆盖/修改。版本不符仍然拒绝。
+5. **`src/min_agent/runtime/{prompt.py,loop.py}`**：`PromptView` 新增 `show_state`；为 False 时只返回 system + 历史，不注入 `application_state` 尾部；`Runtime` 新增同名校验参数。默认 True，既有调用不受影响。`Runtime.__init__` 是冻结签名，`tests/unit/test_runtime_shape.py` 的期望列表已同步加入 `show_state`（有意扩展，不是放宽断言）；首轮全量因此有 1 个失败，更新后复跑通过。
+6. **`src/min_agent/web/__main__.py`**：新增 `--generic-tools`；为真且未给 `--workspace-root` 时取当前目录并打印边界提示；把 `generic_tools` 传给 `HarnessApplication`。
+7. **`scripts/start-pi.ps1` / `scripts/start-pi.cmd`**：千问平台 + 四工具 + 工作区=仓库根，端口 8766，数据库 `data/adrian-pi.sqlite3`；就绪后自动开浏览器。
+8. **测试**：新增 `tests/unit/test_generic_tools.py`（14 项）与 `tests/integration/test_generic_mode.py`（7 项）；覆盖切片/越界/目录提示/敏感路径、无 hash 覆盖、唯一匹配、bash 退出码/超时杀子进程/截断/环境清洗、默认模式隔离、Runtime 真实 write→read、`PromptView` 跳过状态尾部、从 `HarnessApplication.submit` 走完整 worker 线程并断言首轮系统提示词与 4 个 schema。
+9. **文档**：新增 `docs/GENERIC_TOOLS.md`；`PROJECT_STATUS.md` 增加本批段；`IMPROVEMENT_BACKLOG.md` 的 TOOL-001 追加 2026-11-22 状态；三份工程日志各追加本 Task ID。
+10. **偏差（如实）**：用户原话是「先就只提供那四个通用工具」，实现没有替换默认入口，而是新增 `--generic-tools` 模式。理由是不能让 1784 个既有测试和待办/提醒/记忆面板一起失效，且用户说「暂时」；代价是用户要走 `scripts\start-pi.cmd` 或显式参数，默认快捷方式仍指向千问专用工具链。若用户确认要切默认，需另做一批（改快捷方式、UI 隐藏 Plan/Build、默认数据库/端口）。
+11. **未完成**：真实模型下四工具的选择质量与任务成功率 **NOT RUN**；>256 KiB 分段读 **NOT RUN**（当前拒绝）；程序化工具调用（代码内回调工具）**NOT RUN**；Windows 沙箱 **NOT RUN**；Linux/macOS Git Bash **NOT RUN**。
+12. **副作用**：新增 CLI 开关与启动脚本；`FileSandbox.write_text/edit_text` 增加带默认值的关键字参数（旧调用不变）；`Runtime/PromptView` 增加带默认值的 `show_state`；generic 模式的工具结果、trace、错误码与默认模式共用 registry/runtime 契约；无数据库 schema 变更、无默认配置变更。
+13. **最终状态**：**PARTIAL**（模式与测试完成；真实模型评测、分段读与程序化调用未做）。验证见 [VALIDATION_LOG.md](VALIDATION_LOG.md) → GENERIC-TOOLS-001。

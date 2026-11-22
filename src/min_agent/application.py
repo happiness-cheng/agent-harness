@@ -38,7 +38,7 @@ from min_agent.tools.calculator import CALCULATOR_TOOL
 from min_agent.tools.read_webpage import PublicFetcher, WebReader
 from min_agent.tools.reminder import ReminderService
 from min_agent.tools.reminder_tools import register_reminders
-from min_agent.tools.registry import ToolDefinition
+from min_agent.tools.registry import ToolDefinition, ToolRegistry
 from min_agent.tools.search import SearchService
 from min_agent.tools.todo import TodoService
 from min_agent.tools.todo_tools import todo_registry
@@ -104,7 +104,7 @@ class HarnessApplication:
                  memory_strategy='GOAL_VALUE', memory_budget=4096, memory_policy=None, memory_mode='legacy',
                  public_goals_enabled=False, research_observation_enabled=False,
                  enable_multi_agent=False, multi_agent_service_factory=None, model_catalog=None,
-                 workspace_root=None, mcp_servers=None):
+                 workspace_root=None, mcp_servers=None, generic_tools=False):
         if memory_strategy not in {'NONE','RECENCY','FREQUENCY','GOAL_VALUE'}:
             raise ValueError('无效Memory策略')
         if type(memory_budget) is not int or memory_budget<0: raise ValueError('无效Memory预算')
@@ -155,6 +155,13 @@ class HarnessApplication:
         # FS-READ-001：只读文件工具**显式开启**（传 workspace_root）；默认不注册，
         # 避免改变既有部署的提示词体积与小上下文模型的行为。
         self.workspace_root = Path(workspace_root).resolve() if workspace_root is not None else None
+        # GENERIC-TOOLS-001：pi 式四工具模式。只注册 read/write/edit/bash，
+        # 不经过 todo/memory/MCP 的专用注册链；需要显式工作区，默认关闭。
+        if type(generic_tools) is not bool:
+            raise TypeError("generic_tools 必须是布尔值")
+        if generic_tools and self.workspace_root is None:
+            raise ValueError("generic_tools=True 必须提供 workspace_root")
+        self.generic_tools = generic_tools
         # MCP-001：服务器配置只来自可信 host；默认不配置、不启动任何子进程。
         if mcp_servers is None:
             servers = ()
@@ -256,7 +263,7 @@ class HarnessApplication:
             self.sessions.set_extension(context, "model_choice", model)
         if mode is not None:
             TaskController(self.sessions).select_mode(context, mode)
-        if self.mcp_servers:
+        if self.mcp_servers and not self.generic_tools:
             self._mcp_catalog(context).connect_background()
         return {"session_id": str(context.session_id), "label": label,
                 "mode": mode or "plan",
@@ -568,6 +575,15 @@ class HarnessApplication:
 
     def _registry(self, context, segment, raw_model, control, trace=None, memory_query='当前任务',
                   mcp_catalog=None):
+        if self.generic_tools:
+            # 只暴露四个通用入口；不注册 todo/记忆/提醒/研究/多 Agent/MCP。
+            # 授权门也随专用工具一起不挂载——这是 generic 模式的显式取舍，
+            # 由启动参数和系统提示词共同披露，不能悄悄套用到默认模式。
+            from min_agent.tools.generic import generic_tools
+            registry = ToolRegistry(sessions=self.sessions, context=context)
+            for tool in generic_tools(self.workspace_root):
+                registry.register(tool)
+            return registry
         controller = TaskController(self.sessions)
         todos = TodoService(self.sessions)
         registry = todo_registry(todos, controller, context)
@@ -685,6 +701,14 @@ class HarnessApplication:
             register_mcp_tools(registry, mcp_catalog, MCPConfirmations(self.sessions, context))
         return registry
 
+    def _base_prompt(self) -> str:
+        """按模式选系统提示；generic 模式额外注入真实工作区根。"""
+        name = "generic.md" if self.generic_tools else "system.md"
+        base = (Path(__file__).parent / "prompts" / name).read_text(encoding="utf-8")
+        if self.generic_tools:
+            base = base.rstrip() + f"\n\n当前工作区根目录：{self.workspace_root}\n"
+        return base
+
     def _worker(self, context, text=None, checkpoint_id=None, resume_task_id=None):
         identity = str(context.session_id)
         sink = self._open_stream(identity)
@@ -722,21 +746,28 @@ class HarnessApplication:
                 work = self.sessions.work_state(context)
                 if not new_input and work.proposal:
                     memory_query = work.proposal.goal.objective+'\n'+text
-                mcp_catalog = self._mcp_catalog(context)
+                mcp_catalog = None if self.generic_tools else self._mcp_catalog(context)
                 registry = self._registry(context, segment, raw_model, events, trace,
                     memory_query=memory_query, mcp_catalog=mcp_catalog)
                 # WIRING-001：技能清单段常开；MCP 段仍只在配置了服务器时追加。
+                # GENERIC-TOOLS-001：四工具模式没有 read_skill，也不挂 MCP，
+                # 因此系统提示只保留通用工具说明与工作区根。
                 from min_agent.context.system_prompt import SystemPrompt
-                skill_catalog = SkillCatalog(Path(__file__).parent / "skills")
-                base = (Path(__file__).parent / "prompts" / "system.md").read_text(encoding="utf-8")
-                sections = [skill_catalog.prompt_section]
-                prompt_sections = {"skills": {
-                    "sha256": sha256(skill_catalog.prompt_section().encode("utf-8")).hexdigest(),
-                    "skill_count": len(skill_catalog.entries)}}
-                if mcp_catalog is not None:
-                    sections.append(mcp_catalog.prompt_section)
-                    prompt_sections["mcp"] = {
-                        "sha256": sha256(mcp_catalog.prompt_section().encode("utf-8")).hexdigest()}
+                base = self._base_prompt()
+                if self.generic_tools:
+                    sections: list = []
+                    prompt_sections = {"generic": {
+                        "sha256": sha256(base.encode("utf-8")).hexdigest()}}
+                else:
+                    skill_catalog = SkillCatalog(Path(__file__).parent / "skills")
+                    sections = [skill_catalog.prompt_section]
+                    prompt_sections = {"skills": {
+                        "sha256": sha256(skill_catalog.prompt_section().encode("utf-8")).hexdigest(),
+                        "skill_count": len(skill_catalog.entries)}}
+                    if mcp_catalog is not None:
+                        sections.append(mcp_catalog.prompt_section)
+                        prompt_sections["mcp"] = {
+                            "sha256": sha256(mcp_catalog.prompt_section().encode("utf-8")).hexdigest()}
                 system_prompt = SystemPrompt(base, tuple(sections))
                 primary_model = raw_model
                 if getattr(registry, '_memory_delivery', None) is not None:
@@ -750,7 +781,7 @@ class HarnessApplication:
                     budget=segment, checkpoint_policy=CheckpointPolicy(), control=events,
                     progress_guard=ProgressGuard(self.sessions, context), recover_unknown_writes=True, trace=trace,
                     before_execute=self._freeze_public_goals if self.public_goals_enabled else None,
-                    system_prompt=system_prompt)
+                    system_prompt=system_prompt, show_state=not self.generic_tools)
                 if checkpoint_id is not None:
                     result = runtime.resume_session(checkpoint_id, store=self.sessions, context=context, text=text)
                 elif resume_task_id is not None:

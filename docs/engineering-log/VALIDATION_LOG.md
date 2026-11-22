@@ -1726,3 +1726,29 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 **未运行**：候选确认按钮浏览器点击；D1/D2 默认面扩大的用户确认；F1–F3 修复；Linux 全量（审查员环境）未在本机复跑。
 
 **边界**：TTL 用进程内时钟，未处理系统时钟大幅回拨；`logical_task_id` 由 SessionStore 生成，外部伪造仍受 owner/存储校验；服务器 `isError` 文本会进入模型可见错误消息；重启重连只覆盖被访问的会话；全量数字是 Windows 本机结果，不代表 Linux 的 7 个失败已消失（F1 仍开着）。
+
+## GENERIC-TOOLS-001 · 2026-11-22 · Phase: GENERIC TOOLS
+
+**环境**：Windows / Python 3.13.16 / pytest 9.1.1 / `.venv`；`main` @ `334c5dd` + 本批未提交改动；Git Bash `MINGW64` 可用，无真实模型、无外部网络调用。
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 基线（改动前） | `pytest -q` | **1784 passed / 8 deselected / 0 failed / 147.19s** |
+| 新增单测 | `pytest tests/unit/test_generic_tools.py -q` | **14 passed**：行切片/默认全量/越界/目录提示/越界与敏感路径/覆盖写/父目录缺失/唯一匹配/歧义与无匹配/bash 退出码/超时杀子进程/输出截断/环境清洗 |
+| 新增集成 | `pytest tests/integration/test_generic_mode.py -q` | **7 passed**：恰好 4 个 schema、generic 提示词含工具与真实工作区根、Runtime write→read、完整 worker 线程、`PromptView(show_state=False)`、缺 workspace 报错、默认模式无 generic 工具 |
+| 受影响回归 | 文件工具 3 个测试文件 + runtime components/tool loop/shape + 两个新文件 | **121 passed / 4.70s** |
+| 首次全量（含新测试） | `pytest -q --junitxml=...` | **1804 passed / 8 deselected / 1 failed / 141.34s**；失败为 `test_runtime_shape.py::test_public_signatures_are_frozen[__init__]`：`Runtime.__init__` 新增 `show_state`，冻结签名列表未同步 |
+| 修复后全量（终版） | `pytest -q --junitxml=...` | **1805 passed / 8 deselected / 0 failed / 1 warning / 145.48s（exit 0）**；= 1784 + 新增 21 |
+| 语法/空白 | `python -m py_compile ...`；`git diff --check` | py_compile OK；diff --check exit 0 |
+| 启动器语法 | `[Parser]::ParseFile('scripts/start-pi.ps1')` | 0 errors（UTF-8 BOM 已加，PowerShell 5.1 可正确解析中文） |
+
+**失败与修复（如实）**：
+
+1. 新增测试首轮 2 failed：`test_bash_timeout_kills_child_process` 把 `duration_ms` 取在顶层，实际按 `_error` 契约在 `error.duration_ms`；`test_generic_mode_runs_write_and_read_through_runtime` 用 `Runtime.run` 直接跑绑定 registry，被 `check_context` 拒绝，改用 `run_session(store=..., context=..., budget=segment)`。均为测试用法错误，不是产品缺陷。
+2. 首次全量 1 failed：冻结签名测试未包含新增的 `show_state`。这是**有意扩展**（默认 True，旧调用不变），更新期望列表后复跑通过；没有放宽任何行为断言。
+3. 首版 bash 超时用 `subprocess.run(timeout=)`，只杀 bash、不杀 `sleep` 子进程，1 秒超时实际 3 秒；改为 `Popen` + 独立进程组 + `taskkill /T`/`killpg`，复测 1.245 秒返回。
+4. 首版 `pwd` 探测发现临时工作区没有 `.venv`，`python` 落到系统 3.12；改为优先工作区 venv、回退应用仓库 venv，外部工作区复测 `Python 3.13.16`。
+
+**未运行/未验证**：真实模型（千问/DeepSeek/Ollama）在四工具模式下的工具选择与任务成功率 **NOT RUN**；`read` >256 KiB 分段 **NOT RUN**（当前直接拒绝）；程序化工具调用（代码内回调 registry 工具）**NOT RUN**；Windows 沙箱/权限隔离 **NOT RUN**；Linux/macOS Git Bash **NOT RUN**；`bash` 交互式/GUI 命令 **NOT RUN**；浏览器端到端 **NOT RUN**。
+
+**边界**：21 项是脚本化模型与直接工具调用，不构成自然语言成功率；`bash` 以当前用户权限运行，能读工作区外文件与 `.env`，环境变量清洗不等于文件隔离；默认模式仍是 21–28 个专用工具，本批没有替换默认入口；`read` 只读 UTF-8 文本，二进制/敏感路径/超限直接拒绝。
