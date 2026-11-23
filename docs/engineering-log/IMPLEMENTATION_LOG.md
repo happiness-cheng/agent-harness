@@ -1717,3 +1717,16 @@
 - **实施偏差**：无。默认 nested 模式 serialize 与旧 json.dumps 逐字节一致。
 - **副作用**：无 schema 变更；generic 工具消息形状改变（模型可见），专用模式不变。
 - **未完成**：S5–S8。验证见 VALIDATION_LOG → GOV-001-S4。
+
+## GOV-001-S5 — ask_user（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S5`；generic 模式加第 5 个工具 ask_user，提问暂停等待用户回答。
+- **实际修改**：
+  - `src/min_agent/tools/generic.py`：`AskUserArguments`、`build_ask_user_tool(sessions, context)`（记 pending_question → AuthorizationRequired）；import AuthorizationRequired。
+  - `src/min_agent/application.py`：generic registry 注册 ask_user；snapshot 加 `pending_question`；_worker 新一轮开始清 pending_question。
+  - `tests/integration/test_generic_mode.py`：工具数断言 4→5（含 ask_user）。
+  - 新增 `tests/integration/test_ask_user.py`（3 项）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S5 D1–D4。
+- **实施偏差**：resume 需带 task_id（waiting_user 无 checkpoint），测试据此修正；与 mcp_confirm resume 同形。
+- **副作用**：generic 工具面 4→5；专用模式不变。
+- **未完成**：S6–S8。验证见 VALIDATION_LOG → GOV-001-S5。

@@ -404,6 +404,7 @@ class HarnessApplication:
             "mcp_confirmations": self._mcp_pending(context),
             "gate_confirmations": self._gate_pending(context),
             "gate_audit": self.sessions.extension(context, "gate_audit", []),
+            "pending_question": self.sessions.extension(context, "pending_question", None),
             "multi_agent": self.sessions.extension(context, "multi_agent_last_run", None)}
 
     def submit(self, session_id, text, *, public_goals=None, proposal_id=None):
@@ -624,12 +625,14 @@ class HarnessApplication:
             # 只暴露四个通用入口；不注册 todo/记忆/提醒/研究/多 Agent/MCP。
             # 授权门也随专用工具一起不挂载——这是 generic 模式的显式取舍，
             # 由启动参数和系统提示词共同披露，不能悄悄套用到默认模式。
-            from min_agent.tools.generic import GenericWorkspace, generic_tools
+            from min_agent.tools.generic import GenericWorkspace, build_ask_user_tool, generic_tools
             # GOV-001-S4：generic 用单层契约 {ok,error_code,message,data}。
             registry = ToolRegistry(sessions=self.sessions, context=context, envelope="flat")
             workspace = GenericWorkspace(self.workspace_root)
             for tool in generic_tools(self.workspace_root, workspace=workspace):
                 registry.register(tool)
+            # GOV-001-S5：第 5 个工具 ask_user（提问暂停，无副作用）。
+            registry.register(build_ask_user_tool(self.sessions, context))
             # 分级门需要 workspace 引用来放行已确认的高危破坏性命令。
             registry._generic_workspace = workspace
             return registry
@@ -772,6 +775,8 @@ class HarnessApplication:
                 # 进程被强杀时也能在下次启动恢复成历史；不写 messages，避免影响
                 # Runtime 的 original_length 切片与压缩计数。
                 self.sessions.set_extension(context, "pending_input", text)
+                # GOV-001-S5：新一轮开始（用户已回答或新输入），清掉上一条待答问题。
+                self.sessions.set_extension(context, "pending_question", None)
                 snapshot = self.sessions.snapshot(context)
                 budgets = SessionBudgets(self.sessions)
                 if new_input and snapshot.task is not None and snapshot.task.status != "completed":

@@ -38,11 +38,11 @@ def registry_for(app):
     return registry, context, segment
 
 
-def test_generic_mode_registers_exactly_four_tools(generic_app):
+def test_generic_mode_registers_four_tools_plus_ask_user(generic_app):
     registry, _, _ = registry_for(generic_app)
 
     assert [schema["name"] for schema in registry.schemas()] == [
-        "read", "write", "edit", "bash"]
+        "read", "write", "edit", "bash", "ask_user"]
 
 
 def test_generic_prompt_names_tools_and_real_workspace(generic_app):
@@ -72,7 +72,7 @@ def test_generic_mode_runs_write_and_read_through_runtime(generic_app):
     assert result.status == "completed"
     assert (generic_app.workspace_root / "note.txt").read_text(encoding="utf-8") == "你好\n"
     assert [schema["name"] for schema in model.tool_schemas[0]] == [
-        "read", "write", "edit", "bash"]
+        "read", "write", "edit", "bash", "ask_user"]
     tool_messages = [message for message in model.calls[-1] if message.role == "tool"]
     assert [json.loads(message.content)["ok"] for message in tool_messages] == [True, True]
 
@@ -108,7 +108,7 @@ def test_generic_mode_runs_full_worker_through_application(tmp_path):
     assert "read" in first_request[0].content and "bash" in first_request[0].content
     assert "todo_list" not in first_request[0].content
     assert [schema["name"] for schema in model.tool_schemas[0]] == [
-        "read", "write", "edit", "bash"]
+        "read", "write", "edit", "bash", "ask_user"]
 
 
 def test_generic_prompt_view_skips_application_state_tail():

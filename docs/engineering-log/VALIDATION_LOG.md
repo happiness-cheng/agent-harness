@@ -2090,3 +2090,13 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 
 - **关键行为证据**：`test_flatten_business_failure_uses_inner_ok` 证明外层 ok=true、内层 ok=false 时单层 ok=false（双层 ok 痛点已解）；`test_write_with_stale_expected_sha_rejected` 证明版本不匹配拒绝。
 - **边界**：默认 nested 模式 serialize 与旧 json.dumps 逐字节一致，专用模式零变化；expected_sha256 是乐观并发提示，非 TOCTOU 防护。eval 判据未改（_inner 兼容两形）。
+
+## GOV-001-S5 — ask_user 验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| ask_user | `pytest tests/integration/test_ask_user.py` | **3 passed**（提问停 waiting_user + surfaced question/options；带 task_id resume 回答续跑 + 清 question + 答案进历史；generic 注册含 ask_user） |
+| generic + gate 回归 | `pytest test_generic_mode test_gate_integration` | 通过（工具数 4→5 断言已更新） |
+| 全量（终版） | `pytest -q --junitxml=...` | **1906 passed / 2 skipped / 8 deselected / 0 failed / 149.22s（exit 0）** |
+
+- **边界**：ask_user 不做答案语义校验；options 仅候选提示；超时沿用 waiting_user 既有语义（未新增 TTL）。专用模式工具面不变。

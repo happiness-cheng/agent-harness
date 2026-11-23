@@ -912,3 +912,10 @@
 3. **D3 只在 generic 模式启用 flat**：generic registry `envelope="flat"`；默认专用模式 nested 逐字节不变。eval `verifiers._inner` 同时接受两种形状（flat 时把 data 重建成内层形状），判据不改。
 4. **D4 expected_sha256 可选透传**：write/edit schema 加可选 `expected_sha256`（64hex pattern），透传沙箱（`require_version=False` 仍允许不传直接覆盖；传了不匹配→stale_version，文件不存在却传→unexpected_version）。替代方案「强制版本校验」被否：pi 式覆盖是 generic 的既定取舍，版本校验只做可选增强。
 5. **不保证**：单层契约不改变工具行为，只改变给模型的结果包装；expected_sha256 是乐观并发提示，不是 TOCTOU 防护（外部写者竞态仍推迟）。
+
+## GOV-001-S5 — ask_user（2026-11-24）
+
+1. **D1 generic 工具面 4→5**：新增 `ask_user(question, options?)`，用户在本轮计划里点名要。它无副作用，handler 记 `pending_question` 扩展后抛 `AuthorizationRequired("waiting_user")` 停批，复用既有 resume 机制（用户回答作为 user 消息续跑）。替代方案「保留 4 工具、用 bash echo 提问」被否：提问需要真正暂停等待回答，不是输出文本。
+2. **D2 复用 waiting_user/resume，不造新 UI/端点**：snapshot surfaced `pending_question`；用户用既有 `/resume`（带 task_id）回答；新一轮开始清掉 pending_question。替代方案「新建问答端点+UI 组件」被否：waiting_user 展示位已有，复用最小。
+3. **D3 ask_user 不走分级审批**：分类器对未知工具判 low，gate 放行后 handler 自己抛 AuthorizationRequired。提问无副作用，不需要小模型/人工审批。
+4. **不保证**：ask_user 不做答案语义校验；options 只是候选提示，用户可自由回答；超时过期沿用 waiting_user 既有语义（本步未新增 TTL）。

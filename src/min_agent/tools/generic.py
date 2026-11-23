@@ -17,6 +17,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from min_agent.session.task_state import AuthorizationRequired
 from min_agent.tools.filesystem import (
     MAX_PATH_LENGTH,
     MAX_WRITE_BYTES,
@@ -851,3 +852,41 @@ def generic_tools(root: str | Path, *, workspace: "GenericWorkspace | None" = No
             handler=workspace.bash,
         ),
     ]
+
+
+class AskUserArguments(BaseModel):
+    model_config = ConfigDict(strict=True, extra="forbid")
+
+    question: str = Field(min_length=1, max_length=2000,
+                          description="要向用户澄清的问题；一次问清一件事。")
+    options: list[str] | None = Field(
+        default=None, max_length=8,
+        description="可选：给用户的候选答案（最多 8 个）；不传则自由回答。")
+
+
+def build_ask_user_tool(sessions, context) -> ToolDefinition:
+    """GOV-001-S5：向用户提问并暂停等待回答。
+
+    记录 ``pending_question`` 会话扩展（snapshot  surfaced），抛
+    ``AuthorizationRequired("waiting_user")`` 停批；用户用既有 /resume 回答，
+    答案作为 user 消息续跑。无副作用，不走分级审批。
+    """
+    from datetime import UTC, datetime
+
+    def handler(question: str, options: list[str] | None = None) -> str:
+        sessions.set_extension(context, "pending_question", {
+            "question": question, "options": options,
+            "asked_at": datetime.now(UTC).isoformat(),
+        })
+        raise AuthorizationRequired("waiting_user")
+
+    return ToolDefinition(
+        name="ask_user",
+        description=(
+            "需要用户澄清才能继续时调用：提出问题（可附候选选项），暂停等待用户回答。"
+            "不要用它汇报进度或 rhetorical 提问；只在缺关键信息、有多个合理方向需用户拍板时用。"
+            "用户回答后会作为新消息续跑。"
+        ),
+        parameters=AskUserArguments,
+        handler=handler,
+    )
