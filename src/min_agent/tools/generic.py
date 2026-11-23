@@ -676,13 +676,15 @@ def _bash_environment(root: Path, shell: str) -> dict[str, str]:
 class GenericWorkspace:
     """四个通用工具的实现；文件操作仍限制在 root 内。"""
 
-    def __init__(self, root: str | Path) -> None:
+    def __init__(self, root: str | Path, *, backend=None) -> None:
         self.sandbox = FileSandbox(root)
         self.root = self.sandbox.root
         # 执行前分级门（gate.ToolGate）在用户确认高危破坏性调用后，把该命令
         # 加入此集合；bash() 取出即销毁，仅跳过破坏性词快速失败，其余检查保留。
         # 串行执行，无并发；默认空集合时 gate-v7 行为不变。
         self.cleared_commands: set[str] = set()
+        # GOV-001-S7：可选执行后端（DockerSandbox）；None=宿主 bash（默认实验模式）。
+        self._backend = backend
 
     def read(self, path: str, offset: int = 1, limit: int = MAX_READ_LINES) -> str:
         target, failure = self.sandbox.resolve(path)
@@ -736,14 +738,21 @@ class GenericWorkspace:
             from min_agent.tools.effects import classify_bash
             if classify_bash(verify, self.root).level != "low":
                 return _error("invalid_verify", "verify 必须是只读命令（分类为 low）。")
-        shell = _git_bash()
-        if shell is None:
-            return _error("bash_not_found",
-                          "未找到 Git Bash；请安装 Git for Windows 或把 bash 加入 PATH。")
-        result = self._execute(command, timeout_seconds, shell)
+        # GOV-001-S7：有沙箱后端走容器（fail-closed，不回落宿主）；否则宿主 bash。
+        if self._backend is not None:
+            result = self._backend.execute(command, timeout_seconds)
+        else:
+            shell = _git_bash()
+            if shell is None:
+                return _error("bash_not_found",
+                              "未找到 Git Bash；请安装 Git for Windows 或把 bash 加入 PATH。")
+            result = self._execute(command, timeout_seconds, shell)
         # 主命令成功（退出码 0）后才跑验证；验证失败不推翻主命令结果，只如实报告。
         if verify is not None and result.get("ok") and result.get("exit_code") == 0:
-            verified = self._execute(verify, timeout_seconds, shell)
+            if self._backend is not None:
+                verified = self._backend.execute(verify, timeout_seconds)
+            else:
+                verified = self._execute(verify, timeout_seconds, shell)
             vstdout, _ = _cap_utf8(verified.get("stdout", ""), MAX_VERIFY_OUTPUT_BYTES)
             result["verification"] = {
                 "command": verify,

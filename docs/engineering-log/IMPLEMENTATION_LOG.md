@@ -1743,3 +1743,17 @@
 - **实施偏差**：无。无 verify 时 bash 结果与旧版逐字段一致。
 - **副作用**：generic 提示词多一段 workspace_context（sidecar 成功时）；专用模式不变。
 - **未完成**：S7–S8。验证见 VALIDATION_LOG → GOV-001-S6。
+
+## GOV-001-S7 — Docker 沙箱最小接入（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S7`；把 bash 最小接入 Docker 沙箱（spike 参数 + 保护目录只读叠挂 + fail-closed）。
+- **实际修改**：
+  - 新增 `src/min_agent/tools/sandbox.py`：`DockerSandbox`（available 检查 docker+镜像、_build_args 硬化参数+保护目录叠挂、execute 每命令一容器+超时强删）。
+  - `src/min_agent/tools/generic.py`：`GenericWorkspace(backend=...)`；bash/verify 有后端走容器、否则宿主。
+  - `src/min_agent/application.py`：`sandbox_backend` 参数；generic workspace 传 backend。
+  - `src/min_agent/web/__main__.py`：`--sandbox docker`、`--sandbox-image`；建 DockerSandbox 传应用。
+  - 新增 `tests/unit/test_sandbox.py`（5）、`tests/integration/test_sandbox_docker.py`（3，Docker 不可用 skip）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S7 D1–D5。
+- **实施偏差**：无。默认 backend=None，宿主行为不变。
+- **副作用**：无 schema 变更；显式 --sandbox docker 才改变 bash 执行位置。
+- **未完成**：S8；真实容器集成 NOT RUN（本机 Docker 未运行）；正式镜像构建（网络阻塞）；文件工具 A/B、TOCTOU、dedicated workspace 推迟。验证见 VALIDATION_LOG → GOV-001-S7。

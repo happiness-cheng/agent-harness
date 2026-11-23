@@ -65,6 +65,11 @@ def main(argv=None):
         help="中风险审批用本地 Ollama 小模型名（默认 qwen3.5:4b）；不可用时中风险升级人工")
     parser.add_argument("--gate-model-url", default="http://127.0.0.1:11434",
         help="审批小模型的 Ollama loopback 地址")
+    parser.add_argument("--sandbox", default=None, choices=["docker"],
+        help="bash 执行后端；docker=每命令一容器（网络关闭、只读根、保护目录叠挂只读）。"
+             "不传=宿主实验模式。Docker/镜像不可用时 fail-closed，不回落宿主")
+    parser.add_argument("--sandbox-image", default="agent-harness-sandbox:spike",
+        help="沙箱镜像名（需自行构建；不自动拉取）")
     parser.add_argument("--mcp-config", type=Path, default=None,
         help="MCP 服务器配置 JSON；不提供时不启动任何 MCP 子进程")
     parser.add_argument("--adrian", action="store_true", help="真实Adrian本地试用：按需Memory、单实例、就绪后浏览器")
@@ -200,12 +205,17 @@ def main(argv=None):
                     timeout_seconds=10.0, max_requests=200, think=False))
             except (ValueError, TypeError):
                 gate_model = None
+        # GOV-001-S7：显式 --sandbox docker 才建容器后端；默认宿主实验模式。
+        sandbox_backend = None
+        if options.sandbox == "docker":
+            from min_agent.tools.sandbox import DockerSandbox
+            sandbox_backend = DockerSandbox(options.workspace_root, image=options.sandbox_image)
         harness = HarnessApplication(options.database,model=model,proxy=options.proxy,desktop=desktop,memory_mode=mode,
             model_catalog=catalog,workspace_root=options.workspace_root,mcp_servers=mcp_servers,
             enable_multi_agent=options.multi_agent,
             multi_agent_service_factory=multi_agent_service_factory,
             generic_tools=options.generic_tools,
-            gate_policy=gate_policy, gate_model=gate_model)
+            gate_policy=gate_policy, gate_model=gate_model, sandbox_backend=sandbox_backend)
         run(harness,identity,open_browser=options.adrian and not options.no_browser)
     finally:
         lease.__exit__(None,None,None)

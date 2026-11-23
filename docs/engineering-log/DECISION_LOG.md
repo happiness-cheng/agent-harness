@@ -926,3 +926,11 @@
 2. **D2 重构 bash 抽出 _execute，行为不变**：把子进程执行抽成 `_execute(command,timeout,shell)→dict`，bash 主命令与 verify 复用；默认无 verify 时结果与旧版逐字段一致。write/edit 的 sha256 回执本就是验证条件，不另加。
 3. **D3 上下文 sidecar 并行只读、带来源、可降级**：新增 `context/sidecar.py`，run 启动起后台线程采集顶层文件索引（截断 200，跳过 .git/.venv 等）+ `git status --short`（截断 4KiB、2s 超时）；构建提示词时短超时（2s）取结果，注入 `workspace_context` 段标 `source=sidecar`+采集时间，trace 记独立 span（tool_name=context_sidecar）；失败/超时省略该段、不影响主循环。替代方案「同步采集」被否：会阻塞 run 启动；「sidecar 可写」被否：只读背景参考，不能扩权。
 4. **不保证**：sidecar 是背景参考不是指令，模型不能据此扩任务范围；文件索引截断不保证完整；git 非仓库时为空；verify 是只读检查，不证明语义正确。
+
+## GOV-001-S7 — Docker 沙箱最小接入（2026-11-24）
+
+1. **D1 复用 spike 已验证参数，不追求边角**：新增 `tools/sandbox.py` `DockerSandbox`，每命令一容器，参数照 spike：`--network none --cap-drop ALL --security-opt no-new-privileges --read-only --tmpfs /tmp --memory 1g --cpus 1 --pids-limit 256 --user 1000:1000`，容器内 `timeout -k 2` + 宿主侧超时兜底强删。替代方案「long-lived 容器」被否：进程树清理/边角是推迟项；「自研隔离」被否：Docker 已有 spike 证据。
+2. **D2 保护目录只读叠挂（阻断 2 最小防线）**：工作区 rw 挂 /workspace；`src/scripts/tests/eval/.git` 存在则叠挂 :ro，防容器 bash 改门禁/评测代码。替代方案「整仓只读」被否：工作区要可写；「denylist」被否：不是边界。
+3. **D3 fail-closed，不回落宿主**：Docker 守护进程或镜像不可用 → `sandbox_unavailable`，**不悄悄回落宿主 bash**。默认仍宿主实验模式，只有显式 `--sandbox docker` 才走容器。镜像需用户自行构建（`--sandbox-image`，默认 agent-harness-sandbox:spike），不自动拉取（正式构建曾被 Docker Hub 网络阻塞）。
+4. **D4 分级/禁令仍在沙箱之前**：gate.check + _blocked_command + cleared_commands 都在 backend.execute 之前；沙箱只是执行后端，不替代分级。verify 也走同一后端。
+5. **不保证**：文件工具仍宿主执行（A/B 未决），与容器共享 bind mount 的 TOCTOU 推迟；只读叠挂防改门禁代码，不防容器读工作区内私有材料（dedicated workspace 另案）；本机 Docker 当前未运行，真实容器集成测试 NOT RUN（spike 曾验证参数）。

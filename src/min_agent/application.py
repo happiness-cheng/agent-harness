@@ -106,7 +106,7 @@ class HarnessApplication:
                  public_goals_enabled=False, research_observation_enabled=False,
                  enable_multi_agent=False, multi_agent_service_factory=None, model_catalog=None,
                  workspace_root=None, mcp_servers=None, generic_tools=False,
-                 gate_policy="off", gate_model=None):
+                 gate_policy="off", gate_model=None, sandbox_backend=None):
         if memory_strategy not in {'NONE','RECENCY','FREQUENCY','GOAL_VALUE'}:
             raise ValueError('无效Memory策略')
         if type(memory_budget) is not int or memory_budget<0: raise ValueError('无效Memory预算')
@@ -179,6 +179,8 @@ class HarnessApplication:
             raise ValueError("执行前分级门目前只支持 generic 四工具模式")
         self.gate_policy = gate_policy
         self.gate_model = gate_model
+        # GOV-001-S7：可选 bash 沙箱后端（DockerSandbox）；None=宿主实验模式。
+        self.sandbox_backend = sandbox_backend
         # MCP-001：服务器配置只来自可信 host；默认不配置、不启动任何子进程。
         if mcp_servers is None:
             servers = ()
@@ -628,7 +630,7 @@ class HarnessApplication:
             from min_agent.tools.generic import GenericWorkspace, build_ask_user_tool, generic_tools
             # GOV-001-S4：generic 用单层契约 {ok,error_code,message,data}。
             registry = ToolRegistry(sessions=self.sessions, context=context, envelope="flat")
-            workspace = GenericWorkspace(self.workspace_root)
+            workspace = GenericWorkspace(self.workspace_root, backend=self.sandbox_backend)
             for tool in generic_tools(self.workspace_root, workspace=workspace):
                 registry.register(tool)
             # GOV-001-S5：第 5 个工具 ask_user（提问暂停，无副作用）。

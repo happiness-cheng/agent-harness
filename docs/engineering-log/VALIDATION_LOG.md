@@ -2111,3 +2111,15 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 
 - **关键行为证据**：`test_verify_failure_reported_not_overriding_main` 证明主命令 ok=True 时 verify 失败只标 passed=False；`test_verify_must_be_readonly` 证明 rm 作 verify 被 invalid_verify 拒。
 - **边界**：sidecar 是只读背景参考不是指令；文件索引截断；git 非仓库为空；verify 不证明语义正确。无 verify 时 bash 结果与旧版逐字段一致。
+
+## GOV-001-S7 — Docker 沙箱最小接入验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 沙箱单元 | `pytest tests/unit/test_sandbox.py` | **5 passed**（_build_args 硬化参数+保护目录只读叠挂；docker 缺失/镜像缺失 fail-closed；bash 路由后端；后端不可用不回落宿主） |
+| 真实容器集成 | `pytest tests/integration/test_sandbox_docker.py` | **3 skipped（NOT RUN）**：本机 Docker 守护进程未运行；工作区 rw/门禁只读/网络关闭待 Docker 启动后复验 |
+| generic 回归 | `pytest test_generic_tools test_generic_mode` | 通过 |
+| 全量（终版） | `pytest -q --junitxml=...` | **1918 passed / 5 skipped / 8 deselected / 0 failed / 154.03s（exit 0）** |
+
+- **spike 既有证据**（S1 恢复的 scripts/spike_docker_sandbox.py，Docker 29.8.1 曾跑）：网络关闭、容器 env 无凭据、超时无残留、仓库 .env/data 不可见——参数层面已验证；产品 DockerSandbox 复用同参数。
+- **边界**：真实容器集成 NOT RUN（Docker  down）；文件工具仍宿主、TOCTOU 推迟；只读叠挂防改门禁不防读私有材料；正式镜像构建被网络阻塞。5 个 skip = 2 平台（8.3/FIFO）+ 3 Docker。
