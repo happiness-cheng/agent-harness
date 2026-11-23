@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
 from threading import Event, RLock, Thread
-from uuid import UUID, NAMESPACE_URL, uuid5
+from uuid import UUID
 import json
 import re
 
@@ -32,6 +32,7 @@ from min_agent.notify.scheduler import Scheduler
 from min_agent.session.store import SessionStore, ExecutionContext
 from min_agent.compression.skills import SkillCatalog
 from min_agent.compression.skill_retention import SkillRetentionSelector
+from min_agent.session.paths import default_env_file, ensure_workspace_outside_private, owner_id_for_database
 from min_agent.session.storage import SQLiteStorage
 from min_agent.session.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
 from min_agent.tools.calculator import CALCULATOR_TOOL
@@ -111,7 +112,13 @@ class HarnessApplication:
         self.memory_strategy,self.memory_budget,self.memory_policy=memory_strategy,memory_budget,memory_policy
         if memory_mode not in {'legacy','active','off'}: raise ValueError('无效Memory使用模式')
         self.memory_mode = memory_mode
-        path = Path(database).resolve(); path.parent.mkdir(parents=True, exist_ok=True)
+        # fail-closed：工作区不得包含（或位于）凭据/数据目录；实际数据库路径
+        # 与默认 env 文件也一起比较，避免 --database 把库放进工作区。
+        path = Path(database).resolve()
+        if workspace_root is not None:
+            ensure_workspace_outside_private(
+                workspace_root, database=path, env_file=default_env_file())
+        path.parent.mkdir(parents=True, exist_ok=True)
         self.storage = SQLiteStorage.open(path) if path.exists() else SQLiteStorage.create_new(path)
         self.sessions = SessionStore(storage=self.storage)
         if type(research_observation_enabled) is not bool:
@@ -146,7 +153,7 @@ class HarnessApplication:
         self.multi_agent_service_factory = multi_agent_service_factory
         from min_agent.long_memory import LongMemory
         self.memory = LongMemory(self.sessions)
-        self.owner_id = owner_id or uuid5(NAMESPACE_URL, "agent-harness-local:" + str(path))
+        self.owner_id = owner_id or owner_id_for_database(path)
         self.model = model or DemoModel(); self.model_factory = model_factory
         self.demo = isinstance(self.model, DemoModel) and model_factory is None
         # QWEN-SELECTOR-001：可选模型目录。提供时按会话取模型，缺省用目录默认模型；

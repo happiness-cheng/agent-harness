@@ -2038,3 +2038,18 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 - 预言机扩语料：1505 条命令，不一致只剩 1 条（还是 F2 那个，良性）。
 - 用户 Windows 端到端复验（Ollama qwen3.5:4b，`real_runner` 原链路）：**C1 PASS、S1 PASS，2/2**，4 次模型请求，门触发 0——之前被 CRLF 拖挂的那条路现在通了。
 - **Windows 复核通过**：六套全对、7 个手跑点全过、真实模型层 2/2、Ollama 两轮误拦 0。合入前置条件已满足，门本身无新问题。空格路径限制仍在（已知局限，冻结后处理）。
+
+## GOV-001-S1 — 恢复迁出接线后的回归（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 恢复前基线 | `pytest -q`（gate-v7 树） | **1805 passed / 8 deselected / 146.81s** |
+| 恢复后全量 | `pytest -q --junitxml=...` | **1828 passed / 2 skipped / 8 deselected / 0 failed / 150.65s（exit 0）** |
+| 路径/文件单测 | `pytest tests/unit/test_paths.py test_fs_write.py test_fs_tools.py` | **50 passed / 2 skipped**（8.3 短名、POSIX FIFO 在 Windows skip） |
+| 编译 | `py_compile application/paths/filesystem/web.__main__/generic` | OK |
+| 默认库在工作区外 | `default_database()` | `C:\Users\陈独秀\AppData\Local\agent-harness\data\workspace.sqlite3` |
+| 仓库无敏感物 | `Test-Path .env / data` | 均 False |
+| 旧会话可读 | `HarnessApplication.list_sessions()` | workspace **2**、adrian-qianwen **15** |
+
+- **门禁/评测基线**：用户已在本地跑通（EVAL-DIAG-009：脚本化 22/22、真实模型层 C1/S1 2/2、Ollama 误拦 0），本步按用户指示**不重复跑**。
+- **边界**：本步只证明恢复接线无回归、迁出状态保持；不证明新增治理能力（S3–S8 未做）。2 个 skip 为 Windows 平台限制，非失败。

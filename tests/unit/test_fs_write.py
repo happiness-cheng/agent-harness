@@ -2,6 +2,8 @@
 
 import json
 import hashlib
+import os
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -133,7 +135,7 @@ def test_write_failure_keeps_original_file(workspace, monkeypatch):
     result = payload(FileSandbox(workspace).write_text(
         "notes.md", "不该落盘", expected_sha256=sha("第一行\n第二行\n")))
 
-    assert result["error"]["code"] == "write_failed"
+    assert result["error"]["code"] == "io_error"
     assert (workspace / "notes.md").read_bytes() == "第一行\n第二行\n".encode()
 
 
@@ -173,3 +175,154 @@ def test_edit_refuses_sensitive_and_missing(workspace):
         "error"]["code"] == "sensitive_path"
     assert payload(sandbox.edit_text("none.txt", "a", "b", expected_sha256="0" * 64))[
         "error"]["code"] == "not_found"
+
+
+def test_write_unreadable_reparse_point_is_refused_not_crash(workspace, monkeypatch):
+    original = Path.exists
+
+    def exists(self):
+        if self.name == "opaque.txt":
+            raise OSError(None, "cannot access the file", None, 1920)
+        return original(self)
+
+    monkeypatch.setattr(Path, "exists", exists)
+
+    result = payload(FileSandbox(workspace).write_text("opaque.txt", "x"))
+
+    assert result["ok"] is False
+    assert result["error"]["code"] == "invalid_path"
+    assert not os.path.exists(workspace / "opaque.txt")
+
+
+def test_edit_unreadable_reparse_point_is_refused_not_crash(workspace, monkeypatch):
+    (workspace / "opaque.txt").write_text("before", encoding="utf-8")
+    original = Path.exists
+
+    def exists(self):
+        if self.name == "opaque.txt":
+            raise OSError(None, "cannot access the file", None, 1920)
+        return original(self)
+
+    monkeypatch.setattr(Path, "exists", exists)
+
+    result = payload(FileSandbox(workspace).edit_text(
+        "opaque.txt", "before", "after", require_version=False))
+
+    assert result["ok"] is False
+    assert result["error"]["code"] == "invalid_path"
+    assert (workspace / "opaque.txt").read_bytes() == b"before"
+
+
+def test_permission_error_is_not_reported_as_invalid_path(workspace, monkeypatch):
+    original = Path.exists
+
+    def exists(self):
+        if self.name == "blocked.txt":
+            raise PermissionError(13, "access denied")
+        return original(self)
+
+    monkeypatch.setattr(Path, "exists", exists)
+
+    result = payload(FileSandbox(workspace).read_text("blocked.txt"))
+
+    assert result["ok"] is False
+    assert result["error"]["code"] == "permission_denied"
+
+
+def test_disk_full_is_io_error_not_invalid_path(workspace, monkeypatch):
+    original = Path.exists
+
+    def exists(self):
+        if self.name == "full.txt":
+            raise OSError(28, "No space left on device")
+        return original(self)
+
+    monkeypatch.setattr(Path, "exists", exists)
+
+    result = payload(FileSandbox(workspace).write_text("full.txt", "x"))
+
+    assert result["ok"] is False
+    assert result["error"]["code"] == "io_error"
+    assert result["error"]["errno"] == 28
+
+
+def test_sharing_violation_is_io_error_not_invalid_path(workspace, monkeypatch):
+    original = Path.exists
+
+    def exists(self):
+        if self.name == "busy.txt":
+            raise OSError(None, "file is in use", None, 32)
+        return original(self)
+
+    monkeypatch.setattr(Path, "exists", exists)
+
+    result = payload(FileSandbox(workspace).write_text("busy.txt", "x"))
+
+    assert result["ok"] is False
+    assert result["error"]["code"] == "io_error"
+    assert result["error"]["winerror"] == 32
+
+
+def test_write_succeeds_when_post_write_stat_fails(workspace, monkeypatch):
+    import min_agent.tools.filesystem as filesystem_module
+
+    original_atomic = filesystem_module._atomic_write
+    wrote = {"done": False}
+
+    def atomic(target, data):
+        original_atomic(target, data)
+        wrote["done"] = True
+
+    original_stat = Path.stat
+
+    def stat(self, *args, **kwargs):
+        if wrote["done"] and self.name == "no-stat.txt":
+            raise OSError(5, "I/O error")
+        return original_stat(self, *args, **kwargs)
+
+    monkeypatch.setattr(filesystem_module, "_atomic_write", atomic)
+    monkeypatch.setattr(Path, "stat", stat)
+
+    result = payload(FileSandbox(workspace).write_text("no-stat.txt", "x"))
+
+    assert result["ok"] is True
+    assert result["mtime_ns"] is None
+    assert (workspace / "no-stat.txt").read_bytes() == b"x"
+
+
+def test_write_refuses_non_regular_file(workspace, monkeypatch):
+    sandbox = FileSandbox(workspace)
+    monkeypatch.setattr(sandbox, "_probe", lambda target: (True, False, False, None))
+
+    result = payload(sandbox.write_text("special", "x"))
+
+    assert result["ok"] is False
+    assert result["error"]["code"] == "not_regular_file"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="FIFO 依赖 POSIX")
+def test_write_and_edit_refuse_fifo_without_blocking(workspace):
+    fifo = workspace / "pipe"
+    os.mkfifo(fifo)
+
+    written = payload(FileSandbox(workspace).write_text("pipe", "x"))
+    edited = payload(FileSandbox(workspace).edit_text("pipe", "x", "y", require_version=False))
+
+    assert written["error"]["code"] == "not_regular_file"
+    assert edited["error"]["code"] == "not_regular_file"
+
+
+def test_atomic_write_cleans_temp_and_maps_busy_replace(workspace, monkeypatch):
+    import min_agent.tools.filesystem as filesystem_module
+
+    def busy_replace(source, target):
+        raise PermissionError(None, "file is in use", None, 32)
+
+    monkeypatch.setattr(filesystem_module.os, "replace", busy_replace)
+
+    result = payload(FileSandbox(workspace).write_text("busy-target.txt", "x"))
+
+    assert result["ok"] is False
+    assert result["error"]["code"] == "io_error"
+    assert result["error"]["winerror"] == 32
+    assert not list(workspace.glob(".dsh-write-*"))

@@ -7,13 +7,15 @@ param(
     [ValidateSet("ollama", "live", "demo")]
     [string]$Mode = "ollama",
     [int]$Port = 8765,
-    [string]$Database = "data/interview-demo.sqlite3",
+    [string]$Database = $(if ($env:LOCALAPPDATA) { Join-Path $env:LOCALAPPDATA 'agent-harness\data\interview-demo.sqlite3' } else { Join-Path $HOME 'AppData\Local\agent-harness\data\interview-demo.sqlite3' }),
     [string]$OllamaModel = "qwen3.5:4b",
     [string]$CredentialsFile = "$env:USERPROFILE\agent-harness-credentials.json"
 )
 
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
+$dataHome = Split-Path -Parent $Database
+New-Item -ItemType Directory -Force -Path $dataHome | Out-Null
 $python = Join-Path $root ".venv\Scripts\python.exe"
 if (-not (Test-Path $python)) { throw "找不到虚拟环境：$python（先在项目根目录创建 .venv 并安装依赖）" }
 
@@ -39,7 +41,7 @@ if (Test-Port $Port) {
 }
 
 # 数据库已有锁：说明后台在跑但端口不同，先让用户处理，避免两个进程写同一个库。
-$lease = Join-Path $root "$Database.writer.lock"
+$lease = "$Database.writer.lock"
 if (Test-Path $lease) {
     $meta = Get-Content $lease -Raw -ErrorAction SilentlyContinue
     if ($meta -and $meta.Trim().Length -gt 0) {
@@ -64,9 +66,9 @@ switch ($Mode) {
     }
 }
 
-$out = Join-Path $root "data\interview-web-$Port.out.log"
-$err = Join-Path $root "data\interview-web-$Port.err.log"
-New-Item -ItemType Directory -Force -Path (Split-Path -Parent $out) | Out-Null
+$out = Join-Path $dataHome "interview-web-$Port.out.log"
+$err = Join-Path $dataHome "interview-web-$Port.err.log"
+New-Item -ItemType Directory -Force -Path $dataHome | Out-Null
 
 Write-Host "启动模式：$Mode；数据库：$Database；端口：$Port"
 $process = Start-Process -FilePath $python -ArgumentList $arguments -WorkingDirectory $root `

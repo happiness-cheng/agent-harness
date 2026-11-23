@@ -1656,3 +1656,17 @@
 - **实施偏差**：无。AGENTS.md 一行修正例外适用：只给路径与变更摘要；代码片段附短讲解（见给用户的回复）。
 - **副作用**：未提交/推送（用户未授权合入）。门代码 v7 不变。
 - **未完成**：用户决定是否合入（Windows 复核已通过，合入条件已齐）；合入后删不删 review/20261120-wiring-fix 远端分支、D1/D2 仍待用户确认（与本轮无关，另案）。
+
+## GOV-001-S1 — 恢复私有路径迁出接线（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S1`；治理链落地第一步。把孤儿提交 `9c74d94` 的私有路径迁出接线干净重放回当前树（`76bff54`，gate-v7 + 评测），保住门禁，恢复「`.env`/数据在工作区外」的既定状态。
+- **基线**：分支 `gov-001`（从 `main`=`76bff54` 开）；恢复前全量 **1805 passed / 8 deselected**（gate-v7 树，无迁出测试）。
+- **实际修改（按文件 checkout 自 `9c74d94`，排除 `generic.py`）**：
+  - 新增 `src/min_agent/session/paths.py`、`scripts/migrate_owner_20261123.py`、`scripts/spike_docker_sandbox.py`、`tests/unit/test_paths.py`；
+  - 恢复 `src/min_agent/application.py`（建库前 `ensure_workspace_outside_private`、`owner_id_for_database`）、`src/min_agent/web/__main__.py`（默认库 `default_database()`、CLI 守卫、新库提示）、`src/min_agent/tools/filesystem.py`（`_probe`/错误分类/原子写）；
+  - 恢复 `scripts/start-pi.ps1`、`start-qianwen.ps1`、`start-interview-demo.ps1`、`ollama_live_acceptance.py` 的默认库到用户数据目录；
+  - 恢复 `tests/unit/test_fs_tools.py`、`test_fs_write.py` 的错误分类回归。
+- **方法**：先 `git diff --quiet 76bff54 f93a400 -- <file>` 逐文件确认与孤儿父版本一致（零冲突），再 `git checkout 9c74d94 -- <paths>`。决策见 DECISION_LOG → GOV-001-S1 D1–D3。
+- **实施偏差**：无。`generic.py` 未动（gate-v7 所有）。
+- **副作用**：磁盘 `.env`/数据库不重复迁移；旧会话仍可读（workspace 2、qianwen 15）；仓库内不建 `.env`/`data`。
+- **未完成**：S2–S8（Ollama/专用基线、分级、契约、ask_user、验证/sidecar、沙箱、事件）未开始。验证见 VALIDATION_LOG → GOV-001-S1。

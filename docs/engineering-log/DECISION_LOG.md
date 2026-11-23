@@ -877,3 +877,11 @@
 1. **问题**：v7 只修了脚本化层 `runner.py` 的 fixture 写文件（`newline="\n"`），真实模型层 `real_runner.py` 的两处 `write_text` 漏了——同一批代码、同一毛病。Windows 上真实模型层 C1 的判据 `"l2\nl3"` 因此假 FAIL（`test_real_smoke` 改前 1 failed）。用户（本地 agent）已在 Windows 上修好并验证，门没动（`generic.py` SHA256 不变）。
 2. **修法**：把用户那两行原样搬到云机拷贝（`real_runner.py` 两处 `write_text` 加 `newline="\n"`，含注释），不改门、不改判据。云机上这参数是恒等操作，验证靠用户 Windows 重跑已给出的结果。
 3. **Windows 复核结论（合入前置条件已满足）**：六套全对（22/22、11/13、10/11、14/14、4/6、2/2），7 个手跑点全过，真实模型层 C1/S1 端到端 2/2（Ollama qwen3.5:4b，门触发 0），Ollama 两轮共 3/4 + 2/2、误拦 0。门 v7 在 Windows 上无新问题。空格路径那条限制还在（门按空白切词，绝对路径带空格会被拦，引号也救不了）——已写进局限的“引号/空格路径”同类问题，不在这次范围内，留待冻结后处理。
+
+## GOV-001-S1 — 恢复私有路径迁出接线（2026-11-24，治理链落地第一步）
+
+1. **背景**：本地 `main` 被重置到远端 `76bff54`（gate-v7 + 可移植评测合入）。上一轮本地提交 `9c74d94`（私有路径迁出、启动守卫、文件错误分类、owner 迁移脚本）成为孤儿提交，不在当前树。当前 `web/__main__.py` 默认库回退到仓库内 `data/workspace.sqlite3`，一启动就会在仓库里重新建库，违反用户「`.env`/数据留在工作区外，别回退」的既定决定。
+2. **D1 用「按文件干净重放」恢复，而非盲目 cherry-pick**：先核对 `git diff 76bff54 f93a400 -- <file>`，确认当前树的 `application.py / web/__main__.py / filesystem.py / 三个 start 脚本 / ollama_live_acceptance.py / test_fs_*.py` 与孤儿提交的父版本 `f93a400` **逐字节一致**，且 gate-v7（`a95900b`）在 `src/` 只改了 `generic.py`。因此从 `9c74d94` 按文件 checkout 这些路径是零冲突重放。替代方案「整提交 cherry-pick」被否：会在 docs/三类日志与 gate-v7 追加条目冲突；「只改默认路径不恢复守卫」被否：会丢掉已批准的启动 fail-closed 与错误分类。
+3. **D2 不恢复 `generic.py`**：gate-v7 拥有该文件（512 行 bash 门），孤儿提交未碰它。恢复清单显式排除 `generic.py`，保住门禁。
+4. **D3 磁盘数据不重复迁移**：`.env`/数据库已在用户目录（`~/.agent-harness/.env`、`%LOCALAPPDATA%/agent-harness/data`），owner 已迁过；本步只恢复代码接线并验证旧会话仍可读，不重跑迁移、不动备份。
+5. **不保证**：本步只恢复既有接线，不新增治理能力；分级/契约/沙箱等在 S3–S8。门禁与评测基线用户已在本地跑通（EVAL-DIAG-009），本步不重复跑。

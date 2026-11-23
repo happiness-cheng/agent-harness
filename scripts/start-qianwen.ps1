@@ -2,13 +2,17 @@
 # 只用项目 venv 与项目外凭据文件；不读取系统代理，不需要命令行参数。
 param(
     [int]$Port = 8765,
-    [string]$Database = 'data/adrian-qianwen.sqlite3',
+    [string]$Database = $(if ($env:LOCALAPPDATA) { Join-Path $env:LOCALAPPDATA 'agent-harness\data\adrian-qianwen.sqlite3' } else { Join-Path $HOME 'AppData\Local\agent-harness\data\adrian-qianwen.sqlite3' }),
     [switch]$NoBrowser
 )
 
 $ErrorActionPreference = 'Stop'
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 Set-Location -LiteralPath $root
+$dataHome = Split-Path -Parent $Database
+if (-not (Test-Path -LiteralPath $dataHome)) {
+    New-Item -ItemType Directory -Path $dataHome -Force | Out-Null
+}
 $python = Join-Path $root '.venv\Scripts\python.exe'
 $url = "http://127.0.0.1:$Port/"
 

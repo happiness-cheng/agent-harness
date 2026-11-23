@@ -2,10 +2,12 @@
 
 import argparse
 import os
+import sys
 from pathlib import Path
 from threading import Event, Thread
 
 from min_agent.application import HarnessApplication
+from min_agent.session.paths import default_database, default_env_file, ensure_workspace_outside_private
 from min_agent.web.app import create_app
 
 
@@ -24,9 +26,18 @@ def _configuration_error(error):
     return str(error).strip() or "Ollama配置无效"
 
 
+def _database_notice(database) -> str | None:
+    """新库不静默：明确告诉用户路径与“旧会话不会自动出现”。"""
+    path = Path(database).expanduser()
+    if path.exists():
+        return None
+    return f"数据库不存在，将新建空库：{path.resolve()}；旧会话不会自动出现。"
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="本地Agent Harness工作台")
-    parser.add_argument("--database", default="data/workspace.sqlite3")
+    parser.add_argument("--database", default=str(default_database()),
+                        help="会话数据库；默认在用户数据目录（工作区之外）")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--live", action="store_true", help="允许将用户请求发送至指定DeepSeek官方API")
     parser.add_argument("--credentials-file", type=Path)
@@ -82,6 +93,16 @@ def main(argv=None):
     if options.generic_tools:
         print(f"通用四工具模式：read/write/edit/bash，工作区 {options.workspace_root}；"
               "不经过 Plan/Build 目标确认门，bash 不是沙箱。", flush=True)
+    if options.workspace_root is not None:
+        try:
+            ensure_workspace_outside_private(
+                options.workspace_root, database=options.database,
+                env_file=default_env_file(), credentials_file=options.credentials_file)
+        except ValueError as error:
+            parser.error(str(error))
+    notice = _database_notice(options.database)
+    if notice is not None:
+        print(notice, file=sys.stderr, flush=True)
     from min_agent.web.launcher import DatabaseLease, DatabaseInUse, LaunchError, identity_for, open_existing, port_available, wait_ready
     identity = identity_for(options.database,options.port,demo=not (options.live or options.ollama),memory_mode=mode)
     lease = DatabaseLease(options.database,identity)
