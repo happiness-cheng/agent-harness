@@ -11,7 +11,8 @@
 - **S3 完成（执行前分级门）**：新增 `tools/effects.py`（low/medium/high 分类，复用 gate-v7 解析器）+ `tools/gate.py`（`ToolGate` 规则→小模型→人，fail-closed+熔断；`GateConfirmations` 排队）。`Runtime(tool_gate)`→ToolBatch 执行前串行分级；拒绝写回 `gate_denied` 工具消息+trace+`gate_audit`（脱敏）。rm 族从硬拒改为 high→人工确认，批准后一次性放行。web 加 `/gate-confirm`；CLI generic 默认 interactive + Ollama 审批小模型。gate-v7 默认行为不变（`allow_destructive=False`、`gate_policy=off`）。新增测试 63 项（effects 44 + gate 16 + 集成 3）；全量 **1891 passed / 2 skipped / 8 deselected / 146.72s**。eval 不重复跑（用户指示）。详见三类日志 → GOV-001-S3。
 - **S4 完成（单层契约 + expected_sha256）**：`ToolRegistry(envelope="flat")` + `serialize`/`flatten_outcome`，generic 工具消息压成单层 `{ok,error_code,message,data}`，**以内层业务 ok 为准**（双层 ok 痛点已解）；execute 内部形状不变，ToolBatch/progress_guard 零改动，默认 nested 逐字节不变。write/edit 加可选 `expected_sha256`（不匹配→stale_version）。eval `_inner` 兼容两形、判据不改。generic.md 补契约说明。新增 12 项测试；全量 **1903 passed / 2 skipped / 8 deselected / 150.96s**。详见三类日志 → GOV-001-S4。
 - **S5 完成（ask_user）**：generic 工具面 4→5，新增 `ask_user(question, options?)`：记 `pending_question` → `AuthorizationRequired("waiting_user")` 停批，snapshot surfaced，用户用既有 `/resume`（带 task_id）回答续跑，新一轮清 question。无副作用、不走分级。新增 3 项集成测试；全量 **1906 passed / 2 skipped / 8 deselected / 149.22s**。详见三类日志 → GOV-001-S5。
-- **S6–S8 未开始**：执行后验证+上下文 sidecar、Docker 沙箱最小接入、事件触发。
+- **S6 完成（执行后验证 + 上下文 sidecar）**：bash 加可选只读 `verify`（先校验 low、主命令退出 0 后跑、`verification.passed` 如实报告不推翻主命令）；bash 重构抽出 `_execute`（无 verify 时逐字段不变）。新增 `context/sidecar.py`：generic 模式后台线程只读采集文件索引+git status，注入带 `source=sidecar` 的 workspace_context 段 + trace span，失败/超时降级省略。新增 7 项测试；全量 **1913 passed / 2 skipped / 8 deselected / 148.85s**。详见三类日志 → GOV-001-S6。
+- **S7–S8 未开始**：Docker 沙箱最小接入、事件触发。
 
 ## 2026-11-22 GENERIC-TOOLS-001 通用四工具模式（PARTIAL / 实验入口）
 

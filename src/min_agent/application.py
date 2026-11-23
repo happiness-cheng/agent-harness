@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
 from threading import Event, RLock, Thread
-from uuid import UUID
+from uuid import UUID, uuid4
 import json
 import re
 
@@ -807,11 +807,30 @@ class HarnessApplication:
                 # GENERIC-TOOLS-001：四工具模式没有 read_skill，也不挂 MCP，
                 # 因此系统提示只保留通用工具说明与工作区根。
                 from min_agent.context.system_prompt import SystemPrompt
+                # GOV-001-S6：generic 模式起上下文 sidecar，并行只读采集工作区概况。
+                sidecar = None
+                if self.generic_tools:
+                    from min_agent.context.sidecar import ContextSidecar
+                    sidecar = ContextSidecar(self.workspace_root)
+                    sidecar.start()
                 base = self._base_prompt()
                 if self.generic_tools:
                     sections: list = []
                     prompt_sections = {"generic": {
                         "sha256": sha256(base.encode("utf-8")).hexdigest()}}
+                    # 取 sidecar 结果（短超时）；成功则注入带来源的段并记 trace span，
+                    # 失败/超时省略该段，不影响主循环。
+                    with trace.span("tool", run_id=uuid4(), context=TraceContext(
+                            session_id=context.session_id), tool_name="context_sidecar") as sc_span:
+                        section = sidecar.section() if sidecar is not None else None
+                        if section is not None:
+                            sections.append(lambda: section)
+                            prompt_sections["workspace_context"] = {
+                                "source": "sidecar",
+                                "sha256": sha256(section.encode("utf-8")).hexdigest()}
+                            sc_span.finish("completed", execution_state="returned")
+                        else:
+                            sc_span.finish("partial", "context_limit", "not_started")
                 else:
                     skill_catalog = SkillCatalog(Path(__file__).parent / "skills")
                     sections = [skill_catalog.prompt_section]

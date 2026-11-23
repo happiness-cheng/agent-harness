@@ -2100,3 +2100,14 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 | 全量（终版） | `pytest -q --junitxml=...` | **1906 passed / 2 skipped / 8 deselected / 0 failed / 149.22s（exit 0）** |
 
 - **边界**：ask_user 不做答案语义校验；options 仅候选提示；超时沿用 waiting_user 既有语义（未新增 TTL）。专用模式工具面不变。
+
+## GOV-001-S6 — 执行后验证 + 上下文 sidecar 验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 验证/sidecar | `pytest tests/unit/test_verification_sidecar.py` | **7 passed**（只读 verify 通过；verify 失败如实报告不推翻主命令；非只读 verify 拒绝；主命令非 0 跳过 verify；无 verify 无字段；sidecar 带 source+索引；失败降级 None） |
+| generic + gate + ask 回归 | `pytest test_generic_tools test_generic_mode test_gate_integration test_ask_user` | 通过 |
+| 全量（终版） | `pytest -q --junitxml=...` | **1913 passed / 2 skipped / 8 deselected / 0 failed / 148.85s（exit 0）** |
+
+- **关键行为证据**：`test_verify_failure_reported_not_overriding_main` 证明主命令 ok=True 时 verify 失败只标 passed=False；`test_verify_must_be_readonly` 证明 rm 作 verify 被 invalid_verify 拒。
+- **边界**：sidecar 是只读背景参考不是指令；文件索引截断；git 非仓库为空；verify 不证明语义正确。无 verify 时 bash 结果与旧版逐字段一致。

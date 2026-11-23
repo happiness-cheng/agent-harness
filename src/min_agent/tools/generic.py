@@ -79,6 +79,14 @@ class BashArguments(BaseModel):
     timeout_seconds: float = Field(default=DEFAULT_TIMEOUT_SECONDS, ge=1,
                                    le=MAX_TIMEOUT_SECONDS,
                                    description="超时秒数，1–600，默认 120。")
+    verify: str | None = Field(
+        default=None, max_length=MAX_COMMAND_CHARS,
+        description="可选：执行前写下的只读验证命令（如 test -f out.txt、grep ...）。"
+                    "主命令退出码 0 后才跑；必须是只读（分类为 low），否则拒绝。"
+                    "结果里 verification.passed 如实报告，不推翻主命令结果。")
+
+
+MAX_VERIFY_OUTPUT_BYTES = 4096
 
 
 def _ok(**payload: object) -> str:
@@ -712,7 +720,8 @@ class GenericWorkspace:
         return self.sandbox.edit_text(path, old_text, new_text,
                                       expected_sha256=expected_sha256, require_version=False)
 
-    def bash(self, command: str, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS) -> str:
+    def bash(self, command: str, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+             verify: str | None = None) -> str:
         if "\x00" in command:
             return _error("invalid_command", "命令包含 NUL 字符。")
         # 最小安全门：起进程前拦，不改写、不猜原意（见 _blocked_command）。
@@ -722,10 +731,30 @@ class GenericWorkspace:
         blocked = _blocked_command(command, self.root, allow_destructive=allow_destructive)
         if blocked is not None:
             return _error("blocked_command", blocked)
+        # GOV-001-S6：验证命令必须先于主命令校验为只读（low），否则拒绝该参数。
+        if verify is not None:
+            from min_agent.tools.effects import classify_bash
+            if classify_bash(verify, self.root).level != "low":
+                return _error("invalid_verify", "verify 必须是只读命令（分类为 low）。")
         shell = _git_bash()
         if shell is None:
             return _error("bash_not_found",
                           "未找到 Git Bash；请安装 Git for Windows 或把 bash 加入 PATH。")
+        result = self._execute(command, timeout_seconds, shell)
+        # 主命令成功（退出码 0）后才跑验证；验证失败不推翻主命令结果，只如实报告。
+        if verify is not None and result.get("ok") and result.get("exit_code") == 0:
+            verified = self._execute(verify, timeout_seconds, shell)
+            vstdout, _ = _cap_utf8(verified.get("stdout", ""), MAX_VERIFY_OUTPUT_BYTES)
+            result["verification"] = {
+                "command": verify,
+                "exit_code": verified.get("exit_code"),
+                "stdout": vstdout,
+                "passed": verified.get("ok") and verified.get("exit_code") == 0,
+            }
+        return json.dumps(result, ensure_ascii=False)
+
+    def _execute(self, command: str, timeout_seconds: float, shell: str) -> dict:
+        """起 bash 子进程跑一条命令，返回结果 dict（ok/exit_code/stdout/stderr 或 error）。"""
         started = time.perf_counter()
         options: dict = {
             "cwd": str(self.root),
@@ -745,7 +774,8 @@ class GenericWorkspace:
         try:
             process = subprocess.Popen([shell, "-c", command], **options)
         except OSError as error:
-            return _error("exec_failed", f"无法启动 bash：{error}")
+            return {"ok": False, "error": {"code": "exec_failed",
+                                           "message": f"无法启动 bash：{error}"}}
         try:
             stdout_bytes, stderr_bytes = process.communicate(timeout=timeout_seconds)
         except subprocess.TimeoutExpired:
@@ -756,20 +786,15 @@ class GenericWorkspace:
                 stdout_bytes, stderr_bytes = b"", b""
             stdout, _ = _cap_utf8(_decode(stdout_bytes), MAX_BASH_OUTPUT_BYTES)
             stderr, _ = _cap_utf8(_decode(stderr_bytes), MAX_BASH_OUTPUT_BYTES)
-            return _error(
-                "timeout", f"命令超过 {timeout_seconds:g} 秒，已终止。",
-                stdout=stdout, stderr=stderr,
-                duration_ms=int((time.perf_counter() - started) * 1000),
-            )
+            return {"ok": False, "error": {
+                "code": "timeout", "message": f"命令超过 {timeout_seconds:g} 秒，已终止。",
+                "stdout": stdout, "stderr": stderr,
+                "duration_ms": int((time.perf_counter() - started) * 1000)}}
         stdout, stdout_truncated = _cap_utf8(_decode(stdout_bytes), MAX_BASH_OUTPUT_BYTES)
         stderr, stderr_truncated = _cap_utf8(_decode(stderr_bytes), MAX_BASH_OUTPUT_BYTES)
-        return _ok(
-            exit_code=process.returncode,
-            stdout=stdout,
-            stderr=stderr,
-            truncated=stdout_truncated or stderr_truncated,
-            duration_ms=int((time.perf_counter() - started) * 1000),
-        )
+        return {"ok": True, "exit_code": process.returncode, "stdout": stdout, "stderr": stderr,
+                "truncated": stdout_truncated or stderr_truncated,
+                "duration_ms": int((time.perf_counter() - started) * 1000)}
 
 
 def _kill_tree(process: subprocess.Popen) -> None:

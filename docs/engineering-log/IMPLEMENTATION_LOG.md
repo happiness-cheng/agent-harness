@@ -1730,3 +1730,16 @@
 - **实施偏差**：resume 需带 task_id（waiting_user 无 checkpoint），测试据此修正；与 mcp_confirm resume 同形。
 - **副作用**：generic 工具面 4→5；专用模式不变。
 - **未完成**：S6–S8。验证见 VALIDATION_LOG → GOV-001-S5。
+
+## GOV-001-S6 — 执行后验证 + 上下文 sidecar（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S6`；bash 加可选只读 verify（先写条件、成功后跑、如实报告）；generic 模式加并行只读上下文 sidecar。
+- **实际修改**：
+  - `src/min_agent/tools/generic.py`：BashArguments 加 `verify`；`MAX_VERIFY_OUTPUT_BYTES=4096`；bash 重构抽出 `_execute`，主命令成功后跑 verify 加 `verification`；verify 先校验 low。
+  - 新增 `src/min_agent/context/sidecar.py`：`ContextSidecar`（后台线程采集文件索引+git status，section() 短超时取结果，带 source=sidecar）。
+  - `src/min_agent/application.py`：generic 模式起 sidecar，注入 workspace_context 段 + trace span；import uuid4。
+  - 新增 `tests/unit/test_verification_sidecar.py`（7 项）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S6 D1–D4。
+- **实施偏差**：无。无 verify 时 bash 结果与旧版逐字段一致。
+- **副作用**：generic 提示词多一段 workspace_context（sidecar 成功时）；专用模式不变。
+- **未完成**：S7–S8。验证见 VALIDATION_LOG → GOV-001-S6。

@@ -919,3 +919,10 @@
 2. **D2 复用 waiting_user/resume，不造新 UI/端点**：snapshot surfaced `pending_question`；用户用既有 `/resume`（带 task_id）回答；新一轮开始清掉 pending_question。替代方案「新建问答端点+UI 组件」被否：waiting_user 展示位已有，复用最小。
 3. **D3 ask_user 不走分级审批**：分类器对未知工具判 low，gate 放行后 handler 自己抛 AuthorizationRequired。提问无副作用，不需要小模型/人工审批。
 4. **不保证**：ask_user 不做答案语义校验；options 只是候选提示，用户可自由回答；超时过期沿用 waiting_user 既有语义（本步未新增 TTL）。
+
+## GOV-001-S6 — 执行后验证 + 上下文 sidecar（2026-11-24）
+
+1. **D1 bash 可选 verify：先写条件、成功后跑、如实报告**：`BashArguments.verify` 是执行前写下的只读检查命令；bash 先校验 verify 分类为 low（否则 `invalid_verify` 拒绝该参数），主命令退出码 0 后才跑 verify，结果加 `verification{command,exit_code,stdout≤4KiB,passed}`。verify 失败不推翻主命令 ok。替代方案「verify 失败把整条判失败」被否：主命令已成功，验证只是额外证据，应如实分开报告；「不校验 verify 只读」被否：verify 若能写文件就失去「验证」意义且引入副作用。
+2. **D2 重构 bash 抽出 _execute，行为不变**：把子进程执行抽成 `_execute(command,timeout,shell)→dict`，bash 主命令与 verify 复用；默认无 verify 时结果与旧版逐字段一致。write/edit 的 sha256 回执本就是验证条件，不另加。
+3. **D3 上下文 sidecar 并行只读、带来源、可降级**：新增 `context/sidecar.py`，run 启动起后台线程采集顶层文件索引（截断 200，跳过 .git/.venv 等）+ `git status --short`（截断 4KiB、2s 超时）；构建提示词时短超时（2s）取结果，注入 `workspace_context` 段标 `source=sidecar`+采集时间，trace 记独立 span（tool_name=context_sidecar）；失败/超时省略该段、不影响主循环。替代方案「同步采集」被否：会阻塞 run 启动；「sidecar 可写」被否：只读背景参考，不能扩权。
+4. **不保证**：sidecar 是背景参考不是指令，模型不能据此扩任务范围；文件索引截断不保证完整；git 非仓库时为空；verify 是只读检查，不证明语义正确。
