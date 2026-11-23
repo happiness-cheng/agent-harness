@@ -76,6 +76,512 @@ def _ok(**payload: object) -> str:
     return json.dumps({"ok": True, **payload}, ensure_ascii=False)
 
 
+# bash 最小安全门（GATE-MIN-001，2026-11-23；v4，2026-11-23，EVAL-DIAG-004）。
+# 只做字符串层面的检查：防误操作和直白注入，不防有意绕过
+#（比如 python -c "import os; os.remove(...)" 就绕过去了）。真隔离要沙箱，另议。
+# 拦住就返回错误，不改写、不猜原意。
+# v2（EVAL-DIAG-002）：按解析后的真实路径判（工作区内绝对路径放行，~ 展开）；
+# 引号感知切段；凭据名检查跳过引号里的串。
+# v3（EVAL-DIAG-003，Claude 第三轮审批）：切段按 shell 语义 fail-closed——
+# 反斜杠转义、单引号里什么都不执行、双引号里 $(...) 和反引号仍执行；
+# 引号没闭合就整条拦掉。另：& 也切段；sudo/env/xargs 这类包壳命令看包壳后
+# 的第一个实命令；路径检查先去掉 token 外层的引号和重定向符；/dev/null 放行；
+# Windows 上 Git Bash 风格的 /d/... 先转成 D:\... 再判；凭据名改显式列表。
+# v4（EVAL-DIAG-004，Claude 第四轮审批，修完冻结）：切段改栈式解析——
+# 单引号、双引号、$(...)、圆括号各占一层，$( 之后进入命令上下文（里面的
+# ; && | 会切段）；heredoc（<<定界符）正文整段跳过，不当命令解析；首词前
+# 跳过 do/then 等 shell 关键字；/dev/null 在解析路径前先判（Windows 上
+# 也生效）；find 的 -exec/-delete 当 rm 族；--opt=路径 拆出值再判；
+# $HOME 展开；重定向符先去再去引号（顺序反了会漏）；grep 族的模式不查
+# 凭据名；command -v 是查询不拦；.env.example/.env.sample 豁免。
+# 措辞改成“近似 shell 语义”——手写解析不是真解析器，见已知缺口。
+# v5（EVAL-DIAG-005，Claude 第五轮审批）：冻结分两类——新增 idiom 规则
+# 冻结，解析器和 shell 语法不一致的 bug 照修（fail-closed 会把它们变成
+# 整条被拦）。本轮 3 个照修：<<<（herestring）不再误认成 heredoc；
+# 词首的 # 到行尾是注释（注释里的撇号不当引号）；未加引号的 heredoc
+# （<<EOF）正文里的 $(...) 和反引号会被 shell 执行，只查这些展开
+# （加引号的 <<'EOF' 是纯文字，仍整段跳过）。
+# v6（EVAL-DIAG-006，Claude 第六轮审批，维持冻结）：2 个照修——未加引号
+# heredoc 的正文整段攒起来再扫展开（多行 $(...) 也能跨行配对），展开没
+# 闭合按解析失败处理（整条拦）；<<\EOF 反斜杠引用定界符，去掉反斜杠、
+# 标成“已引用”。预言机扩语料后又找到 1 个照修：引号包着的命令名
+# （"rm"）——shell 执行前会去掉命令词上的引号，命令词比较前先归一化
+# （_cmd_word），包壳后和 find -exec 后的命令词同样归一化。
+# v7（EVAL-DIAG-007，Windows 本机复核跟进，维持冻结）：3 个照修——
+# _resolve 用 realpath 展开 8.3 短名（B11；同时跟符号链接，更安全）；
+# 路径检查跳过 <<* heredoc 操作符 token（G2：<<\EOF 去掉 << 剩 \EOF，
+# Windows 上是盘根绝对路径）；D10 移出脚本化 D 集改手跑（脚本层在两平台
+# 都过不了，改由 windows-check 手跑点 2 验证）。
+# 已知缺口（v5 仍在，写死在测试里）：cat ".env" 这种引号包着的凭据名会漏过
+# （read 工具那层还会拦 .env）；符号链接解析后的路径不跟；git clean /
+# reset --hard / `> file` 截断不算门要拦的（见 DECISION_LOG → EVAL-DIAG-003，
+# 该执行前审批那一档拦——那一档目前还不存在，这三类现在完全无门）；
+# sudo -u root rm / xargs sh -c 这类包壳后带参数的仍会漏过；find -name 的
+# 值（模式）不查凭据名；反引号里嵌套引号仍按旧法切段。
+# 只写进局限、不改代码（EVAL-DIAG-005）：只展开 $HOME，其它 $VAR/...
+# （如 $TMPDIR/..）会被当成工作区内的相对路径；路径检查没有跳过引号区间，
+# 引号里的文字如果含绝对路径或 ..，会被当路径拦（F6，在全量运行里量）；
+# eval、exec、timeout、bash -c、FOO=1 rm x 都不拦；bash <<'EOF' 把命令
+# 喂给 bash（和 bash -c 同类，F5）不拦。
+_BLOCKED_FIRST_WORDS = frozenset({"rm", "rmdir", "del", "rd", "format", "mkfs", "dd", "shred"})
+_WRAPPER_WORDS = frozenset({"sudo", "env", "command", "xargs", "nice", "nohup", "time"})
+_SHELL_KEYWORDS = frozenset({"do", "then", "else", "elif", "if", "while", "until",
+                               "done", "fi", "esac"})
+_GREP_WORDS = frozenset({"grep", "rg", "ack", "egrep", "fgrep"})
+
+
+def _parse_heredoc_delim(command: str, start: int) -> tuple[str, bool, bool, int]:
+    """解析 << 后的定界符，返回（定界符，去前导 Tab，定界符加了引号，定界符后下标）。
+    定界符可以是 EOF、'EOF'、"EOF"；解析不到返回 ("", False, False, start)。"""
+    i, n = start, len(command)
+    strip_tabs = False
+    if i < n and command[i] == "-":
+        strip_tabs = True
+        i += 1
+    while i < n and command[i] in (" ", "\t"):
+        i += 1
+    if i < n and command[i] in ("'", '"'):
+        quote = command[i]
+        j = command.find(quote, i + 1)
+        if j == -1:
+            return "", False, False, start
+        return command[i + 1:j], strip_tabs, True, j + 1
+    # \EOF：反斜杠引用定界符，定界符是 EOF，且算已引用（正文不展开）。
+    if i < n and command[i] == "\\" and i + 1 < n and command[i + 1] not in ("'", '"'):
+        j = i + 1
+        while j < n and command[j] not in (" ", "\t", ";", "|", "&", "<", ">", "(", ")", "\n"):
+            j += 1
+        return command[i + 1:j], strip_tabs, True, j
+    j = i
+    while j < n and command[j] not in (" ", "\t", ";", "|", "&", "<", ">", "(", ")", "\n"):
+        j += 1
+    return command[i:j], strip_tabs, False, j
+
+
+def _find_expansions(text: str) -> tuple[list[str], bool]:
+    """找一段文字里的命令替换 $(...) 和反引号，返回（里面的内容列表，
+    是否遇到没闭合的展开）。只在未加引号的 heredoc 正文里用——那里的
+    展开会被 shell 执行。没闭合的展开按解析失败处理（调用方整条拦掉），
+    不能悄悄放行（fail-closed）。"""
+    out: list[str] = []
+    i, n = 0, len(text)
+    while i < n:
+        if text[i:i + 2] == "$(":
+            # 找配对的 )，引号里的 ) 不算；嵌套的 ( 也算深度。
+            depth, quote = 1, None
+            j = i + 2
+            while j < n and depth > 0:
+                ch = text[j]
+                if quote == "'":
+                    if ch == "'":
+                        quote = None
+                elif quote == '"':
+                    if ch == "\\":
+                        j += 1
+                    elif ch == '"':
+                        quote = None
+                elif ch in ("'", '"'):
+                    quote = ch
+                elif ch == "(":
+                    depth += 1
+                elif ch == ")":
+                    depth -= 1
+                j += 1
+            if depth == 0:
+                out.append(text[i + 2:j - 1])
+                i = j
+                continue
+            return out, True  # 没闭合，按解析失败处理
+        if text[i] == "`":
+            j = text.find("`", i + 1)
+            if j == -1:
+                return out, True  # 没闭合，按解析失败处理
+            out.append(text[i + 1:j])
+            i = j + 1
+            continue
+        i += 1
+    return out, False
+
+
+def _skip_heredoc_body(command: str, start: int, heredocs: list) -> tuple[int | None, list[str]]:
+    """从 start 起按行跳过 heredoc 正文；每读到定界符那行就消掉一个。
+    加引号的定界符（<<'EOF'、<<\\EOF）正文是纯文字，整段跳过；没加引号的
+    （<<EOF）正文里的 $(...) 和反引号会被 shell 执行——正文整段攒起来再扫
+    展开（多行 $(...) 也能跨行配对），交给调用方再查一遍；展开没闭合按
+    解析失败处理，整条拦掉。全部消完返回（定界符行之后第一个字符的下标，
+    展开内容列表）；到结尾还没消完返回 (None, [])。"""
+    expansions: list[str] = []
+    body_lines: list[str] = []  # 当前这份 heredoc 的正文行（只在未加引号时攒）
+    i, n = start, len(command)
+    while heredocs and i < n:
+        j = command.find("\n", i)
+        if j == -1:
+            line, nxt = command[i:], n
+        else:
+            line, nxt = command[i:j], j + 1
+        check = line.rstrip("\r")
+        delim, strip_tabs, quoted = heredocs[0]
+        if strip_tabs:
+            check = check.lstrip("\t")
+        if check == delim:
+            heredocs.pop(0)
+            if not quoted and body_lines:
+                found, unclosed = _find_expansions("\n".join(body_lines))
+                if unclosed:
+                    return None, []
+                expansions.extend(found)
+            body_lines = []
+        elif not quoted:
+            body_lines.append(line)
+        i = nxt
+    if heredocs:
+        return None, []
+    return i, expansions
+
+
+def _split_segments(command: str) -> tuple[list[str], bool, list[str]]:
+    """近似 shell 语义切段，返回（段列表，是否解析成功，未加引号 heredoc 正文里的展开）。
+
+    栈式解析：单引号、双引号、$(...)、圆括号各占一层。单引号里什么都不
+    执行；双引号里 $(...) 和反引号仍执行，$( 之后进入命令上下文（里面的
+    ; && | 会切段）；反斜杠在引号外和双引号里转义下一个字符；heredoc
+    （<<定界符）的正文：加引号的整段跳过，没加引号的只收集里面的 $(...)
+    和反引号展开，交给调用方再查。词首的 # 到行尾是注释。引号没闭合、
+    $( 没闭合、heredoc 没找到结束行，返回 ok=False，调用方整条拦掉
+    （fail-closed）。
+    """
+    segments: list[str] = []
+    current: list[str] = []
+    # 栈元素是帧类型：' 或 " 是引号帧，"$(" 是命令替换帧，"(" 是圆括号帧。
+    stack: list[str] = []
+    # 待读的 heredoc（定界符，是否去前导 Tab，定界符加了引号）。
+    heredocs: list[tuple[str, bool, bool]] = []
+    expansions: list[str] = []
+    i, n = 0, len(command)
+
+    def _split_here() -> None:
+        segments.append("".join(current))
+        current.clear()
+
+    while i < n:
+        ch = command[i]
+        top = stack[-1] if stack else None
+        # ---- 单引号帧：里面什么都不执行 ----
+        if top == "'":
+            current.append(ch)
+            if ch == "'":
+                stack.pop()
+            i += 1
+            continue
+        # ---- 双引号帧：转义、闭合、$( 和反引号仍执行 ----
+        if top == '"':
+            if ch == "\\" and i + 1 < n:
+                current.append(command[i:i + 2])
+                i += 2
+                continue
+            if ch == '"':
+                stack.pop()
+                current.append(ch)
+                i += 1
+                continue
+            if command[i:i + 2] == "$(":
+                stack.append("$(")
+                _split_here()
+                i += 2
+                continue
+            if ch == "`":
+                _split_here()
+                i += 1
+                continue
+            current.append(ch)
+            i += 1
+            continue
+        # ---- 命令上下文（没进引号，或在 $( / 圆括号里）----
+        if ch == "\\" and i + 1 < n:
+            current.append(command[i:i + 2])
+            i += 2
+            continue
+        # 词首的 # 到行尾是注释，整段跳过（注释里的撇号不当引号）。
+        if ch == "#" and (i == 0 or command[i - 1] in (" ", "\t", ";", "&", "|", "(", "\n")):
+            j = command.find("\n", i)
+            i = n if j == -1 else j
+            continue
+        if ch in ("'", '"'):
+            stack.append(ch)
+            current.append(ch)
+            i += 1
+            continue
+        if command[i:i + 2] == "$(":
+            stack.append("$(")
+            _split_here()
+            i += 2
+            continue
+        if ch == "(":
+            # <(...) / >(...) 是进程替换，里面的内容是命令，和 $(...) 一样切段；
+            # 裸的 ( 是子 shell 或算术，不切（_cmd_word 会剥掉前导 ( 再比）。
+            if i > 0 and command[i - 1] in ("<", ">"):
+                stack.append("(")
+                _split_here()
+                i += 1
+                continue
+            stack.append("(")
+            current.append(ch)
+            i += 1
+            continue
+        if ch == ")":
+            if stack and stack[-1] in ("$(", "("):
+                stack.pop()
+            current.append(ch)
+            i += 1
+            continue
+        if ch == "`":
+            _split_here()
+            i += 1
+            continue
+        # heredoc：只在命令上下文里认 <<；<<<（herestring）不算——
+        # 只排除了第一个 <，走到第二个 < 时又会匹配到 <<，所以前面
+        # 不是 < 也要查。
+        if (command[i:i + 2] == "<<" and command[i:i + 3] != "<<<"
+                and (i == 0 or command[i - 1] != "<")):
+            delim, strip_tabs, quoted, end = _parse_heredoc_delim(command, i + 2)
+            if delim:
+                heredocs.append((delim, strip_tabs, quoted))
+                current.append(command[i:end])
+                i = end
+                continue
+        if command[i:i + 2] in ("&&", "||"):
+            _split_here()
+            i += 2
+            continue
+        # & 只有在不是重定向的一部分时才是后台符：>&、<&、&>、&>> 都是重定向
+        # （比如 2>&1），不能在这里切段（预言机扩语料后找到的漏网）。
+        if ch == "&" and ((i > 0 and command[i - 1] in (">", "<"))
+                           or (i + 1 < n and command[i + 1] == ">")):
+            current.append(ch)
+            i += 1
+            continue
+        if ch in (";", "|", "&", "\n"):
+            _split_here()
+            if ch == "\n" and heredocs:
+                # 换行之后是 heredoc 正文：按行跳过，直到定界符那行。
+                i, found = _skip_heredoc_body(command, i + 1, heredocs)
+                if i is None:
+                    return segments, False, expansions
+                expansions.extend(found)
+                continue
+            i += 1
+            continue
+        current.append(ch)
+        i += 1
+    _split_here()
+    return segments, not stack, expansions
+
+
+def _quoted_spans(segment: str) -> list[tuple[int, int]]:
+    """返回 segment 里单双引号包着的字符区间（起止下标）。
+    双引号里反斜杠转义，单引号里反斜杠是普通字符；$(...) 里嵌套的
+    引号按简单规则处理（嵌套引号可能让区间提前闭合，宁可多查、不漏查）。"""
+    spans: list[tuple[int, int]] = []
+    quote: str | None = None
+    start = 0
+    i = 0
+    while i < len(segment):
+        ch = segment[i]
+        if quote == "'":
+            if ch == "'":
+                spans.append((start, i + 1))
+                quote = None
+            i += 1
+            continue
+        if quote == '"':
+            if ch == "\\" and i + 1 < len(segment):
+                i += 2
+                continue
+            if ch == '"':
+                spans.append((start, i + 1))
+                quote = None
+            i += 1
+            continue
+        if ch in ("'", '"'):
+            quote = ch
+            start = i
+        i += 1
+    return spans
+
+
+def _gitbash_drive_path(token: str) -> str | None:
+    """Git Bash 风格的 /d/... 路径只在 Windows 上出现；转成 D:\\... 再判。
+    只在 Windows 上调用，Linux 上 /d/... 就是根目录下的真路径。
+    纯函数，可在任何平台上单测。"""
+    import re
+    match = re.match(r"^/([A-Za-z])/(.*)$", token)
+    if match is None:
+        return None
+    return f"{match.group(1).upper()}:\\{match.group(2).replace('/', '\\')}"
+
+
+def _resolve(token: str, root: Path) -> Path:
+    """把一个路径 token 拼到工作区根再归一化。
+    用 realpath 展开 Windows 8.3 短名（CHEN-D~1 → chen-duxiu；root 经
+    FileSandbox.resolve() 是长名，token 可能是短名，不展开就比不上）。
+    realpath 会跟符号链接——这比不跟更安全（指到工作区外的链接会被正确
+    拦住），已知局限里的“符号链接不跟”相应作废。"""
+    if os.name == "nt":
+        converted = _gitbash_drive_path(token)
+        if converted is not None:
+            token = converted
+    if token == "$HOME" or token.startswith("$HOME/"):
+        token = os.path.expanduser("~") + token[len("$HOME"):]
+    elif token == "${HOME}" or token.startswith("${HOME}/"):
+        token = os.path.expanduser("~") + token[len("${HOME}"):]
+    if token.startswith("~"):
+        path = Path(os.path.expanduser(token))
+    else:
+        path = Path(token)
+    if not path.is_absolute():
+        path = root / path
+    return Path(os.path.realpath(path))
+
+
+def _is_path_like(token: str) -> bool:
+    return ("/" in token or "\\" in token or token in ("..", ".") or token.startswith("~")
+            or token.startswith("$HOME") or token.startswith("${HOME}"))
+
+
+def _strip_redirect(token: str) -> str:
+    """去掉 token 开头的重定向符（> >> < 2> 2>> >&），剩下的才是路径。
+    只认“开头是数字+<>”的形式，123abc 这种文件名不会被误伤。"""
+    import re
+    stripped = re.sub(r"^\d*[<>]+", "", token)
+    if stripped != token and stripped.startswith("&"):
+        stripped = stripped[1:]
+    return stripped
+
+
+def _cmd_word(token: str) -> str:
+    """命令词归一化：去掉前导 ( { ! 和两端引号、括号，再小写。
+    shell 执行前会去掉命令词上的引号，"rm" 就是 rm（预言机扩语料后找到的漏网）；
+    段尾粘着的 )（比如 done)"）也要剥掉，否则 done 这类关键字跳不过。"""
+    return token.lstrip("({!").strip("'\"()").lower()
+
+
+def _real_first_index(tokens: list[str]) -> tuple[int, str | None]:
+    """每段的第一个实词：跳过 do/then/else/elif/if/while/until 这类
+    shell 关键字和 ( { ! 这类标点。for f in ...; do rm "$f" 的第二段
+    是 do rm "$f"，实词是 rm。返回（下标，实词小写），没有返回 (-1, None)。"""
+    for idx, token in enumerate(tokens):
+        word = _cmd_word(token)
+        if not word or word in _SHELL_KEYWORDS:
+            continue
+        return idx, word
+    return -1, None
+
+
+def _is_credential_name(name: str) -> bool:
+    """凭据文件名：显式列表，不再用 credential/secret 子串匹配
+    （子串会误伤工作区内正常文件，比如 docs/secrets.md，B8）。
+    .env.example / .env.sample 是常见的非机密示例文件，豁免。"""
+    if name in (".env.example", ".env.sample"):
+        return False
+    return (name.startswith(".env") or name.endswith(".pem") or name.endswith(".key")
+            or name.startswith("id_rsa") or name in (".netrc", ".npmrc", "credentials"))
+
+
+def _blocked_command(command: str, root: Path) -> str | None:
+    """起进程前检查 bash 命令；被拦返回原因，否则返回 None。"""
+    import re
+    segments, parsed_ok, expansions = _split_segments(command)
+    if not parsed_ok:
+        return "命令解析失败（引号未闭合或 heredoc 没找到结束行），被直接拒绝。"
+    # 未加引号的 heredoc 正文里的展开会被 shell 执行，再查一遍。
+    for inner in expansions:
+        reason = _blocked_command(inner, root)
+        if reason is not None:
+            return reason
+    for segment in segments:
+        tokens = segment.split()
+        if not tokens:
+            continue
+        first_idx, first = _real_first_index(tokens)
+        if first is None:
+            continue
+        if first in _BLOCKED_FIRST_WORDS:
+            return f"破坏性命令 {first} 被直接拒绝。"
+        # 包壳命令（sudo/env/xargs……）：看包壳后的第一个实命令。
+        # 跳过 -x 这类开关和 VAR=1 这类赋值；sudo -u root rm 这种仍会漏过；
+        # command -v 是查询（问 rm 在哪），不是执行，不拦。
+        if first in _WRAPPER_WORDS:
+            for token in tokens[first_idx + 1:]:
+                if first == "command" and token in ("-v", "-V"):
+                    break
+                if token.startswith("-") or "=" in token:
+                    continue
+                if _cmd_word(token) in _BLOCKED_FIRST_WORDS:
+                    return f"破坏性命令 {token} 被直接拒绝。"
+                break
+        # find 的 -exec / -execdir 后跟 rm 族、-delete：效果等同 rm。
+        # -exec sh -c 'rm ...' 这种仍会漏过。
+        for pos, token in enumerate(tokens):
+            if token == "-delete":
+                return "find -delete 等同删除，被直接拒绝。"
+            if token in ("-exec", "-execdir") and pos + 1 < len(tokens):
+                if _cmd_word(tokens[pos + 1]) in _BLOCKED_FIRST_WORDS:
+                    return f"find {token} 后跟破坏性命令 {tokens[pos + 1]}，被直接拒绝。"
+        # 路径越界：先去重定向符再去引号（顺序不能反，>"/etc/hosts" 这种
+        # 先去引号会剩下一个引号）；--opt=路径 拆出值再判；/dev/null 在
+        # 解析路径前先判，Windows 上也生效；落在工作区内的放行。
+        for token in tokens:
+            candidate = token
+            if candidate.startswith("-") and "=" in candidate:
+                candidate = candidate.split("=", 1)[1]
+            # heredoc/herestring 操作符（<<EOF、<<\EOF、<<<、3<<EOF）：定界符
+            # 不是路径，不查。否则 <<\EOF 去掉 << 剩 \EOF，Windows 上是盘根
+            # 绝对路径，会被误拦（Linux 上只是普通文件名，云机测不出来）。
+            if candidate.lstrip("0123456789").startswith("<<"):
+                continue
+            bare = _strip_redirect(candidate).strip("'\"")
+            if bare == "/dev/null":
+                continue
+            if not _is_path_like(bare):
+                continue
+            resolved = _resolve(bare, root)
+            if not (resolved == root or root in resolved.parents):
+                return f"路径 {token} 超出工作区，被直接拒绝。"
+        # 凭据文件名：只查没加引号的 token（引号里通常是要输出的文字，
+        # 比如 echo "...secret.txt..."，不是文件名）；按显式列表判。
+        # 显式列表里有 credentials、id_rsa 这种没点没斜杠的裸名，必须全查；
+        # grep 族的第一个非开关 token 是搜索模式（-- 之后也是模式），不是文件名，跳过。
+        spans = _quoted_spans(segment)
+        matches = list(re.finditer(r"\S+", segment))
+        pattern_pos = -1
+        if first in _GREP_WORDS:
+            seen_dashdash = False
+            for pos, match in enumerate(matches):
+                if pos <= first_idx:
+                    continue
+                tok = match.group(0)
+                if tok == "--":
+                    seen_dashdash = True
+                    continue
+                if not seen_dashdash and tok.startswith("-"):
+                    continue
+                pattern_pos = pos
+                break
+        for pos, match in enumerate(matches):
+            if pos == pattern_pos:
+                continue
+            if any(s <= match.start() and match.end() <= e for s, e in spans):
+                continue
+            token = _strip_redirect(match.group(0)).strip("'\"")
+            name = token.rsplit("/", 1)[-1].rsplit("\\", 1)[-1].lower()
+            if _is_credential_name(name):
+                return f"凭据文件 {match.group(0)} 被直接拒绝。"
+    return None
+
+
+
+
+
 def _error(code: str, message: str, **details: object) -> str:
     return json.dumps({"ok": False, "error": {"code": code, "message": message, **details}},
                       ensure_ascii=False)
@@ -189,6 +695,10 @@ class GenericWorkspace:
     def bash(self, command: str, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS) -> str:
         if "\x00" in command:
             return _error("invalid_command", "命令包含 NUL 字符。")
+        # 最小安全门：起进程前拦，不改写、不猜原意（见 _blocked_command）。
+        blocked = _blocked_command(command, self.root)
+        if blocked is not None:
+            return _error("blocked_command", blocked)
         shell = _git_bash()
         if shell is None:
             return _error("bash_not_found",
@@ -306,6 +816,8 @@ def generic_tools(root: str | Path) -> list[ToolDefinition]:
                 "在工作区根目录执行 bash 命令，返回 exit_code/stdout/stderr"
                 "（各截断到 64 KiB）和耗时。默认超时 120 秒，范围 1–600。"
                 "命令以当前用户权限运行，能访问工作区外的文件和网络，**不是沙箱**；"
+                "rm 类删除命令和工作区外路径会被拒绝。"
+                "被拒后请换一种安全方式或询问用户，不要尝试绕过。"
                 "不要用它读取或外传凭据。需要过滤大结果时，在命令里只输出必要部分。"
             ),
             parameters=BashArguments,
