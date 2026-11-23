@@ -8,7 +8,8 @@
 
 - **S1 完成（恢复迁出接线）**：本地 `main` 曾被重置到远端 `76bff54`（gate-v7+评测合入），上一轮迁出提交 `9c74d94` 成孤儿。本步按文件干净重放恢复 `session/paths.py`、启动守卫、文件错误分类、默认库迁出、owner 迁移脚本与测试，**不动 gate-v7 的 `generic.py`**。恢复后全量 **1828 passed / 2 skipped / 8 deselected / 150.65s**；默认库在用户数据目录、仓库无 `.env`/`data`、旧会话可读（workspace 2 / qianwen 15）。门禁/评测基线用户已本地跑通（EVAL-DIAG-009），不重复跑。详见三类日志 → GOV-001-S1。
 - **S2 完成（Ollama/专用基线能力）**：`eval/real.py` 加 `OllamaEvalModel`（包装 src OllamaModel）+ `ollama_available`（查 /api/tags，缺失即 NOT RUN）；`run_real.py` 加 `--provider ollama`、`--mode generic|dedicated`；`verify(mode="dedicated")` 把 bash 门检查标 NOT_APPLICABLE，generic 判据不变。离线测试 **12 passed**（7 新 + 5 既有）。**真实基线跑按用户指示推迟**（Ollama 见 EVAL-DIAG-009）。详见三类日志 → GOV-001-S2。
-- **S3–S8 未开始**：分级、单层契约+expected_sha256+审计、ask_user、执行后验证+上下文 sidecar、Docker 沙箱最小接入、事件触发。
+- **S3 完成（执行前分级门）**：新增 `tools/effects.py`（low/medium/high 分类，复用 gate-v7 解析器）+ `tools/gate.py`（`ToolGate` 规则→小模型→人，fail-closed+熔断；`GateConfirmations` 排队）。`Runtime(tool_gate)`→ToolBatch 执行前串行分级；拒绝写回 `gate_denied` 工具消息+trace+`gate_audit`（脱敏）。rm 族从硬拒改为 high→人工确认，批准后一次性放行。web 加 `/gate-confirm`；CLI generic 默认 interactive + Ollama 审批小模型。gate-v7 默认行为不变（`allow_destructive=False`、`gate_policy=off`）。新增测试 63 项（effects 44 + gate 16 + 集成 3）；全量 **1891 passed / 2 skipped / 8 deselected / 146.72s**。eval 不重复跑（用户指示）。详见三类日志 → GOV-001-S3。
+- **S4–S8 未开始**：单层契约+expected_sha256+审计完善、ask_user、执行后验证+上下文 sidecar、Docker 沙箱最小接入、事件触发。
 
 ## 2026-11-22 GENERIC-TOOLS-001 通用四工具模式（PARTIAL / 实验入口）
 

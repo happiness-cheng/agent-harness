@@ -893,3 +893,14 @@
 3. **D3 专用模式用 NOT_APPLICABLE，不改判据**：`verify(mode="dedicated")` 把期望 `error_code=="blocked_command"` 的检查标 NOT_APPLICABLE（专用工具面没有 bash 门），文件类检查仍照常判；全不适用整题 NOT_APPLICABLE，不计入通过/失败。替代方案「给每道题手工加 generic_only 标记」被否：侵入 tasks.py、易误改判据；「专用模式直接判 PASS」被否：会虚高通过率。generic 模式判据完全不变。
 4. **D4 真实基线跑按用户指示推迟**：用户明确「门禁/评测已跑通，不需要再跑」；Ollama 真实模型层已在 EVAL-DIAG-009 跑过（C1/S1 2/2、误拦 0）。本步只交付**可运行的能力 + 离线测试**，不重复烧额度跑真实基线。
 5. **不保证**：本步不证明真模型在四工具/专用面的成功率；专用基线对 bash 专属题大多 NOT_APPLICABLE，只能比文件类能力；Ollama 适配器 retries 恒 0（不重试，如实）。
+
+## GOV-001-S3 — 执行前分级门（规则→小模型→人）（2026-11-24）
+
+1. **D1 分三层：effects 分类 / gate 决策 / 既有禁令快速失败**：新增 `tools/effects.py`（纯分类器，复用 gate-v7 解析器，判 low/medium/high）与 `tools/gate.py`（`ToolGate` 决策 + `GateConfirmations` 排队）。禁令名单 `_blocked_command` 保留做快速失败（解析失败/凭据/工作区外路径直接拒），**不当边界**；破坏性命令（rm 族）从硬拒改为判 high 走人工。替代方案「把分级塞进 _blocked_command」被否：会混淆「快速失败」与「分级审批」两种语义，且动冻结解析器。
+2. **D2 注入点在 ToolBatch 执行前，串行**：`Runtime` 加 `tool_gate` 参数 → `ToolBatch` 在 `execute` 前调 `gate.check(call)`。拒绝写回 `gate_denied` 工具消息 + trace；高危待确认抛 `AuthorizationRequired("waiting_user")` 停批，复用既有 resume。替代方案「在 registry.execute 内分级」被否：registry 不该懂会话级审批/排队；「并行 sidecar」被否：审批必须串行 fail-closed，并行会放大竞态。
+3. **D3 小模型审批 fail-closed + 熔断**：中风险调本地 Ollama 小模型（`--gate-model`，默认 qwen3.5:4b，num_ctx 4096、超时 10s），只收 JSON `{decision,reason}`；解析失败/超时/异常 → 升级人工；连续 3 次失败熔断，之后中风险直接升级人工不再调模型。替代方案「模型失败默认放行」被否：违反 fail-closed；「无熔断」被否：模型挂掉会每条都等 10s。
+4. **D4 高危人工确认复用 MCPConfirmations 形**：`GateConfirmations` 存 `gate_confirmations`，按逻辑任务+工具+参数签名匹配，TTL+一次性消费；web 加 `/api/sessions/{id}/gate-confirm`。批准后给 `GenericWorkspace.cleared_commands` 加该命令，bash 取出即销毁、仅跳过破坏性词检查（`_blocked_command(allow_destructive=True)`），其余检查保留。
+5. **D5 对冻结 generic.py 的最小改动**：`_blocked_command` 加 keyword-only `allow_destructive=False`（默认行为逐字节不变），三处破坏性检查加 `not allow_destructive` 守卫；`GenericWorkspace` 加 `cleared_commands` 集合；`generic_tools` 加可选 `workspace` 参数。替代方案「完全不动 generic.py」被否：rm→人工确认必须能放行已批准的破坏性命令；「大改解析器」被否：违反 gate-v7 冻结。这是结构 additions，不改解析语义。
+6. **D6 策略开关默认 off，generic 产品入口默认 interactive**：`HarnessApplication(gate_policy="off")` 默认，专用模式与既有测试零影响；web CLI generic 模式默认 interactive。`gate_policy != off` 仅限 generic。eval 脚本化层走 registry 直连、不经 ToolBatch 门，不受影响；真实模型 eval 可显式传 gate_policy 做 A/B。
+7. **D7 审计脱敏**：每次 check 写 `gate_audit`（ring buffer 200）：tool、call_ref/args_sha256/command_sha256、level、decider、allowed、reason、command_redacted（掩凭据样式赋值与长 token、截 2KiB）。拒绝理由同时进工具消息（模型可见）与 trace（gate_denied）。
+8. **不保证**：小模型审批是减速带不是边界；分类是近似 shell 语义（手写解析器已知缺口仍在）；真边界是沙箱（S7）与人工。无人值守中/高默认拒（预授权 S8）。本步不重复跑 eval（用户指示）。

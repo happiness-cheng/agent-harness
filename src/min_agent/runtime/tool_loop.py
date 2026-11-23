@@ -20,7 +20,8 @@ class ToolBatch:
     """按模型给出顺序串行执行一组工具请求；执行异常停止整批。"""
 
     def __init__(self, tools, control, budget, policy, trace, progress_guard, closer,
-                 *, recover_unknown_writes: bool, max_tool_error_rounds: int) -> None:
+                 *, recover_unknown_writes: bool, max_tool_error_rounds: int,
+                 gate=None) -> None:
         self._tools = tools
         self._control = control
         self._budget = budget
@@ -30,6 +31,7 @@ class ToolBatch:
         self._closer = closer
         self._recover_unknown_writes = recover_unknown_writes
         self._max_tool_error_rounds = max_tool_error_rounds
+        self._gate = gate
 
     def __call__(self, state: RunState) -> RunResult | None:
         if state.request is None:
@@ -80,11 +82,25 @@ class ToolBatch:
                             budget_blocked(item.id, code=code, scope=scope, recovery=recovery)
                             for item in calls[index:])
                         return RunResult(status=status, response=response, error_code=code)
+                gate_denied = False
                 try:
-                    identity = str(self._budget.binding.budget_id) \
-                        if self._budget is not None and self._budget.binding else str(state.run_id)
-                    outcome = self._tools.execute(call, operation_id=identity + ":" + call.id)
-                    output = json.dumps(outcome, ensure_ascii=False, allow_nan=False)
+                    # 执行前分级门（sidecar）：串行、fail-closed。拒绝理由写回
+                    # 工具消息；高危待确认时 gate 抛 AuthorizationRequired，走下方停批。
+                    if self._gate is not None:
+                        decision = self._gate.check(call)
+                        if not decision.allowed:
+                            gate_denied = True
+                            outcome = {"ok": False, "error": {
+                                "code": "gate_denied", "message": decision.reason,
+                                "level": decision.level, "decider": decision.decider,
+                                "execution_state": "not_started",
+                                "recovery": "choose_safer_alternative"}}
+                            output = json.dumps(outcome, ensure_ascii=False, allow_nan=False)
+                    if not gate_denied:
+                        identity = str(self._budget.binding.budget_id) \
+                            if self._budget is not None and self._budget.binding else str(state.run_id)
+                        outcome = self._tools.execute(call, operation_id=identity + ":" + call.id)
+                        output = json.dumps(outcome, ensure_ascii=False, allow_nan=False)
                 except AuthorizationRequired as error:
                     span.finish("waiting_user", trace_error_code(error.code), "not_started")
                     # 停止整个批次；为当前及其余未执行请求配齐确定的结果。

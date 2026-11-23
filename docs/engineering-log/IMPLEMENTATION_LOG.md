@@ -1684,3 +1684,20 @@
 - **实施偏差**：无。
 - **副作用**：无生产代码改动；eval/runs 已 gitignore。
 - **未完成**：真实 Ollama/专用基线**跑**未执行（用户指示不重复跑；Ollama 见 EVAL-DIAG-009）。S3–S8 未开始。验证见 VALIDATION_LOG → GOV-001-S2。
+
+## GOV-001-S3 — 执行前分级门（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S3`；generic 四工具模式落地执行前分级：规则快速失败 → 小模型审批 → 人工确认，拒绝理由写回工具消息/trace/审计。
+- **实际修改**：
+  - 新增 `src/min_agent/tools/effects.py`：`classify_call/classify_bash`，low/medium/high 三档，复用 gate-v7 解析器；只读白名单带参数约束（无写重定向、find 无 -exec/-delete、tee 仅 /dev/null）。
+  - 新增 `src/min_agent/tools/gate.py`：`ToolGate`（check/_medium/_high/_ask_model，熔断）、`GateConfirmations`（排队/决定/消费）、`redact_command`、`GateDecision`。
+  - `src/min_agent/tools/generic.py`：`_blocked_command` 加 `allow_destructive=False`（三处破坏性检查加守卫）；`GenericWorkspace.cleared_commands`；`bash()` 取出放行标记；`generic_tools(workspace=...)`。
+  - `src/min_agent/runtime/loop.py`：`Runtime(tool_gate=...)` → ToolBatch；`runtime/tool_loop.py`：`ToolBatch(gate=...)`，执行前 `gate.check`，拒绝写 `gate_denied`。
+  - `src/min_agent/contracts/trace.py`：ErrorCode 加 `gate_denied/gate_escalated/gate_model_failed`。
+  - `src/min_agent/application.py`：`gate_policy/gate_model` 参数；generic registry 暴露 `_generic_workspace`；`_worker` 建 ToolGate 传 Runtime；`gate_confirm/_gate_pending`；snapshot 加 `gate_confirmations/gate_audit`。
+  - `src/min_agent/web/app.py`：`GateConfirm` 模型 + `/api/sessions/{id}/gate-confirm`；`web/__main__.py`：`--gate-policy/--gate-model/--gate-model-url`，generic 默认 interactive + 建 Ollama 审批模型。
+  - 新增 `tests/unit/test_effects.py`（44）、`tests/unit/test_gate.py`（16）、`tests/integration/test_gate_integration.py`（3）；更新 `tests/unit/test_runtime_shape.py` 冻结签名加 tool_gate。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S3 D1–D8。
+- **实施偏差**：无。gate-v7 默认行为不变（allow_destructive 默认 False、cleared_commands 默认空、gate_policy 默认 off）。
+- **副作用**：无数据库 schema 变更；审计/确认走会话扩展。
+- **未完成**：S4–S8（单层契约+expected_sha256+审计完善、ask_user、执行后验证+上下文 sidecar、沙箱、事件触发）。eval 不重复跑（用户指示）。验证见 VALIDATION_LOG → GOV-001-S3。

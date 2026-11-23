@@ -35,6 +35,7 @@ class Runtime:
         before_execute=None,
         system_prompt: str | Callable[[], str] | None = None,
         show_state: bool = True,
+        tool_gate=None,
     ) -> None:
         if type(max_tool_error_rounds) is not int:
             raise TypeError("工具错误修正轮数必须是整数")
@@ -61,6 +62,8 @@ class Runtime:
             raise TypeError("system_prompt 必须是字符串或可调用对象")
         if type(show_state) is not bool:
             raise TypeError("show_state 必须是布尔值")
+        if tool_gate is not None and not callable(getattr(tool_gate, "check", None)):
+            raise TypeError("tool_gate 必须提供 check(call) 方法")
         self._budget = budget
         self._control = control
         self._before_execute = before_execute
@@ -83,6 +86,7 @@ class Runtime:
                 tools, control, budget, checkpoint_policy, self.trace, progress_guard, closer,
                 recover_unknown_writes=recover_unknown_writes,
                 max_tool_error_rounds=max_tool_error_rounds,
+                gate=tool_gate,
             ),
         )
 

@@ -487,8 +487,13 @@ def _is_credential_name(name: str) -> bool:
             or name.startswith("id_rsa") or name in (".netrc", ".npmrc", "credentials"))
 
 
-def _blocked_command(command: str, root: Path) -> str | None:
-    """起进程前检查 bash 命令；被拦返回原因，否则返回 None。"""
+def _blocked_command(command: str, root: Path, *, allow_destructive: bool = False) -> str | None:
+    """起进程前检查 bash 命令；被拦返回原因，否则返回 None。
+
+    allow_destructive=True 时跳过破坏性词（rm 族 / find -delete/-exec）检查，
+    供执行前分级门（gate.ToolGate）在用户确认高危调用后放行；解析失败、凭据名、
+    工作区外路径仍照常拦。默认 False，gate-v7 行为逐字节不变。
+    """
     import re
     segments, parsed_ok, expansions = _split_segments(command)
     if not parsed_ok:
@@ -505,12 +510,12 @@ def _blocked_command(command: str, root: Path) -> str | None:
         first_idx, first = _real_first_index(tokens)
         if first is None:
             continue
-        if first in _BLOCKED_FIRST_WORDS:
+        if not allow_destructive and first in _BLOCKED_FIRST_WORDS:
             return f"破坏性命令 {first} 被直接拒绝。"
         # 包壳命令（sudo/env/xargs……）：看包壳后的第一个实命令。
         # 跳过 -x 这类开关和 VAR=1 这类赋值；sudo -u root rm 这种仍会漏过；
         # command -v 是查询（问 rm 在哪），不是执行，不拦。
-        if first in _WRAPPER_WORDS:
+        if not allow_destructive and first in _WRAPPER_WORDS:
             for token in tokens[first_idx + 1:]:
                 if first == "command" and token in ("-v", "-V"):
                     break
@@ -521,12 +526,13 @@ def _blocked_command(command: str, root: Path) -> str | None:
                 break
         # find 的 -exec / -execdir 后跟 rm 族、-delete：效果等同 rm。
         # -exec sh -c 'rm ...' 这种仍会漏过。
-        for pos, token in enumerate(tokens):
-            if token == "-delete":
-                return "find -delete 等同删除，被直接拒绝。"
-            if token in ("-exec", "-execdir") and pos + 1 < len(tokens):
-                if _cmd_word(tokens[pos + 1]) in _BLOCKED_FIRST_WORDS:
-                    return f"find {token} 后跟破坏性命令 {tokens[pos + 1]}，被直接拒绝。"
+        if not allow_destructive:
+            for pos, token in enumerate(tokens):
+                if token == "-delete":
+                    return "find -delete 等同删除，被直接拒绝。"
+                if token in ("-exec", "-execdir") and pos + 1 < len(tokens):
+                    if _cmd_word(tokens[pos + 1]) in _BLOCKED_FIRST_WORDS:
+                        return f"find {token} 后跟破坏性命令 {tokens[pos + 1]}，被直接拒绝。"
         # 路径越界：先去重定向符再去引号（顺序不能反，>"/etc/hosts" 这种
         # 先去引号会剩下一个引号）；--opt=路径 拆出值再判；/dev/null 在
         # 解析路径前先判，Windows 上也生效；落在工作区内的放行。
@@ -656,6 +662,10 @@ class GenericWorkspace:
     def __init__(self, root: str | Path) -> None:
         self.sandbox = FileSandbox(root)
         self.root = self.sandbox.root
+        # 执行前分级门（gate.ToolGate）在用户确认高危破坏性调用后，把该命令
+        # 加入此集合；bash() 取出即销毁，仅跳过破坏性词快速失败，其余检查保留。
+        # 串行执行，无并发；默认空集合时 gate-v7 行为不变。
+        self.cleared_commands: set[str] = set()
 
     def read(self, path: str, offset: int = 1, limit: int = MAX_READ_LINES) -> str:
         target, failure = self.sandbox.resolve(path)
@@ -696,7 +706,10 @@ class GenericWorkspace:
         if "\x00" in command:
             return _error("invalid_command", "命令包含 NUL 字符。")
         # 最小安全门：起进程前拦，不改写、不猜原意（见 _blocked_command）。
-        blocked = _blocked_command(command, self.root)
+        # 分级门已用户确认的高危破坏性命令在此一次性放行（仅跳过破坏性词）。
+        allow_destructive = command in self.cleared_commands
+        self.cleared_commands.discard(command)
+        blocked = _blocked_command(command, self.root, allow_destructive=allow_destructive)
         if blocked is not None:
             return _error("blocked_command", blocked)
         shell = _git_bash()
@@ -776,9 +789,14 @@ def _decode(value: bytes | str | None) -> str:
     return value.decode("utf-8", "replace")
 
 
-def generic_tools(root: str | Path) -> list[ToolDefinition]:
-    """构造四个通用工具；调用方负责决定是否注册以及权限门。"""
-    workspace = GenericWorkspace(root)
+def generic_tools(root: str | Path, *, workspace: "GenericWorkspace | None" = None) -> list[ToolDefinition]:
+    """构造四个通用工具；调用方负责决定是否注册以及权限门。
+
+    workspace 可由调用方预先构造并传入，以便分级门（gate.ToolGate）持有同一
+    实例、放行已确认的高危破坏性命令；不传则内部新建（行为与历史一致）。
+    """
+    if workspace is None:
+        workspace = GenericWorkspace(root)
     return [
         ToolDefinition(
             name="read",

@@ -2065,3 +2065,17 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 - 覆盖：OllamaEvalModel usage 映射/describe/HTTP 失败记 last_error；ollama_available 模型在/不在/不可达；dedicated 模式 blocked_command→NOT_APPLICABLE、文件检查仍判、全不适用整题 N/A；generic 判据不变。
 - **真实基线跑：NOT RUN**（用户指示不重复跑；Ollama 真实模型层见 EVAL-DIAG-009：C1/S1 2/2、误拦 0）。
 - **边界**：离线测试只证明能力接好、判据未被悄悄改；不证明真模型成功率。专用基线对 bash 专属题大多 NOT_APPLICABLE。
+
+## GOV-001-S3 — 执行前分级门验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 分类器 | `pytest tests/unit/test_effects.py` | **44 passed**（只读 low / 破坏性·外发·系统 high / 灰区 medium / 混合取最大 / 解析失败 high / write 新建·覆盖） |
+| 分级门单元 | `pytest tests/unit/test_gate.py` | **16 passed**（规则拒凭据/越界/解析失败；小模型 allow/deny/失败升级；熔断 3 次；rm→人工→批准→放行→真删除→标记销毁；拒绝；git push 人工；无人值守拒；off 放行但禁令仍拦；审计脱敏） |
+| 完整 app 路径 | `pytest tests/integration/test_gate_integration.py` | **3 passed**（规则拒写 gate_denied 工具消息+审计；高危停 waiting_user+pending；gate off 保留 gate-v7 blocked_command） |
+| 冻结签名 | `pytest tests/unit/test_runtime_shape.py` | 通过（tool_gate 已纳入冻结列表） |
+| 全量（终版） | `pytest -q --junitxml=...` | **1891 passed / 2 skipped / 8 deselected / 0 failed / 146.72s（exit 0）** |
+
+- **关键行为证据**：`test_high_risk_rm_requires_human_then_approve_clears` 走通 rm→AuthorizationRequired 停批→用户批准→`cleared_commands` 放行→bash 真删除 victim.txt→标记一次性销毁。
+- **eval：NOT RUN**（用户指示不重复跑）。eval 脚本化层走 registry 直连、不经 ToolBatch 门，S3 不改其结果；真实模型 eval 可显式传 gate_policy 做 A/B。
+- **边界**：小模型审批是减速带不是边界；分类是近似 shell 语义（已知缺口仍在）；真边界是沙箱（S7）与人工。2 个 skip 为 Windows 平台限制。gate-v7 默认行为不变（allow_destructive 默认 False、gate_policy 默认 off）。

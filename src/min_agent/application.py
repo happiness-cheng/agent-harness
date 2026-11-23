@@ -105,7 +105,8 @@ class HarnessApplication:
                  memory_strategy='GOAL_VALUE', memory_budget=4096, memory_policy=None, memory_mode='legacy',
                  public_goals_enabled=False, research_observation_enabled=False,
                  enable_multi_agent=False, multi_agent_service_factory=None, model_catalog=None,
-                 workspace_root=None, mcp_servers=None, generic_tools=False):
+                 workspace_root=None, mcp_servers=None, generic_tools=False,
+                 gate_policy="off", gate_model=None):
         if memory_strategy not in {'NONE','RECENCY','FREQUENCY','GOAL_VALUE'}:
             raise ValueError('无效Memory策略')
         if type(memory_budget) is not int or memory_budget<0: raise ValueError('无效Memory预算')
@@ -169,6 +170,15 @@ class HarnessApplication:
         if generic_tools and self.workspace_root is None:
             raise ValueError("generic_tools=True 必须提供 workspace_root")
         self.generic_tools = generic_tools
+        # GOV-001-S3：执行前分级门。默认 off（专用模式与既有测试不受影响）；
+        # generic 产品入口（web CLI）显式设 interactive。gate_model 是中风险
+        # 审批用小模型（OllamaModel 形），缺省时中风险升级人工（fail-closed）。
+        if gate_policy not in {"off", "interactive", "unattended"}:
+            raise ValueError("gate_policy 只能是 off/interactive/unattended")
+        if gate_policy != "off" and not generic_tools:
+            raise ValueError("执行前分级门目前只支持 generic 四工具模式")
+        self.gate_policy = gate_policy
+        self.gate_model = gate_model
         # MCP-001：服务器配置只来自可信 host；默认不配置、不启动任何子进程。
         if mcp_servers is None:
             servers = ()
@@ -253,6 +263,32 @@ class HarnessApplication:
                     verb = "批准" if decision == "approve" else "拒绝"
                     self.resume(session_id, task_id=str(saved.task.task_id),
                                 text=f"用户已{verb} MCP 调用 {record['prefixed']}；"
+                                     "按该决定继续，保留先前结果；被拒绝的调用不要重试。")
+            return record
+
+    def _gate_pending(self, context):
+        if not self.generic_tools or self.gate_policy == "off":
+            return []
+        from min_agent.tools.gate import GateConfirmations
+        return GateConfirmations(self.sessions, context).pending()
+
+    def gate_confirm(self, session_id, pending_id, decision, *, continue_task=True):
+        """web 定向入口：批准/拒绝一次挂起的高危调用，可随决定恢复任务。"""
+        if decision not in {"approve", "refuse"}:
+            raise ValueError("decision 只能是 approve 或 refuse")
+        context = self.context(session_id)
+        with self._lock:
+            if str(context.session_id) in self._running:
+                raise RuntimeError("运行中不能处理门禁确认")
+            from min_agent.tools.gate import GateConfirmations
+            record = GateConfirmations(self.sessions, context).decide(
+                UUID(str(pending_id)), decision == "approve")
+            if continue_task:
+                saved = self.sessions.snapshot(context)
+                if saved.task is not None and saved.task.status not in {"completed", "running"}:
+                    verb = "批准" if decision == "approve" else "拒绝"
+                    self.resume(session_id, task_id=str(saved.task.task_id),
+                                text=f"用户已{verb}高危调用 {record['tool']}；"
                                      "按该决定继续，保留先前结果；被拒绝的调用不要重试。")
             return record
 
@@ -366,6 +402,8 @@ class HarnessApplication:
             "long_memory": self.memory_status(context),
             "mcp": self._mcp_status(context),
             "mcp_confirmations": self._mcp_pending(context),
+            "gate_confirmations": self._gate_pending(context),
+            "gate_audit": self.sessions.extension(context, "gate_audit", []),
             "multi_agent": self.sessions.extension(context, "multi_agent_last_run", None)}
 
     def submit(self, session_id, text, *, public_goals=None, proposal_id=None):
@@ -586,10 +624,13 @@ class HarnessApplication:
             # 只暴露四个通用入口；不注册 todo/记忆/提醒/研究/多 Agent/MCP。
             # 授权门也随专用工具一起不挂载——这是 generic 模式的显式取舍，
             # 由启动参数和系统提示词共同披露，不能悄悄套用到默认模式。
-            from min_agent.tools.generic import generic_tools
+            from min_agent.tools.generic import GenericWorkspace, generic_tools
             registry = ToolRegistry(sessions=self.sessions, context=context)
-            for tool in generic_tools(self.workspace_root):
+            workspace = GenericWorkspace(self.workspace_root)
+            for tool in generic_tools(self.workspace_root, workspace=workspace):
                 registry.register(tool)
+            # 分级门需要 workspace 引用来放行已确认的高危破坏性命令。
+            registry._generic_workspace = workspace
             return registry
         controller = TaskController(self.sessions)
         todos = TodoService(self.sessions)
@@ -784,11 +825,20 @@ class HarnessApplication:
                     # QWEN-STREAM-001：只在没有Memory递送包装时接管流式，避免绕过递送逻辑。
                     from min_agent.runtime.streaming import StreamingModel
                     primary_model = StreamingModel(raw_model, sink)
+                # GOV-001-S3：generic 模式按策略挂执行前分级门（sidecar）。
+                tool_gate = None
+                if self.generic_tools and self.gate_policy != "off":
+                    from min_agent.tools.gate import ToolGate
+                    tool_gate = ToolGate(
+                        self.sessions, context, self.workspace_root,
+                        policy=self.gate_policy, approval_model=self.gate_model,
+                        workspace=getattr(registry, "_generic_workspace", None))
                 runtime = Runtime(ManagedModel(primary_model, manager, control=events), registry,
                     budget=segment, checkpoint_policy=CheckpointPolicy(), control=events,
                     progress_guard=ProgressGuard(self.sessions, context), recover_unknown_writes=True, trace=trace,
                     before_execute=self._freeze_public_goals if self.public_goals_enabled else None,
-                    system_prompt=system_prompt, show_state=not self.generic_tools)
+                    system_prompt=system_prompt, show_state=not self.generic_tools,
+                    tool_gate=tool_gate)
                 if checkpoint_id is not None:
                     result = runtime.resume_session(checkpoint_id, store=self.sessions, context=context, text=text)
                 elif resume_task_id is not None:

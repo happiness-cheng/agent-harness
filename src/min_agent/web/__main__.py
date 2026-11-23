@@ -58,6 +58,13 @@ def main(argv=None):
     parser.add_argument("--generic-tools", action="store_true",
         help="pi 式四工具模式：只注册 read/write/edit/bash，不注册 todo/记忆/提醒/研究/MCP；"
              "工作区默认当前目录，不经过 Plan/Build 目标确认门")
+    parser.add_argument("--gate-policy", default=None, choices=["off", "interactive", "unattended"],
+        help="执行前分级门策略；generic 模式默认 interactive（规则→小模型→人），"
+             "专用模式只能 off")
+    parser.add_argument("--gate-model", default=None,
+        help="中风险审批用本地 Ollama 小模型名（默认 qwen3.5:4b）；不可用时中风险升级人工")
+    parser.add_argument("--gate-model-url", default="http://127.0.0.1:11434",
+        help="审批小模型的 Ollama loopback 地址")
     parser.add_argument("--mcp-config", type=Path, default=None,
         help="MCP 服务器配置 JSON；不提供时不启动任何 MCP 子进程")
     parser.add_argument("--adrian", action="store_true", help="真实Adrian本地试用：按需Memory、单实例、就绪后浏览器")
@@ -180,11 +187,25 @@ def main(argv=None):
         if options.multi_agent:
             from min_agent.agents.factory import build_multi_agent_factory
             multi_agent_service_factory = build_multi_agent_factory()
+        # GOV-001-S3：generic 模式默认开 interactive 分级门；审批小模型用本地
+        # Ollama（不可用时中风险升级人工，fail-closed）。专用模式只能 off。
+        gate_policy = options.gate_policy or ("interactive" if options.generic_tools else "off")
+        gate_model = None
+        if gate_policy != "off":
+            from min_agent.llm.ollama import OllamaModel, OllamaSettings
+            try:
+                gate_model = OllamaModel(OllamaSettings(
+                    model=options.gate_model or "qwen3.5:4b", base_url=options.gate_model_url,
+                    num_ctx=4096, max_output_tokens=256, temperature=0.0,
+                    timeout_seconds=10.0, max_requests=200, think=False))
+            except (ValueError, TypeError):
+                gate_model = None
         harness = HarnessApplication(options.database,model=model,proxy=options.proxy,desktop=desktop,memory_mode=mode,
             model_catalog=catalog,workspace_root=options.workspace_root,mcp_servers=mcp_servers,
             enable_multi_agent=options.multi_agent,
             multi_agent_service_factory=multi_agent_service_factory,
-            generic_tools=options.generic_tools)
+            generic_tools=options.generic_tools,
+            gate_policy=gate_policy, gate_model=gate_model)
         run(harness,identity,open_browser=options.adrian and not options.no_browser)
     finally:
         lease.__exit__(None,None,None)
