@@ -2123,3 +2123,14 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 
 - **spike 既有证据**（S1 恢复的 scripts/spike_docker_sandbox.py，Docker 29.8.1 曾跑）：网络关闭、容器 env 无凭据、超时无残留、仓库 .env/data 不可见——参数层面已验证；产品 DockerSandbox 复用同参数。
 - **边界**：真实容器集成 NOT RUN（Docker  down）；文件工具仍宿主、TOCTOU 推迟；只读叠挂防改门禁不防读私有材料；正式镜像构建被网络阻塞。5 个 skip = 2 平台（8.3/FIFO）+ 3 Docker。
+
+## GOV-001-S8 — 事件触发验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 事件触发 | `pytest tests/integration/test_event_trigger.py` | **6 passed**（预授权命中放行 decider=preauth；不命中拒；高危即使预授权也拒；到期事件 fired+scheduler 审计；未来事件不 fired；事件 run 强制 unattended+预算上限+中风险无预授权 gate_denied） |
+| 分级门回归 | `pytest tests/unit/test_gate.py` | **16 passed** |
+| 全量（终版） | `pytest -q --junitxml=...` | **1924 passed / 5 skipped / 8 deselected / 0 failed / 167.84s（exit 0）** |
+
+- **GOV-001 全 8 步完成**：S1 迁出恢复 / S2 Ollama+专用基线能力 / S3 分级门 / S4 单层契约+expected_sha256 / S5 ask_user / S6 验证+sidecar / S7 Docker 沙箱 / S8 事件触发。
+- **边界**：tick_events 需宿主主动调用（后台定时线程未接）；预授权精确匹配；真实容器集成 NOT RUN；真实模型 eval 按用户指示不重复跑。5 个 skip = 2 平台 + 3 Docker。

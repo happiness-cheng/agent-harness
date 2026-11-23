@@ -216,7 +216,7 @@ class ToolGate:
 
     def __init__(self, sessions, context, workspace_root, *, policy: str = "interactive",
                  approval_model=None, workspace=None, confirmations=None,
-                 now: Callable[[], datetime] | None = None) -> None:
+                 now: Callable[[], datetime] | None = None, preauth=None) -> None:
         if policy not in {"interactive", "unattended", "off"}:
             raise ValueError("gate_policy 只能是 interactive/unattended/off")
         self._sessions = sessions
@@ -229,6 +229,17 @@ class ToolGate:
         self._now = now or (lambda: datetime.now(UTC))
         self._model_failures = 0
         self._breaker_open = False
+        # GOV-001-S8：无人值守预授权条目（{tool, command?}）；中风险精确匹配才放行。
+        self._preauth = list(preauth or [])
+
+    def _preauth_match(self, call) -> bool:
+        for entry in self._preauth:
+            if entry.get("tool") != call.name:
+                continue
+            command = entry.get("command")
+            if command is None or command == call.arguments.get("command"):
+                return True
+        return False
 
     @property
     def policy(self) -> str:
@@ -288,8 +299,10 @@ class ToolGate:
 
     def _medium(self, call, effect) -> GateDecision:
         if self._policy == "unattended":
+            if self._preauth_match(call):
+                return self._allow(call, effect, "preauth", "无人值守：命中预授权条目")
             return self._deny(call, effect, "rule",
-                              "无人值守：中风险默认拒绝（需预授权，见 S8）")
+                              "无人值守：中风险默认拒绝（未命中预授权）")
         if self._breaker_open or self._approval_model is None:
             return self._high(call, effect, escalated=True)
         decision, reason = self._ask_model(call, effect)

@@ -294,6 +294,56 @@ class HarnessApplication:
                                      "按该决定继续，保留先前结果；被拒绝的调用不要重试。")
             return record
 
+    def schedule_event(self, session_id, text, at, *, preauth=None, max_models=None):
+        """GOV-001-S8：宿主侧排程一个无人值守事件（不进模型工具面）。
+
+        at 是 ISO 时间字符串；preauth 是预授权条目列表（{tool, command?}）；
+        max_models 是该事件的独立模型请求上限。到期由 tick_events 投递。
+        """
+        from datetime import UTC, datetime
+        if not isinstance(text, str) or not text.strip():
+            raise ValueError("事件文本不能为空")
+        datetime.fromisoformat(at)  # 校验时间格式
+        context = self.context(session_id)
+        event_id = str(uuid4())
+        event = {"event_id": event_id, "text": text, "at": at,
+                 "preauth": list(preauth or []), "max_models": max_models,
+                 "status": "pending", "created_at": datetime.now(UTC).isoformat()}
+        with self._lock:
+            events = self.sessions.extension(context, "scheduled_events", {})
+            events[event_id] = event
+            self.sessions.set_extension(context, "scheduled_events", events)
+        return dict(event)
+
+    def tick_events(self, now=None):
+        """投递到期的无人值守事件：以 unattended 策略 + 预授权续跑，写审计。"""
+        from datetime import UTC, datetime
+        now = now or datetime.now(UTC)
+        fired = []
+        for context in self.sessions.contexts():
+            events = self.sessions.extension(context, "scheduled_events", {})
+            for event_id, event in list(events.items()):
+                if event.get("status") != "pending":
+                    continue
+                if datetime.fromisoformat(event["at"]) > now:
+                    continue
+                with self._lock:
+                    events[event_id]["status"] = "fired"
+                    events[event_id]["fired_at"] = now.isoformat()
+                    self.sessions.set_extension(context, "scheduled_events", events)
+                    self.sessions.set_extension(context, "pending_event_run", {
+                        "event_id": event_id, "preauth": event["preauth"],
+                        "max_models": event["max_models"]})
+                    audit = self.sessions.extension(context, "gate_audit", [])
+                    audit.append({"ts": now.isoformat(), "tool": "event",
+                                  "decider": "scheduler", "allowed": True,
+                                  "level": "event", "reason": f"事件 {event_id} 到期投递",
+                                  "event_id": event_id})
+                    self.sessions.set_extension(context, "gate_audit", audit[-200:])
+                self.submit(str(context.session_id), event["text"])
+                fired.append(event_id)
+        return fired
+
     def create_session(self, label="新会话", model=None, mode=None):
         """新建会话；model/mode 可在创建时指定，避免“第一条消息发出前无法选择”。"""
         if not isinstance(label, str) or not label.strip() or len(label) > 60: raise ValueError("会话名需要1到60字符")
@@ -779,14 +829,21 @@ class HarnessApplication:
                 self.sessions.set_extension(context, "pending_input", text)
                 # GOV-001-S5：新一轮开始（用户已回答或新输入），清掉上一条待答问题。
                 self.sessions.set_extension(context, "pending_question", None)
+                # GOV-001-S8：取出无人值守事件标记（预授权 + 独立预算上限），消费掉。
+                event_run = self.sessions.extension(context, "pending_event_run", None)
+                if event_run is not None:
+                    self.sessions.set_extension(context, "pending_event_run", None)
                 snapshot = self.sessions.snapshot(context)
                 budgets = SessionBudgets(self.sessions)
                 if new_input and snapshot.task is not None and snapshot.task.status != "completed":
                     raise RuntimeError("暂停任务必须定向续跑，普通输入不能创建新账本")
                 # 普通新输入开启新逻辑任务；定向续跑仅新建片段，复用原任务账本。
+                event_max_models = (event_run or {}).get("max_models")
+                total_models = min(self.total_models, event_max_models) \
+                    if isinstance(event_max_models, int) and event_max_models > 0 else self.total_models
                 budget_id = snapshot.active_budget_id
                 if new_input or budget_id is None:
-                    budget_id = budgets.create(context, BudgetLimits(model_calls=self.total_models, tool_calls=self.total_tools))
+                    budget_id = budgets.create(context, BudgetLimits(model_calls=total_models, tool_calls=self.total_tools))
                 ledger = budgets.open(context, budget_id)
                 segment = ledger.start_segment(BudgetLimits(model_calls=self.segment_models, tool_calls=self.segment_tools))
                 raw_model = self.model_factory(context) if self.model_factory is not None else self.model
@@ -854,12 +911,15 @@ class HarnessApplication:
                     primary_model = StreamingModel(raw_model, sink)
                 # GOV-001-S3：generic 模式按策略挂执行前分级门（sidecar）。
                 tool_gate = None
-                if self.generic_tools and self.gate_policy != "off":
+                if self.generic_tools and (self.gate_policy != "off" or event_run is not None):
                     from min_agent.tools.gate import ToolGate
+                    # 无人值守事件强制 unattended + 预授权；否则用应用策略。
+                    gate_policy = "unattended" if event_run is not None else self.gate_policy
                     tool_gate = ToolGate(
                         self.sessions, context, self.workspace_root,
-                        policy=self.gate_policy, approval_model=self.gate_model,
-                        workspace=getattr(registry, "_generic_workspace", None))
+                        policy=gate_policy, approval_model=self.gate_model,
+                        workspace=getattr(registry, "_generic_workspace", None),
+                        preauth=(event_run or {}).get("preauth"))
                 runtime = Runtime(ManagedModel(primary_model, manager, control=events), registry,
                     budget=segment, checkpoint_policy=CheckpointPolicy(), control=events,
                     progress_guard=ProgressGuard(self.sessions, context), recover_unknown_writes=True, trace=trace,

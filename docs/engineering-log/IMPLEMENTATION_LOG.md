@@ -1757,3 +1757,15 @@
 - **实施偏差**：无。默认 backend=None，宿主行为不变。
 - **副作用**：无 schema 变更；显式 --sandbox docker 才改变 bash 执行位置。
 - **未完成**：S8；真实容器集成 NOT RUN（本机 Docker 未运行）；正式镜像构建（网络阻塞）；文件工具 A/B、TOCTOU、dedicated workspace 推迟。验证见 VALIDATION_LOG → GOV-001-S7。
+
+## GOV-001-S8 — 事件触发（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S8`；宿主侧无人值守事件触发，预授权 + 独立预算 + 审计。
+- **实际修改**：
+  - `src/min_agent/tools/gate.py`：ToolGate 加 `preauth` + `_preauth_match`；unattended 中风险命中预授权放行（decider=preauth），否则拒；高危仍拒。
+  - `src/min_agent/application.py`：`schedule_event`/`tick_events`；_worker 消费 `pending_event_run`（强制 unattended + preauth + max_models 预算上限）；tick 写 scheduler 审计。
+  - 新增 `tests/integration/test_event_trigger.py`（6 项）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S8 D1–D5。
+- **实施偏差**：无。
+- **副作用**：新增 scheduled_events/pending_event_run 会话扩展；无 schema 变更。
+- **未完成**：tick_events 后台定时线程未接（沿用宿主主动调用）；预授权精确匹配不做模式。GOV-001 全 8 步代码完成。验证见 VALIDATION_LOG → GOV-001-S8。

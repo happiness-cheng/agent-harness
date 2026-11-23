@@ -934,3 +934,11 @@
 3. **D3 fail-closed，不回落宿主**：Docker 守护进程或镜像不可用 → `sandbox_unavailable`，**不悄悄回落宿主 bash**。默认仍宿主实验模式，只有显式 `--sandbox docker` 才走容器。镜像需用户自行构建（`--sandbox-image`，默认 agent-harness-sandbox:spike），不自动拉取（正式构建曾被 Docker Hub 网络阻塞）。
 4. **D4 分级/禁令仍在沙箱之前**：gate.check + _blocked_command + cleared_commands 都在 backend.execute 之前；沙箱只是执行后端，不替代分级。verify 也走同一后端。
 5. **不保证**：文件工具仍宿主执行（A/B 未决），与容器共享 bind mount 的 TOCTOU 推迟；只读叠挂防改门禁代码，不防容器读工作区内私有材料（dedicated workspace 另案）；本机 Docker 当前未运行，真实容器集成测试 NOT RUN（spike 曾验证参数）。
+
+## GOV-001-S8 — 事件触发（预授权 + 预算 + 审计）（2026-11-24）
+
+1. **D1 宿主侧排程，不进模型工具面**：`schedule_event(session_id, text, at, preauth, max_models)` 存 `scheduled_events` 扩展；`tick_events(now)` 投递到期事件。替代方案「给模型一个 schedule 工具」被否：无人值守排程是宿主信任操作，不该由模型自授；「复用 reminder Scheduler」被否：现有 Scheduler 只发桌面通知、不跑模型，语义不同。
+2. **D2 无人值守策略：低放行 / 中仅预授权 / 高一律拒**：事件投递强制 `gate_policy="unattended"`（即使应用是 interactive），ToolGate 加 `preauth` 条目（{tool, command?} 精确匹配）；中风险命中预授权才放行（decider=preauth），否则拒；高危即使有预授权也拒。替代方案「高危也可预授权」被否：无人值守没有人工兜底，高危必须拒。
+3. **D3 独立预算上限**：事件 `max_models` 经 `pending_event_run` 扩展传入 _worker，建账本时 `min(total_models, max_models)`；消费即清。替代方案「复用应用总预算」被否：事件应有自己的上限，防单个事件烧光额度。
+4. **D4 审计留痕**：tick 投递写 `gate_audit`（decider=scheduler, event_id）；分级决定写 decider=preauth/rule。每次触发可追溯到事件与决定者。
+5. **不保证**：tick_events 需宿主主动调用（本步未接后台定时线程，沿用既有调度入口）；预授权是精确匹配，不做模式/语义；事件投递走 submit 异步，并发多事件按 contexts 顺序串行。
