@@ -1701,3 +1701,19 @@
 - **实施偏差**：无。gate-v7 默认行为不变（allow_destructive 默认 False、cleared_commands 默认空、gate_policy 默认 off）。
 - **副作用**：无数据库 schema 变更；审计/确认走会话扩展。
 - **未完成**：S4–S8（单层契约+expected_sha256+审计完善、ask_user、执行后验证+上下文 sidecar、沙箱、事件触发）。eval 不重复跑（用户指示）。验证见 VALIDATION_LOG → GOV-001-S3。
+
+## GOV-001-S4 — 单层契约 + expected_sha256（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S4`；generic 四工具模式试单层结果契约 `{ok,error_code,message,data}`，write/edit 加可选 expected_sha256；审计已在 S3 落地，本步沿用。
+- **实际修改**：
+  - `src/min_agent/tools/registry.py`：`import json`；`flatten_outcome`；`ToolRegistry(envelope=...)` + `serialize(outcome)`。
+  - `src/min_agent/runtime/tool_loop.py`：两处 `json.dumps(outcome)` → `self._tools.serialize(outcome)`。
+  - `src/min_agent/application.py`：generic registry `envelope="flat"`。
+  - `src/min_agent/tools/generic.py`：WriteArguments/EditArguments 加 `expected_sha256`；write/edit 透传。
+  - `src/min_agent/prompts/generic.md`：补单层契约、expected_sha256、执行前分级说明。
+  - `eval/verifiers.py`：`_inner` 兼容 flat（重建内层形状）。
+  - 新增 `tests/unit/test_flat_contract.py`（12 项）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S4 D1–D5。
+- **实施偏差**：无。默认 nested 模式 serialize 与旧 json.dumps 逐字节一致。
+- **副作用**：无 schema 变更；generic 工具消息形状改变（模型可见），专用模式不变。
+- **未完成**：S5–S8。验证见 VALIDATION_LOG → GOV-001-S4。

@@ -95,12 +95,12 @@ class ToolBatch:
                                 "level": decision.level, "decider": decision.decider,
                                 "execution_state": "not_started",
                                 "recovery": "choose_safer_alternative"}}
-                            output = json.dumps(outcome, ensure_ascii=False, allow_nan=False)
+                            output = self._tools.serialize(outcome)
                     if not gate_denied:
                         identity = str(self._budget.binding.budget_id) \
                             if self._budget is not None and self._budget.binding else str(state.run_id)
                         outcome = self._tools.execute(call, operation_id=identity + ":" + call.id)
-                        output = json.dumps(outcome, ensure_ascii=False, allow_nan=False)
+                        output = self._tools.serialize(outcome)
                 except AuthorizationRequired as error:
                     span.finish("waiting_user", trace_error_code(error.code), "not_started")
                     # 停止整个批次；为当前及其余未执行请求配齐确定的结果。

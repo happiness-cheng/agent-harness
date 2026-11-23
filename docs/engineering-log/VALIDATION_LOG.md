@@ -2079,3 +2079,14 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 - **关键行为证据**：`test_high_risk_rm_requires_human_then_approve_clears` 走通 rm→AuthorizationRequired 停批→用户批准→`cleared_commands` 放行→bash 真删除 victim.txt→标记一次性销毁。
 - **eval：NOT RUN**（用户指示不重复跑）。eval 脚本化层走 registry 直连、不经 ToolBatch 门，S3 不改其结果；真实模型 eval 可显式传 gate_policy 做 A/B。
 - **边界**：小模型审批是减速带不是边界；分类是近似 shell 语义（已知缺口仍在）；真边界是沙箱（S7）与人工。2 个 skip 为 Windows 平台限制。gate-v7 默认行为不变（allow_destructive 默认 False、gate_policy 默认 off）。
+
+## GOV-001-S4 — 单层契约 + expected_sha256 验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 单层契约/版本校验 | `pytest tests/unit/test_flat_contract.py` | **12 passed**（flatten 成功/业务失败/registry 错误/纯文本；serialize nested vs flat；write/edit 匹配·stale·unexpected；eval _inner 兼容 flat） |
+| generic + gate + eval 回归 | `pytest test_generic_tools test_generic_mode test_gate_integration eval/...` | **48 passed**（含 S4 12 + 既有 36） |
+| 全量（终版） | `pytest -q --junitxml=...` | **1903 passed / 2 skipped / 8 deselected / 0 failed / 150.96s（exit 0）** |
+
+- **关键行为证据**：`test_flatten_business_failure_uses_inner_ok` 证明外层 ok=true、内层 ok=false 时单层 ok=false（双层 ok 痛点已解）；`test_write_with_stale_expected_sha_rejected` 证明版本不匹配拒绝。
+- **边界**：默认 nested 模式 serialize 与旧 json.dumps 逐字节一致，专用模式零变化；expected_sha256 是乐观并发提示，非 TOCTOU 防护。eval 判据未改（_inner 兼容两形）。

@@ -49,6 +49,10 @@ class WriteArguments(BaseModel):
                       description="相对工作区根的目标路径；父目录必须已存在。")
     content: str = Field(max_length=MAX_WRITE_BYTES,
                          description="要写入的完整文本；已存在文件会被原子覆盖。")
+    expected_sha256: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$",
+        description="可选：覆盖前期望的文件 sha256（来自 read）。不匹配则拒绝（stale_version），"
+                    "防止盖掉别人刚改的内容；不传则直接覆盖。")
 
 
 class EditArguments(BaseModel):
@@ -60,6 +64,10 @@ class EditArguments(BaseModel):
                           description="要被替换的原文，必须在文件中唯一出现。")
     new_text: str = Field(max_length=MAX_WRITE_BYTES,
                           description="替换后的文本，可为空字符串。")
+    expected_sha256: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$",
+        description="可选：修改前期望的文件 sha256（来自 read）。不匹配则拒绝（stale_version）；"
+                    "不传则直接修改。")
 
 
 class BashArguments(BaseModel):
@@ -694,13 +702,14 @@ class GenericWorkspace:
             size=payload["size"],
         )
 
-    def write(self, path: str, content: str) -> str:
-        return self.sandbox.write_text(path, content, expected_sha256=None,
+    def write(self, path: str, content: str, expected_sha256: str | None = None) -> str:
+        return self.sandbox.write_text(path, content, expected_sha256=expected_sha256,
                                        require_version=False)
 
-    def edit(self, path: str, old_text: str, new_text: str) -> str:
+    def edit(self, path: str, old_text: str, new_text: str,
+             expected_sha256: str | None = None) -> str:
         return self.sandbox.edit_text(path, old_text, new_text,
-                                      expected_sha256=None, require_version=False)
+                                      expected_sha256=expected_sha256, require_version=False)
 
     def bash(self, command: str, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS) -> str:
         if "\x00" in command:

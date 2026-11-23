@@ -625,7 +625,8 @@ class HarnessApplication:
             # 授权门也随专用工具一起不挂载——这是 generic 模式的显式取舍，
             # 由启动参数和系统提示词共同披露，不能悄悄套用到默认模式。
             from min_agent.tools.generic import GenericWorkspace, generic_tools
-            registry = ToolRegistry(sessions=self.sessions, context=context)
+            # GOV-001-S4：generic 用单层契约 {ok,error_code,message,data}。
+            registry = ToolRegistry(sessions=self.sessions, context=context, envelope="flat")
             workspace = GenericWorkspace(self.workspace_root)
             for tool in generic_tools(self.workspace_root, workspace=workspace):
                 registry.register(tool)

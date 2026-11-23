@@ -904,3 +904,11 @@
 6. **D6 策略开关默认 off，generic 产品入口默认 interactive**：`HarnessApplication(gate_policy="off")` 默认，专用模式与既有测试零影响；web CLI generic 模式默认 interactive。`gate_policy != off` 仅限 generic。eval 脚本化层走 registry 直连、不经 ToolBatch 门，不受影响；真实模型 eval 可显式传 gate_policy 做 A/B。
 7. **D7 审计脱敏**：每次 check 写 `gate_audit`（ring buffer 200）：tool、call_ref/args_sha256/command_sha256、level、decider、allowed、reason、command_redacted（掩凭据样式赋值与长 token、截 2KiB）。拒绝理由同时进工具消息（模型可见）与 trace（gate_denied）。
 8. **不保证**：小模型审批是减速带不是边界；分类是近似 shell 语义（手写解析器已知缺口仍在）；真边界是沙箱（S7）与人工。无人值守中/高默认拒（预授权 S8）。本步不重复跑 eval（用户指示）。
+
+## GOV-001-S4 — 单层契约 + expected_sha256（2026-11-24）
+
+1. **D1 单层契约只改序列化，不改 execute 内部形状**：`ToolRegistry` 加 `envelope="nested"|"flat"` 与 `serialize(outcome)`；`flatten_outcome` 把双层 ok 压成 `{ok,error_code,message,data}`。`execute` 内部仍返回 nested 形状，ToolBatch/progress_guard 读 `outcome["ok"]/["error"]["code"]` 的逻辑零改动，只把 `json.dumps(outcome)` 换成 `registry.serialize(outcome)`。替代方案「execute 直接返回 flat」被否：会牵动 ToolBatch、progress_guard、operations.execute_once 等所有读 outcome 的地方，风险大。
+2. **D2 单层 ok 以内层业务 ok 为准**：外层 ok=true 但内层 ok=false（工具执行了、业务失败）→ 单层 ok=false。这正是双层 ok 的痛点（模型误以为成功）。外层 ok=false（registry 级错误/gate_denied）直接取外层 error。
+3. **D3 只在 generic 模式启用 flat**：generic registry `envelope="flat"`；默认专用模式 nested 逐字节不变。eval `verifiers._inner` 同时接受两种形状（flat 时把 data 重建成内层形状），判据不改。
+4. **D4 expected_sha256 可选透传**：write/edit schema 加可选 `expected_sha256`（64hex pattern），透传沙箱（`require_version=False` 仍允许不传直接覆盖；传了不匹配→stale_version，文件不存在却传→unexpected_version）。替代方案「强制版本校验」被否：pi 式覆盖是 generic 的既定取舍，版本校验只做可选增强。
+5. **不保证**：单层契约不改变工具行为，只改变给模型的结果包装；expected_sha256 是乐观并发提示，不是 TOCTOU 防护（外部写者竞态仍推迟）。

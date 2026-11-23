@@ -15,7 +15,19 @@ def _sha256(path: Path) -> str:
 
 
 def _inner(result: dict) -> dict | None:
-    """Registry 外层 {"ok": True, "result": "<内层 JSON 字符串>"}，拆开看内层。"""
+    """拆出业务内层，兼容两种契约：
+
+    - 双层（nested）：{"ok": True, "result": "<内层 JSON 字符串>"}；
+    - 单层（flat，GOV-001-S4）：{"ok", "error_code", "message", "data"}。
+    单层时把 data 重建成内层形状（补 ok / error），让下游 check_one 逻辑不变。
+    """
+    # 单层契约：有 error_code 键且 data 是字典。
+    if "error_code" in result and isinstance(result.get("data"), dict):
+        if result.get("ok"):
+            return {"ok": True, **result["data"]}
+        error = {"code": result.get("error_code"), "message": result.get("message", "")}
+        error.update(result["data"])
+        return {"ok": False, "error": error}
     if not result.get("ok"):
         return None
     raw = result.get("result")

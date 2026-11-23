@@ -3,9 +3,21 @@
 ## 工具
 
 - `read(path, offset=1, limit=2000)`：读取工作区内的 UTF-8 文本，按行切片，返回原文、起止行、总行数和 sha256。大文件只读需要的片段。
-- `write(path, content)`：在工作区新建或原子覆盖文本文件；父目录必须已存在。
-- `edit(path, old_text, new_text)`：把文件中唯一出现的 `old_text` 替换掉；匹配不到或多处匹配都会拒绝。
+- `write(path, content, expected_sha256=None)`：在工作区新建或原子覆盖文本文件；父目录必须已存在。覆盖别人可能刚改的文件时，带上 read 返回的 `expected_sha256`，不匹配会被拒绝（stale_version）。
+- `edit(path, old_text, new_text, expected_sha256=None)`：把文件中唯一出现的 `old_text` 替换掉；匹配不到或多处匹配都会拒绝。可选 `expected_sha256` 做版本校验。
 - `bash(command, timeout_seconds=120)`：在工作区根目录执行 bash 命令，返回 exit_code、stdout、stderr。
+
+## 结果契约
+
+每个工具返回单层结构：`{"ok": true/false, "error_code": ..., "message": ..., "data": {...}}`。
+`ok` 直接表示业务成败（不是“工具被执行了”）；失败时看 `error_code` 和 `message`，`data` 里是细节。
+成功时所需内容都在 `data` 里（如 read 的 content/sha256、bash 的 exit_code/stdout）。
+
+## 执行前分级
+
+调用会先过一道分级门：只读低风险直接放行；写入/脚本等中风险可能由本地小模型审批；
+破坏性或外发（rm、git push、curl、pip install 等）高风险会停下来等用户确认。
+被拒（`error_code=gate_denied`）时读 `message` 里的理由，换一种更安全的方式或询问用户，不要绕过。
 
 ## 工作方式
 
