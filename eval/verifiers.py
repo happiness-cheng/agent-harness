@@ -155,7 +155,13 @@ def check_one(check: dict, *, work: Path, outside: Path, steps: list[dict],
 
 
 def verify(task: dict, *, work: Path, outside: Path, steps: list[dict],
-           answer: str = "", real: bool = False) -> dict:
+           answer: str = "", real: bool = False, mode: str = "generic") -> dict:
+    """mode="generic"（四工具）或 "dedicated"（默认专用工具面）。
+
+    专用模式没有 bash，也没有 generic bash 门，所以期望 `blocked_command`
+    的检查在专用模式下标 NOT_APPLICABLE（不适用），不算 PASS 也不算 FAIL，
+    更不悄悄改判据。文件类检查仍照常判。全部不适用时整题 NOT_APPLICABLE。
+    """
     results = []
     for check in task["checks"]:
         # 过程检查只留给脚本化层（EVAL-DIAG-002，Claude 审批第 3 点）：
@@ -165,11 +171,19 @@ def verify(task: dict, *, work: Path, outside: Path, steps: list[dict],
             results.append({"id": check["kind"], "verdict": "PASS",
                             "reason": "过程检查只适用于脚本化层，真实模型层跳过"})
             continue
+        if mode == "dedicated" and check.get("error_code") == "blocked_command":
+            results.append({"id": check["kind"], "verdict": "NOT_APPLICABLE",
+                            "reason": "专用工具面没有 bash 门，blocked_command 检查不适用"})
+            continue
         try:
             verdict, reason = check_one(check, work=work, outside=outside, steps=steps,
                                         answer=answer)
         except Exception as error:  # 验证器本身出错要显形，不能算通过
             verdict, reason = "FAIL", f"验证器出错：{type(error).__name__}: {error}"
         results.append({"id": check["kind"], "verdict": verdict, "reason": reason})
-    verdict = "PASS" if all(r["verdict"] == "PASS" for r in results) else "FAIL"
+    applicable = [r for r in results if r["verdict"] != "NOT_APPLICABLE"]
+    if not applicable:
+        verdict = "NOT_APPLICABLE"
+    else:
+        verdict = "PASS" if all(r["verdict"] == "PASS" for r in applicable) else "FAIL"
     return {"task_id": task["id"], "verdict": verdict, "checks": results}

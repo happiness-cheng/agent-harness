@@ -1670,3 +1670,17 @@
 - **实施偏差**：无。`generic.py` 未动（gate-v7 所有）。
 - **副作用**：磁盘 `.env`/数据库不重复迁移；旧会话仍可读（workspace 2、qianwen 15）；仓库内不建 `.env`/`data`。
 - **未完成**：S2–S8（Ollama/专用基线、分级、契约、ask_user、验证/sidecar、沙箱、事件）未开始。验证见 VALIDATION_LOG → GOV-001-S1。
+
+## GOV-001-S2 — Ollama 与专用模式基线能力（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S2`；给评测层补 Ollama provider 与专用模式基线**能力**（可运行 + 离线测试），真实基线跑按用户指示推迟。
+- **实际修改**：
+  - `eval/real.py`：新增 `OllamaEvalModel`（包装 src `OllamaModel`，补 describe/last_error/retries，usage 字段映射）与 `ollama_available`（查 /api/tags，可注入 transport 供离线测试）。
+  - `eval/run_real.py`：`--provider` 加 `ollama`；新增 `--mode generic|dedicated`、`--ollama-base-url`；ollama 跑前可用性检查（不可用 exit 2）；factory 加 ollama 分支；`run_real_one` 传 `generic`；info/summary/report 记 mode 与 NOT_APPLICABLE 计数。
+  - `eval/real_runner.py`：`run_real_one`/`run_real_suite` 加 `generic` 参数 → `generic_tools=generic`；两处 `verify` 传 `mode`。
+  - `eval/verifiers.py`：`verify` 加 `mode`；dedicated 模式 `blocked_command` 检查标 NOT_APPLICABLE，全不适用整题 NOT_APPLICABLE。
+  - 新增 `eval/test_s2_baselines.py`（7 项离线测试）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S2 D1–D4。不改 src/、不改 generic 判据。
+- **实施偏差**：无。
+- **副作用**：无生产代码改动；eval/runs 已 gitignore。
+- **未完成**：真实 Ollama/专用基线**跑**未执行（用户指示不重复跑；Ollama 见 EVAL-DIAG-009）。S3–S8 未开始。验证见 VALIDATION_LOG → GOV-001-S2。

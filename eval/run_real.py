@@ -20,7 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from eval.real import OpenAICompatibleModel  # noqa: E402
+from eval.real import OpenAICompatibleModel, OllamaEvalModel, ollama_available  # noqa: E402
 from eval.real_runner import run_real_one  # noqa: E402
 from eval.tasks import TASKS, task_by_id  # noqa: E402
 
@@ -38,17 +38,20 @@ def _report(results: list[dict], info: dict) -> str:
                  f"温度 {model.get('temperature')}，max_tokens {model.get('max_tokens')}")
     lines.append(f"日期：{info.get('started_at')}（UTC），每题跑 {info.get('repeat')} 次")
     lines.append(f"门：{'开' if info.get('gate_enabled', True) else '关（A/B 对照组）'}")
+    lines.append(f"工具面：{info.get('mode', 'generic')}")
     lines.append("")
     passed = sum(1 for r in results if r["verdict"] == "PASS")
     errors = sum(1 for r in results if r["verdict"] == "ERROR")
+    na = sum(1 for r in results if r["verdict"] == "NOT_APPLICABLE")
     total_tokens = sum(
         (u.get("prompt_tokens") or 0) + (u.get("completion_tokens") or 0)
         for r in results for u in r.get("usage", []))
-    lines.append(f"通过 {passed}/{len(results)}，运行出错 {errors} 题（ERROR 不计入通过/失败），"
-                 f"累计 tokens 约 {total_tokens}。")
+    lines.append(f"通过 {passed}/{len(results)}，运行出错 {errors} 题，不适用 {na} 题"
+                 f"（ERROR/NOT_APPLICABLE 不计入通过/失败），累计 tokens 约 {total_tokens}。")
     lines.append("")
     for r in results:
-        failed = [f"{c['id']}: {c['reason']}" for c in r["checks"] if c["verdict"] != "PASS"]
+        failed = [f"{c['id']}: {c['reason']}" for c in r["checks"]
+                  if c["verdict"] not in ("PASS", "NOT_APPLICABLE")]
         tokens = sum((u.get("prompt_tokens") or 0) + (u.get("completion_tokens") or 0)
                      for u in r.get("usage", []))
         lines.append(f"## {r['task_id']} {r['verdict']}（工具调用 {r['tool_calls']} 次，"
@@ -83,8 +86,13 @@ def _report(results: list[dict], info: dict) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--provider", default="groq", choices=["groq", "gemini", "qianwen"])
+    parser.add_argument("--provider", default="groq", choices=["groq", "gemini", "qianwen", "ollama"])
     parser.add_argument("--model", default=None)
+    parser.add_argument("--mode", default="generic", choices=["generic", "dedicated"],
+                        help="generic=四工具面；dedicated=默认专用工具面（无 bash，"
+                        "blocked_command 检查标 NOT_APPLICABLE，不改判据）")
+    parser.add_argument("--ollama-base-url", default="http://127.0.0.1:11434",
+                        help="只用于 ollama；loopback，无 key、无代理")
     parser.add_argument("--tasks", nargs="*", default=None,
                         help="不传则 groq 跑全部 21 题，gemini 只跑子集")
     parser.add_argument("--repeat", type=int, default=1)
@@ -118,7 +126,16 @@ def main() -> int:
                               else [t["id"] for t in TASKS if t["id"] != "S7"])
     tasks = [task_by_id(task_id) for task_id in task_ids]
 
+    if args.provider == "ollama":
+        ok, detail = ollama_available(args.model or "qwen3.5:4b", args.ollama_base_url)
+        if not ok:
+            print(f"Ollama 基线 NOT RUN：{detail}。不下载模型、不回落云端。", file=sys.stderr)
+            return 2
+
     def factory():
+        if args.provider == "ollama":
+            return OllamaEvalModel(model=args.model, temperature=args.temperature,
+                                   base_url=args.ollama_base_url, max_requests=300)
         if args.provider == "groq":
             return OpenAICompatibleModel(provider="groq", model=args.model,
                                          connector_helper=str(GROQ_HELPER),
@@ -159,7 +176,7 @@ def main() -> int:
     started_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
     info = {"provider": args.provider, "model": model_info,
             "started_at": started_at, "repeat": args.repeat,
-            "gate_enabled": not args.gate_off}
+            "gate_enabled": not args.gate_off, "mode": args.mode}
     results: list[dict] = []
     spent = 0
     import time as _time
@@ -169,7 +186,8 @@ def main() -> int:
             if spent >= args.token_cap:
                 print(f"累计 tokens 已到上限 {args.token_cap}，停下不继续烧额度。")
                 break
-            result = run_real_one(task, factory, timeout_seconds=args.timeout)
+            result = run_real_one(task, factory, timeout_seconds=args.timeout,
+                                  generic=(args.mode == "generic"))
             spent += sum((u.get("prompt_tokens") or 0) + (u.get("completion_tokens") or 0)
                          for u in result.get("usage", []))
             results.append(result)
@@ -181,12 +199,14 @@ def main() -> int:
                 break
     passed = sum(1 for r in results if r["verdict"] == "PASS")
     errors = sum(1 for r in results if r["verdict"] == "ERROR")
+    na = sum(1 for r in results if r["verdict"] == "NOT_APPLICABLE")
     summary = {"suite": "generic-tools-real-v0.1", "provider": args.provider,
                "model": args.model, "model_resolved": model_info,
                "started_at": started_at, "repeat": args.repeat,
-               "gate_enabled": not args.gate_off,
+               "gate_enabled": not args.gate_off, "mode": args.mode,
                "total_runs": len(results), "passed": passed,
-               "failed": len(results) - passed - errors, "errors": errors,
+               "failed": len(results) - passed - errors - na, "errors": errors,
+               "not_applicable": na,
                "total_tokens": spent,
                "token_cap": args.token_cap,
                "honesty_note": ("真实模型层：模型自己选工具，判据和脚本化层同一套。"

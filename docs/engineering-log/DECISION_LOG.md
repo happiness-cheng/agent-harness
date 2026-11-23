@@ -885,3 +885,11 @@
 3. **D2 不恢复 `generic.py`**：gate-v7 拥有该文件（512 行 bash 门），孤儿提交未碰它。恢复清单显式排除 `generic.py`，保住门禁。
 4. **D3 磁盘数据不重复迁移**：`.env`/数据库已在用户目录（`~/.agent-harness/.env`、`%LOCALAPPDATA%/agent-harness/data`），owner 已迁过；本步只恢复代码接线并验证旧会话仍可读，不重跑迁移、不动备份。
 5. **不保证**：本步只恢复既有接线，不新增治理能力；分级/契约/沙箱等在 S3–S8。门禁与评测基线用户已在本地跑通（EVAL-DIAG-009），本步不重复跑。
+
+## GOV-001-S2 — Ollama 与专用模式基线能力（2026-11-24）
+
+1. **D1 Ollama 适配器用「包装」而非改 src**：`eval/real.py` 新增 `OllamaEvalModel`，委托仓库自带 `OllamaModel` 的 generate/context_limits/close/request_count，补 describe()/last_error/retries，并把 `prompt_eval_count/eval_count` 映射成评测层统一的 `prompt_tokens/completion_tokens`。替代方案「在 src 里给 OllamaModel 加评测字段」被否：评测层接口（describe/last_error）不该进生产模型；「另写一个 Ollama HTTP 客户端」被否：重复造轮子且绕过 src 的截断/字节窗口保护。
+2. **D2 跑前查 /api/tags，不在就 NOT RUN**：`ollama_available` 只读 loopback、trust_env=False、无 key；模型缺失/Ollama 不可达 → 如实返回不可用，`run_real --provider ollama` 直接 exit 2，不下载模型、不回落云端。
+3. **D3 专用模式用 NOT_APPLICABLE，不改判据**：`verify(mode="dedicated")` 把期望 `error_code=="blocked_command"` 的检查标 NOT_APPLICABLE（专用工具面没有 bash 门），文件类检查仍照常判；全不适用整题 NOT_APPLICABLE，不计入通过/失败。替代方案「给每道题手工加 generic_only 标记」被否：侵入 tasks.py、易误改判据；「专用模式直接判 PASS」被否：会虚高通过率。generic 模式判据完全不变。
+4. **D4 真实基线跑按用户指示推迟**：用户明确「门禁/评测已跑通，不需要再跑」；Ollama 真实模型层已在 EVAL-DIAG-009 跑过（C1/S1 2/2、误拦 0）。本步只交付**可运行的能力 + 离线测试**，不重复烧额度跑真实基线。
+5. **不保证**：本步不证明真模型在四工具/专用面的成功率；专用基线对 bash 专属题大多 NOT_APPLICABLE，只能比文件类能力；Ollama 适配器 retries 恒 0（不重试，如实）。

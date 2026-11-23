@@ -2053,3 +2053,15 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 
 - **门禁/评测基线**：用户已在本地跑通（EVAL-DIAG-009：脚本化 22/22、真实模型层 C1/S1 2/2、Ollama 误拦 0），本步按用户指示**不重复跑**。
 - **边界**：本步只证明恢复接线无回归、迁出状态保持；不证明新增治理能力（S3–S8 未做）。2 个 skip 为 Windows 平台限制，非失败。
+
+## GOV-001-S2 — Ollama/专用基线能力离线验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 编译 | `py_compile eval/real.py run_real.py real_runner.py verifiers.py` | OK |
+| S2 + 既有 eval 测试 | `pytest eval/test_s2_baselines.py eval/test_real_smoke.py eval/test_eval.py` | **12 passed**（7 新 + 5 既有） |
+| CLI 接线 | `python -m eval.run_real --help` | `--provider {groq,gemini,qianwen,ollama}`、`--mode {generic,dedicated}`、`--ollama-base-url` 正常解析 |
+
+- 覆盖：OllamaEvalModel usage 映射/describe/HTTP 失败记 last_error；ollama_available 模型在/不在/不可达；dedicated 模式 blocked_command→NOT_APPLICABLE、文件检查仍判、全不适用整题 N/A；generic 判据不变。
+- **真实基线跑：NOT RUN**（用户指示不重复跑；Ollama 真实模型层见 EVAL-DIAG-009：C1/S1 2/2、误拦 0）。
+- **边界**：离线测试只证明能力接好、判据未被悄悄改；不证明真模型成功率。专用基线对 bash 专属题大多 NOT_APPLICABLE。
