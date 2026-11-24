@@ -14,7 +14,10 @@
 - **S6 完成（执行后验证 + 上下文 sidecar）**：bash 加可选只读 `verify`（先校验 low、主命令退出 0 后跑、`verification.passed` 如实报告不推翻主命令）；bash 重构抽出 `_execute`（无 verify 时逐字段不变）。新增 `context/sidecar.py`：generic 模式后台线程只读采集文件索引+git status，注入带 `source=sidecar` 的 workspace_context 段 + trace span，失败/超时降级省略。新增 7 项测试；全量 **1913 passed / 2 skipped / 8 deselected / 148.85s**。详见三类日志 → GOV-001-S6。
 - **S7 完成（Docker 沙箱最小接入）**：新增 `tools/sandbox.py` `DockerSandbox`（spike 参数：网络关闭/只读根/降权/资源限制/每命令一容器/超时强删）；工作区 rw + `src/scripts/tests/eval/.git` 只读叠挂防改门禁代码；Docker/镜像不可用 `sandbox_unavailable` fail-closed 不回落宿主。`GenericWorkspace(backend)`、CLI `--sandbox docker --sandbox-image`。分级/禁令仍在沙箱前。新增 5 单元测试；真实容器集成 3 项 **NOT RUN**（本机 Docker 未运行）。全量 **1918 passed / 5 skipped / 8 deselected / 154.03s**。详见三类日志 → GOV-001-S7。
 - **S8 完成（事件触发）**：宿主侧 `schedule_event`/`tick_events`（不进模型工具面）；到期事件强制 unattended + 预授权（中风险精确匹配放行 decider=preauth，高危一律拒）+ 独立 max_models 预算上限；tick 写 scheduler 审计。新增 6 项测试；全量 **1924 passed / 5 skipped / 8 deselected / 167.84s**。详见三类日志 → GOV-001-S8。
-- **GOV-001 全 8 步代码完成**（分支 gov-001，8 个 commit，未 push）。**仍推迟**：真实容器集成（Docker down）、正式镜像构建（网络阻塞）、文件工具 A/B、TOCTOU、dedicated workspace、tick 后台定时线程、真实模型 eval（用户指示不重复跑）。下一步：用户决定是否 push/PR 合入 main，以及是否启动 Docker 复验真实容器。
+- **S9 完成（后台慢任务 + 通知注入，用户追加）**：按 learn-claude-code s11，bash 加 `run_in_background`（显式，不猜关键词）；`BackgroundManager` 每会话一个、daemon 线程执行、立即返回 bg_id 占位；`ModelCall` 每轮模型调用前 collect 已完成结果以 `<task_notification>` 注入（不复用 tool_use_id）。后台仍过分级/禁令/沙箱。新增 6 项测试；全量 **1930 passed / 5 skipped / 8 deselected / 177.39s**。详见三类日志 → GOV-001-S9。
+- **已 push + PR**：分支 `gov-001` 已推 origin，PR #6（gov-001 → main）已开，**未合并**（合入归用户）。
+- **S7 真实容器已复验**：Docker Desktop 启动后，正式镜像构建仍被 Docker Hub EOF 阻塞；用缓存镜像 `agent-backend-demo-api:latest` 跑 3 项集成 **全过**（工作区 rw、门禁代码只读叠挂拒写、网络关闭）。
+- **GOV-001 全 9 步代码完成**。**仍推迟**：正式镜像构建（网络阻塞）、文件工具 A/B、TOCTOU、dedicated workspace、tick 后台定时线程、真实模型 eval（用户指示不重复跑）。
 
 ## 2026-11-22 GENERIC-TOOLS-001 通用四工具模式（PARTIAL / 实验入口）
 

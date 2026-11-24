@@ -36,6 +36,7 @@ class Runtime:
         system_prompt: str | Callable[[], str] | None = None,
         show_state: bool = True,
         tool_gate=None,
+        background=None,
     ) -> None:
         if type(max_tool_error_rounds) is not int:
             raise TypeError("工具错误修正轮数必须是整数")
@@ -80,7 +81,7 @@ class Runtime:
             ControlGate(control),
             RoundLimit(max_rounds),
             ReserveGate(budget, checkpoint_policy, closer),
-            ModelCall(model, tools, budget, control, self.trace, prompt),
+            ModelCall(model, tools, budget, control, self.trace, prompt, background=background),
             ResponseRouter(control, tools),
             ToolBatch(
                 tools, control, budget, checkpoint_policy, self.trace, progress_guard, closer,

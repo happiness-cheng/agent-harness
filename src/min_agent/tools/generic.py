@@ -84,6 +84,10 @@ class BashArguments(BaseModel):
         description="可选：执行前写下的只读验证命令（如 test -f out.txt、grep ...）。"
                     "主命令退出码 0 后才跑；必须是只读（分类为 low），否则拒绝。"
                     "结果里 verification.passed 如实报告，不推翻主命令结果。")
+    run_in_background: bool = Field(
+        default=False,
+        description="true 时把慢命令（install/build/test）放后台线程，立即返回 bg_id 占位结果，"
+                    "主循环继续；完成结果在后续轮次以 task_notification 注入。不阻塞等待。")
 
 
 MAX_VERIFY_OUTPUT_BYTES = 4096
@@ -676,9 +680,11 @@ def _bash_environment(root: Path, shell: str) -> dict[str, str]:
 class GenericWorkspace:
     """四个通用工具的实现；文件操作仍限制在 root 内。"""
 
-    def __init__(self, root: str | Path, *, backend=None) -> None:
+    def __init__(self, root: str | Path, *, backend=None, background=None) -> None:
         self.sandbox = FileSandbox(root)
         self.root = self.sandbox.root
+        # GOV-001-S9：后台任务管理器（每会话一个，应用持有）；None 时不支持后台。
+        self._background = background
         # 执行前分级门（gate.ToolGate）在用户确认高危破坏性调用后，把该命令
         # 加入此集合；bash() 取出即销毁，仅跳过破坏性词快速失败，其余检查保留。
         # 串行执行，无并发；默认空集合时 gate-v7 行为不变。
@@ -723,7 +729,7 @@ class GenericWorkspace:
                                       expected_sha256=expected_sha256, require_version=False)
 
     def bash(self, command: str, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
-             verify: str | None = None) -> str:
+             verify: str | None = None, run_in_background: bool = False) -> str:
         if "\x00" in command:
             return _error("invalid_command", "命令包含 NUL 字符。")
         # 最小安全门：起进程前拦，不改写、不猜原意（见 _blocked_command）。
@@ -738,21 +744,18 @@ class GenericWorkspace:
             from min_agent.tools.effects import classify_bash
             if classify_bash(verify, self.root).level != "low":
                 return _error("invalid_verify", "verify 必须是只读命令（分类为 low）。")
-        # GOV-001-S7：有沙箱后端走容器（fail-closed，不回落宿主）；否则宿主 bash。
-        if self._backend is not None:
-            result = self._backend.execute(command, timeout_seconds)
-        else:
-            shell = _git_bash()
-            if shell is None:
-                return _error("bash_not_found",
-                              "未找到 Git Bash；请安装 Git for Windows 或把 bash 加入 PATH。")
-            result = self._execute(command, timeout_seconds, shell)
+        # GOV-001-S9：显式后台执行——登记任务、起 daemon 线程，立即返回占位结果。
+        # 分级/禁令已在上面过；后台只是不阻塞主循环，完成结果后续轮次注入。
+        if run_in_background:
+            if self._background is None:
+                return _error("background_unavailable", "当前会话没有后台任务管理器。")
+            bg_id = self._background.start(command, self._run_command, timeout_seconds)
+            return _ok(background=True, bg_id=bg_id,
+                       message=f"后台任务 {bg_id} 已启动；完成结果将在后续轮次以 task_notification 注入。")
+        result = self._run_command(command, timeout_seconds)
         # 主命令成功（退出码 0）后才跑验证；验证失败不推翻主命令结果，只如实报告。
         if verify is not None and result.get("ok") and result.get("exit_code") == 0:
-            if self._backend is not None:
-                verified = self._backend.execute(verify, timeout_seconds)
-            else:
-                verified = self._execute(verify, timeout_seconds, shell)
+            verified = self._run_command(verify, timeout_seconds)
             vstdout, _ = _cap_utf8(verified.get("stdout", ""), MAX_VERIFY_OUTPUT_BYTES)
             result["verification"] = {
                 "command": verify,
@@ -761,6 +764,16 @@ class GenericWorkspace:
                 "passed": verified.get("ok") and verified.get("exit_code") == 0,
             }
         return json.dumps(result, ensure_ascii=False)
+
+    def _run_command(self, command: str, timeout_seconds: float) -> dict:
+        """GOV-001-S7：有沙箱后端走容器（fail-closed，不回落宿主）；否则宿主 bash。"""
+        if self._backend is not None:
+            return self._backend.execute(command, timeout_seconds)
+        shell = _git_bash()
+        if shell is None:
+            return {"ok": False, "error": {"code": "bash_not_found",
+                                           "message": "未找到 Git Bash；请安装 Git for Windows 或把 bash 加入 PATH。"}}
+        return self._execute(command, timeout_seconds, shell)
 
     def _execute(self, command: str, timeout_seconds: float, shell: str) -> dict:
         """起 bash 子进程跑一条命令，返回结果 dict（ok/exit_code/stdout/stderr 或 error）。"""

@@ -39,7 +39,7 @@ def test_main_loop_stays_short():
     (Runtime.__init__, [
         "self", "model", "tools", "max_tool_error_rounds", "max_rounds", "trace", "budget",
         "checkpoint_policy", "control", "progress_guard", "recover_unknown_writes",
-        "before_execute", "system_prompt", "show_state", "tool_gate",
+        "before_execute", "system_prompt", "show_state", "tool_gate", "background",
     ]),
     (Runtime.run, ["self", "text", "trace_context", "store", "execution_context"]),
     (Runtime.run_session, [

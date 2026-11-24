@@ -5,7 +5,7 @@
 - `read(path, offset=1, limit=2000)`：读取工作区内的 UTF-8 文本，按行切片，返回原文、起止行、总行数和 sha256。大文件只读需要的片段。
 - `write(path, content, expected_sha256=None)`：在工作区新建或原子覆盖文本文件；父目录必须已存在。覆盖别人可能刚改的文件时，带上 read 返回的 `expected_sha256`，不匹配会被拒绝（stale_version）。
 - `edit(path, old_text, new_text, expected_sha256=None)`：把文件中唯一出现的 `old_text` 替换掉；匹配不到或多处匹配都会拒绝。可选 `expected_sha256` 做版本校验。
-- `bash(command, timeout_seconds=120)`：在工作区根目录执行 bash 命令，返回 exit_code、stdout、stderr。
+- `bash(command, timeout_seconds=120, verify=None, run_in_background=false)`：在工作区根目录执行 bash 命令，返回 exit_code、stdout、stderr。慢操作（install/build/完整测试）设 `run_in_background=true`：立即返回 bg_id 占位结果、主循环继续做别的，完成结果在后续轮次以 `<task_notification>` 注入；不要同步干等几分钟。
 
 ## 结果契约
 

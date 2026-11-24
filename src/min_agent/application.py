@@ -181,6 +181,8 @@ class HarnessApplication:
         self.gate_model = gate_model
         # GOV-001-S7：可选 bash 沙箱后端（DockerSandbox）；None=宿主实验模式。
         self.sandbox_backend = sandbox_backend
+        # GOV-001-S9：每会话一个后台任务管理器（跨轮次/跨 run 收集完成结果）。
+        self._background_managers = {}
         # MCP-001：服务器配置只来自可信 host；默认不配置、不启动任何子进程。
         if mcp_servers is None:
             servers = ()
@@ -671,6 +673,16 @@ class HarnessApplication:
             self.sessions.set_extension(context, 'long_memory_auto_cursor', len(messages))
         return proposed
 
+    def _background_manager(self, context):
+        """GOV-001-S9：每会话一个 BackgroundManager，跨轮次/跨 run 持久。"""
+        from min_agent.tools.background import BackgroundManager
+        key = str(context.session_id)
+        manager = self._background_managers.get(key)
+        if manager is None:
+            manager = BackgroundManager()
+            self._background_managers[key] = manager
+        return manager
+
     def _registry(self, context, segment, raw_model, control, trace=None, memory_query='当前任务',
                   mcp_catalog=None):
         if self.generic_tools:
@@ -680,7 +692,8 @@ class HarnessApplication:
             from min_agent.tools.generic import GenericWorkspace, build_ask_user_tool, generic_tools
             # GOV-001-S4：generic 用单层契约 {ok,error_code,message,data}。
             registry = ToolRegistry(sessions=self.sessions, context=context, envelope="flat")
-            workspace = GenericWorkspace(self.workspace_root, backend=self.sandbox_backend)
+            workspace = GenericWorkspace(self.workspace_root, backend=self.sandbox_backend,
+                                         background=self._background_manager(context))
             for tool in generic_tools(self.workspace_root, workspace=workspace):
                 registry.register(tool)
             # GOV-001-S5：第 5 个工具 ask_user（提问暂停，无副作用）。
@@ -925,7 +938,8 @@ class HarnessApplication:
                     progress_guard=ProgressGuard(self.sessions, context), recover_unknown_writes=True, trace=trace,
                     before_execute=self._freeze_public_goals if self.public_goals_enabled else None,
                     system_prompt=system_prompt, show_state=not self.generic_tools,
-                    tool_gate=tool_gate)
+                    tool_gate=tool_gate,
+                    background=self._background_manager(context) if self.generic_tools else None)
                 if checkpoint_id is not None:
                     result = runtime.resume_session(checkpoint_id, store=self.sessions, context=context, text=text)
                 elif resume_task_id is not None:

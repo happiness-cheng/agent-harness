@@ -942,3 +942,13 @@
 3. **D3 独立预算上限**：事件 `max_models` 经 `pending_event_run` 扩展传入 _worker，建账本时 `min(total_models, max_models)`；消费即清。替代方案「复用应用总预算」被否：事件应有自己的上限，防单个事件烧光额度。
 4. **D4 审计留痕**：tick 投递写 `gate_audit`（decider=scheduler, event_id）；分级决定写 decider=preauth/rule。每次触发可追溯到事件与决定者。
 5. **不保证**：tick_events 需宿主主动调用（本步未接后台定时线程，沿用既有调度入口）；预授权是精确匹配，不做模式/语义；事件投递走 submit 异步，并发多事件按 contexts 顺序串行。
+
+## GOV-001-S9 — 后台慢任务 + 通知注入（2026-11-24，用户追加）
+
+1. **背景**：用户问 S8 事件触发是否含「长时间 bash（install）放后台、完成后回结果给模型」。S8 是 cron 式排程事件，**不是**后台 bash；本步按 learn-claude-code s11_background_tasks 补后台任务。
+2. **D1 显式 run_in_background，不猜关键词**：bash schema 加 `run_in_background: bool`；只有显式 true 才走后台（参考 s11：不按 install/build/test 关键词猜）。替代方案「按命令关键词自动后台」被否：误判会把快命令也异步化、模型难追踪。
+3. **D2 BackgroundManager 每会话一个、应用持有**：`tools/background.py` 登记任务 + daemon 线程执行 + 完成队列；跨轮次/跨 run 持久（应用 `_background_managers` 按 session_id）。替代方案「每 run 新建」被否：跨 run 收集会丢任务。
+4. **D3 占位结果 + 后续轮次通知注入，不复用 tool_use_id**：后台调用立即返回 `{ok,background,bg_id,message}` 占位 tool_result；`ModelCall` 每轮模型调用前 `collect()` 把已完成结果以 `<task_notification>` 作为独立 user 消息注入。一个 tool_use 仍只对应一个 tool_result（参考 s11）。替代方案「复用原 tool_call_id 回填」被否：违反 tool_use/tool_result 一一配对。
+5. **D4 注入点选 ModelCall 而非 _run**：_run 是冻结薄主循环（形状门禁 ≤35 行/≤2 if）；注入放在 ModelCall 阶段开头，不碰主循环形状。Runtime 加 `background` 参数透传。
+6. **D5 后台仍过分级/禁令/沙箱**：run_in_background 只改变「是否阻塞」，不绕过 gate.check/_blocked_command；后台 runner 复用 `_run_command`（宿主或 Docker 后端）。
+7. **不保证**：后台线程是生命周期清理不是沙箱；结果不主动唤醒模型，只在下一轮主循环收集；进程退出 daemon 线程随之结束；完成通知截断 16KiB。

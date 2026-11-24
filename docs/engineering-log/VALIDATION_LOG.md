@@ -2134,3 +2134,22 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 
 - **GOV-001 全 8 步完成**：S1 迁出恢复 / S2 Ollama+专用基线能力 / S3 分级门 / S4 单层契约+expected_sha256 / S5 ask_user / S6 验证+sidecar / S7 Docker 沙箱 / S8 事件触发。
 - **边界**：tick_events 需宿主主动调用（后台定时线程未接）；预授权精确匹配；真实容器集成 NOT RUN；真实模型 eval 按用户指示不重复跑。5 个 skip = 2 平台 + 3 Docker。
+
+## GOV-001-S9 — 后台慢任务 + 通知注入验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 后台单元 | `pytest tests/unit/test_background.py` | **5 passed**（start/collect completed；failed 命令；runner 异常 failed；bash 后台占位 bg_id；无 manager 拒绝） |
+| 全循环注入 | `pytest tests/integration/test_background_inject.py` | **1 passed**（轮1后台 echo→占位 bg_id；轮2同步 sleep；轮3 stop；历史含 task_notification status=completed） |
+| 形状/generic 回归 | `pytest test_runtime_shape test_generic_tools test_generic_mode` | 通过 |
+| 全量（终版） | `pytest -q --junitxml=...` | **1930 passed / 5 skipped / 8 deselected / 0 failed / 177.39s（exit 0）** |
+
+### S7 真实容器复验（Docker Desktop 启动后，2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 正式镜像构建 | `docker build agent-harness-sandbox:spike` | **FAILED**：Docker Hub `auth.docker.io` EOF（网络阻塞，与之前一致） |
+| 真实容器集成（缓存镜像） | `AGENT_HARNESS_SANDBOX_IMAGE=agent-backend-demo-api:latest pytest tests/integration/test_sandbox_docker.py` | **3 passed**：工作区 rw 往返；`echo x >> src/gate.py` 被只读叠挂拒（文件不变）；网络关闭 |
+
+- **结论**：S7 沙箱参数行为已用缓存镜像（bash+timeout，spike 同源）真实容器验证；正式镜像仍待网络恢复构建。全量里这 3 项默认 skip（默认镜像未构建），需设环境变量复验。
+- **边界**：后台线程是生命周期清理不是沙箱；结果不主动唤醒模型；进程退出 daemon 随之结束。5 个 skip = 2 平台 + 3 Docker（默认镜像未构建）。

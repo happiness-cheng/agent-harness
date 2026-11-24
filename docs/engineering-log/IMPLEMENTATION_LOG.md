@@ -1769,3 +1769,19 @@
 - **实施偏差**：无。
 - **副作用**：新增 scheduled_events/pending_event_run 会话扩展；无 schema 变更。
 - **未完成**：tick_events 后台定时线程未接（沿用宿主主动调用）；预授权精确匹配不做模式。GOV-001 全 8 步代码完成。验证见 VALIDATION_LOG → GOV-001-S8。
+
+## GOV-001-S9 — 后台慢任务 + 通知注入（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S9`；按 learn-claude-code s11 补后台 bash（run_in_background）+ 后续轮次 task_notification 注入。
+- **实际修改**：
+  - 新增 `src/min_agent/tools/background.py`：`BackgroundManager`（start/_run/collect/tasks，daemon 线程，完成队列）。
+  - `src/min_agent/tools/generic.py`：BashArguments 加 `run_in_background`；GenericWorkspace(background=...)；bash 后台占位路径；抽出 `_run_command`（宿主/沙箱路由）。
+  - `src/min_agent/application.py`：`_background_managers` + `_background_manager(context)`；generic workspace 与 Runtime 传 manager。
+  - `src/min_agent/runtime/loop.py`：Runtime(background=...) → ModelCall；`runtime/stages.py`：ModelCall 每轮调用前 collect 注入 task_notification。
+  - `src/min_agent/prompts/generic.md`：补 run_in_background 说明。
+  - 新增 `tests/unit/test_background.py`（5）、`tests/integration/test_background_inject.py`（1）；更新 test_runtime_shape 冻结签名加 background。
+  - `tests/integration/test_sandbox_docker.py`：镜像可用 AGENT_HARNESS_SANDBOX_IMAGE 覆盖（正式镜像网络阻塞时用缓存镜像复验）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S9 D1–D7。
+- **实施偏差**：无。
+- **副作用**：generic 提示词/工具 schema 多 run_in_background；专用模式不变。
+- **未完成**：后台任务无独立超时上限（沿用 bash timeout）；进程退出 daemon 随之结束。验证见 VALIDATION_LOG → GOV-001-S9。
