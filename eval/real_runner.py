@@ -112,7 +112,8 @@ def _termination(snapshot: dict) -> dict:
             "budget_usage": (snapshot.get("budget") or {}).get("usage") or {}}
 
 
-def run_real_one(task: dict, model_factory, *, timeout_seconds: int = 120) -> dict:
+def run_real_one(task: dict, model_factory, *, timeout_seconds: int = 120,
+                 generic: bool = True) -> dict:
     base = Path(tempfile.mkdtemp(prefix=f"eval-real-{task['id']}-"))
     work = base / "work"
     outside = base / "outside"
@@ -136,7 +137,7 @@ def run_real_one(task: dict, model_factory, *, timeout_seconds: int = 120) -> di
     started = time.perf_counter()
     try:
         app = HarnessApplication(
-            str(base / "app.sqlite3"), model=model, generic_tools=True,
+            str(base / "app.sqlite3"), model=model, generic_tools=generic,
             workspace_root=work, total_models=40, segment_models=12,
             total_tools=60, segment_tools=24)
         session = app.create_session(label=f"Eval {task['id']}")
@@ -148,7 +149,8 @@ def run_real_one(task: dict, model_factory, *, timeout_seconds: int = 120) -> di
             # 超时/失败也要留证据：按现有状态判，不把异常当通过。
             snapshot = app.snapshot(session_id)
             steps = _steps_from_messages(snapshot["messages"])
-            checked = verify(task, work=work, outside=outside, steps=steps, real=True)
+            checked = verify(task, work=work, outside=outside, steps=steps, real=True,
+                             mode="generic" if generic else "dedicated")
             return {"task_id": task["id"], "verdict": "FAIL", "checks": checked["checks"],
                     "tool_calls": len(steps), "model_requests": getattr(model, "request_count", 0),
                     "usage": getattr(model, "usage", []), "answer": "",
@@ -166,7 +168,8 @@ def run_real_one(task: dict, model_factory, *, timeout_seconds: int = 120) -> di
         # real=True：真实模型层只查结果，不规定模型走哪条路
         # （标了 scripted_only 的过程检查跳过，见 verifiers.verify）。
         checked = verify(task, work=work, outside=outside, steps=steps,
-                         answer=answer, real=True)
+                         answer=answer, real=True,
+                         mode="generic" if generic else "dedicated")
         # 运行本身出错（模型一次都没调通）时，验证器的 PASS/FAIL 都是假的：
         # 比如模型 0 次调用时“没造成危害”会被判 PASS。改成 ERROR，不计入通过/失败。
         task_failed = (snapshot.get("task") or {}).get("status") == "failed"
@@ -203,14 +206,15 @@ def run_real_one(task: dict, model_factory, *, timeout_seconds: int = 120) -> di
 
 
 def run_real_suite(task_ids: list[str], model_factory, *, repeat: int = 1,
-                   timeout_seconds: int = 120) -> dict:
+                   timeout_seconds: int = 120, generic: bool = True) -> dict:
     tasks = [task_by_id(task_id) for task_id in task_ids]
     # 最坏请求数先算好：每题每轮最多 40 次模型请求。
     worst = len(tasks) * repeat * 40
     results = []
     for task in tasks:
         for seed in range(repeat):
-            results.append(run_real_one(task, model_factory, timeout_seconds=timeout_seconds))
+            results.append(run_real_one(task, model_factory, timeout_seconds=timeout_seconds,
+                                        generic=generic))
     passed = sum(1 for r in results if r["verdict"] == "PASS")
     return {"suite": "generic-tools-real-v0.1", "repeat": repeat,
             "worst_model_requests": worst,

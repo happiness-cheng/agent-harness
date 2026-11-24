@@ -17,6 +17,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from min_agent.session.task_state import AuthorizationRequired
 from min_agent.tools.filesystem import (
     MAX_PATH_LENGTH,
     MAX_WRITE_BYTES,
@@ -49,6 +50,10 @@ class WriteArguments(BaseModel):
                       description="相对工作区根的目标路径；父目录必须已存在。")
     content: str = Field(max_length=MAX_WRITE_BYTES,
                          description="要写入的完整文本；已存在文件会被原子覆盖。")
+    expected_sha256: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$",
+        description="可选：覆盖前期望的文件 sha256（来自 read）。不匹配则拒绝（stale_version），"
+                    "防止盖掉别人刚改的内容；不传则直接覆盖。")
 
 
 class EditArguments(BaseModel):
@@ -60,6 +65,10 @@ class EditArguments(BaseModel):
                           description="要被替换的原文，必须在文件中唯一出现。")
     new_text: str = Field(max_length=MAX_WRITE_BYTES,
                           description="替换后的文本，可为空字符串。")
+    expected_sha256: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$",
+        description="可选：修改前期望的文件 sha256（来自 read）。不匹配则拒绝（stale_version）；"
+                    "不传则直接修改。")
 
 
 class BashArguments(BaseModel):
@@ -70,6 +79,18 @@ class BashArguments(BaseModel):
     timeout_seconds: float = Field(default=DEFAULT_TIMEOUT_SECONDS, ge=1,
                                    le=MAX_TIMEOUT_SECONDS,
                                    description="超时秒数，1–600，默认 120。")
+    verify: str | None = Field(
+        default=None, max_length=MAX_COMMAND_CHARS,
+        description="可选：执行前写下的只读验证命令（如 test -f out.txt、grep ...）。"
+                    "主命令退出码 0 后才跑；必须是只读（分类为 low），否则拒绝。"
+                    "结果里 verification.passed 如实报告，不推翻主命令结果。")
+    run_in_background: bool = Field(
+        default=False,
+        description="true 时把慢命令（install/build/test）放后台线程，立即返回 bg_id 占位结果，"
+                    "主循环继续；完成结果在后续轮次以 task_notification 注入。不阻塞等待。")
+
+
+MAX_VERIFY_OUTPUT_BYTES = 4096
 
 
 def _ok(**payload: object) -> str:
@@ -487,8 +508,13 @@ def _is_credential_name(name: str) -> bool:
             or name.startswith("id_rsa") or name in (".netrc", ".npmrc", "credentials"))
 
 
-def _blocked_command(command: str, root: Path) -> str | None:
-    """起进程前检查 bash 命令；被拦返回原因，否则返回 None。"""
+def _blocked_command(command: str, root: Path, *, allow_destructive: bool = False) -> str | None:
+    """起进程前检查 bash 命令；被拦返回原因，否则返回 None。
+
+    allow_destructive=True 时跳过破坏性词（rm 族 / find -delete/-exec）检查，
+    供执行前分级门（gate.ToolGate）在用户确认高危调用后放行；解析失败、凭据名、
+    工作区外路径仍照常拦。默认 False，gate-v7 行为逐字节不变。
+    """
     import re
     segments, parsed_ok, expansions = _split_segments(command)
     if not parsed_ok:
@@ -505,12 +531,12 @@ def _blocked_command(command: str, root: Path) -> str | None:
         first_idx, first = _real_first_index(tokens)
         if first is None:
             continue
-        if first in _BLOCKED_FIRST_WORDS:
+        if not allow_destructive and first in _BLOCKED_FIRST_WORDS:
             return f"破坏性命令 {first} 被直接拒绝。"
         # 包壳命令（sudo/env/xargs……）：看包壳后的第一个实命令。
         # 跳过 -x 这类开关和 VAR=1 这类赋值；sudo -u root rm 这种仍会漏过；
         # command -v 是查询（问 rm 在哪），不是执行，不拦。
-        if first in _WRAPPER_WORDS:
+        if not allow_destructive and first in _WRAPPER_WORDS:
             for token in tokens[first_idx + 1:]:
                 if first == "command" and token in ("-v", "-V"):
                     break
@@ -521,12 +547,13 @@ def _blocked_command(command: str, root: Path) -> str | None:
                 break
         # find 的 -exec / -execdir 后跟 rm 族、-delete：效果等同 rm。
         # -exec sh -c 'rm ...' 这种仍会漏过。
-        for pos, token in enumerate(tokens):
-            if token == "-delete":
-                return "find -delete 等同删除，被直接拒绝。"
-            if token in ("-exec", "-execdir") and pos + 1 < len(tokens):
-                if _cmd_word(tokens[pos + 1]) in _BLOCKED_FIRST_WORDS:
-                    return f"find {token} 后跟破坏性命令 {tokens[pos + 1]}，被直接拒绝。"
+        if not allow_destructive:
+            for pos, token in enumerate(tokens):
+                if token == "-delete":
+                    return "find -delete 等同删除，被直接拒绝。"
+                if token in ("-exec", "-execdir") and pos + 1 < len(tokens):
+                    if _cmd_word(tokens[pos + 1]) in _BLOCKED_FIRST_WORDS:
+                        return f"find {token} 后跟破坏性命令 {tokens[pos + 1]}，被直接拒绝。"
         # 路径越界：先去重定向符再去引号（顺序不能反，>"/etc/hosts" 这种
         # 先去引号会剩下一个引号）；--opt=路径 拆出值再判；/dev/null 在
         # 解析路径前先判，Windows 上也生效；落在工作区内的放行。
@@ -653,9 +680,17 @@ def _bash_environment(root: Path, shell: str) -> dict[str, str]:
 class GenericWorkspace:
     """四个通用工具的实现；文件操作仍限制在 root 内。"""
 
-    def __init__(self, root: str | Path) -> None:
+    def __init__(self, root: str | Path, *, backend=None, background=None) -> None:
         self.sandbox = FileSandbox(root)
         self.root = self.sandbox.root
+        # GOV-001-S9：后台任务管理器（每会话一个，应用持有）；None 时不支持后台。
+        self._background = background
+        # 执行前分级门（gate.ToolGate）在用户确认高危破坏性调用后，把该命令
+        # 加入此集合；bash() 取出即销毁，仅跳过破坏性词快速失败，其余检查保留。
+        # 串行执行，无并发；默认空集合时 gate-v7 行为不变。
+        self.cleared_commands: set[str] = set()
+        # GOV-001-S7：可选执行后端（DockerSandbox）；None=宿主 bash（默认实验模式）。
+        self._backend = backend
 
     def read(self, path: str, offset: int = 1, limit: int = MAX_READ_LINES) -> str:
         target, failure = self.sandbox.resolve(path)
@@ -684,25 +719,64 @@ class GenericWorkspace:
             size=payload["size"],
         )
 
-    def write(self, path: str, content: str) -> str:
-        return self.sandbox.write_text(path, content, expected_sha256=None,
+    def write(self, path: str, content: str, expected_sha256: str | None = None) -> str:
+        return self.sandbox.write_text(path, content, expected_sha256=expected_sha256,
                                        require_version=False)
 
-    def edit(self, path: str, old_text: str, new_text: str) -> str:
+    def edit(self, path: str, old_text: str, new_text: str,
+             expected_sha256: str | None = None) -> str:
         return self.sandbox.edit_text(path, old_text, new_text,
-                                      expected_sha256=None, require_version=False)
+                                      expected_sha256=expected_sha256, require_version=False)
 
-    def bash(self, command: str, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS) -> str:
+    def bash(self, command: str, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+             verify: str | None = None, run_in_background: bool = False) -> str:
         if "\x00" in command:
             return _error("invalid_command", "命令包含 NUL 字符。")
         # 最小安全门：起进程前拦，不改写、不猜原意（见 _blocked_command）。
-        blocked = _blocked_command(command, self.root)
+        # 分级门已用户确认的高危破坏性命令在此一次性放行（仅跳过破坏性词）。
+        allow_destructive = command in self.cleared_commands
+        self.cleared_commands.discard(command)
+        blocked = _blocked_command(command, self.root, allow_destructive=allow_destructive)
         if blocked is not None:
             return _error("blocked_command", blocked)
+        # GOV-001-S6：验证命令必须先于主命令校验为只读（low），否则拒绝该参数。
+        if verify is not None:
+            from min_agent.tools.effects import classify_bash
+            if classify_bash(verify, self.root).level != "low":
+                return _error("invalid_verify", "verify 必须是只读命令（分类为 low）。")
+        # GOV-001-S9：显式后台执行——登记任务、起 daemon 线程，立即返回占位结果。
+        # 分级/禁令已在上面过；后台只是不阻塞主循环，完成结果后续轮次注入。
+        if run_in_background:
+            if self._background is None:
+                return _error("background_unavailable", "当前会话没有后台任务管理器。")
+            bg_id = self._background.start(command, self._run_command, timeout_seconds)
+            return _ok(background=True, bg_id=bg_id,
+                       message=f"后台任务 {bg_id} 已启动；完成结果将在后续轮次以 task_notification 注入。")
+        result = self._run_command(command, timeout_seconds)
+        # 主命令成功（退出码 0）后才跑验证；验证失败不推翻主命令结果，只如实报告。
+        if verify is not None and result.get("ok") and result.get("exit_code") == 0:
+            verified = self._run_command(verify, timeout_seconds)
+            vstdout, _ = _cap_utf8(verified.get("stdout", ""), MAX_VERIFY_OUTPUT_BYTES)
+            result["verification"] = {
+                "command": verify,
+                "exit_code": verified.get("exit_code"),
+                "stdout": vstdout,
+                "passed": verified.get("ok") and verified.get("exit_code") == 0,
+            }
+        return json.dumps(result, ensure_ascii=False)
+
+    def _run_command(self, command: str, timeout_seconds: float) -> dict:
+        """GOV-001-S7：有沙箱后端走容器（fail-closed，不回落宿主）；否则宿主 bash。"""
+        if self._backend is not None:
+            return self._backend.execute(command, timeout_seconds)
         shell = _git_bash()
         if shell is None:
-            return _error("bash_not_found",
-                          "未找到 Git Bash；请安装 Git for Windows 或把 bash 加入 PATH。")
+            return {"ok": False, "error": {"code": "bash_not_found",
+                                           "message": "未找到 Git Bash；请安装 Git for Windows 或把 bash 加入 PATH。"}}
+        return self._execute(command, timeout_seconds, shell)
+
+    def _execute(self, command: str, timeout_seconds: float, shell: str) -> dict:
+        """起 bash 子进程跑一条命令，返回结果 dict（ok/exit_code/stdout/stderr 或 error）。"""
         started = time.perf_counter()
         options: dict = {
             "cwd": str(self.root),
@@ -722,7 +796,8 @@ class GenericWorkspace:
         try:
             process = subprocess.Popen([shell, "-c", command], **options)
         except OSError as error:
-            return _error("exec_failed", f"无法启动 bash：{error}")
+            return {"ok": False, "error": {"code": "exec_failed",
+                                           "message": f"无法启动 bash：{error}"}}
         try:
             stdout_bytes, stderr_bytes = process.communicate(timeout=timeout_seconds)
         except subprocess.TimeoutExpired:
@@ -733,20 +808,15 @@ class GenericWorkspace:
                 stdout_bytes, stderr_bytes = b"", b""
             stdout, _ = _cap_utf8(_decode(stdout_bytes), MAX_BASH_OUTPUT_BYTES)
             stderr, _ = _cap_utf8(_decode(stderr_bytes), MAX_BASH_OUTPUT_BYTES)
-            return _error(
-                "timeout", f"命令超过 {timeout_seconds:g} 秒，已终止。",
-                stdout=stdout, stderr=stderr,
-                duration_ms=int((time.perf_counter() - started) * 1000),
-            )
+            return {"ok": False, "error": {
+                "code": "timeout", "message": f"命令超过 {timeout_seconds:g} 秒，已终止。",
+                "stdout": stdout, "stderr": stderr,
+                "duration_ms": int((time.perf_counter() - started) * 1000)}}
         stdout, stdout_truncated = _cap_utf8(_decode(stdout_bytes), MAX_BASH_OUTPUT_BYTES)
         stderr, stderr_truncated = _cap_utf8(_decode(stderr_bytes), MAX_BASH_OUTPUT_BYTES)
-        return _ok(
-            exit_code=process.returncode,
-            stdout=stdout,
-            stderr=stderr,
-            truncated=stdout_truncated or stderr_truncated,
-            duration_ms=int((time.perf_counter() - started) * 1000),
-        )
+        return {"ok": True, "exit_code": process.returncode, "stdout": stdout, "stderr": stderr,
+                "truncated": stdout_truncated or stderr_truncated,
+                "duration_ms": int((time.perf_counter() - started) * 1000)}
 
 
 def _kill_tree(process: subprocess.Popen) -> None:
@@ -776,9 +846,14 @@ def _decode(value: bytes | str | None) -> str:
     return value.decode("utf-8", "replace")
 
 
-def generic_tools(root: str | Path) -> list[ToolDefinition]:
-    """构造四个通用工具；调用方负责决定是否注册以及权限门。"""
-    workspace = GenericWorkspace(root)
+def generic_tools(root: str | Path, *, workspace: "GenericWorkspace | None" = None) -> list[ToolDefinition]:
+    """构造四个通用工具；调用方负责决定是否注册以及权限门。
+
+    workspace 可由调用方预先构造并传入，以便分级门（gate.ToolGate）持有同一
+    实例、放行已确认的高危破坏性命令；不传则内部新建（行为与历史一致）。
+    """
+    if workspace is None:
+        workspace = GenericWorkspace(root)
     return [
         ToolDefinition(
             name="read",
@@ -824,3 +899,41 @@ def generic_tools(root: str | Path) -> list[ToolDefinition]:
             handler=workspace.bash,
         ),
     ]
+
+
+class AskUserArguments(BaseModel):
+    model_config = ConfigDict(strict=True, extra="forbid")
+
+    question: str = Field(min_length=1, max_length=2000,
+                          description="要向用户澄清的问题；一次问清一件事。")
+    options: list[str] | None = Field(
+        default=None, max_length=8,
+        description="可选：给用户的候选答案（最多 8 个）；不传则自由回答。")
+
+
+def build_ask_user_tool(sessions, context) -> ToolDefinition:
+    """GOV-001-S5：向用户提问并暂停等待回答。
+
+    记录 ``pending_question`` 会话扩展（snapshot  surfaced），抛
+    ``AuthorizationRequired("waiting_user")`` 停批；用户用既有 /resume 回答，
+    答案作为 user 消息续跑。无副作用，不走分级审批。
+    """
+    from datetime import UTC, datetime
+
+    def handler(question: str, options: list[str] | None = None) -> str:
+        sessions.set_extension(context, "pending_question", {
+            "question": question, "options": options,
+            "asked_at": datetime.now(UTC).isoformat(),
+        })
+        raise AuthorizationRequired("waiting_user")
+
+    return ToolDefinition(
+        name="ask_user",
+        description=(
+            "需要用户澄清才能继续时调用：提出问题（可附候选选项），暂停等待用户回答。"
+            "不要用它汇报进度或 rhetorical 提问；只在缺关键信息、有多个合理方向需用户拍板时用。"
+            "用户回答后会作为新消息续跑。"
+        ),
+        parameters=AskUserArguments,
+        handler=handler,
+    )

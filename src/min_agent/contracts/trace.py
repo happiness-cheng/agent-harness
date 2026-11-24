@@ -28,6 +28,7 @@ ErrorCode = Literal[
     "user_stopped", "no_progress",
     "reminder_time_required", "context_limit", "network_not_authorized",
     "steer_pending",
+    "gate_denied", "gate_escalated", "gate_model_failed",
 ]
 ExecutionState = Literal["not_started", "returned", "unknown"]
 

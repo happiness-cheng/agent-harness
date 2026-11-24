@@ -65,6 +65,12 @@ class MCPConfirm(_Request):
     continue_task: bool = True
 
 
+class GateConfirm(_Request):
+    pending_id: str
+    decision: Literal["approve", "refuse"]
+    continue_task: bool = True
+
+
 class Resume(_Request):
     checkpoint_id: str | None = None
     task_id: str | None = None
@@ -203,6 +209,11 @@ def create_app(harness, *, identity=None):
     def mcp_confirm(session_id: UUID, body: MCPConfirm):
         record = harness.mcp_confirm(session_id, body.pending_id, body.decision,
                                      continue_task=body.continue_task)
+        return {"decided": True, "pending_id": record["pending_id"], "status": record["status"]}
+    @app.post("/api/sessions/{session_id}/gate-confirm")
+    def gate_confirm(session_id: UUID, body: GateConfirm):
+        record = harness.gate_confirm(session_id, body.pending_id, body.decision,
+                                      continue_task=body.continue_task)
         return {"decided": True, "pending_id": record["pending_id"], "status": record["status"]}
     @app.post("/api/sessions/{session_id}/resume", status_code=202)
     def resume(session_id: UUID, body: Resume):

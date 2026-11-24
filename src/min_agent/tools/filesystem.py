@@ -11,6 +11,7 @@
 """
 
 import difflib
+import errno
 import hashlib
 import json
 import os
@@ -40,6 +41,40 @@ RESERVED_DIR = ".adrian"
 _SENSITIVE_SUFFIXES = (".sqlite3", ".db", ".pem", ".key", ".p12", ".pfx")
 _SENSITIVE_PARTS = {".git", ".ssh"}
 _SENSITIVE_NAME_PREFIXES = (".env", "credentials", "id_rsa", "id_ed25519")
+_PATH_ERRNOS = {errno.ELOOP, errno.ENAMETOOLONG, errno.EINVAL, errno.ENOTDIR, errno.EISDIR}
+_PATH_WINERRORS = {1920, 1921, 123, 161}
+# Windows 32/33 是 sharing/lock violation；Python 会把它映射成 PermissionError，
+# 但它不是权限问题，也不是路径无效，应归 I/O 错误。
+_BUSY_WINERRORS = {32, 33}
+
+
+def _is_path_error(error: OSError) -> bool:
+    """只把已知的“路径无效/跨命名空间”错误归为 invalid_path。
+
+    ENOSPC、EIO、Windows sharing violation（32）等是 I/O 错误，不是路径错误；
+    混在一起会让模型错误地换路径重试，也会误导审计。
+    """
+    if getattr(error, "winerror", None) in _PATH_WINERRORS:
+        return True
+    return getattr(error, "errno", None) in _PATH_ERRNOS
+
+
+def _os_failure(error: OSError, action: str) -> str:
+    details = {
+        "errno": getattr(error, "errno", None),
+        "winerror": getattr(error, "winerror", None),
+    }
+    if _is_path_error(error):
+        return _error("invalid_path", f"路径无法安全访问；{action}", **details)
+    return _error("io_error", f"I/O 错误，{action}", **details)
+
+
+def _write_failure(error: OSError, action: str) -> str:
+    """写失败：共享冲突/磁盘满归 io_error，真权限问题归 permission_denied。"""
+    if isinstance(error, PermissionError) \
+            and getattr(error, "winerror", None) not in _BUSY_WINERRORS:
+        return _error("permission_denied", f"没有权限{action}。")
+    return _os_failure(error, action)
 
 
 class FsListArguments(BaseModel):
@@ -316,23 +351,41 @@ class FileSandbox:
         return _ok({"path": display, "entries": entries, "truncated": truncated,
                     "limit": MAX_LIST_ENTRIES})
 
+    def _probe(self, target: Path) -> tuple[bool, bool, bool, str | None]:
+        """安全探测类型；跨命名空间链接/权限不足不得让工具崩溃。"""
+        try:
+            return target.exists(), target.is_dir(), target.is_file(), None
+        except PermissionError as error:
+            if getattr(error, "winerror", None) in _BUSY_WINERRORS:
+                return False, False, False, _os_failure(error, "文件被占用，未读取或修改。")
+            return False, False, False, _error(
+                "permission_denied", "没有权限访问该路径。")
+        except OSError as error:
+            return False, False, False, _os_failure(error, "未读取或修改文件。")
+
     def read_text(self, path: str) -> str:
         target, failure = self.resolve(path)
         if failure is not None:
             return failure
         assert target is not None
-        if not target.exists():
+        # 跨命名空间/损坏的符号链接（例如容器里指向 /etc/passwd 的链接）
+        # 在 Windows 宿主上可能让 exists()/is_dir() 直接抛 OSError；必须转成
+        # 可诊断的拒绝，而不是让工具执行崩溃。
+        exists, is_dir, is_file, failure = self._probe(target)
+        if failure is not None:
+            return failure
+        if not exists:
             return _error("not_found", "文件不存在。")
-        if target.is_dir():
+        if is_dir:
             return _error("is_directory", "目标是目录，请用 fs_list 查看。")
-        if not target.is_file():
+        if not is_file:
             return _error("not_a_file", "目标不是普通文件。")
         if self._sensitive(target):
             return _error("sensitive_path", "该文件被视为敏感文件，拒绝读取。")
         try:
             size = target.stat().st_size
-        except OSError:
-            return _error("stat_failed", "无法读取文件元数据。")
+        except OSError as error:
+            return _os_failure(error, "无法读取文件元数据。")
         if size > MAX_READ_BYTES:
             return _error("file_too_large", "文件超过读取上限，未截断、未返回内容。",
                           size=size, limit=MAX_READ_BYTES)
@@ -396,7 +449,13 @@ class FileSandbox:
 
     def _write_locked(self, target: Path, data: bytes, expected_sha256: str | None,
                       require_version: bool = True) -> str:
-        existed = target.exists()
+        existed, is_dir, is_file, failure = self._probe(target)
+        if failure is not None:
+            return failure
+        if is_dir:
+            return _error("is_directory", "目标是目录，拒绝写入。")
+        if existed and not is_file:
+            return _error("not_regular_file", "目标不是普通文件，拒绝写入。")
         if existed:
             current, failure = self._current_bytes(target)
             if failure is not None:
@@ -413,13 +472,24 @@ class FileSandbox:
         elif expected_sha256 is not None:
             return _error("unexpected_version", "目标文件不存在，但提供了 expected_sha256。")
         _atomic_write(target, data)
+        try:
+            mtime_ns = target.stat().st_mtime_ns
+        except OSError:
+            # 写入已经成功；stat 失败不能把结果伪装成写入失败。
+            mtime_ns = None
         return _ok({"path": target.relative_to(self.root).as_posix(), "size": len(data),
                     "sha256": hashlib.sha256(data).hexdigest(),
-                    "mtime_ns": target.stat().st_mtime_ns, "created": not existed})
+                    "mtime_ns": mtime_ns, "created": not existed})
 
     def _preview_write(self, target: Path, content: str, data: bytes,
                        expected_sha256: str | None) -> str:
-        existed = target.exists()
+        existed, is_dir, is_file, failure = self._probe(target)
+        if failure is not None:
+            return failure
+        if is_dir:
+            return _error("is_directory", "目标是目录，拒绝写入。")
+        if existed and not is_file:
+            return _error("not_regular_file", "目标不是普通文件，拒绝写入。")
         current_hash = None
         before = ""
         if existed:
@@ -453,9 +523,18 @@ class FileSandbox:
         assert target is not None
         if self._sensitive(target):
             return _error("sensitive_path", "该路径被视为敏感文件，拒绝写入。")
-        if target.exists() and target.is_dir():
+        exists, is_dir, _is_file, failure = self._probe(target)
+        if failure is not None:
+            return failure
+        if exists and is_dir:
             return _error("is_directory", "目标是目录，拒绝写入。")
-        if not target.parent.is_dir():
+        try:
+            parent_is_dir = target.parent.is_dir()
+        except PermissionError:
+            return _error("permission_denied", "没有权限访问目标目录。")
+        except OSError as error:
+            return _os_failure(error, "未写入。")
+        if not parent_is_dir:
             return _error("parent_missing", "目标目录不存在；本工具不创建目录。")
         data = content.encode("utf-8")
         if len(data) > MAX_WRITE_BYTES:
@@ -470,8 +549,8 @@ class FileSandbox:
         except LockTimeout as busy:
             return _error("lock_timeout", "文件正被另一个写入操作占用，请稍后重试。",
                           holder=busy.holder)
-        except OSError:
-            return _error("write_failed", "写入失败，原文件未修改。")
+        except OSError as error:
+            return _write_failure(error, "写入文件")
 
     def _edited_bytes(self, target: Path, old_text: str, new_text: str,
                       expected_sha256: str | None, require_version: bool = True,
@@ -525,7 +604,12 @@ class FileSandbox:
             return failure
         assert data is not None and edited is not None
         relative = target.relative_to(self.root).as_posix()
-        before = target.read_text(encoding="utf-8")
+        try:
+            before = target.read_text(encoding="utf-8")
+        except PermissionError:
+            return _error("permission_denied", "没有权限读取该文件。")
+        except OSError as error:
+            return _os_failure(error, "未修改。")
         diff, added, removed, truncated = _bounded_diff(relative, before, edited)
         return _ok({"dry_run": True, "path": relative,
                     "current_sha256": hashlib.sha256(before.encode("utf-8")).hexdigest(),
@@ -539,10 +623,15 @@ class FileSandbox:
         if failure is not None:
             return failure
         assert target is not None
-        if not target.exists():
+        exists, is_dir, is_file, failure = self._probe(target)
+        if failure is not None:
+            return failure
+        if not exists:
             return _error("not_found", "文件不存在。")
-        if target.is_dir():
+        if is_dir:
             return _error("is_directory", "目标是目录，拒绝修改。")
+        if not is_file:
+            return _error("not_regular_file", "目标不是普通文件，拒绝修改。")
         if self._sensitive(target):
             return _error("sensitive_path", "该路径被视为敏感文件，拒绝修改。")
         if dry_run:
@@ -555,8 +644,8 @@ class FileSandbox:
         except LockTimeout as busy:
             return _error("lock_timeout", "文件正被另一个写入操作占用，请稍后重试。",
                           holder=busy.holder)
-        except OSError:
-            return _error("write_failed", "写入失败，原文件未修改。")
+        except OSError as error:
+            return _write_failure(error, "写入文件")
 
     def make_directory(self, path: str, parents: bool = False) -> str:
         target, failure = self._prepare_mutation(path)

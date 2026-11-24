@@ -80,6 +80,24 @@ def test_symlink_escape_is_refused(workspace):
     assert result["error"]["code"] == "outside_workspace"
 
 
+def test_unreadable_reparse_point_is_refused_not_crash(workspace, monkeypatch):
+    """容器/跨命名空间符号链接在 Windows 上可能让 exists() 抛 OSError。"""
+    (workspace / "opaque.txt").write_text("x", encoding="utf-8")
+    original = Path.exists
+
+    def exists(self):
+        if self.name == "opaque.txt":
+            raise OSError(None, "cannot access the file", None, 1920)
+        return original(self)
+
+    monkeypatch.setattr(Path, "exists", exists)
+
+    result = payload(FileSandbox(workspace).read_text("opaque.txt"))
+
+    assert result["ok"] is False
+    assert result["error"]["code"] == "invalid_path"
+
+
 def test_missing_directory_and_special_files_are_refused(workspace):
     sandbox = FileSandbox(workspace)
 

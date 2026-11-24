@@ -1,5 +1,6 @@
 """保存本地工具绑定，并导出不含处理函数的模型可见元数据。"""
 
+import json
 from collections.abc import Callable
 from dataclasses import dataclass
 
@@ -45,6 +46,39 @@ def _request_error(code: str, message: str, **details: object) -> dict[str, obje
     }
 
 
+def flatten_outcome(outcome: dict[str, object]) -> dict[str, object]:
+    """把双层 ok 的内部结果压成单层 {ok, error_code, message, data}。
+
+    外层 ok=false（registry 级错误：unknown_tool/invalid_arguments/refused/gate_denied）
+    直接取外层 error；外层 ok=true 时拆 handler 内层 JSON，**以内层业务 ok 为准**
+    （这正是双层 ok 的痛点：工具执行了但业务失败，模型该看到失败）。
+    """
+    if not outcome.get("ok"):
+        error = outcome.get("error") or {}
+        error = error if isinstance(error, dict) else {}
+        data = {k: v for k, v in error.items() if k not in ("code", "message")}
+        return {"ok": False, "error_code": error.get("code", "tool_error"),
+                "message": error.get("message", ""), "data": data}
+    raw = outcome.get("result")
+    inner = None
+    if isinstance(raw, str):
+        try:
+            parsed = json.loads(raw)
+            inner = parsed if isinstance(parsed, dict) else None
+        except ValueError:
+            inner = None
+    if isinstance(inner, dict):
+        if inner.get("ok"):
+            data = {k: v for k, v in inner.items() if k != "ok"}
+            return {"ok": True, "error_code": None, "message": "", "data": data}
+        error = inner.get("error") or {}
+        error = error if isinstance(error, dict) else {}
+        data = {k: v for k, v in error.items() if k not in ("code", "message")}
+        return {"ok": False, "error_code": error.get("code", "tool_error"),
+                "message": error.get("message", ""), "data": data}
+    return {"ok": True, "error_code": None, "message": "", "data": {"result": raw}}
+
+
 @dataclass(frozen=True)
 class ToolDefinition:
     """由可信应用代码创建的工具配置，字段赋值后不可直接替换。"""
@@ -72,13 +106,26 @@ class ToolDefinition:
 class ToolRegistry:
     """保存工具；只有显式 execute 执行 handler。"""
 
-    def __init__(self, *, sessions: SessionStore | None = None, context: ExecutionContext | None = None) -> None:
+    def __init__(self, *, sessions: SessionStore | None = None, context: ExecutionContext | None = None,
+                 envelope: str = "nested") -> None:
         if (sessions is None) != (context is None):
             raise ValueError("会话绑定必须同时提供sessions和context")
+        if envelope not in {"nested", "flat"}:
+            raise ValueError("envelope 只能是 nested 或 flat")
         self._tools: dict[str, ToolDefinition] = {}
         self._sessions = sessions
         self._context = sessions.check_access(context) if sessions is not None else None
         self._long_memory_builder = None
+        # GOV-001-S4：nested=双层 ok（默认，专用模式）；flat=单层
+        # {ok,error_code,message,data}（generic 四工具）。只改序列化给模型的结果，
+        # execute 内部仍返回 nested 形状，ToolBatch/progress_guard 逻辑不变。
+        self.envelope = envelope
+
+    def serialize(self, outcome: dict[str, object]) -> str:
+        """把 execute 的内部结果序列化成给模型的工具消息。"""
+        if self.envelope == "flat":
+            return json.dumps(flatten_outcome(outcome), ensure_ascii=False, allow_nan=False)
+        return json.dumps(outcome, ensure_ascii=False, allow_nan=False)
 
     @property
     def is_bound(self) -> bool:

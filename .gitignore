@@ -10,6 +10,7 @@ agent-harness-credentials.json
 *.log
 /data/
 /reports/
+/eval/runs/
 /shell/node_modules/
 /shell/dist/
 

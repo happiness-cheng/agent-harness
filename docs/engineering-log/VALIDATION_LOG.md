@@ -2038,3 +2038,118 @@ BUG-002/003 根因仍 `UNKNOWN / MIXED`。
 - 预言机扩语料：1505 条命令，不一致只剩 1 条（还是 F2 那个，良性）。
 - 用户 Windows 端到端复验（Ollama qwen3.5:4b，`real_runner` 原链路）：**C1 PASS、S1 PASS，2/2**，4 次模型请求，门触发 0——之前被 CRLF 拖挂的那条路现在通了。
 - **Windows 复核通过**：六套全对、7 个手跑点全过、真实模型层 2/2、Ollama 两轮误拦 0。合入前置条件已满足，门本身无新问题。空格路径限制仍在（已知局限，冻结后处理）。
+
+## GOV-001-S1 — 恢复迁出接线后的回归（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 恢复前基线 | `pytest -q`（gate-v7 树） | **1805 passed / 8 deselected / 146.81s** |
+| 恢复后全量 | `pytest -q --junitxml=...` | **1828 passed / 2 skipped / 8 deselected / 0 failed / 150.65s（exit 0）** |
+| 路径/文件单测 | `pytest tests/unit/test_paths.py test_fs_write.py test_fs_tools.py` | **50 passed / 2 skipped**（8.3 短名、POSIX FIFO 在 Windows skip） |
+| 编译 | `py_compile application/paths/filesystem/web.__main__/generic` | OK |
+| 默认库在工作区外 | `default_database()` | `C:\Users\陈独秀\AppData\Local\agent-harness\data\workspace.sqlite3` |
+| 仓库无敏感物 | `Test-Path .env / data` | 均 False |
+| 旧会话可读 | `HarnessApplication.list_sessions()` | workspace **2**、adrian-qianwen **15** |
+
+- **门禁/评测基线**：用户已在本地跑通（EVAL-DIAG-009：脚本化 22/22、真实模型层 C1/S1 2/2、Ollama 误拦 0），本步按用户指示**不重复跑**。
+- **边界**：本步只证明恢复接线无回归、迁出状态保持；不证明新增治理能力（S3–S8 未做）。2 个 skip 为 Windows 平台限制，非失败。
+
+## GOV-001-S2 — Ollama/专用基线能力离线验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 编译 | `py_compile eval/real.py run_real.py real_runner.py verifiers.py` | OK |
+| S2 + 既有 eval 测试 | `pytest eval/test_s2_baselines.py eval/test_real_smoke.py eval/test_eval.py` | **12 passed**（7 新 + 5 既有） |
+| CLI 接线 | `python -m eval.run_real --help` | `--provider {groq,gemini,qianwen,ollama}`、`--mode {generic,dedicated}`、`--ollama-base-url` 正常解析 |
+
+- 覆盖：OllamaEvalModel usage 映射/describe/HTTP 失败记 last_error；ollama_available 模型在/不在/不可达；dedicated 模式 blocked_command→NOT_APPLICABLE、文件检查仍判、全不适用整题 N/A；generic 判据不变。
+- **真实基线跑：NOT RUN**（用户指示不重复跑；Ollama 真实模型层见 EVAL-DIAG-009：C1/S1 2/2、误拦 0）。
+- **边界**：离线测试只证明能力接好、判据未被悄悄改；不证明真模型成功率。专用基线对 bash 专属题大多 NOT_APPLICABLE。
+
+## GOV-001-S3 — 执行前分级门验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 分类器 | `pytest tests/unit/test_effects.py` | **44 passed**（只读 low / 破坏性·外发·系统 high / 灰区 medium / 混合取最大 / 解析失败 high / write 新建·覆盖） |
+| 分级门单元 | `pytest tests/unit/test_gate.py` | **16 passed**（规则拒凭据/越界/解析失败；小模型 allow/deny/失败升级；熔断 3 次；rm→人工→批准→放行→真删除→标记销毁；拒绝；git push 人工；无人值守拒；off 放行但禁令仍拦；审计脱敏） |
+| 完整 app 路径 | `pytest tests/integration/test_gate_integration.py` | **3 passed**（规则拒写 gate_denied 工具消息+审计；高危停 waiting_user+pending；gate off 保留 gate-v7 blocked_command） |
+| 冻结签名 | `pytest tests/unit/test_runtime_shape.py` | 通过（tool_gate 已纳入冻结列表） |
+| 全量（终版） | `pytest -q --junitxml=...` | **1891 passed / 2 skipped / 8 deselected / 0 failed / 146.72s（exit 0）** |
+
+- **关键行为证据**：`test_high_risk_rm_requires_human_then_approve_clears` 走通 rm→AuthorizationRequired 停批→用户批准→`cleared_commands` 放行→bash 真删除 victim.txt→标记一次性销毁。
+- **eval：NOT RUN**（用户指示不重复跑）。eval 脚本化层走 registry 直连、不经 ToolBatch 门，S3 不改其结果；真实模型 eval 可显式传 gate_policy 做 A/B。
+- **边界**：小模型审批是减速带不是边界；分类是近似 shell 语义（已知缺口仍在）；真边界是沙箱（S7）与人工。2 个 skip 为 Windows 平台限制。gate-v7 默认行为不变（allow_destructive 默认 False、gate_policy 默认 off）。
+
+## GOV-001-S4 — 单层契约 + expected_sha256 验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 单层契约/版本校验 | `pytest tests/unit/test_flat_contract.py` | **12 passed**（flatten 成功/业务失败/registry 错误/纯文本；serialize nested vs flat；write/edit 匹配·stale·unexpected；eval _inner 兼容 flat） |
+| generic + gate + eval 回归 | `pytest test_generic_tools test_generic_mode test_gate_integration eval/...` | **48 passed**（含 S4 12 + 既有 36） |
+| 全量（终版） | `pytest -q --junitxml=...` | **1903 passed / 2 skipped / 8 deselected / 0 failed / 150.96s（exit 0）** |
+
+- **关键行为证据**：`test_flatten_business_failure_uses_inner_ok` 证明外层 ok=true、内层 ok=false 时单层 ok=false（双层 ok 痛点已解）；`test_write_with_stale_expected_sha_rejected` 证明版本不匹配拒绝。
+- **边界**：默认 nested 模式 serialize 与旧 json.dumps 逐字节一致，专用模式零变化；expected_sha256 是乐观并发提示，非 TOCTOU 防护。eval 判据未改（_inner 兼容两形）。
+
+## GOV-001-S5 — ask_user 验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| ask_user | `pytest tests/integration/test_ask_user.py` | **3 passed**（提问停 waiting_user + surfaced question/options；带 task_id resume 回答续跑 + 清 question + 答案进历史；generic 注册含 ask_user） |
+| generic + gate 回归 | `pytest test_generic_mode test_gate_integration` | 通过（工具数 4→5 断言已更新） |
+| 全量（终版） | `pytest -q --junitxml=...` | **1906 passed / 2 skipped / 8 deselected / 0 failed / 149.22s（exit 0）** |
+
+- **边界**：ask_user 不做答案语义校验；options 仅候选提示；超时沿用 waiting_user 既有语义（未新增 TTL）。专用模式工具面不变。
+
+## GOV-001-S6 — 执行后验证 + 上下文 sidecar 验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 验证/sidecar | `pytest tests/unit/test_verification_sidecar.py` | **7 passed**（只读 verify 通过；verify 失败如实报告不推翻主命令；非只读 verify 拒绝；主命令非 0 跳过 verify；无 verify 无字段；sidecar 带 source+索引；失败降级 None） |
+| generic + gate + ask 回归 | `pytest test_generic_tools test_generic_mode test_gate_integration test_ask_user` | 通过 |
+| 全量（终版） | `pytest -q --junitxml=...` | **1913 passed / 2 skipped / 8 deselected / 0 failed / 148.85s（exit 0）** |
+
+- **关键行为证据**：`test_verify_failure_reported_not_overriding_main` 证明主命令 ok=True 时 verify 失败只标 passed=False；`test_verify_must_be_readonly` 证明 rm 作 verify 被 invalid_verify 拒。
+- **边界**：sidecar 是只读背景参考不是指令；文件索引截断；git 非仓库为空；verify 不证明语义正确。无 verify 时 bash 结果与旧版逐字段一致。
+
+## GOV-001-S7 — Docker 沙箱最小接入验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 沙箱单元 | `pytest tests/unit/test_sandbox.py` | **5 passed**（_build_args 硬化参数+保护目录只读叠挂；docker 缺失/镜像缺失 fail-closed；bash 路由后端；后端不可用不回落宿主） |
+| 真实容器集成 | `pytest tests/integration/test_sandbox_docker.py` | **3 skipped（NOT RUN）**：本机 Docker 守护进程未运行；工作区 rw/门禁只读/网络关闭待 Docker 启动后复验 |
+| generic 回归 | `pytest test_generic_tools test_generic_mode` | 通过 |
+| 全量（终版） | `pytest -q --junitxml=...` | **1918 passed / 5 skipped / 8 deselected / 0 failed / 154.03s（exit 0）** |
+
+- **spike 既有证据**（S1 恢复的 scripts/spike_docker_sandbox.py，Docker 29.8.1 曾跑）：网络关闭、容器 env 无凭据、超时无残留、仓库 .env/data 不可见——参数层面已验证；产品 DockerSandbox 复用同参数。
+- **边界**：真实容器集成 NOT RUN（Docker  down）；文件工具仍宿主、TOCTOU 推迟；只读叠挂防改门禁不防读私有材料；正式镜像构建被网络阻塞。5 个 skip = 2 平台（8.3/FIFO）+ 3 Docker。
+
+## GOV-001-S8 — 事件触发验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 事件触发 | `pytest tests/integration/test_event_trigger.py` | **6 passed**（预授权命中放行 decider=preauth；不命中拒；高危即使预授权也拒；到期事件 fired+scheduler 审计；未来事件不 fired；事件 run 强制 unattended+预算上限+中风险无预授权 gate_denied） |
+| 分级门回归 | `pytest tests/unit/test_gate.py` | **16 passed** |
+| 全量（终版） | `pytest -q --junitxml=...` | **1924 passed / 5 skipped / 8 deselected / 0 failed / 167.84s（exit 0）** |
+
+- **GOV-001 全 8 步完成**：S1 迁出恢复 / S2 Ollama+专用基线能力 / S3 分级门 / S4 单层契约+expected_sha256 / S5 ask_user / S6 验证+sidecar / S7 Docker 沙箱 / S8 事件触发。
+- **边界**：tick_events 需宿主主动调用（后台定时线程未接）；预授权精确匹配；真实容器集成 NOT RUN；真实模型 eval 按用户指示不重复跑。5 个 skip = 2 平台 + 3 Docker。
+
+## GOV-001-S9 — 后台慢任务 + 通知注入验证（2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 后台单元 | `pytest tests/unit/test_background.py` | **5 passed**（start/collect completed；failed 命令；runner 异常 failed；bash 后台占位 bg_id；无 manager 拒绝） |
+| 全循环注入 | `pytest tests/integration/test_background_inject.py` | **1 passed**（轮1后台 echo→占位 bg_id；轮2同步 sleep；轮3 stop；历史含 task_notification status=completed） |
+| 形状/generic 回归 | `pytest test_runtime_shape test_generic_tools test_generic_mode` | 通过 |
+| 全量（终版） | `pytest -q --junitxml=...` | **1930 passed / 5 skipped / 8 deselected / 0 failed / 177.39s（exit 0）** |
+
+### S7 真实容器复验（Docker Desktop 启动后，2026-11-24）
+
+| 检查 | 命令/证据 | 结果 |
+|---|---|---|
+| 正式镜像构建 | `docker build agent-harness-sandbox:spike` | **FAILED**：Docker Hub `auth.docker.io` EOF（网络阻塞，与之前一致） |
+| 真实容器集成（缓存镜像） | `AGENT_HARNESS_SANDBOX_IMAGE=agent-backend-demo-api:latest pytest tests/integration/test_sandbox_docker.py` | **3 passed**：工作区 rw 往返；`echo x >> src/gate.py` 被只读叠挂拒（文件不变）；网络关闭 |
+
+- **结论**：S7 沙箱参数行为已用缓存镜像（bash+timeout，spike 同源）真实容器验证；正式镜像仍待网络恢复构建。全量里这 3 项默认 skip（默认镜像未构建），需设环境变量复验。
+- **边界**：后台线程是生命周期清理不是沙箱；结果不主动唤醒模型；进程退出 daemon 随之结束。5 个 skip = 2 平台 + 3 Docker（默认镜像未构建）。

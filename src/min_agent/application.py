@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
 from threading import Event, RLock, Thread
-from uuid import UUID, NAMESPACE_URL, uuid5
+from uuid import UUID, uuid4
 import json
 import re
 
@@ -32,6 +32,7 @@ from min_agent.notify.scheduler import Scheduler
 from min_agent.session.store import SessionStore, ExecutionContext
 from min_agent.compression.skills import SkillCatalog
 from min_agent.compression.skill_retention import SkillRetentionSelector
+from min_agent.session.paths import default_env_file, ensure_workspace_outside_private, owner_id_for_database
 from min_agent.session.storage import SQLiteStorage
 from min_agent.session.task_state import ActionSpec, AuthorizationRequired, GoalSpec, TaskController
 from min_agent.tools.calculator import CALCULATOR_TOOL
@@ -104,14 +105,21 @@ class HarnessApplication:
                  memory_strategy='GOAL_VALUE', memory_budget=4096, memory_policy=None, memory_mode='legacy',
                  public_goals_enabled=False, research_observation_enabled=False,
                  enable_multi_agent=False, multi_agent_service_factory=None, model_catalog=None,
-                 workspace_root=None, mcp_servers=None, generic_tools=False):
+                 workspace_root=None, mcp_servers=None, generic_tools=False,
+                 gate_policy="off", gate_model=None, sandbox_backend=None):
         if memory_strategy not in {'NONE','RECENCY','FREQUENCY','GOAL_VALUE'}:
             raise ValueError('无效Memory策略')
         if type(memory_budget) is not int or memory_budget<0: raise ValueError('无效Memory预算')
         self.memory_strategy,self.memory_budget,self.memory_policy=memory_strategy,memory_budget,memory_policy
         if memory_mode not in {'legacy','active','off'}: raise ValueError('无效Memory使用模式')
         self.memory_mode = memory_mode
-        path = Path(database).resolve(); path.parent.mkdir(parents=True, exist_ok=True)
+        # fail-closed：工作区不得包含（或位于）凭据/数据目录；实际数据库路径
+        # 与默认 env 文件也一起比较，避免 --database 把库放进工作区。
+        path = Path(database).resolve()
+        if workspace_root is not None:
+            ensure_workspace_outside_private(
+                workspace_root, database=path, env_file=default_env_file())
+        path.parent.mkdir(parents=True, exist_ok=True)
         self.storage = SQLiteStorage.open(path) if path.exists() else SQLiteStorage.create_new(path)
         self.sessions = SessionStore(storage=self.storage)
         if type(research_observation_enabled) is not bool:
@@ -146,7 +154,7 @@ class HarnessApplication:
         self.multi_agent_service_factory = multi_agent_service_factory
         from min_agent.long_memory import LongMemory
         self.memory = LongMemory(self.sessions)
-        self.owner_id = owner_id or uuid5(NAMESPACE_URL, "agent-harness-local:" + str(path))
+        self.owner_id = owner_id or owner_id_for_database(path)
         self.model = model or DemoModel(); self.model_factory = model_factory
         self.demo = isinstance(self.model, DemoModel) and model_factory is None
         # QWEN-SELECTOR-001：可选模型目录。提供时按会话取模型，缺省用目录默认模型；
@@ -162,6 +170,19 @@ class HarnessApplication:
         if generic_tools and self.workspace_root is None:
             raise ValueError("generic_tools=True 必须提供 workspace_root")
         self.generic_tools = generic_tools
+        # GOV-001-S3：执行前分级门。默认 off（专用模式与既有测试不受影响）；
+        # generic 产品入口（web CLI）显式设 interactive。gate_model 是中风险
+        # 审批用小模型（OllamaModel 形），缺省时中风险升级人工（fail-closed）。
+        if gate_policy not in {"off", "interactive", "unattended"}:
+            raise ValueError("gate_policy 只能是 off/interactive/unattended")
+        if gate_policy != "off" and not generic_tools:
+            raise ValueError("执行前分级门目前只支持 generic 四工具模式")
+        self.gate_policy = gate_policy
+        self.gate_model = gate_model
+        # GOV-001-S7：可选 bash 沙箱后端（DockerSandbox）；None=宿主实验模式。
+        self.sandbox_backend = sandbox_backend
+        # GOV-001-S9：每会话一个后台任务管理器（跨轮次/跨 run 收集完成结果）。
+        self._background_managers = {}
         # MCP-001：服务器配置只来自可信 host；默认不配置、不启动任何子进程。
         if mcp_servers is None:
             servers = ()
@@ -248,6 +269,82 @@ class HarnessApplication:
                                 text=f"用户已{verb} MCP 调用 {record['prefixed']}；"
                                      "按该决定继续，保留先前结果；被拒绝的调用不要重试。")
             return record
+
+    def _gate_pending(self, context):
+        if not self.generic_tools or self.gate_policy == "off":
+            return []
+        from min_agent.tools.gate import GateConfirmations
+        return GateConfirmations(self.sessions, context).pending()
+
+    def gate_confirm(self, session_id, pending_id, decision, *, continue_task=True):
+        """web 定向入口：批准/拒绝一次挂起的高危调用，可随决定恢复任务。"""
+        if decision not in {"approve", "refuse"}:
+            raise ValueError("decision 只能是 approve 或 refuse")
+        context = self.context(session_id)
+        with self._lock:
+            if str(context.session_id) in self._running:
+                raise RuntimeError("运行中不能处理门禁确认")
+            from min_agent.tools.gate import GateConfirmations
+            record = GateConfirmations(self.sessions, context).decide(
+                UUID(str(pending_id)), decision == "approve")
+            if continue_task:
+                saved = self.sessions.snapshot(context)
+                if saved.task is not None and saved.task.status not in {"completed", "running"}:
+                    verb = "批准" if decision == "approve" else "拒绝"
+                    self.resume(session_id, task_id=str(saved.task.task_id),
+                                text=f"用户已{verb}高危调用 {record['tool']}；"
+                                     "按该决定继续，保留先前结果；被拒绝的调用不要重试。")
+            return record
+
+    def schedule_event(self, session_id, text, at, *, preauth=None, max_models=None):
+        """GOV-001-S8：宿主侧排程一个无人值守事件（不进模型工具面）。
+
+        at 是 ISO 时间字符串；preauth 是预授权条目列表（{tool, command?}）；
+        max_models 是该事件的独立模型请求上限。到期由 tick_events 投递。
+        """
+        from datetime import UTC, datetime
+        if not isinstance(text, str) or not text.strip():
+            raise ValueError("事件文本不能为空")
+        datetime.fromisoformat(at)  # 校验时间格式
+        context = self.context(session_id)
+        event_id = str(uuid4())
+        event = {"event_id": event_id, "text": text, "at": at,
+                 "preauth": list(preauth or []), "max_models": max_models,
+                 "status": "pending", "created_at": datetime.now(UTC).isoformat()}
+        with self._lock:
+            events = self.sessions.extension(context, "scheduled_events", {})
+            events[event_id] = event
+            self.sessions.set_extension(context, "scheduled_events", events)
+        return dict(event)
+
+    def tick_events(self, now=None):
+        """投递到期的无人值守事件：以 unattended 策略 + 预授权续跑，写审计。"""
+        from datetime import UTC, datetime
+        now = now or datetime.now(UTC)
+        fired = []
+        for context in self.sessions.contexts():
+            events = self.sessions.extension(context, "scheduled_events", {})
+            for event_id, event in list(events.items()):
+                if event.get("status") != "pending":
+                    continue
+                if datetime.fromisoformat(event["at"]) > now:
+                    continue
+                with self._lock:
+                    events[event_id]["status"] = "fired"
+                    events[event_id]["fired_at"] = now.isoformat()
+                    self.sessions.set_extension(context, "scheduled_events", events)
+                    self.sessions.set_extension(context, "pending_event_run", {
+                        "event_id": event_id, "preauth": event["preauth"],
+                        "max_models": event["max_models"]})
+                    audit = self.sessions.extension(context, "gate_audit", [])
+                    audit.append({"ts": now.isoformat(), "tool": "event",
+                                  "decider": "scheduler", "allowed": True,
+                                  "level": "event", "reason": f"事件 {event_id} 到期投递",
+                                  "event_id": event_id})
+                    self.sessions.set_extension(context, "gate_audit", audit[-200:])
+                self.submit(str(context.session_id), event["text"])
+                fired.append(event_id)
+        return fired
 
     def create_session(self, label="新会话", model=None, mode=None):
         """新建会话；model/mode 可在创建时指定，避免“第一条消息发出前无法选择”。"""
@@ -359,6 +456,9 @@ class HarnessApplication:
             "long_memory": self.memory_status(context),
             "mcp": self._mcp_status(context),
             "mcp_confirmations": self._mcp_pending(context),
+            "gate_confirmations": self._gate_pending(context),
+            "gate_audit": self.sessions.extension(context, "gate_audit", []),
+            "pending_question": self.sessions.extension(context, "pending_question", None),
             "multi_agent": self.sessions.extension(context, "multi_agent_last_run", None)}
 
     def submit(self, session_id, text, *, public_goals=None, proposal_id=None):
@@ -573,16 +673,33 @@ class HarnessApplication:
             self.sessions.set_extension(context, 'long_memory_auto_cursor', len(messages))
         return proposed
 
+    def _background_manager(self, context):
+        """GOV-001-S9：每会话一个 BackgroundManager，跨轮次/跨 run 持久。"""
+        from min_agent.tools.background import BackgroundManager
+        key = str(context.session_id)
+        manager = self._background_managers.get(key)
+        if manager is None:
+            manager = BackgroundManager()
+            self._background_managers[key] = manager
+        return manager
+
     def _registry(self, context, segment, raw_model, control, trace=None, memory_query='当前任务',
                   mcp_catalog=None):
         if self.generic_tools:
             # 只暴露四个通用入口；不注册 todo/记忆/提醒/研究/多 Agent/MCP。
             # 授权门也随专用工具一起不挂载——这是 generic 模式的显式取舍，
             # 由启动参数和系统提示词共同披露，不能悄悄套用到默认模式。
-            from min_agent.tools.generic import generic_tools
-            registry = ToolRegistry(sessions=self.sessions, context=context)
-            for tool in generic_tools(self.workspace_root):
+            from min_agent.tools.generic import GenericWorkspace, build_ask_user_tool, generic_tools
+            # GOV-001-S4：generic 用单层契约 {ok,error_code,message,data}。
+            registry = ToolRegistry(sessions=self.sessions, context=context, envelope="flat")
+            workspace = GenericWorkspace(self.workspace_root, backend=self.sandbox_backend,
+                                         background=self._background_manager(context))
+            for tool in generic_tools(self.workspace_root, workspace=workspace):
                 registry.register(tool)
+            # GOV-001-S5：第 5 个工具 ask_user（提问暂停，无副作用）。
+            registry.register(build_ask_user_tool(self.sessions, context))
+            # 分级门需要 workspace 引用来放行已确认的高危破坏性命令。
+            registry._generic_workspace = workspace
             return registry
         controller = TaskController(self.sessions)
         todos = TodoService(self.sessions)
@@ -723,14 +840,23 @@ class HarnessApplication:
                 # 进程被强杀时也能在下次启动恢复成历史；不写 messages，避免影响
                 # Runtime 的 original_length 切片与压缩计数。
                 self.sessions.set_extension(context, "pending_input", text)
+                # GOV-001-S5：新一轮开始（用户已回答或新输入），清掉上一条待答问题。
+                self.sessions.set_extension(context, "pending_question", None)
+                # GOV-001-S8：取出无人值守事件标记（预授权 + 独立预算上限），消费掉。
+                event_run = self.sessions.extension(context, "pending_event_run", None)
+                if event_run is not None:
+                    self.sessions.set_extension(context, "pending_event_run", None)
                 snapshot = self.sessions.snapshot(context)
                 budgets = SessionBudgets(self.sessions)
                 if new_input and snapshot.task is not None and snapshot.task.status != "completed":
                     raise RuntimeError("暂停任务必须定向续跑，普通输入不能创建新账本")
                 # 普通新输入开启新逻辑任务；定向续跑仅新建片段，复用原任务账本。
+                event_max_models = (event_run or {}).get("max_models")
+                total_models = min(self.total_models, event_max_models) \
+                    if isinstance(event_max_models, int) and event_max_models > 0 else self.total_models
                 budget_id = snapshot.active_budget_id
                 if new_input or budget_id is None:
-                    budget_id = budgets.create(context, BudgetLimits(model_calls=self.total_models, tool_calls=self.total_tools))
+                    budget_id = budgets.create(context, BudgetLimits(model_calls=total_models, tool_calls=self.total_tools))
                 ledger = budgets.open(context, budget_id)
                 segment = ledger.start_segment(BudgetLimits(model_calls=self.segment_models, tool_calls=self.segment_tools))
                 raw_model = self.model_factory(context) if self.model_factory is not None else self.model
@@ -753,11 +879,30 @@ class HarnessApplication:
                 # GENERIC-TOOLS-001：四工具模式没有 read_skill，也不挂 MCP，
                 # 因此系统提示只保留通用工具说明与工作区根。
                 from min_agent.context.system_prompt import SystemPrompt
+                # GOV-001-S6：generic 模式起上下文 sidecar，并行只读采集工作区概况。
+                sidecar = None
+                if self.generic_tools:
+                    from min_agent.context.sidecar import ContextSidecar
+                    sidecar = ContextSidecar(self.workspace_root)
+                    sidecar.start()
                 base = self._base_prompt()
                 if self.generic_tools:
                     sections: list = []
                     prompt_sections = {"generic": {
                         "sha256": sha256(base.encode("utf-8")).hexdigest()}}
+                    # 取 sidecar 结果（短超时）；成功则注入带来源的段并记 trace span，
+                    # 失败/超时省略该段，不影响主循环。
+                    with trace.span("tool", run_id=uuid4(), context=TraceContext(
+                            session_id=context.session_id), tool_name="context_sidecar") as sc_span:
+                        section = sidecar.section() if sidecar is not None else None
+                        if section is not None:
+                            sections.append(lambda: section)
+                            prompt_sections["workspace_context"] = {
+                                "source": "sidecar",
+                                "sha256": sha256(section.encode("utf-8")).hexdigest()}
+                            sc_span.finish("completed", execution_state="returned")
+                        else:
+                            sc_span.finish("partial", "context_limit", "not_started")
                 else:
                     skill_catalog = SkillCatalog(Path(__file__).parent / "skills")
                     sections = [skill_catalog.prompt_section]
@@ -777,11 +922,24 @@ class HarnessApplication:
                     # QWEN-STREAM-001：只在没有Memory递送包装时接管流式，避免绕过递送逻辑。
                     from min_agent.runtime.streaming import StreamingModel
                     primary_model = StreamingModel(raw_model, sink)
+                # GOV-001-S3：generic 模式按策略挂执行前分级门（sidecar）。
+                tool_gate = None
+                if self.generic_tools and (self.gate_policy != "off" or event_run is not None):
+                    from min_agent.tools.gate import ToolGate
+                    # 无人值守事件强制 unattended + 预授权；否则用应用策略。
+                    gate_policy = "unattended" if event_run is not None else self.gate_policy
+                    tool_gate = ToolGate(
+                        self.sessions, context, self.workspace_root,
+                        policy=gate_policy, approval_model=self.gate_model,
+                        workspace=getattr(registry, "_generic_workspace", None),
+                        preauth=(event_run or {}).get("preauth"))
                 runtime = Runtime(ManagedModel(primary_model, manager, control=events), registry,
                     budget=segment, checkpoint_policy=CheckpointPolicy(), control=events,
                     progress_guard=ProgressGuard(self.sessions, context), recover_unknown_writes=True, trace=trace,
                     before_execute=self._freeze_public_goals if self.public_goals_enabled else None,
-                    system_prompt=system_prompt, show_state=not self.generic_tools)
+                    system_prompt=system_prompt, show_state=not self.generic_tools,
+                    tool_gate=tool_gate,
+                    background=self._background_manager(context) if self.generic_tools else None)
                 if checkpoint_id is not None:
                     result = runtime.resume_session(checkpoint_id, store=self.sessions, context=context, text=text)
                 elif resume_task_id is not None:

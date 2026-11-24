@@ -61,15 +61,21 @@ class ReserveGate:
 class ModelCall:
     """一次模型请求：预算扣减、异常映射、响应重校验与 span 结束。"""
 
-    def __init__(self, model, tools, budget, control, trace, prompt) -> None:
+    def __init__(self, model, tools, budget, control, trace, prompt, background=None) -> None:
         self._model = model
         self._tools = tools
         self._budget = budget
         self._control = control
         self._trace = trace
         self._prompt = prompt
+        self._background = background
 
     def __call__(self, state: RunState) -> RunResult | None:
+        # GOV-001-S9：每轮模型调用前收集已完成的后台结果，以 task_notification 注入。
+        # 不复用原 tool_use_id（占位结果已回复）；作为独立 user 事件加入对话。
+        if self._background is not None:
+            for notification in self._background.collect():
+                state.messages.append(Message(role="user", content=notification))
         with self._trace.span(
             "model", run_id=state.run_id, context=state.context,
             parent_call_id=state.parent_call_id,

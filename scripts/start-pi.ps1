@@ -1,14 +1,18 @@
-﻿# 通用四工具工作台：read / write / edit / bash（pi 式）。
+# 通用四工具工作台：read / write / edit / bash（pi 式）。
 # 默认工作区是仓库根；bash 以当前用户权限运行，不是沙箱。
 param(
     [int]$Port = 8766,
-    [string]$Database = 'data/adrian-pi.sqlite3',
+    [string]$Database = $(if ($env:LOCALAPPDATA) { Join-Path $env:LOCALAPPDATA 'agent-harness\data\adrian-pi.sqlite3' } else { Join-Path $HOME 'AppData\Local\agent-harness\data\adrian-pi.sqlite3' }),
     [switch]$NoBrowser
 )
 
 $ErrorActionPreference = 'Stop'
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 Set-Location -LiteralPath $root
+$dataHome = Split-Path -Parent $Database
+if (-not (Test-Path -LiteralPath $dataHome)) {
+    New-Item -ItemType Directory -Path $dataHome -Force | Out-Null
+}
 $python = Join-Path $root '.venv\Scripts\python.exe'
 $url = "http://127.0.0.1:$Port/"
 

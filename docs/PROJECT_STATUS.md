@@ -2,6 +2,23 @@
 
 > **交付规则（AEF-003 第 11 行 + AEF-004 第 12 行，2026-11-14 定稿）**：每次交付必须附核心文件路径、四件事代码讲解与「长度按需、但必须能独立看懂」的关键片段（带文件与行号）；**片段之后还要逐行/分块讲解参数、每步动作、为什么这样写、明确不保证什么**。详见 [AGENTS.md](../AGENTS.md) 第 11–12 行。
 
+## 2026-11-24 GOV-001 四工具治理链落地（进行中，分支 gov-001）
+
+用户要求把功能表逐项落地到 generic 四工具模式：执行前分级（规则→小模型→人）、命令效果分类、只读白名单、sidecar 安全 gate、执行后验证、事件触发、单层契约、expected_sha256、审计、沙箱、ask_user、上下文 sidecar。过度防御（junction/8.3/UNC 绕过、TOCTOU、FIFO、权限位、gitleaks 全历史、long-lived 容器、报错打磨）继续推迟。方案已批准，按 S1–S8 推进，每步一个本地 commit，push 需用户点头。
+
+- **S1 完成（恢复迁出接线）**：本地 `main` 曾被重置到远端 `76bff54`（gate-v7+评测合入），上一轮迁出提交 `9c74d94` 成孤儿。本步按文件干净重放恢复 `session/paths.py`、启动守卫、文件错误分类、默认库迁出、owner 迁移脚本与测试，**不动 gate-v7 的 `generic.py`**。恢复后全量 **1828 passed / 2 skipped / 8 deselected / 150.65s**；默认库在用户数据目录、仓库无 `.env`/`data`、旧会话可读（workspace 2 / qianwen 15）。门禁/评测基线用户已本地跑通（EVAL-DIAG-009），不重复跑。详见三类日志 → GOV-001-S1。
+- **S2 完成（Ollama/专用基线能力）**：`eval/real.py` 加 `OllamaEvalModel`（包装 src OllamaModel）+ `ollama_available`（查 /api/tags，缺失即 NOT RUN）；`run_real.py` 加 `--provider ollama`、`--mode generic|dedicated`；`verify(mode="dedicated")` 把 bash 门检查标 NOT_APPLICABLE，generic 判据不变。离线测试 **12 passed**（7 新 + 5 既有）。**真实基线跑按用户指示推迟**（Ollama 见 EVAL-DIAG-009）。详见三类日志 → GOV-001-S2。
+- **S3 完成（执行前分级门）**：新增 `tools/effects.py`（low/medium/high 分类，复用 gate-v7 解析器）+ `tools/gate.py`（`ToolGate` 规则→小模型→人，fail-closed+熔断；`GateConfirmations` 排队）。`Runtime(tool_gate)`→ToolBatch 执行前串行分级；拒绝写回 `gate_denied` 工具消息+trace+`gate_audit`（脱敏）。rm 族从硬拒改为 high→人工确认，批准后一次性放行。web 加 `/gate-confirm`；CLI generic 默认 interactive + Ollama 审批小模型。gate-v7 默认行为不变（`allow_destructive=False`、`gate_policy=off`）。新增测试 63 项（effects 44 + gate 16 + 集成 3）；全量 **1891 passed / 2 skipped / 8 deselected / 146.72s**。eval 不重复跑（用户指示）。详见三类日志 → GOV-001-S3。
+- **S4 完成（单层契约 + expected_sha256）**：`ToolRegistry(envelope="flat")` + `serialize`/`flatten_outcome`，generic 工具消息压成单层 `{ok,error_code,message,data}`，**以内层业务 ok 为准**（双层 ok 痛点已解）；execute 内部形状不变，ToolBatch/progress_guard 零改动，默认 nested 逐字节不变。write/edit 加可选 `expected_sha256`（不匹配→stale_version）。eval `_inner` 兼容两形、判据不改。generic.md 补契约说明。新增 12 项测试；全量 **1903 passed / 2 skipped / 8 deselected / 150.96s**。详见三类日志 → GOV-001-S4。
+- **S5 完成（ask_user）**：generic 工具面 4→5，新增 `ask_user(question, options?)`：记 `pending_question` → `AuthorizationRequired("waiting_user")` 停批，snapshot surfaced，用户用既有 `/resume`（带 task_id）回答续跑，新一轮清 question。无副作用、不走分级。新增 3 项集成测试；全量 **1906 passed / 2 skipped / 8 deselected / 149.22s**。详见三类日志 → GOV-001-S5。
+- **S6 完成（执行后验证 + 上下文 sidecar）**：bash 加可选只读 `verify`（先校验 low、主命令退出 0 后跑、`verification.passed` 如实报告不推翻主命令）；bash 重构抽出 `_execute`（无 verify 时逐字段不变）。新增 `context/sidecar.py`：generic 模式后台线程只读采集文件索引+git status，注入带 `source=sidecar` 的 workspace_context 段 + trace span，失败/超时降级省略。新增 7 项测试；全量 **1913 passed / 2 skipped / 8 deselected / 148.85s**。详见三类日志 → GOV-001-S6。
+- **S7 完成（Docker 沙箱最小接入）**：新增 `tools/sandbox.py` `DockerSandbox`（spike 参数：网络关闭/只读根/降权/资源限制/每命令一容器/超时强删）；工作区 rw + `src/scripts/tests/eval/.git` 只读叠挂防改门禁代码；Docker/镜像不可用 `sandbox_unavailable` fail-closed 不回落宿主。`GenericWorkspace(backend)`、CLI `--sandbox docker --sandbox-image`。分级/禁令仍在沙箱前。新增 5 单元测试；真实容器集成 3 项 **NOT RUN**（本机 Docker 未运行）。全量 **1918 passed / 5 skipped / 8 deselected / 154.03s**。详见三类日志 → GOV-001-S7。
+- **S8 完成（事件触发）**：宿主侧 `schedule_event`/`tick_events`（不进模型工具面）；到期事件强制 unattended + 预授权（中风险精确匹配放行 decider=preauth，高危一律拒）+ 独立 max_models 预算上限；tick 写 scheduler 审计。新增 6 项测试；全量 **1924 passed / 5 skipped / 8 deselected / 167.84s**。详见三类日志 → GOV-001-S8。
+- **S9 完成（后台慢任务 + 通知注入，用户追加）**：按 learn-claude-code s11，bash 加 `run_in_background`（显式，不猜关键词）；`BackgroundManager` 每会话一个、daemon 线程执行、立即返回 bg_id 占位；`ModelCall` 每轮模型调用前 collect 已完成结果以 `<task_notification>` 注入（不复用 tool_use_id）。后台仍过分级/禁令/沙箱。新增 6 项测试；全量 **1930 passed / 5 skipped / 8 deselected / 177.39s**。详见三类日志 → GOV-001-S9。
+- **已 push + PR**：分支 `gov-001` 已推 origin，PR #6（gov-001 → main）已开，**未合并**（合入归用户）。
+- **S7 真实容器已复验**：Docker Desktop 启动后，正式镜像构建仍被 Docker Hub EOF 阻塞；用缓存镜像 `agent-backend-demo-api:latest` 跑 3 项集成 **全过**（工作区 rw、门禁代码只读叠挂拒写、网络关闭）。
+- **GOV-001 全 9 步代码完成**。**仍推迟**：正式镜像构建（网络阻塞）、文件工具 A/B、TOCTOU、dedicated workspace、tick 后台定时线程、真实模型 eval（用户指示不重复跑）。
+
 ## 2026-11-22 GENERIC-TOOLS-001 通用四工具模式（PARTIAL / 实验入口）
 
 用户要求先把专用工具放一边，只提供 `read / write / edit / bash` 四个通用入口。本批新增**显式模式**，默认服务与既有测试路径不变；专用工具代码保留，切回默认即可恢复。

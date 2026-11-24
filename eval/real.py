@@ -250,3 +250,98 @@ class OpenAICompatibleModel:
 
     def __exit__(self, *args) -> None:
         self.close()
+
+
+def ollama_available(model: str, base_url: str = "http://127.0.0.1:11434",
+                     *, timeout: float = 5.0,
+                     transport: httpx.BaseTransport | None = None) -> tuple[bool, str]:
+    """跑前查 /api/tags：模型在不在本机。不在就如实 NOT RUN，不悄悄下载、不回落云端。
+
+    只读 loopback，trust_env=False，无 key。返回 (是否可用, 说明)。
+    transport 仅供离线测试注入；生产走真实 loopback。
+    """
+    from min_agent.llm.ollama import normalize_base_url
+    url = normalize_base_url(base_url) + "/api/tags"
+    try:
+        with httpx.Client(timeout=timeout, trust_env=False, follow_redirects=False,
+                          transport=transport) as client:
+            response = client.get(url)
+    except httpx.HTTPError as error:
+        return False, f"Ollama 不可达（{type(error).__name__}）：{url}"
+    if response.status_code != 200:
+        return False, f"Ollama /api/tags 返回 HTTP {response.status_code}"
+    try:
+        names = [m.get("name", "") for m in response.json().get("models", [])]
+    except (ValueError, AttributeError):
+        return False, "Ollama /api/tags 返回的不是预期 JSON"
+    # Ollama 的 name 可能带 :latest 后缀；model 也可能省略标签，两边都归一化比。
+    wanted = model if ":" in model else model + ":latest"
+    if model in names or wanted in names:
+        return True, f"模型 {model} 在本机"
+    return False, f"模型 {model} 不在本机（现有：{', '.join(names) or '空'}）"
+
+
+class OllamaEvalModel:
+    """把仓库自带的 OllamaModel 包成评测层接口（与 OpenAICompatibleModel 同形）。
+
+    不改 src/：只委托 generate/context_limits/close/request_count，补 describe()、
+    last_error、retries，并把 Ollama 的 prompt_eval_count/eval_count 映射成评测层
+    统一的 prompt_tokens/completion_tokens，供 token 上限 accounting 用。
+    本地 loopback、无 key、无代理；失败如实记 last_error，不重试（retries 恒 0）。
+    """
+
+    def __init__(self, *, model: str | None = None, temperature: float = 0.0,
+                 num_ctx: int = 32768, max_output_tokens: int = 1024,
+                 max_requests: int = 300, timeout_seconds: float = 180.0,
+                 base_url: str = "http://127.0.0.1:11434",
+                 transport: httpx.BaseTransport | None = None) -> None:
+        from min_agent.llm.ollama import OllamaModel, OllamaSettings
+        settings = OllamaSettings(
+            model=model or "qwen3.5:4b", base_url=base_url, num_ctx=num_ctx,
+            max_output_tokens=max_output_tokens, temperature=temperature,
+            max_requests=max_requests, timeout_seconds=timeout_seconds, think=False)
+        self._inner = OllamaModel(settings, transport=transport)
+        self.model = settings.model
+        self._temperature = temperature
+        self._max_output_tokens = max_output_tokens
+        self.last_error: str | None = None
+        self.retries = 0
+
+    def describe(self) -> dict:
+        return {"model": self.model, "temperature": self._temperature,
+                "max_tokens": self._max_output_tokens}
+
+    def context_limits(self):
+        return self._inner.context_limits()
+
+    def generate(self, messages, *, tools=None):
+        from min_agent.context.manager import ContextLimit
+        from min_agent.llm.client import LLMError
+        try:
+            return self._inner.generate(messages, tools=tools)
+        except (LLMError, ContextLimit) as error:
+            self.last_error = f"{type(error).__name__}: {error}"
+            raise RuntimeError(self.last_error) from error
+
+    @property
+    def usage(self) -> list[dict]:
+        mapped = []
+        for record in self._inner.usage:
+            mapped.append({"request": record.get("request"),
+                           "prompt_tokens": record.get("prompt_eval_count"),
+                           "completion_tokens": record.get("eval_count"),
+                           "elapsed_ms": record.get("total_duration")})
+        return mapped
+
+    @property
+    def request_count(self) -> int:
+        return self._inner.request_count
+
+    def close(self) -> None:
+        self._inner.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args) -> None:
+        self.close()

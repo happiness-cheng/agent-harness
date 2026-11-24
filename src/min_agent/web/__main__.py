@@ -2,10 +2,12 @@
 
 import argparse
 import os
+import sys
 from pathlib import Path
 from threading import Event, Thread
 
 from min_agent.application import HarnessApplication
+from min_agent.session.paths import default_database, default_env_file, ensure_workspace_outside_private
 from min_agent.web.app import create_app
 
 
@@ -24,9 +26,18 @@ def _configuration_error(error):
     return str(error).strip() or "Ollama配置无效"
 
 
+def _database_notice(database) -> str | None:
+    """新库不静默：明确告诉用户路径与“旧会话不会自动出现”。"""
+    path = Path(database).expanduser()
+    if path.exists():
+        return None
+    return f"数据库不存在，将新建空库：{path.resolve()}；旧会话不会自动出现。"
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="本地Agent Harness工作台")
-    parser.add_argument("--database", default="data/workspace.sqlite3")
+    parser.add_argument("--database", default=str(default_database()),
+                        help="会话数据库；默认在用户数据目录（工作区之外）")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--live", action="store_true", help="允许将用户请求发送至指定DeepSeek官方API")
     parser.add_argument("--credentials-file", type=Path)
@@ -47,6 +58,18 @@ def main(argv=None):
     parser.add_argument("--generic-tools", action="store_true",
         help="pi 式四工具模式：只注册 read/write/edit/bash，不注册 todo/记忆/提醒/研究/MCP；"
              "工作区默认当前目录，不经过 Plan/Build 目标确认门")
+    parser.add_argument("--gate-policy", default=None, choices=["off", "interactive", "unattended"],
+        help="执行前分级门策略；generic 模式默认 interactive（规则→小模型→人），"
+             "专用模式只能 off")
+    parser.add_argument("--gate-model", default=None,
+        help="中风险审批用本地 Ollama 小模型名（默认 qwen3.5:4b）；不可用时中风险升级人工")
+    parser.add_argument("--gate-model-url", default="http://127.0.0.1:11434",
+        help="审批小模型的 Ollama loopback 地址")
+    parser.add_argument("--sandbox", default=None, choices=["docker"],
+        help="bash 执行后端；docker=每命令一容器（网络关闭、只读根、保护目录叠挂只读）。"
+             "不传=宿主实验模式。Docker/镜像不可用时 fail-closed，不回落宿主")
+    parser.add_argument("--sandbox-image", default="agent-harness-sandbox:spike",
+        help="沙箱镜像名（需自行构建；不自动拉取）")
     parser.add_argument("--mcp-config", type=Path, default=None,
         help="MCP 服务器配置 JSON；不提供时不启动任何 MCP 子进程")
     parser.add_argument("--adrian", action="store_true", help="真实Adrian本地试用：按需Memory、单实例、就绪后浏览器")
@@ -82,6 +105,16 @@ def main(argv=None):
     if options.generic_tools:
         print(f"通用四工具模式：read/write/edit/bash，工作区 {options.workspace_root}；"
               "不经过 Plan/Build 目标确认门，bash 不是沙箱。", flush=True)
+    if options.workspace_root is not None:
+        try:
+            ensure_workspace_outside_private(
+                options.workspace_root, database=options.database,
+                env_file=default_env_file(), credentials_file=options.credentials_file)
+        except ValueError as error:
+            parser.error(str(error))
+    notice = _database_notice(options.database)
+    if notice is not None:
+        print(notice, file=sys.stderr, flush=True)
     from min_agent.web.launcher import DatabaseLease, DatabaseInUse, LaunchError, identity_for, open_existing, port_available, wait_ready
     identity = identity_for(options.database,options.port,demo=not (options.live or options.ollama),memory_mode=mode)
     lease = DatabaseLease(options.database,identity)
@@ -159,11 +192,30 @@ def main(argv=None):
         if options.multi_agent:
             from min_agent.agents.factory import build_multi_agent_factory
             multi_agent_service_factory = build_multi_agent_factory()
+        # GOV-001-S3：generic 模式默认开 interactive 分级门；审批小模型用本地
+        # Ollama（不可用时中风险升级人工，fail-closed）。专用模式只能 off。
+        gate_policy = options.gate_policy or ("interactive" if options.generic_tools else "off")
+        gate_model = None
+        if gate_policy != "off":
+            from min_agent.llm.ollama import OllamaModel, OllamaSettings
+            try:
+                gate_model = OllamaModel(OllamaSettings(
+                    model=options.gate_model or "qwen3.5:4b", base_url=options.gate_model_url,
+                    num_ctx=4096, max_output_tokens=256, temperature=0.0,
+                    timeout_seconds=10.0, max_requests=200, think=False))
+            except (ValueError, TypeError):
+                gate_model = None
+        # GOV-001-S7：显式 --sandbox docker 才建容器后端；默认宿主实验模式。
+        sandbox_backend = None
+        if options.sandbox == "docker":
+            from min_agent.tools.sandbox import DockerSandbox
+            sandbox_backend = DockerSandbox(options.workspace_root, image=options.sandbox_image)
         harness = HarnessApplication(options.database,model=model,proxy=options.proxy,desktop=desktop,memory_mode=mode,
             model_catalog=catalog,workspace_root=options.workspace_root,mcp_servers=mcp_servers,
             enable_multi_agent=options.multi_agent,
             multi_agent_service_factory=multi_agent_service_factory,
-            generic_tools=options.generic_tools)
+            generic_tools=options.generic_tools,
+            gate_policy=gate_policy, gate_model=gate_model, sandbox_backend=sandbox_backend)
         run(harness,identity,open_browser=options.adrian and not options.no_browser)
     finally:
         lease.__exit__(None,None,None)

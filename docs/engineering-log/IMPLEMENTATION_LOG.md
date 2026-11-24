@@ -1656,3 +1656,132 @@
 - **实施偏差**：无。AGENTS.md 一行修正例外适用：只给路径与变更摘要；代码片段附短讲解（见给用户的回复）。
 - **副作用**：未提交/推送（用户未授权合入）。门代码 v7 不变。
 - **未完成**：用户决定是否合入（Windows 复核已通过，合入条件已齐）；合入后删不删 review/20261120-wiring-fix 远端分支、D1/D2 仍待用户确认（与本轮无关，另案）。
+
+## GOV-001-S1 — 恢复私有路径迁出接线（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S1`；治理链落地第一步。把孤儿提交 `9c74d94` 的私有路径迁出接线干净重放回当前树（`76bff54`，gate-v7 + 评测），保住门禁，恢复「`.env`/数据在工作区外」的既定状态。
+- **基线**：分支 `gov-001`（从 `main`=`76bff54` 开）；恢复前全量 **1805 passed / 8 deselected**（gate-v7 树，无迁出测试）。
+- **实际修改（按文件 checkout 自 `9c74d94`，排除 `generic.py`）**：
+  - 新增 `src/min_agent/session/paths.py`、`scripts/migrate_owner_20261123.py`、`scripts/spike_docker_sandbox.py`、`tests/unit/test_paths.py`；
+  - 恢复 `src/min_agent/application.py`（建库前 `ensure_workspace_outside_private`、`owner_id_for_database`）、`src/min_agent/web/__main__.py`（默认库 `default_database()`、CLI 守卫、新库提示）、`src/min_agent/tools/filesystem.py`（`_probe`/错误分类/原子写）；
+  - 恢复 `scripts/start-pi.ps1`、`start-qianwen.ps1`、`start-interview-demo.ps1`、`ollama_live_acceptance.py` 的默认库到用户数据目录；
+  - 恢复 `tests/unit/test_fs_tools.py`、`test_fs_write.py` 的错误分类回归。
+- **方法**：先 `git diff --quiet 76bff54 f93a400 -- <file>` 逐文件确认与孤儿父版本一致（零冲突），再 `git checkout 9c74d94 -- <paths>`。决策见 DECISION_LOG → GOV-001-S1 D1–D3。
+- **实施偏差**：无。`generic.py` 未动（gate-v7 所有）。
+- **副作用**：磁盘 `.env`/数据库不重复迁移；旧会话仍可读（workspace 2、qianwen 15）；仓库内不建 `.env`/`data`。
+- **未完成**：S2–S8（Ollama/专用基线、分级、契约、ask_user、验证/sidecar、沙箱、事件）未开始。验证见 VALIDATION_LOG → GOV-001-S1。
+
+## GOV-001-S2 — Ollama 与专用模式基线能力（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S2`；给评测层补 Ollama provider 与专用模式基线**能力**（可运行 + 离线测试），真实基线跑按用户指示推迟。
+- **实际修改**：
+  - `eval/real.py`：新增 `OllamaEvalModel`（包装 src `OllamaModel`，补 describe/last_error/retries，usage 字段映射）与 `ollama_available`（查 /api/tags，可注入 transport 供离线测试）。
+  - `eval/run_real.py`：`--provider` 加 `ollama`；新增 `--mode generic|dedicated`、`--ollama-base-url`；ollama 跑前可用性检查（不可用 exit 2）；factory 加 ollama 分支；`run_real_one` 传 `generic`；info/summary/report 记 mode 与 NOT_APPLICABLE 计数。
+  - `eval/real_runner.py`：`run_real_one`/`run_real_suite` 加 `generic` 参数 → `generic_tools=generic`；两处 `verify` 传 `mode`。
+  - `eval/verifiers.py`：`verify` 加 `mode`；dedicated 模式 `blocked_command` 检查标 NOT_APPLICABLE，全不适用整题 NOT_APPLICABLE。
+  - 新增 `eval/test_s2_baselines.py`（7 项离线测试）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S2 D1–D4。不改 src/、不改 generic 判据。
+- **实施偏差**：无。
+- **副作用**：无生产代码改动；eval/runs 已 gitignore。
+- **未完成**：真实 Ollama/专用基线**跑**未执行（用户指示不重复跑；Ollama 见 EVAL-DIAG-009）。S3–S8 未开始。验证见 VALIDATION_LOG → GOV-001-S2。
+
+## GOV-001-S3 — 执行前分级门（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S3`；generic 四工具模式落地执行前分级：规则快速失败 → 小模型审批 → 人工确认，拒绝理由写回工具消息/trace/审计。
+- **实际修改**：
+  - 新增 `src/min_agent/tools/effects.py`：`classify_call/classify_bash`，low/medium/high 三档，复用 gate-v7 解析器；只读白名单带参数约束（无写重定向、find 无 -exec/-delete、tee 仅 /dev/null）。
+  - 新增 `src/min_agent/tools/gate.py`：`ToolGate`（check/_medium/_high/_ask_model，熔断）、`GateConfirmations`（排队/决定/消费）、`redact_command`、`GateDecision`。
+  - `src/min_agent/tools/generic.py`：`_blocked_command` 加 `allow_destructive=False`（三处破坏性检查加守卫）；`GenericWorkspace.cleared_commands`；`bash()` 取出放行标记；`generic_tools(workspace=...)`。
+  - `src/min_agent/runtime/loop.py`：`Runtime(tool_gate=...)` → ToolBatch；`runtime/tool_loop.py`：`ToolBatch(gate=...)`，执行前 `gate.check`，拒绝写 `gate_denied`。
+  - `src/min_agent/contracts/trace.py`：ErrorCode 加 `gate_denied/gate_escalated/gate_model_failed`。
+  - `src/min_agent/application.py`：`gate_policy/gate_model` 参数；generic registry 暴露 `_generic_workspace`；`_worker` 建 ToolGate 传 Runtime；`gate_confirm/_gate_pending`；snapshot 加 `gate_confirmations/gate_audit`。
+  - `src/min_agent/web/app.py`：`GateConfirm` 模型 + `/api/sessions/{id}/gate-confirm`；`web/__main__.py`：`--gate-policy/--gate-model/--gate-model-url`，generic 默认 interactive + 建 Ollama 审批模型。
+  - 新增 `tests/unit/test_effects.py`（44）、`tests/unit/test_gate.py`（16）、`tests/integration/test_gate_integration.py`（3）；更新 `tests/unit/test_runtime_shape.py` 冻结签名加 tool_gate。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S3 D1–D8。
+- **实施偏差**：无。gate-v7 默认行为不变（allow_destructive 默认 False、cleared_commands 默认空、gate_policy 默认 off）。
+- **副作用**：无数据库 schema 变更；审计/确认走会话扩展。
+- **未完成**：S4–S8（单层契约+expected_sha256+审计完善、ask_user、执行后验证+上下文 sidecar、沙箱、事件触发）。eval 不重复跑（用户指示）。验证见 VALIDATION_LOG → GOV-001-S3。
+
+## GOV-001-S4 — 单层契约 + expected_sha256（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S4`；generic 四工具模式试单层结果契约 `{ok,error_code,message,data}`，write/edit 加可选 expected_sha256；审计已在 S3 落地，本步沿用。
+- **实际修改**：
+  - `src/min_agent/tools/registry.py`：`import json`；`flatten_outcome`；`ToolRegistry(envelope=...)` + `serialize(outcome)`。
+  - `src/min_agent/runtime/tool_loop.py`：两处 `json.dumps(outcome)` → `self._tools.serialize(outcome)`。
+  - `src/min_agent/application.py`：generic registry `envelope="flat"`。
+  - `src/min_agent/tools/generic.py`：WriteArguments/EditArguments 加 `expected_sha256`；write/edit 透传。
+  - `src/min_agent/prompts/generic.md`：补单层契约、expected_sha256、执行前分级说明。
+  - `eval/verifiers.py`：`_inner` 兼容 flat（重建内层形状）。
+  - 新增 `tests/unit/test_flat_contract.py`（12 项）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S4 D1–D5。
+- **实施偏差**：无。默认 nested 模式 serialize 与旧 json.dumps 逐字节一致。
+- **副作用**：无 schema 变更；generic 工具消息形状改变（模型可见），专用模式不变。
+- **未完成**：S5–S8。验证见 VALIDATION_LOG → GOV-001-S4。
+
+## GOV-001-S5 — ask_user（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S5`；generic 模式加第 5 个工具 ask_user，提问暂停等待用户回答。
+- **实际修改**：
+  - `src/min_agent/tools/generic.py`：`AskUserArguments`、`build_ask_user_tool(sessions, context)`（记 pending_question → AuthorizationRequired）；import AuthorizationRequired。
+  - `src/min_agent/application.py`：generic registry 注册 ask_user；snapshot 加 `pending_question`；_worker 新一轮开始清 pending_question。
+  - `tests/integration/test_generic_mode.py`：工具数断言 4→5（含 ask_user）。
+  - 新增 `tests/integration/test_ask_user.py`（3 项）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S5 D1–D4。
+- **实施偏差**：resume 需带 task_id（waiting_user 无 checkpoint），测试据此修正；与 mcp_confirm resume 同形。
+- **副作用**：generic 工具面 4→5；专用模式不变。
+- **未完成**：S6–S8。验证见 VALIDATION_LOG → GOV-001-S5。
+
+## GOV-001-S6 — 执行后验证 + 上下文 sidecar（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S6`；bash 加可选只读 verify（先写条件、成功后跑、如实报告）；generic 模式加并行只读上下文 sidecar。
+- **实际修改**：
+  - `src/min_agent/tools/generic.py`：BashArguments 加 `verify`；`MAX_VERIFY_OUTPUT_BYTES=4096`；bash 重构抽出 `_execute`，主命令成功后跑 verify 加 `verification`；verify 先校验 low。
+  - 新增 `src/min_agent/context/sidecar.py`：`ContextSidecar`（后台线程采集文件索引+git status，section() 短超时取结果，带 source=sidecar）。
+  - `src/min_agent/application.py`：generic 模式起 sidecar，注入 workspace_context 段 + trace span；import uuid4。
+  - 新增 `tests/unit/test_verification_sidecar.py`（7 项）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S6 D1–D4。
+- **实施偏差**：无。无 verify 时 bash 结果与旧版逐字段一致。
+- **副作用**：generic 提示词多一段 workspace_context（sidecar 成功时）；专用模式不变。
+- **未完成**：S7–S8。验证见 VALIDATION_LOG → GOV-001-S6。
+
+## GOV-001-S7 — Docker 沙箱最小接入（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S7`；把 bash 最小接入 Docker 沙箱（spike 参数 + 保护目录只读叠挂 + fail-closed）。
+- **实际修改**：
+  - 新增 `src/min_agent/tools/sandbox.py`：`DockerSandbox`（available 检查 docker+镜像、_build_args 硬化参数+保护目录叠挂、execute 每命令一容器+超时强删）。
+  - `src/min_agent/tools/generic.py`：`GenericWorkspace(backend=...)`；bash/verify 有后端走容器、否则宿主。
+  - `src/min_agent/application.py`：`sandbox_backend` 参数；generic workspace 传 backend。
+  - `src/min_agent/web/__main__.py`：`--sandbox docker`、`--sandbox-image`；建 DockerSandbox 传应用。
+  - 新增 `tests/unit/test_sandbox.py`（5）、`tests/integration/test_sandbox_docker.py`（3，Docker 不可用 skip）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S7 D1–D5。
+- **实施偏差**：无。默认 backend=None，宿主行为不变。
+- **副作用**：无 schema 变更；显式 --sandbox docker 才改变 bash 执行位置。
+- **未完成**：S8；真实容器集成 NOT RUN（本机 Docker 未运行）；正式镜像构建（网络阻塞）；文件工具 A/B、TOCTOU、dedicated workspace 推迟。验证见 VALIDATION_LOG → GOV-001-S7。
+
+## GOV-001-S8 — 事件触发（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S8`；宿主侧无人值守事件触发，预授权 + 独立预算 + 审计。
+- **实际修改**：
+  - `src/min_agent/tools/gate.py`：ToolGate 加 `preauth` + `_preauth_match`；unattended 中风险命中预授权放行（decider=preauth），否则拒；高危仍拒。
+  - `src/min_agent/application.py`：`schedule_event`/`tick_events`；_worker 消费 `pending_event_run`（强制 unattended + preauth + max_models 预算上限）；tick 写 scheduler 审计。
+  - 新增 `tests/integration/test_event_trigger.py`（6 项）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S8 D1–D5。
+- **实施偏差**：无。
+- **副作用**：新增 scheduled_events/pending_event_run 会话扩展；无 schema 变更。
+- **未完成**：tick_events 后台定时线程未接（沿用宿主主动调用）；预授权精确匹配不做模式。GOV-001 全 8 步代码完成。验证见 VALIDATION_LOG → GOV-001-S8。
+
+## GOV-001-S9 — 后台慢任务 + 通知注入（2026-11-24）
+
+- **Task ID / 目标**：`GOV-001-S9`；按 learn-claude-code s11 补后台 bash（run_in_background）+ 后续轮次 task_notification 注入。
+- **实际修改**：
+  - 新增 `src/min_agent/tools/background.py`：`BackgroundManager`（start/_run/collect/tasks，daemon 线程，完成队列）。
+  - `src/min_agent/tools/generic.py`：BashArguments 加 `run_in_background`；GenericWorkspace(background=...)；bash 后台占位路径；抽出 `_run_command`（宿主/沙箱路由）。
+  - `src/min_agent/application.py`：`_background_managers` + `_background_manager(context)`；generic workspace 与 Runtime 传 manager。
+  - `src/min_agent/runtime/loop.py`：Runtime(background=...) → ModelCall；`runtime/stages.py`：ModelCall 每轮调用前 collect 注入 task_notification。
+  - `src/min_agent/prompts/generic.md`：补 run_in_background 说明。
+  - 新增 `tests/unit/test_background.py`（5）、`tests/integration/test_background_inject.py`（1）；更新 test_runtime_shape 冻结签名加 background。
+  - `tests/integration/test_sandbox_docker.py`：镜像可用 AGENT_HARNESS_SANDBOX_IMAGE 覆盖（正式镜像网络阻塞时用缓存镜像复验）。
+- **方法/决策**：见 DECISION_LOG → GOV-001-S9 D1–D7。
+- **实施偏差**：无。
+- **副作用**：generic 提示词/工具 schema 多 run_in_background；专用模式不变。
+- **未完成**：后台任务无独立超时上限（沿用 bash timeout）；进程退出 daemon 随之结束。验证见 VALIDATION_LOG → GOV-001-S9。

@@ -1,4 +1,4 @@
-﻿r"""显式授权的本机Ollama验收脚本；默认拒绝运行，不下载模型、不发云端请求。
+r"""显式授权的本机Ollama验收脚本；默认拒绝运行，不下载模型、不发云端请求。
 
 用法（PowerShell，项目根目录）：
   .\.venv\Scripts\python.exe -X utf8 scripts\ollama_live_acceptance.py --allow-live
@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 
 from min_agent.application import HarnessApplication
 from min_agent.llm.ollama import OllamaModel, OllamaSettings, require_model
+from min_agent.session.paths import default_database
 from min_agent.runtime import Runtime
 
 
@@ -113,7 +114,7 @@ def main() -> int:
     parser.add_argument("--base-url", default="http://127.0.0.1:11434")
     parser.add_argument("--num-ctx", type=int, default=32768)
     parser.add_argument("--timeout", type=float, default=300.0)
-    parser.add_argument("--database", default="data/ollama-test.sqlite3", help="独立测试库，不碰工作库")
+    parser.add_argument("--database", default=str(default_database().with_name("ollama-test.sqlite3")), help="独立测试库，不碰工作库（默认在用户数据目录）")
     parser.add_argument("--report", type=Path, help="写出脱敏JSON验收报告")
     parser.add_argument("--cases", default="ABC", help="要运行的案例，例如ABC或AB")
     options = parser.parse_args()

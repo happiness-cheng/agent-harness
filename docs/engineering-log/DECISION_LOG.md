@@ -877,3 +877,78 @@
 1. **问题**：v7 只修了脚本化层 `runner.py` 的 fixture 写文件（`newline="\n"`），真实模型层 `real_runner.py` 的两处 `write_text` 漏了——同一批代码、同一毛病。Windows 上真实模型层 C1 的判据 `"l2\nl3"` 因此假 FAIL（`test_real_smoke` 改前 1 failed）。用户（本地 agent）已在 Windows 上修好并验证，门没动（`generic.py` SHA256 不变）。
 2. **修法**：把用户那两行原样搬到云机拷贝（`real_runner.py` 两处 `write_text` 加 `newline="\n"`，含注释），不改门、不改判据。云机上这参数是恒等操作，验证靠用户 Windows 重跑已给出的结果。
 3. **Windows 复核结论（合入前置条件已满足）**：六套全对（22/22、11/13、10/11、14/14、4/6、2/2），7 个手跑点全过，真实模型层 C1/S1 端到端 2/2（Ollama qwen3.5:4b，门触发 0），Ollama 两轮共 3/4 + 2/2、误拦 0。门 v7 在 Windows 上无新问题。空格路径那条限制还在（门按空白切词，绝对路径带空格会被拦，引号也救不了）——已写进局限的“引号/空格路径”同类问题，不在这次范围内，留待冻结后处理。
+
+## GOV-001-S1 — 恢复私有路径迁出接线（2026-11-24，治理链落地第一步）
+
+1. **背景**：本地 `main` 被重置到远端 `76bff54`（gate-v7 + 可移植评测合入）。上一轮本地提交 `9c74d94`（私有路径迁出、启动守卫、文件错误分类、owner 迁移脚本）成为孤儿提交，不在当前树。当前 `web/__main__.py` 默认库回退到仓库内 `data/workspace.sqlite3`，一启动就会在仓库里重新建库，违反用户「`.env`/数据留在工作区外，别回退」的既定决定。
+2. **D1 用「按文件干净重放」恢复，而非盲目 cherry-pick**：先核对 `git diff 76bff54 f93a400 -- <file>`，确认当前树的 `application.py / web/__main__.py / filesystem.py / 三个 start 脚本 / ollama_live_acceptance.py / test_fs_*.py` 与孤儿提交的父版本 `f93a400` **逐字节一致**，且 gate-v7（`a95900b`）在 `src/` 只改了 `generic.py`。因此从 `9c74d94` 按文件 checkout 这些路径是零冲突重放。替代方案「整提交 cherry-pick」被否：会在 docs/三类日志与 gate-v7 追加条目冲突；「只改默认路径不恢复守卫」被否：会丢掉已批准的启动 fail-closed 与错误分类。
+3. **D2 不恢复 `generic.py`**：gate-v7 拥有该文件（512 行 bash 门），孤儿提交未碰它。恢复清单显式排除 `generic.py`，保住门禁。
+4. **D3 磁盘数据不重复迁移**：`.env`/数据库已在用户目录（`~/.agent-harness/.env`、`%LOCALAPPDATA%/agent-harness/data`），owner 已迁过；本步只恢复代码接线并验证旧会话仍可读，不重跑迁移、不动备份。
+5. **不保证**：本步只恢复既有接线，不新增治理能力；分级/契约/沙箱等在 S3–S8。门禁与评测基线用户已在本地跑通（EVAL-DIAG-009），本步不重复跑。
+
+## GOV-001-S2 — Ollama 与专用模式基线能力（2026-11-24）
+
+1. **D1 Ollama 适配器用「包装」而非改 src**：`eval/real.py` 新增 `OllamaEvalModel`，委托仓库自带 `OllamaModel` 的 generate/context_limits/close/request_count，补 describe()/last_error/retries，并把 `prompt_eval_count/eval_count` 映射成评测层统一的 `prompt_tokens/completion_tokens`。替代方案「在 src 里给 OllamaModel 加评测字段」被否：评测层接口（describe/last_error）不该进生产模型；「另写一个 Ollama HTTP 客户端」被否：重复造轮子且绕过 src 的截断/字节窗口保护。
+2. **D2 跑前查 /api/tags，不在就 NOT RUN**：`ollama_available` 只读 loopback、trust_env=False、无 key；模型缺失/Ollama 不可达 → 如实返回不可用，`run_real --provider ollama` 直接 exit 2，不下载模型、不回落云端。
+3. **D3 专用模式用 NOT_APPLICABLE，不改判据**：`verify(mode="dedicated")` 把期望 `error_code=="blocked_command"` 的检查标 NOT_APPLICABLE（专用工具面没有 bash 门），文件类检查仍照常判；全不适用整题 NOT_APPLICABLE，不计入通过/失败。替代方案「给每道题手工加 generic_only 标记」被否：侵入 tasks.py、易误改判据；「专用模式直接判 PASS」被否：会虚高通过率。generic 模式判据完全不变。
+4. **D4 真实基线跑按用户指示推迟**：用户明确「门禁/评测已跑通，不需要再跑」；Ollama 真实模型层已在 EVAL-DIAG-009 跑过（C1/S1 2/2、误拦 0）。本步只交付**可运行的能力 + 离线测试**，不重复烧额度跑真实基线。
+5. **不保证**：本步不证明真模型在四工具/专用面的成功率；专用基线对 bash 专属题大多 NOT_APPLICABLE，只能比文件类能力；Ollama 适配器 retries 恒 0（不重试，如实）。
+
+## GOV-001-S3 — 执行前分级门（规则→小模型→人）（2026-11-24）
+
+1. **D1 分三层：effects 分类 / gate 决策 / 既有禁令快速失败**：新增 `tools/effects.py`（纯分类器，复用 gate-v7 解析器，判 low/medium/high）与 `tools/gate.py`（`ToolGate` 决策 + `GateConfirmations` 排队）。禁令名单 `_blocked_command` 保留做快速失败（解析失败/凭据/工作区外路径直接拒），**不当边界**；破坏性命令（rm 族）从硬拒改为判 high 走人工。替代方案「把分级塞进 _blocked_command」被否：会混淆「快速失败」与「分级审批」两种语义，且动冻结解析器。
+2. **D2 注入点在 ToolBatch 执行前，串行**：`Runtime` 加 `tool_gate` 参数 → `ToolBatch` 在 `execute` 前调 `gate.check(call)`。拒绝写回 `gate_denied` 工具消息 + trace；高危待确认抛 `AuthorizationRequired("waiting_user")` 停批，复用既有 resume。替代方案「在 registry.execute 内分级」被否：registry 不该懂会话级审批/排队；「并行 sidecar」被否：审批必须串行 fail-closed，并行会放大竞态。
+3. **D3 小模型审批 fail-closed + 熔断**：中风险调本地 Ollama 小模型（`--gate-model`，默认 qwen3.5:4b，num_ctx 4096、超时 10s），只收 JSON `{decision,reason}`；解析失败/超时/异常 → 升级人工；连续 3 次失败熔断，之后中风险直接升级人工不再调模型。替代方案「模型失败默认放行」被否：违反 fail-closed；「无熔断」被否：模型挂掉会每条都等 10s。
+4. **D4 高危人工确认复用 MCPConfirmations 形**：`GateConfirmations` 存 `gate_confirmations`，按逻辑任务+工具+参数签名匹配，TTL+一次性消费；web 加 `/api/sessions/{id}/gate-confirm`。批准后给 `GenericWorkspace.cleared_commands` 加该命令，bash 取出即销毁、仅跳过破坏性词检查（`_blocked_command(allow_destructive=True)`），其余检查保留。
+5. **D5 对冻结 generic.py 的最小改动**：`_blocked_command` 加 keyword-only `allow_destructive=False`（默认行为逐字节不变），三处破坏性检查加 `not allow_destructive` 守卫；`GenericWorkspace` 加 `cleared_commands` 集合；`generic_tools` 加可选 `workspace` 参数。替代方案「完全不动 generic.py」被否：rm→人工确认必须能放行已批准的破坏性命令；「大改解析器」被否：违反 gate-v7 冻结。这是结构 additions，不改解析语义。
+6. **D6 策略开关默认 off，generic 产品入口默认 interactive**：`HarnessApplication(gate_policy="off")` 默认，专用模式与既有测试零影响；web CLI generic 模式默认 interactive。`gate_policy != off` 仅限 generic。eval 脚本化层走 registry 直连、不经 ToolBatch 门，不受影响；真实模型 eval 可显式传 gate_policy 做 A/B。
+7. **D7 审计脱敏**：每次 check 写 `gate_audit`（ring buffer 200）：tool、call_ref/args_sha256/command_sha256、level、decider、allowed、reason、command_redacted（掩凭据样式赋值与长 token、截 2KiB）。拒绝理由同时进工具消息（模型可见）与 trace（gate_denied）。
+8. **不保证**：小模型审批是减速带不是边界；分类是近似 shell 语义（手写解析器已知缺口仍在）；真边界是沙箱（S7）与人工。无人值守中/高默认拒（预授权 S8）。本步不重复跑 eval（用户指示）。
+
+## GOV-001-S4 — 单层契约 + expected_sha256（2026-11-24）
+
+1. **D1 单层契约只改序列化，不改 execute 内部形状**：`ToolRegistry` 加 `envelope="nested"|"flat"` 与 `serialize(outcome)`；`flatten_outcome` 把双层 ok 压成 `{ok,error_code,message,data}`。`execute` 内部仍返回 nested 形状，ToolBatch/progress_guard 读 `outcome["ok"]/["error"]["code"]` 的逻辑零改动，只把 `json.dumps(outcome)` 换成 `registry.serialize(outcome)`。替代方案「execute 直接返回 flat」被否：会牵动 ToolBatch、progress_guard、operations.execute_once 等所有读 outcome 的地方，风险大。
+2. **D2 单层 ok 以内层业务 ok 为准**：外层 ok=true 但内层 ok=false（工具执行了、业务失败）→ 单层 ok=false。这正是双层 ok 的痛点（模型误以为成功）。外层 ok=false（registry 级错误/gate_denied）直接取外层 error。
+3. **D3 只在 generic 模式启用 flat**：generic registry `envelope="flat"`；默认专用模式 nested 逐字节不变。eval `verifiers._inner` 同时接受两种形状（flat 时把 data 重建成内层形状），判据不改。
+4. **D4 expected_sha256 可选透传**：write/edit schema 加可选 `expected_sha256`（64hex pattern），透传沙箱（`require_version=False` 仍允许不传直接覆盖；传了不匹配→stale_version，文件不存在却传→unexpected_version）。替代方案「强制版本校验」被否：pi 式覆盖是 generic 的既定取舍，版本校验只做可选增强。
+5. **不保证**：单层契约不改变工具行为，只改变给模型的结果包装；expected_sha256 是乐观并发提示，不是 TOCTOU 防护（外部写者竞态仍推迟）。
+
+## GOV-001-S5 — ask_user（2026-11-24）
+
+1. **D1 generic 工具面 4→5**：新增 `ask_user(question, options?)`，用户在本轮计划里点名要。它无副作用，handler 记 `pending_question` 扩展后抛 `AuthorizationRequired("waiting_user")` 停批，复用既有 resume 机制（用户回答作为 user 消息续跑）。替代方案「保留 4 工具、用 bash echo 提问」被否：提问需要真正暂停等待回答，不是输出文本。
+2. **D2 复用 waiting_user/resume，不造新 UI/端点**：snapshot surfaced `pending_question`；用户用既有 `/resume`（带 task_id）回答；新一轮开始清掉 pending_question。替代方案「新建问答端点+UI 组件」被否：waiting_user 展示位已有，复用最小。
+3. **D3 ask_user 不走分级审批**：分类器对未知工具判 low，gate 放行后 handler 自己抛 AuthorizationRequired。提问无副作用，不需要小模型/人工审批。
+4. **不保证**：ask_user 不做答案语义校验；options 只是候选提示，用户可自由回答；超时过期沿用 waiting_user 既有语义（本步未新增 TTL）。
+
+## GOV-001-S6 — 执行后验证 + 上下文 sidecar（2026-11-24）
+
+1. **D1 bash 可选 verify：先写条件、成功后跑、如实报告**：`BashArguments.verify` 是执行前写下的只读检查命令；bash 先校验 verify 分类为 low（否则 `invalid_verify` 拒绝该参数），主命令退出码 0 后才跑 verify，结果加 `verification{command,exit_code,stdout≤4KiB,passed}`。verify 失败不推翻主命令 ok。替代方案「verify 失败把整条判失败」被否：主命令已成功，验证只是额外证据，应如实分开报告；「不校验 verify 只读」被否：verify 若能写文件就失去「验证」意义且引入副作用。
+2. **D2 重构 bash 抽出 _execute，行为不变**：把子进程执行抽成 `_execute(command,timeout,shell)→dict`，bash 主命令与 verify 复用；默认无 verify 时结果与旧版逐字段一致。write/edit 的 sha256 回执本就是验证条件，不另加。
+3. **D3 上下文 sidecar 并行只读、带来源、可降级**：新增 `context/sidecar.py`，run 启动起后台线程采集顶层文件索引（截断 200，跳过 .git/.venv 等）+ `git status --short`（截断 4KiB、2s 超时）；构建提示词时短超时（2s）取结果，注入 `workspace_context` 段标 `source=sidecar`+采集时间，trace 记独立 span（tool_name=context_sidecar）；失败/超时省略该段、不影响主循环。替代方案「同步采集」被否：会阻塞 run 启动；「sidecar 可写」被否：只读背景参考，不能扩权。
+4. **不保证**：sidecar 是背景参考不是指令，模型不能据此扩任务范围；文件索引截断不保证完整；git 非仓库时为空；verify 是只读检查，不证明语义正确。
+
+## GOV-001-S7 — Docker 沙箱最小接入（2026-11-24）
+
+1. **D1 复用 spike 已验证参数，不追求边角**：新增 `tools/sandbox.py` `DockerSandbox`，每命令一容器，参数照 spike：`--network none --cap-drop ALL --security-opt no-new-privileges --read-only --tmpfs /tmp --memory 1g --cpus 1 --pids-limit 256 --user 1000:1000`，容器内 `timeout -k 2` + 宿主侧超时兜底强删。替代方案「long-lived 容器」被否：进程树清理/边角是推迟项；「自研隔离」被否：Docker 已有 spike 证据。
+2. **D2 保护目录只读叠挂（阻断 2 最小防线）**：工作区 rw 挂 /workspace；`src/scripts/tests/eval/.git` 存在则叠挂 :ro，防容器 bash 改门禁/评测代码。替代方案「整仓只读」被否：工作区要可写；「denylist」被否：不是边界。
+3. **D3 fail-closed，不回落宿主**：Docker 守护进程或镜像不可用 → `sandbox_unavailable`，**不悄悄回落宿主 bash**。默认仍宿主实验模式，只有显式 `--sandbox docker` 才走容器。镜像需用户自行构建（`--sandbox-image`，默认 agent-harness-sandbox:spike），不自动拉取（正式构建曾被 Docker Hub 网络阻塞）。
+4. **D4 分级/禁令仍在沙箱之前**：gate.check + _blocked_command + cleared_commands 都在 backend.execute 之前；沙箱只是执行后端，不替代分级。verify 也走同一后端。
+5. **不保证**：文件工具仍宿主执行（A/B 未决），与容器共享 bind mount 的 TOCTOU 推迟；只读叠挂防改门禁代码，不防容器读工作区内私有材料（dedicated workspace 另案）；本机 Docker 当前未运行，真实容器集成测试 NOT RUN（spike 曾验证参数）。
+
+## GOV-001-S8 — 事件触发（预授权 + 预算 + 审计）（2026-11-24）
+
+1. **D1 宿主侧排程，不进模型工具面**：`schedule_event(session_id, text, at, preauth, max_models)` 存 `scheduled_events` 扩展；`tick_events(now)` 投递到期事件。替代方案「给模型一个 schedule 工具」被否：无人值守排程是宿主信任操作，不该由模型自授；「复用 reminder Scheduler」被否：现有 Scheduler 只发桌面通知、不跑模型，语义不同。
+2. **D2 无人值守策略：低放行 / 中仅预授权 / 高一律拒**：事件投递强制 `gate_policy="unattended"`（即使应用是 interactive），ToolGate 加 `preauth` 条目（{tool, command?} 精确匹配）；中风险命中预授权才放行（decider=preauth），否则拒；高危即使有预授权也拒。替代方案「高危也可预授权」被否：无人值守没有人工兜底，高危必须拒。
+3. **D3 独立预算上限**：事件 `max_models` 经 `pending_event_run` 扩展传入 _worker，建账本时 `min(total_models, max_models)`；消费即清。替代方案「复用应用总预算」被否：事件应有自己的上限，防单个事件烧光额度。
+4. **D4 审计留痕**：tick 投递写 `gate_audit`（decider=scheduler, event_id）；分级决定写 decider=preauth/rule。每次触发可追溯到事件与决定者。
+5. **不保证**：tick_events 需宿主主动调用（本步未接后台定时线程，沿用既有调度入口）；预授权是精确匹配，不做模式/语义；事件投递走 submit 异步，并发多事件按 contexts 顺序串行。
+
+## GOV-001-S9 — 后台慢任务 + 通知注入（2026-11-24，用户追加）
+
+1. **背景**：用户问 S8 事件触发是否含「长时间 bash（install）放后台、完成后回结果给模型」。S8 是 cron 式排程事件，**不是**后台 bash；本步按 learn-claude-code s11_background_tasks 补后台任务。
+2. **D1 显式 run_in_background，不猜关键词**：bash schema 加 `run_in_background: bool`；只有显式 true 才走后台（参考 s11：不按 install/build/test 关键词猜）。替代方案「按命令关键词自动后台」被否：误判会把快命令也异步化、模型难追踪。
+3. **D2 BackgroundManager 每会话一个、应用持有**：`tools/background.py` 登记任务 + daemon 线程执行 + 完成队列；跨轮次/跨 run 持久（应用 `_background_managers` 按 session_id）。替代方案「每 run 新建」被否：跨 run 收集会丢任务。
+4. **D3 占位结果 + 后续轮次通知注入，不复用 tool_use_id**：后台调用立即返回 `{ok,background,bg_id,message}` 占位 tool_result；`ModelCall` 每轮模型调用前 `collect()` 把已完成结果以 `<task_notification>` 作为独立 user 消息注入。一个 tool_use 仍只对应一个 tool_result（参考 s11）。替代方案「复用原 tool_call_id 回填」被否：违反 tool_use/tool_result 一一配对。
+5. **D4 注入点选 ModelCall 而非 _run**：_run 是冻结薄主循环（形状门禁 ≤35 行/≤2 if）；注入放在 ModelCall 阶段开头，不碰主循环形状。Runtime 加 `background` 参数透传。
+6. **D5 后台仍过分级/禁令/沙箱**：run_in_background 只改变「是否阻塞」，不绕过 gate.check/_blocked_command；后台 runner 复用 `_run_command`（宿主或 Docker 后端）。
+7. **不保证**：后台线程是生命周期清理不是沙箱；结果不主动唤醒模型，只在下一轮主循环收集；进程退出 daemon 线程随之结束；完成通知截断 16KiB。
